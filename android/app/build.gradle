@@ -117,3 +117,7 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+/* 👇👇👇 ONLY ADDED THIS LINE 👇👇👇 */
+/* REQUIRED FOR VECTOR ICONS TO WORK ON ANDROID */
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
