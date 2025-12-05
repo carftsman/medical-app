@@ -31,7 +31,7 @@ export default function Onboarding1({ navigation }) {
         <SafeAreaView style={{ flex: 1 }}>
           
           {/* Skip */}
-          <TouchableOpacity
+          <TouchableOpacity 
             onPress={() => navigation.navigate("Onboarding3")}
             style={{
               position: "absolute",
@@ -40,7 +40,7 @@ export default function Onboarding1({ navigation }) {
               zIndex: 10,
             }}
           >
-            <Text style={{ fontFamily: FONT.medium, fontSize: 14, color: COLORS.primary }}>
+            <Text style={{ fontFamily: FONT.medium, fontSize: 16, color: COLORS.primary }}>
               Skip
             </Text>
           </TouchableOpacity>

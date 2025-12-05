@@ -37,9 +37,9 @@ export default function Onboarding2({ navigation }) {
             onPress={() => navigation.navigate("Onboarding3")}
             style={{
               position: "absolute",
-              top: 30,
-              right: 20,
-              zIndex: 20,
+              top: 50,
+              right: 25,
+              zIndex: 10,
             }}
           >
             <Text style={{ fontFamily: FONT.medium, fontSize: 16, color: COLORS.white }}>
