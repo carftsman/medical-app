@@ -1,6 +1,7 @@
 
 import React from "react";
 import { View, TextInput, StyleSheet } from "react-native";
+import { COLORS } from "../config/constants";
 
 const InputField = ({
   placeholder,
@@ -29,18 +30,18 @@ const styles = StyleSheet.create({
   container: {
     width: 327,
     height: 56,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.white,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "#D9D9D9",
     justifyContent: "center",
     marginLeft: 20,
-    marginTop: 202,
+    marginTop: 20,
     paddingHorizontal: 16,
   },
   input: {
     fontSize: 16,
-    color: "#000",
+    color: COLORS.black,
   },
 });
 
