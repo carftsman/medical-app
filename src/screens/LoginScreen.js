@@ -12,7 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import PrimaryButton from "../components/PrimaryButton";
 
-export default function LoginScreen() {
+export default function LoginScreen({navigation}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -135,12 +135,20 @@ export default function LoginScreen() {
         <PrimaryButton title="Login Using OTP" onPress={() => {}} />
 
         {/* REGISTER */}
-        <View style={styles.footer}>
+        {/*<View style={styles.footer}>
           <Text style={styles.footerTxt}>Don't have an account?</Text>
           <TouchableOpacity>
             <Text style={styles.register}> Register</Text>
           </TouchableOpacity>
-        </View>
+        </View>*/}
+        <View style={styles.footer}>
+  <Text style={styles.footerTxt}>Don't have an account?</Text>
+
+  <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+    <Text style={styles.register}> Register</Text>
+  </TouchableOpacity>
+</View>
+
 
         {/* WHITE ALERT POPUP (FIXED COLOR) */}
         <Modal visible={showAlert} transparent animationType="fade">
