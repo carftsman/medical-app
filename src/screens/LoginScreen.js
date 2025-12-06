@@ -30,7 +30,7 @@ export default function LoginScreen({navigation}) {
     setShowAlert(true);
   };
 
-  const handleLogin = async () => {
+  {/*const handleLogin = async () => {
     let errorMessage = null;
 
     if (!email.trim()) {
@@ -50,7 +50,7 @@ export default function LoginScreen({navigation}) {
       setLoading(true);
 
       const res = await fetch(
-        "https://692d1754e5f67cd80a4a112d.mockapi.io/api/medical/login"
+        "https://hospital-backend-1-9jq0.onrender.com/api/hospital/user/auth/login"
       );
       const data = await res.json();
 
@@ -73,6 +73,64 @@ export default function LoginScreen({navigation}) {
       whiteAlert("Network error, please try again");
     }
   };
+  */}
+
+  const handleLogin = async () => {
+  let errorMessage = null;
+
+  if (!email.trim()) {
+    errorMessage = "Please enter email";
+  } else if (!validateEmail(email)) {
+    errorMessage = "Please enter valid email";
+  } else if (!password.trim()) {
+    errorMessage = "Please enter password";
+  }
+
+  if (errorMessage) {
+    whiteAlert(errorMessage);
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const res = await fetch(
+      "https://hospital-backend-1-9jq0.onrender.com/api/hospital/user/auth/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      }
+    );
+
+    const data = await res.json();
+    setLoading(false);
+
+    console.log("STATUS:", res.status);
+    console.log("DATA:", data);
+
+    // ✅ Correct success condition for your backend
+    if (res.ok && data?.data?.token) {
+      setSuccessModal(true);   // 🎉 Your original popup stays the SAME
+      return;
+    }
+
+    // ❌ If no token → failed
+    whiteAlert(data.message || "Invalid email or password");
+
+  } catch (err) {
+    console.log("LOGIN ERROR:", err);
+    setLoading(false);
+    whiteAlert("Network error, please try again");
+  }
+};
+
+
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FFF" }}>

@@ -25,6 +25,8 @@ export default function RegisterScreen({ navigation }) {
   const [errors, setErrors] = useState({});
   const [successModal, setSuccessModal] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
+
 
   const validate = () => {
     let temp = {};
@@ -44,12 +46,12 @@ export default function RegisterScreen({ navigation }) {
     return valid;
   };
 
-  const handleRegister = async () => {
+ {/*} const handleRegister = async () => {
     if (!validate()) return;
 
     try {
       await fetch(
-        "https://692d1754e5f67cd80a4a112d.mockapi.io/api/medical/register",
+        "https://hospital-backend-1-9jq0.onrender.com/api/hospital/user/auth/register",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -68,6 +70,41 @@ export default function RegisterScreen({ navigation }) {
       alert("Error: Something went wrong");
     }
   };
+  */}
+
+  const handleRegister = async () => {
+  if (!validate()) return;
+
+  try {
+    const response = await fetch(
+      "https://hospital-backend-1-9jq0.onrender.com/api/hospital/user/auth/register",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          phone: `+91${mobile}`,
+          password,
+          confirmPassword,
+          termsAccepted,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.message || "Registration failed");
+      return;
+    }
+
+    setSuccessModal(true);
+  } catch (err) {
+    alert("Network error");
+  }
+};
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -76,59 +113,75 @@ export default function RegisterScreen({ navigation }) {
       <View style={styles.inputBox}>
         <Ionicons name="person-outline" size={22} color="#7D8A99" />
         <TextInput
-          style={styles.input}
-          placeholder="Enter First Name"
-          value={firstName}
-          onChangeText={setFirstName}
-        />
+  style={styles.input}
+  placeholder="Enter First Name"
+  placeholderTextColor="#7D8A99"
+  value={firstName}
+  onChangeText={setFirstName}
+/>
+
       </View>
       {errors.firstName && <Text style={styles.error}>{errors.firstName}</Text>}
 
       <View style={styles.inputBox}>
         <Ionicons name="person-outline" size={22} color="#7D8A99" />
-        <TextInput
+        {/*<TextInput
           style={styles.input}
           placeholder="Enter Last Name"
           value={lastName}
           onChangeText={setLastName}
+        />*/}
+        <TextInput
+            style={styles.input}
+            placeholder="Enter Last Name"
+            placeholderTextColor="#7D8A99"
+            value={lastName}
+            onChangeText={setLastName}
         />
+
       </View>
       {errors.lastName && <Text style={styles.error}>{errors.lastName}</Text>}
 
       <View style={styles.inputBox}>
         <Ionicons name="mail-outline" size={22} color="#7D8A99" />
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-        />
+       <TextInput
+  style={styles.input}
+  placeholder="Enter your email"
+  placeholderTextColor="#7D8A99"
+  value={email}
+  onChangeText={setEmail}
+  keyboardType="email-address"
+/>
+
       </View>
       {errors.email && <Text style={styles.error}>{errors.email}</Text>}
 
       <View style={styles.inputBox}>
         <Ionicons name="call-outline" size={22} color="#7D8A99" />
         <TextInput
-          style={styles.input}
-          placeholder="Enter Mobile Number"
-          value={mobile}
-          onChangeText={setMobile}
-          keyboardType="number-pad"
-          maxLength={10}
-        />
+  style={styles.input}
+  placeholder="Enter Mobile Number"
+  placeholderTextColor="#7D8A99"
+  value={mobile}
+  onChangeText={setMobile}
+  keyboardType="number-pad"
+  maxLength={10}
+/>
+
       </View>
       {errors.mobile && <Text style={styles.error}>{errors.mobile}</Text>}
 
       <View style={styles.inputBox}>
         <Ionicons name="lock-closed-outline" size={22} color="#7D8A99" />
-        <TextInput
-          style={styles.input}
-          placeholder="Create New Password"
-          secureTextEntry={!showPassword}
-          value={password}
-          onChangeText={setPassword}
-        />
+       <TextInput
+  style={styles.input}
+  placeholder="Create New Password"
+  placeholderTextColor="#7D8A99"
+  secureTextEntry={!showPassword}
+  value={password}
+  onChangeText={setPassword}
+/>
+
         <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
           <Ionicons
             name={showPassword ? "eye-off-outline" : "eye-outline"}
@@ -142,12 +195,14 @@ export default function RegisterScreen({ navigation }) {
       <View style={styles.inputBox}>
         <Ionicons name="lock-closed-outline" size={22} color="#7D8A99" />
         <TextInput
-          style={styles.input}
-          placeholder="Confirm Password"
-          secureTextEntry={!showConfirmPassword}
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-        />
+  style={styles.input}
+  placeholder="Confirm Password"
+  placeholderTextColor="#7D8A99"
+  secureTextEntry={!showConfirmPassword}
+  value={confirmPassword}
+  onChangeText={setConfirmPassword}
+/>
+
         <TouchableOpacity
           onPress={() => setShowConfirmPassword(!showConfirmPassword)}
         >
@@ -172,9 +227,56 @@ export default function RegisterScreen({ navigation }) {
           size={20}
           color={termsAccepted ? "green" : "red"}
         />
-        <Text style={styles.termsText}>
+        {/*<Text style={styles.termsText}>
           I agree to the medidoc Terms of Service and Privacy Policy
-        </Text>
+        </Text>*/}
+       <View style={{ flexDirection: "row", alignItems: "center", marginTop: 15, paddingRight: 20 }}>
+  {/* Checkbox */}
+  {/*<TouchableOpacity
+    onPress={() => setIsChecked(!isChecked)}
+    style={{
+      width: 20,
+      height: 20,
+      borderWidth: 2,
+      borderColor: isChecked ? "#056FD2" : "red",
+      borderRadius: 4,
+      justifyContent: "center",
+      alignItems: "center",
+      marginRight: 10,
+    }}
+  >
+    {isChecked && (
+      <View
+        style={{
+          width: 12,
+          height: 12,
+          backgroundColor: "#056FD2",
+          borderRadius: 2,
+        }}
+      />
+    )}
+  </TouchableOpacity>*/}
+
+  {/* Text */}
+  <Text style={{ fontSize: 13, color: "#7D8A99", flexShrink: 1 }}>
+    By continuing, you agree to our{" "}
+    <Text
+      style={{ color: "#056FD2", fontWeight: "800" }}
+      onPress={() => navigation.navigate("TermsOfService")}
+    >
+      Terms of Service
+    </Text>{" "}
+    and{" "}
+    <Text
+      style={{ color: "#056FD2", fontWeight: "800" }}
+      onPress={() => navigation.navigate("PrivacyPolicy")}
+    >
+      Privacy Policy
+    </Text>.
+  </Text>
+</View>
+
+
       </TouchableOpacity>
       {errors.terms && <Text style={styles.error}>{errors.terms}</Text>}
 
