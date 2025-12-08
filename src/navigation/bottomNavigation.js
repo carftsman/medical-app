@@ -14,7 +14,7 @@ const Tab = createBottomTabNavigator();
 export default function BottomNavigation() {
   return (
     <Tab.Navigator
-      screenOptions={{
+      screenOptions={{ 
         headerShown: false,
 
         // 🔥 KEEP TAB BAR FIXED – NEVER MOVE UP
