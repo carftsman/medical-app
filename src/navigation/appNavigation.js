@@ -7,6 +7,8 @@ import Onboarding3 from "../screens/Onboarding3";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import SplashScreen from "../screens/SplashScreen";
+import BottomNavigation from "./bottomNavigation";
+//import HomeScreen from "../screens/HomeScreen";
 
 
 
@@ -23,6 +25,8 @@ export default function AppNavigator() {
         <Stack.Screen name="Onboarding3" component={Onboarding3}/>
         <Stack.Screen name="Login" component={LoginScreen}/>
         <Stack.Screen name="Register" component={RegisterScreen}/>
+       {/* <Stack.Screen name="Home" component={HomeScreen}/>*/}
+        <Stack.Screen name="Bottom" component={BottomNavigation}/>
       </Stack.Navigator>
       
     </NavigationContainer>

@@ -299,7 +299,7 @@ export default function RegisterScreen({ navigation }) {
               style={styles.popupButton}
               onPress={() => {
                 setSuccessModal(false);
-                navigation.navigate("Home");
+                navigation.navigate("Bottom");
               }}
             >
               <Text style={styles.popupButtonText}>Go to Home</Text>
