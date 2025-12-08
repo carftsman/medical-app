@@ -10,9 +10,9 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
-import PrimaryButton from "../../components/PrimaryButton";
-import AuthService from "../../services/auth";
-import { COLORS, SIZES } from "../../config/constants";
+import PrimaryButton from "../components/PrimaryButton";
+import AuthService from "../services/auth";
+import { COLORS, SIZES } from "../config/constants";
 
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 30;
@@ -261,4 +261,5 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
 });
+
 
