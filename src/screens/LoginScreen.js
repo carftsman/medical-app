@@ -179,9 +179,15 @@ export default function LoginScreen({navigation}) {
         </View>
 
         {/* FORGOT PASSWORD */}
-        <TouchableOpacity style={{ alignSelf: "flex-end", marginRight: 30 }}>
+       {/*} <TouchableOpacity style={{ alignSelf: "flex-end", marginRight: 30 }}>
+          <Text style={styles.forgot}>Forgot Password?</Text>
+        </TouchableOpacity>*/}
+        <TouchableOpacity 
+           style={{ alignSelf: "flex-end", marginRight: 30 }}
+           onPress={() => navigation.navigate("RequestOTP")}>
           <Text style={styles.forgot}>Forgot Password?</Text>
         </TouchableOpacity>
+
 
         {/* LOGIN BUTTON */}
         <PrimaryButton
@@ -190,7 +196,12 @@ export default function LoginScreen({navigation}) {
         />
 
         {/* OTP BUTTON */}
-        <PrimaryButton title="Login Using OTP" onPress={() => {}} />
+        {/* <PrimaryButton title="Login Using OTP" onPress={() => {}} />*/}
+        <PrimaryButton 
+         title="Login Using OTP" 
+         onPress={() => navigation.navigate("LoginUsingOtp")} 
+        />
+
 
         {/* REGISTER */}
         {/*<View style={styles.footer}>

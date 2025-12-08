@@ -8,16 +8,16 @@ import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import SplashScreen from "../screens/SplashScreen";
 import BottomNavigation from "./bottomNavigation";
-//import HomeScreen from "../screens/HomeScreen";
-
-
-
+import RequestOTPScreen from '../screens/RequestOTPScreen';
+import EnterOTPScreen  from '../screens/EnterOTPScreen';
+import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
   return (
     <NavigationContainer>
+     
       <Stack.Navigator initialRouteName="Splash" screenOptions={{headerShown:false,}}>
         <Stack.Screen name="Splash" component={SplashScreen}/>
         <Stack.Screen name="Onboarding1" component={Onboarding1}/>
@@ -25,8 +25,11 @@ export default function AppNavigator() {
         <Stack.Screen name="Onboarding3" component={Onboarding3}/>
         <Stack.Screen name="Login" component={LoginScreen}/>
         <Stack.Screen name="Register" component={RegisterScreen}/>
-       {/* <Stack.Screen name="Home" component={HomeScreen}/>*/}
         <Stack.Screen name="Bottom" component={BottomNavigation}/>
+        <Stack.Screen name="RequestOTP" component={RequestOTPScreen} />   
+        <Stack.Screen name="EnterOTP" component={EnterOTPScreen} />
+        <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+       
       </Stack.Navigator>
       
     </NavigationContainer>
