@@ -1,77 +1,66 @@
 
 
-import React, { useState, useCallback, useMemo } from "react";
-import { View, Text, StyleSheet, StatusBar } from "react-native";
-import InputField from "../../components/InputField";
-import PrimaryButton from "../../components/PrimaryButton";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import { COLORS, FONT, SIZES } from "../../config/constants";
+import React, { useState, useMemo, useRef } from "react";
+import { View, Text, StyleSheet, StatusBar, InteractionManager } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import BackButton from "../../components/BackButton";
-import { sendOtp } from "../../services/authService";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import debounce from "lodash.debounce";   
 
-
-const isValidPhone = (phone) => /^[0-9]{10}$/.test(phone);
-
-
-const normalizePhone = (raw) => `+91${raw.replace(/\D/g, "")}`;
-
-
-let debounceTimer = null;
-const debounce = (fn, delay = 300) => {
-  return (...args) => {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => fn(...args), delay);
-  };
-};
+import InputField from "../components/InputField";
+import PrimaryButton from "../components/PrimaryButton";
+import BackButton from "../components/BackButton";
+import { COLORS, FONT, SIZES } from "../config/constants";
+import { sendOtp } from "../services/authService";
+import { isValidPhone, normalizePhone } from "../utils/validation";
 
 export default function EnterMobileNumberScreen({ navigation }) {
   const [input, setInput] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  
   const trimmed = useMemo(() => input.trim(), [input]);
-
   const validatedPhone = useMemo(() => {
     if (!isValidPhone(trimmed)) return null;
     return normalizePhone(trimmed);
   }, [trimmed]);
 
-  const handleInputChange = useCallback(
-    debounce((val) => setInput(val)),
-    []
-  );
+  const debouncedSendOtp = useRef(
+    debounce(async (phone) => {
+      setLoading(true);
 
-  const handleSendOtp = useCallback(async () => {
-    setError(null);
+      const resp = await sendOtp(phone);
 
+      setLoading(false);
+
+      if (resp.success) {
+        navigation.navigate("OTP", { phone });
+      } else {
+        setError(resp.message || "Failed to send OTP");
+      }
+    }, 1000)
+  ).current;
+
+
+  const handlePress = () => {
     if (!validatedPhone) {
       setError("Please enter a valid phone number");
       return;
     }
 
-    if (loading) return;
-
+    setError(null);
     setLoading(true);
-    const resp = await sendOtp(validatedPhone);
-    setLoading(false);
 
-    if (resp.success) {
-      navigation.navigate("OTP", {
-        phone: validatedPhone,
-      });
-    } else {
-      setError(resp.message);
-    }
-  }, [validatedPhone, loading, navigation]);
+    InteractionManager.runAfterInteractions(() => {
+      debouncedSendOtp(validatedPhone);
+    });
+  };
+
 
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar backgroundColor={COLORS.white} barStyle="dark-content" />
 
       <View style={styles.container}>
-        
         <View style={styles.headerRow}>
           <BackButton onPress={() => navigation.goBack()} />
           <Text style={styles.title}>Login</Text>
@@ -80,12 +69,11 @@ export default function EnterMobileNumberScreen({ navigation }) {
         <InputField
           placeholder="Enter your Phone Number"
           value={input}
-          onChangeText={handleInputChange}
+          onChangeText={setInput}
           keyboardType="numeric"
           style={{ marginTop: 10, paddingLeft: 45 }}
         />
 
-        
         <Ionicons
           name="call-outline"
           size={22}
@@ -98,17 +86,19 @@ export default function EnterMobileNumberScreen({ navigation }) {
           }}
         />
 
-        {error && <Text style={styles.error}>{error}</Text>}
+        {!!error && <Text style={styles.error}>{error}</Text>}
 
         <PrimaryButton
           title={loading ? "Sending..." : "Login Using OTP"}
-          onPress={handleSendOtp}
+          onPress={handlePress}
           disabled={loading}
         />
       </View>
     </SafeAreaView>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.white },
@@ -125,6 +115,7 @@ const styles = StyleSheet.create({
     color: COLORS.black,
     marginLeft: 90,
     fontWeight: "700",
+    marginTop:SIZES.medium
   },
   error: { color: COLORS.danger, marginTop: 10, marginLeft: 10 },
 });

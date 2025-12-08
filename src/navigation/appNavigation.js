@@ -7,9 +7,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 //import LoginScreen from '../screens/LoginScreen';
 //import RegisterScreen from '../screens/RegisterScreen';
 
-import EnterMobileNumberScreen from "../screens/Auth/EnterMobileNumberScreen";
-import EnterOTPScreen from "../screens/Auth/EnterOTPScreen";
-import OTPSuccessScreen from "../screens/Auth/OTPSuccessScreen";
+import EnterMobileNumberScreen from "../screens/EnterMobileNumberScreen";
+import EnterOTPScreen from "../screens/EnterOTPScreen";
+
+
 
 const Stack = createNativeStackNavigator();
 
@@ -23,7 +24,7 @@ export default function AppNavigator() {
 
          <Stack.Screen name="PhoneInput" component={EnterMobileNumberScreen} />
          <Stack.Screen name="OTP" component={EnterOTPScreen} />
-         <Stack.Screen name="OTPSuccess" component={OTPSuccessScreen} />
+         
 
       </Stack.Navigator>
     </NavigationContainer>
