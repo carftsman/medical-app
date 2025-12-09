@@ -199,7 +199,7 @@ export default function LoginScreen({navigation}) {
         {/* <PrimaryButton title="Login Using OTP" onPress={() => {}} />*/}
         <PrimaryButton 
          title="Login Using OTP" 
-         onPress={() => navigation.navigate("LoginUsingOtp")} 
+         onPress={() => navigation.navigate("PhoneInput")} 
         />
 
 

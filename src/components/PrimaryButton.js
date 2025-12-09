@@ -1,5 +1,7 @@
+
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { COLORS } from '../config/constants';
 
 const PrimaryButton = ({ title, onPress, disabled }) => {
   return (
@@ -17,7 +19,7 @@ const styles = StyleSheet.create({
   button: {
     width: 327,
     height: 56,
-    backgroundColor: '#056FD2',
+    backgroundColor: COLORS.primary,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
@@ -25,7 +27,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   text: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: 18,
     fontWeight: '600',
   },

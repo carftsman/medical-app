@@ -11,13 +11,17 @@ import BottomNavigation from "./bottomNavigation";
 import RequestOTPScreen from '../screens/RequestOTPScreen';
 import EnterOTPScreen  from '../screens/EnterOTPScreen';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
+import EnterMobileNumberScreen from "../screens/EnterMobileNumberScreen";
+import EnterOTPScreenLogin from "../screens/EnterOTPScreenLogin";
+
+
 
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
   return (
     <NavigationContainer>
-     
+
       <Stack.Navigator initialRouteName="Splash" screenOptions={{headerShown:false,}}>
         <Stack.Screen name="Splash" component={SplashScreen}/>
         <Stack.Screen name="Onboarding1" component={Onboarding1}/>
@@ -29,9 +33,26 @@ export default function AppNavigator() {
         <Stack.Screen name="RequestOTP" component={RequestOTPScreen} />   
         <Stack.Screen name="EnterOTP" component={EnterOTPScreen} />
         <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+        <Stack.Screen name="PhoneInput" component={EnterMobileNumberScreen} />
+         <Stack.Screen name="OTP" component={EnterOTPScreenLogin} />
        
       </Stack.Navigator>
       
     </NavigationContainer>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
