@@ -34,25 +34,12 @@ export default function AppNavigator() {
         <Stack.Screen name="EnterOTP" component={EnterOTPScreen} />
         <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
         <Stack.Screen name="PhoneInput" component={EnterMobileNumberScreen} />
-         <Stack.Screen name="OTP" component={EnterOTPScreenLogin} />
+        <Stack.Screen name="OTP" component={EnterOTPScreenLogin} />
        
-      </Stack.Navigator>
+      </Stack.Navigator> 
       
     </NavigationContainer>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

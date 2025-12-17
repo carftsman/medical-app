@@ -63,7 +63,7 @@ export default function EnterMobileNumberScreen({ navigation }) {
       <View style={styles.container}>
         <View style={styles.headerRow}>
           <BackButton onPress={() => navigation.goBack()} />
-          <Text style={styles.title}>Login</Text>
+          <Text style={styles.title}>Login Using OTP</Text>
         </View>
 
         <InputField

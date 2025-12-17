@@ -28,7 +28,7 @@ const InputField = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: 327,
+    width: "90%",
     height: 56,
     backgroundColor: COLORS.white,
     borderRadius: 12,

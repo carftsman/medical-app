@@ -1,5 +1,5 @@
 import React from "react";
-import { View, ScrollView, StyleSheet, Image, TouchableOpacity, Text } from "react-native";
+import { View, ScrollView, StyleSheet, Image, TouchableOpacity, Text, StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import LocationHeader from "../components/LocationHeader";
@@ -11,7 +11,13 @@ import ServiceBlock from "../components/ServiceBlock";
 
 export default function HomeScreen() {
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFF" }}>
+      
+      <StatusBar 
+              translucent
+              backgroundColor="transparent" 
+              barStyle="dark-content"
+            />       
       {/* Header */}
       <View style={styles.topHeaderWrapper}>
         <View style={styles.headerRow}>
@@ -84,7 +90,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#fff" },
+  /*safeArea: { flex: 1, backgroundColor: "#fff" },*/
 topHeaderWrapper: {
   backgroundColor: "#E9F5FF",
   paddingBottom: 1,

@@ -26,6 +26,8 @@ export default function RegisterScreen({ navigation }) {
   const [successModal, setSuccessModal] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [loading, setLoading] = useState(false);
+  
 
 
   const validate = () => {
@@ -280,7 +282,11 @@ export default function RegisterScreen({ navigation }) {
       </TouchableOpacity>
       {errors.terms && <Text style={styles.error}>{errors.terms}</Text>}
 
-      <PrimaryButton title="Register" onPress={handleRegister} />
+      <PrimaryButton 
+                //title={loading ? "Please wait..." : "Register"}
+
+       title="Register"
+      onPress={handleRegister} />
 
       <Modal transparent visible={successModal} animationType="fade">
         <View style={styles.overlay}>
@@ -321,7 +327,7 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 22,
     fontWeight: "700",
-    color: COLORS.black,
+    //color: COLORS.black,
     textAlign: "center",
     marginBottom: 30,
   },
@@ -329,15 +335,15 @@ const styles = StyleSheet.create({
   inputBox: {
     flexDirection: "row",
     alignItems: "center",
-    width: 330,
-    height: 60,
+    width: "90%",
+    height: 56,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "#E6E6E6",
     backgroundColor: "#FFF",
     alignSelf: "center",
     paddingHorizontal: 16,
-    marginBottom: 6,
+    marginBottom: 12,
   },
 
   input: {
