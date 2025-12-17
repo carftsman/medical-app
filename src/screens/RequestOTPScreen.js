@@ -71,39 +71,50 @@ const RequestOTPScreen = ({ navigation, route }) => {
   const isDisabled = () => validate() !== null || loading;
 
   return (
-    <View style={styles.container}>
-      <View style={styles.headerRow}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Ionicons name="chevron-back" size={26} color={COLORS.black} />
-        </TouchableOpacity>
+  <View style={styles.container}>
+    <View style={styles.headerRow}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <Ionicons name="chevron-back" size={26} color={COLORS.black} />
+      </TouchableOpacity>
 
-        <Text style={styles.title}>Enter Mobile Number</Text>
-      </View>
-
-      <Text style={styles.subtitle}>
-        Enter your registered mobile number to receive an OTP.
-      </Text>
-
-      <View style={styles.form}>
-        <InputField
-          placeholder="Enter phone number"
-          value={rawPhone}
-          onChangeText={(t) => setRawPhone(normalizePhoneInput(t))}
-          keyboardType="phone-pad"
-        />
-
-        <PrimaryButton
-          title={loading ? "Sending OTP..." : "Get OTP"}
-          onPress={debouncedSend}
-          disabled={isDisabled()}
-        />
-
-        <Text style={styles.hint}>
-          We will send a 6-digit code to verify your account.
-        </Text>
-      </View>
+      <Text style={styles.title}>Enter Mobile Number</Text>
     </View>
-  );
+
+    <Text style={styles.subtitle}>
+      Enter your registered mobile number to receive an OTP.
+    </Text>
+
+    {/* 📌 1️⃣ PHONE NUMBER INPUT CONTAINER */}
+    <View style={styles.inputContainer}>
+  <InputField
+  icon={<Ionicons name="call-outline" size={22} color="#7D8A99" />}
+  placeholder="Enter phone number"
+  value={rawPhone}
+  onChangeText={setRawPhone}
+  keyboardType="phone-pad"
+/>
+
+</View>
+
+
+    {/* 📌 2️⃣ GET OTP BUTTON CONTAINER */}
+    <View style={styles.buttonContainer}>
+      <PrimaryButton
+        title={loading ? "Sending OTP..." : "Get OTP"}
+        onPress={debouncedSend}
+        disabled={isDisabled()}
+      />
+    </View>
+
+    {/* 📌 3️⃣ HINT TEXT CONTAINER */}
+    <View style={styles.hintContainer}>
+      <Text style={styles.hint}>
+        We will send a 6-digit code to verify your account.
+      </Text>
+    </View>
+  </View>
+);
+
 };
 
 export default RequestOTPScreen;

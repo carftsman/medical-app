@@ -11,9 +11,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import PrimaryButton from "../components/PrimaryButton";
+import BackButton from "../components/BackButton";
 
 export default function LoginScreen({navigation}) {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [successModal, setSuccessModal] = useState(false);
@@ -74,22 +75,21 @@ export default function LoginScreen({navigation}) {
     }
   };
   */}
-
-  const handleLogin = async () => {
-  let errorMessage = null;
-
-  if (!email.trim()) {
-    errorMessage = "Please enter email";
-  } else if (!validateEmail(email)) {
-    errorMessage = "Please enter valid email";
-  } else if (!password.trim()) {
-    errorMessage = "Please enter password";
-  }
-
-  if (errorMessage) {
-    whiteAlert(errorMessage);
+const handleLogin = async () => {
+  if (!identifier.trim()) {
+    whiteAlert("Please enter email or phone number");
     return;
   }
+
+  if (!password.trim()) {
+    whiteAlert("Please enter password");
+    return;
+  }
+
+  const payload = {
+    identifier: identifier.trim(),
+    password: password.trim(),
+  };
 
   try {
     setLoading(true);
@@ -101,10 +101,7 @@ export default function LoginScreen({navigation}) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
+        body: JSON.stringify(payload),
       }
     );
 
@@ -112,20 +109,17 @@ export default function LoginScreen({navigation}) {
     setLoading(false);
 
     console.log("STATUS:", res.status);
-    console.log("DATA:", data);
+    console.log("RESPONSE:", data);
 
-    // ✅ Correct success condition for your backend
     if (res.ok && data?.data?.token) {
-      setSuccessModal(true);   // 🎉 Your original popup stays the SAME
+      setSuccessModal(true);
       return;
     }
 
-    // ❌ If no token → failed
-    whiteAlert(data.message || "Invalid email or password");
-
+    whiteAlert(data?.message || "Invalid login");
   } catch (err) {
-    console.log("LOGIN ERROR:", err);
     setLoading(false);
+    console.log("LOGIN ERROR:", err);
     whiteAlert("Network error, please try again");
   }
 };
@@ -141,7 +135,10 @@ export default function LoginScreen({navigation}) {
       />
 
       <View style={styles.container}>
+        <View>
         <Text style={styles.title}>Login</Text>
+        
+        </View>
 
         {/* EMAIL */}
         <View style={styles.inputBox}>
@@ -150,10 +147,10 @@ export default function LoginScreen({navigation}) {
             style={styles.input}
             placeholder="Enter your email/Phone Number"
             placeholderTextColor="#7D8A99"
-            value={email}
-            onChangeText={setEmail}
+            value={identifier}
+            onChangeText={setIdentifier}
           />
-          {validateEmail(email) && (
+          {validateEmail(identifier) && (
             <Ionicons name="checkmark" size={22} color="#056FD2" />
           )}
         </View>
@@ -251,7 +248,11 @@ export default function LoginScreen({navigation}) {
 
               <TouchableOpacity
                 style={styles.successBtn}
-                onPress={() => setSuccessModal(false)}
+                onPress={() => {setSuccessModal(false)
+                   navigation.replace("Bottom");
+                }
+                }
+                
               >
                 <Text style={styles.successBtnTxt}>Go to home</Text>
               </TouchableOpacity>
@@ -266,27 +267,27 @@ export default function LoginScreen({navigation}) {
 
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingTop: 70 },
+  container: { flex: 1, paddingTop: 30 },
 
   title: {
     fontSize: 22,
     fontWeight: "700",
     textAlign: "center",
-    marginBottom: 40,
+    marginBottom: 30,
   },
 
   inputBox: {
     flexDirection: "row",
     alignItems: "center",
-    width: 330,
-    height: 60,
+    width: "90%",
+    height: 56,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "#E6E6E6",
     backgroundColor: "#FFF",
     alignSelf: "center",
     paddingHorizontal: 16,
-    marginBottom: 10,
+    marginBottom: 12,
   },
 
   input: {
