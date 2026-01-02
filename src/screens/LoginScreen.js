@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,31 +7,34 @@ import {
   TouchableOpacity,
   TextInput,
   StatusBar,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import PrimaryButton from "../components/PrimaryButton";
-import BackButton from "../components/BackButton";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import PrimaryButton from '../components/PrimaryButton';
+import BackButton from '../components/BackButton';
+import useAuth from '../hooks/useAuth';
 
-export default function LoginScreen({navigation}) {
-  const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
+export default function LoginScreen({ navigation }) {
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [successModal, setSuccessModal] = useState(false);
+  const { saveToken } = useAuth();
 
-  const [alertMsg, setAlertMsg] = useState("");
+  const [alertMsg, setAlertMsg] = useState('');
   const [showAlert, setShowAlert] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
-  const validateEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  const validateEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
-  const whiteAlert = (msg) => {
+  const whiteAlert = msg => {
     setAlertMsg(msg);
     setShowAlert(true);
   };
 
-  {/*const handleLogin = async () => {
+  {
+    /*const handleLogin = async () => {
     let errorMessage = null;
 
     if (!email.trim()) {
@@ -74,60 +77,61 @@ export default function LoginScreen({navigation}) {
       whiteAlert("Network error, please try again");
     }
   };
-  */}
-const handleLogin = async () => {
-  if (!identifier.trim()) {
-    whiteAlert("Please enter email or phone number");
-    return;
+  */
   }
-
-  if (!password.trim()) {
-    whiteAlert("Please enter password");
-    return;
-  }
-
-  const payload = {
-    identifier: identifier.trim(),
-    password: password.trim(),
-  };
-
-  try {
-    setLoading(true);
-
-    const res = await fetch(
-      "https://hospital-backend-1-9jq0.onrender.com/api/hospital/user/auth/login",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      }
-    );
-
-    const data = await res.json();
-    setLoading(false);
-
-    console.log("STATUS:", res.status);
-    console.log("RESPONSE:", data);
-
-    if (res.ok && data?.data?.token) {
-      setSuccessModal(true);
+  const handleLogin = async () => {
+    if (!identifier.trim()) {
+      whiteAlert('Please enter email or phone number');
       return;
     }
 
-    whiteAlert(data?.message || "Invalid login");
-  } catch (err) {
-    setLoading(false);
-    console.log("LOGIN ERROR:", err);
-    whiteAlert("Network error, please try again");
-  }
-};
+    if (!password.trim()) {
+      whiteAlert('Please enter password');
+      return;
+    }
 
+    const payload = {
+      identifier: identifier.trim(),
+      password: password.trim(),
+    };
 
+    try {
+      setLoading(true);
+
+      const res = await fetch(
+        'https://hospital-backend-1-9jq0.onrender.com/api/hospital/user/auth/login',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        },
+      );
+
+      const data = await res.json();
+      setLoading(false);
+
+      console.log('STATUS:', res.status);
+      console.log('RESPONSE:', data);
+
+      if (res.ok && data?.data?.token) {
+        setSuccessModal(true);
+        saveToken(data.data.token);
+
+        return;
+      }
+
+      whiteAlert(data?.message || 'Invalid login');
+    } catch (err) {
+      setLoading(false);
+      console.log('LOGIN ERROR:', err);
+      whiteAlert('Network error, please try again');
+    }
+  };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFF" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF' }}>
       <StatusBar
         translucent
         backgroundColor="transparent"
@@ -136,8 +140,7 @@ const handleLogin = async () => {
 
       <View style={styles.container}>
         <View>
-        <Text style={styles.title}>Login</Text>
-        
+          <Text style={styles.title}>Login</Text>
         </View>
 
         {/* EMAIL */}
@@ -168,7 +171,7 @@ const handleLogin = async () => {
           />
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
             <Ionicons
-              name={showPassword ? "eye-off-outline" : "eye-outline"}
+              name={showPassword ? 'eye-off-outline' : 'eye-outline'}
               size={22}
               color="#7D8A99"
             />
@@ -176,29 +179,28 @@ const handleLogin = async () => {
         </View>
 
         {/* FORGOT PASSWORD */}
-       {/*} <TouchableOpacity style={{ alignSelf: "flex-end", marginRight: 30 }}>
+        {/*} <TouchableOpacity style={{ alignSelf: "flex-end", marginRight: 30 }}>
           <Text style={styles.forgot}>Forgot Password?</Text>
         </TouchableOpacity>*/}
-        <TouchableOpacity 
-           style={{ alignSelf: "flex-end", marginRight: 30 }}
-           onPress={() => navigation.navigate("RequestOTP")}>
+        <TouchableOpacity
+          style={{ alignSelf: 'flex-end', marginRight: 30 }}
+          onPress={() => navigation.navigate('RequestOTP')}
+        >
           <Text style={styles.forgot}>Forgot Password?</Text>
         </TouchableOpacity>
 
-
         {/* LOGIN BUTTON */}
         <PrimaryButton
-          title={loading ? "Please wait..." : "Login"}
+          title={loading ? 'Please wait...' : 'Login'}
           onPress={!loading ? handleLogin : () => {}}
         />
 
         {/* OTP BUTTON */}
         {/* <PrimaryButton title="Login Using OTP" onPress={() => {}} />*/}
-        <PrimaryButton 
-         title="Login Using OTP" 
-         onPress={() => navigation.navigate("PhoneInput")} 
+        <PrimaryButton
+          title="Login Using OTP"
+          onPress={() => navigation.navigate('PhoneInput')}
         />
-
 
         {/* REGISTER */}
         {/*<View style={styles.footer}>
@@ -208,13 +210,12 @@ const handleLogin = async () => {
           </TouchableOpacity>
         </View>*/}
         <View style={styles.footer}>
-  <Text style={styles.footerTxt}>Don't have an account?</Text>
+          <Text style={styles.footerTxt}>Don't have an account?</Text>
 
-  <TouchableOpacity onPress={() => navigation.navigate("Register")}>
-    <Text style={styles.register}> Register</Text>
-  </TouchableOpacity>
-</View>
-
+          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+            <Text style={styles.register}> Register</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* WHITE ALERT POPUP (FIXED COLOR) */}
         <Modal visible={showAlert} transparent animationType="fade">
@@ -248,11 +249,10 @@ const handleLogin = async () => {
 
               <TouchableOpacity
                 style={styles.successBtn}
-                onPress={() => {setSuccessModal(false)
-                   navigation.replace("Bottom");
-                }
-                }
-                
+                onPress={() => {
+                  setSuccessModal(false);
+                  navigation.replace('Bottom');
+                }}
               >
                 <Text style={styles.successBtnTxt}>Go to home</Text>
               </TouchableOpacity>
@@ -264,28 +264,26 @@ const handleLogin = async () => {
   );
 }
 
-
-
 const styles = StyleSheet.create({
   container: { flex: 1, paddingTop: 30 },
 
   title: {
     fontSize: 22,
-    fontWeight: "700",
-    textAlign: "center",
+    fontWeight: '700',
+    textAlign: 'center',
     marginBottom: 30,
   },
 
   inputBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: "90%",
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '90%',
     height: 56,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#E6E6E6",
-    backgroundColor: "#FFF",
-    alignSelf: "center",
+    borderColor: '#E6E6E6',
+    backgroundColor: '#FFF',
+    alignSelf: 'center',
     paddingHorizontal: 16,
     marginBottom: 12,
   },
@@ -293,43 +291,41 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: "#000",
+    color: '#000',
     marginLeft: 8,
   },
 
   forgot: {
-    color: "#056FD2",
+    color: '#056FD2',
     fontSize: 13,
     marginBottom: 20,
   },
 
   footer: {
-    flexDirection: "row",
-    justifyContent: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
     marginTop: 30,
   },
 
-  footerTxt: { fontSize: 14, color: "#777" },
+  footerTxt: { fontSize: 14, color: '#777' },
 
   register: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#056FD2",
+    fontWeight: '600',
+    color: '#056FD2',
   },
-
- 
 
   alertOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   alertBox: {
     width: 350,
     height: 200,
-    backgroundColor: "#FFF",  
+    backgroundColor: '#FFF',
     borderRadius: 4,
     paddingVertical: 22,
     paddingHorizontal: 20,
@@ -337,66 +333,66 @@ const styles = StyleSheet.create({
 
   alertTitle: {
     fontSize: 25,
-    fontWeight: "700",
-    color: "#000",             
+    fontWeight: '700',
+    color: '#000',
     marginBottom: 15,
   },
 
   alertMsg: {
     fontSize: 18,
-    color: "#000",           
+    color: '#000',
     marginBottom: 17,
   },
 
   alertBtn: {
-    alignSelf: "flex-end",
+    alignSelf: 'flex-end',
     paddingHorizontal: 18,
     paddingVertical: 40,
   },
 
   alertBtnTxt: {
     fontSize: 15,
-    fontWeight: "600",
-    color: "#0EA5E9",          // teal OK color like screenshot
+    fontWeight: '600',
+    color: '#0EA5E9', // teal OK color like screenshot
   },
 
   /* SUCCESS MODAL (unchanged) */
 
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.28)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'rgba(0,0,0,0.28)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   whiteCard: {
     width: 300,
-    backgroundColor: "#FFF",
+    backgroundColor: '#FFF',
     borderRadius: 24,
     paddingVertical: 32,
-    alignItems: "center",
+    alignItems: 'center',
   },
 
   tickCircle: {
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: "#EEF5FF",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#EEF5FF',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 24,
   },
 
   successTitle: {
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: '700',
     marginBottom: 8,
   },
 
   successMsg: {
-    textAlign: "center",
+    textAlign: 'center',
     fontSize: 14,
-    color: "#7D8A99",
+    color: '#7D8A99',
     marginBottom: 28,
   },
 
@@ -404,14 +400,14 @@ const styles = StyleSheet.create({
     width: 200,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "#056FD2",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#056FD2',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   successBtnTxt: {
-    color: "#FFF",
+    color: '#FFF',
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
   },
 });

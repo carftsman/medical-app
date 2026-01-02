@@ -1,23 +1,18 @@
-import React, { useEffect } from "react";
-import {
-  Text,
-  Image,
-  StatusBar,
-  View,
-  Platform,
-} from "react-native";
-import LinearGradient from "react-native-linear-gradient";
-import { COLORS, FONT } from "../config/constants";
+import React, { useEffect } from 'react';
+import { Text, Image, StatusBar, View, Platform } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import { COLORS, FONT } from '../config/constants';
+import useAuth from '../hooks/useAuth';
 
 export default function SplashScreen({ navigation }) {
-
+  const { isAuthenticated } = useAuth();
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace("Onboarding1");
+      navigation.replace(isAuthenticated ? 'Bottom' : '/');
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isAuthenticated, navigation]);
 
   return (
     <>
@@ -30,23 +25,23 @@ export default function SplashScreen({ navigation }) {
       />
 
       <LinearGradient
-        colors={["#e6f2ff", "#ffffff", "#cde3ff"]}
+        colors={['#e6f2ff', '#ffffff', '#cde3ff']}
         style={{
           flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
+          justifyContent: 'center',
+          alignItems: 'center',
         }}
       >
         {/* Push content down so it doesn't overlap status bar */}
         <View
           style={{
-            paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-            justifyContent: "center",
-            alignItems: "center",
+            paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+            justifyContent: 'center',
+            alignItems: 'center',
           }}
         >
           <Image
-            source={require("../../assets/logo.png")}
+            source={require('../../assets/logo.png')}
             style={{ width: 110, height: 110 }}
             resizeMode="contain"
           />
