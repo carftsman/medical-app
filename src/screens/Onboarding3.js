@@ -3,131 +3,104 @@ import {
   View,
   Text,
   Image,
-  Dimensions,
   StatusBar,
+  Dimensions,
   TouchableWithoutFeedback,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import LinearGradient from "react-native-linear-gradient";
 import { COLORS, FONT } from "../config/constants";
+import { scale, verticalScale } from "../utils/styling";
 import PrimaryButton from "../components/PrimaryButton";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 export default function Onboarding3({ navigation }) {
   return (
     <TouchableWithoutFeedback onPress={() => navigation.navigate("Onboarding2")}>
-      <LinearGradient
-        colors={["#ffffff", "#e6f2ff"]}
-        style={{ flex: 1 }}
-      >
-        {/* Full screen status bar */}
-        <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+      <View style={{ flex: 1 }}>
+        {/* Status Bar */}
+        <StatusBar
+          translucent
+          backgroundColor="transparent"
+          barStyle="light-content"
+        />
 
-        <SafeAreaView style={{ flex: 1 }}>
+        {/* Background Image */}
+        <Image
+  source={require("../../assets/GetStarted.png")}
+  style={{
+    width,
+    height,
+    position: "absolute",
+  }}
+  resizeMode="cover"
+/>
 
-          {/* Blue Curve */}
+
+        {/* Dark Overlay */}
+        <LinearGradient
+          colors={["rgba(0,0,0,0.35)", "rgba(0,0,0,0.85)"]}
+          style={{
+            position: "absolute",
+            width,
+            height,
+          }}
+        />
+
+        <SafeAreaView style={{ flex: 1, justifyContent: "flex-end" }}>
+          {/* Bottom Text */}
+         <View
+  style={{
+    paddingHorizontal: scale(20),
+    marginBottom: verticalScale(140),
+    alignItems: "center",
+  }}
+>
+  <Text
+    style={{
+      color: COLORS.white,
+      fontFamily: FONT.bold,
+      fontSize: scale(24),
+      marginBottom: verticalScale(12),
+      textAlign: "center",
+    }}
+  >
+    End to End Pharmacy Services
+  </Text>
+
+  <Text
+    style={{
+      color: "rgba(255,255,255,0.9)",
+      fontFamily: FONT.regular,
+      fontSize: scale(14),
+      lineHeight: verticalScale(20),
+      textAlign: "center",
+    }}
+  >
+    Manage all your pharmacy needs quickly and securely from your mobile,
+    with doorstep delivery.
+  </Text>
+</View>
+
+
+          {/* Primary Button */}
           <View
-            style={{
-              width: width * 1.25,
-              height: width * 1.25,
-              backgroundColor: COLORS.primary,
-              borderRadius: width * 1.25,
-              position: "absolute",
-              top: -width * 0.55,
-              left: -width * 0.55,
-            }}
-          />
-
-          {/* Image Section */}
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <View
-              style={{
-                width: 320,
-                height: 320,
-                borderRadius: 160,
-                backgroundColor: COLORS.white,
-                overflow: "hidden",
-                elevation: 8,
-                shadowColor: "#000",
-                shadowOpacity: 0.25,
-                shadowRadius: 10,
-              }}
-            >
-              <Image
-                source={require("../../assets/getstarted.jpg")}
-                resizeMode="cover"
-                style={{ width: "100%", height: "100%" }}
-              />
-            </View>
-          </View>
-
-          {/* Text Section */}
-          <View
-            style={{
-              alignItems: "center",
-              marginBottom: 160,
-              paddingHorizontal: 32,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 28,
-                fontFamily: FONT.bold,
-                color: COLORS.black,
-                textAlign: "center",
-              }}
-            >
-              Your One Stop Destination
-            </Text>
-
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: FONT.regular,
-                color: COLORS.gray,
-                textAlign: "center",
-                marginTop: 10,
-                lineHeight: 24,
-              }}
-            >
-              Access trusted doctors, lab reports, medicines, and health services
-              in one seamless platform.
-            </Text>
-          </View>
-
-          {/* Pagination Indicators */}
-          <View
-            style={{
-              position: "absolute",
-              bottom: 120,
-              flexDirection: "row",
-              width: "100%",
-              justifyContent: "center",
-              columnGap: 8,
-            }}
-          >
-            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.gray }} />
-            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.gray }} />
-            <View style={{ width: 18, height: 8, borderRadius: 10, backgroundColor: COLORS.primary }} />
-          </View>
-
-          {/* Using PrimaryButton */}
-          <View style={{ position: "absolute", bottom: 40, width: "100%" }}>
-            <PrimaryButton
-              title="Get Started"
-              onPress={() => navigation.replace("Login")}
-            />
-          </View>
+  style={{
+    position: "absolute",
+    bottom: verticalScale(60), // increase this
+    width: "100%",
+    paddingHorizontal: scale(20),
+  }}
+>
+  <PrimaryButton
+    title="Get Started"
+    onPress={() => navigation.replace("Login")}
+  />
+</View>
 
         </SafeAreaView>
-      </LinearGradient>
+      </View>
     </TouchableWithoutFeedback>
   );
 }

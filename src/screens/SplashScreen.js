@@ -1,14 +1,15 @@
 import React, { useEffect } from 'react';
-import { Text, Image, StatusBar, View, Platform } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+import { Text, Image, StatusBar, View } from 'react-native';
 import { COLORS, FONT } from '../config/constants';
+import { scale, verticalScale } from '../utils/styling'; 
 import useAuth from '../hooks/useAuth';
 
 export default function SplashScreen({ navigation }) {
   const { isAuthenticated } = useAuth();
+
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace(isAuthenticated ? 'Bottom' : '/');
+      navigation.replace(isAuthenticated ? 'Bottom' : '/'); 
     }, 2000);
 
     return () => clearTimeout(timer);
@@ -16,49 +17,42 @@ export default function SplashScreen({ navigation }) {
 
   return (
     <>
-      {/* Full immersive mode */}
       <StatusBar
-        translucent
-        backgroundColor="transparent"
+        backgroundColor={COLORS.white}
         barStyle="dark-content"
         hidden={false}
       />
 
-      <LinearGradient
-        colors={['#e6f2ff', '#ffffff', '#cde3ff']}
+      <View
         style={{
           flex: 1,
+          backgroundColor: COLORS.white,
           justifyContent: 'center',
           alignItems: 'center',
         }}
       >
-        {/* Push content down so it doesn't overlap status bar */}
-        <View
+        <Image
+          source={require('../../assets/logo.png')}
           style={{
-            paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-            justifyContent: 'center',
-            alignItems: 'center',
+            width: scale(140),
+            height: scale(140), 
           }}
-        >
-          <Image
-            source={require('../../assets/logo.png')}
-            style={{ width: 110, height: 110 }}
-            resizeMode="contain"
-          />
+          resizeMode="contain"
+        />
 
-          <Text
-            style={{
-              fontFamily: FONT.bold,
-              fontSize: 24,
-              marginTop: 8,
-              color: COLORS.primary,
-              letterSpacing: 0.5,
-            }}
-          >
-            Doctor Hunt
-          </Text>
-        </View>
-      </LinearGradient>
+      <Text
+  style={{
+    fontFamily: FONT.extraBold, 
+    fontSize: scale(26),
+    marginTop: verticalScale(10),
+    color: COLORS.primary,
+    letterSpacing: 0.6,
+  }}
+>
+  Medical Hunt
+</Text>
+
+      </View>
     </>
   );
 }
