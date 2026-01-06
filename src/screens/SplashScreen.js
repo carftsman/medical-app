@@ -5,7 +5,8 @@ import { COLORS, FONT } from '../config/constants';
 import useAuth from '../hooks/useAuth';
 
 export default function SplashScreen({ navigation }) {
-  const { isAuthenticated } = useAuth();
+  // const { isAuthenticated } = useAuth();
+  const isAuthenticated = true;
   useEffect(() => {
     const timer = setTimeout(() => {
       navigation.replace(isAuthenticated ? 'Bottom' : '/');
