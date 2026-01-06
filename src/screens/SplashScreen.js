@@ -1,7 +1,13 @@
 import React, { useEffect } from 'react';
-import { Text, Image, StatusBar, View } from 'react-native';
+import {
+  Text,
+  Image,
+  StatusBar,
+  View,
+  StyleSheet,
+} from 'react-native';
 import { COLORS, FONT } from '../config/constants';
-import { scale, verticalScale } from '../utils/styling'; 
+import { scale, verticalScale } from '../utils/styling';
 import useAuth from '../hooks/useAuth';
 
 export default function SplashScreen({ navigation }) {
@@ -9,7 +15,7 @@ export default function SplashScreen({ navigation }) {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace(isAuthenticated ? 'Bottom' : '/'); 
+      navigation.replace(isAuthenticated ? 'Bottom' : '/');
     }, 2000);
 
     return () => clearTimeout(timer);
@@ -20,39 +26,41 @@ export default function SplashScreen({ navigation }) {
       <StatusBar
         backgroundColor={COLORS.white}
         barStyle="dark-content"
-        hidden={false}
       />
 
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: COLORS.white,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
+      <View style={styles.container}>
         <Image
           source={require('../../assets/logo.png')}
-          style={{
-            width: scale(140),
-            height: scale(140), 
-          }}
+          style={styles.logo}
           resizeMode="contain"
         />
 
-      <Text
-  style={{
-    fontFamily: FONT.extraBold, 
-    fontSize: scale(26),
-    marginTop: verticalScale(10),
-    color: COLORS.primary,
-    letterSpacing: 0.6,
-  }}
->
-  Medical Hunt
-</Text>
-
+        <Text style={styles.title}>
+          Medical Hunt
+        </Text>
       </View>
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  logo: {
+    width: scale(140),
+    height: scale(140),
+  },
+
+  title: {
+    fontFamily: FONT.extraBold,
+    fontSize: scale(26),
+    marginTop: verticalScale(10),
+    color: COLORS.primary,
+    letterSpacing: 0.6,
+  },
+});
