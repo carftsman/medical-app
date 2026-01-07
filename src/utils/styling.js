@@ -6,7 +6,7 @@ const [shortDimension, longDimension] =
   SCREEN_WIDTH < SCREEN_HEIGHT
     ? [SCREEN_WIDTH, SCREEN_HEIGHT]
     : [SCREEN_HEIGHT, SCREEN_WIDTH];
-
+  
 const guidelineBaseWidth = 375;
 const guidelineBaseHeight = 812;
 
