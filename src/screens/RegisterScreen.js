@@ -14,6 +14,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import BackButton from "../components/BackButton";
 import InputField from "../components/InputField";
 import { COLORS } from "../config/constants";
+import useAuth from "../hooks/useAuth";
 
 import api from "../api/client"
  

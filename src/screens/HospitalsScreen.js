@@ -1,15 +1,17 @@
 // src/screens/HospitalsScreen.js
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { useNavigation } from '@react-navigation/native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 
 export default function HospitalsScreen() {
-  return (
-    <View style={styles.container}>
-      <Text>Hospitals Screen</Text>
-    </View>
-  );
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    navigation.navigate('HospitalsTab');
+  }, [navigation]);
+  return null;
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center" },
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 });

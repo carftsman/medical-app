@@ -1,165 +1,148 @@
-import React from "react";
+import React from 'react';
 import {
   View,
   Text,
-  Image,
   TouchableOpacity,
-  TouchableWithoutFeedback,
-  Dimensions,
+  Image,
   StatusBar,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import LinearGradient from "react-native-linear-gradient";
-import { COLORS, FONT } from "../config/constants";
+  Dimensions,
+  TouchableWithoutFeedback,
+  StyleSheet,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import LinearGradient from 'react-native-linear-gradient';
+import { COLORS, FONT } from '../config/constants';
+import { scale, verticalScale } from '../utils/styling';
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get('window');
 
 export default function Onboarding1({ navigation }) {
+  const goNext = () => navigation.navigate('Onboarding2');
+
   return (
-    <TouchableWithoutFeedback onPress={() => {}}>
-      <LinearGradient
-        colors={["#ffffff", "#e6f2ff"]}
-        style={{ flex: 1 }}
-      >
-        {/* Full screen StatusBar */}
+    <TouchableWithoutFeedback onPress={goNext}>
+      <View style={styles.container}>
+        {/* Transparent Status Bar */}
         <StatusBar
           translucent
           backgroundColor="transparent"
-          barStyle="dark-content"
+          barStyle="light-content"
         />
 
-        <SafeAreaView style={{ flex: 1 }}>
-          
-          {/* Skip */}
-          <TouchableOpacity 
-            onPress={() => navigation.navigate("Onboarding3")}
-            style={{
-              position: "absolute",
-              top: 50,
-              right: 25,
-              zIndex: 10,
-            }}
+        {/* Background Image */}
+        <Image
+          source={require('../../assets/Doctors.png')}
+          style={styles.backgroundImage}
+          resizeMode="cover"
+        />
+
+        {/* Dark Gradient Overlay */}
+        <LinearGradient
+          colors={['rgba(0,0,0,0.35)', 'rgba(0,0,0,0.85)']}
+          style={styles.gradientOverlay}
+        />
+
+        <SafeAreaView style={styles.safeArea}>
+          {/* Skip Button */}
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Onboarding3')}
+            style={styles.skipButton}
           >
-            <Text style={{ fontFamily: FONT.medium, fontSize: 16, color: COLORS.primary }}>
-              Skip
-            </Text>
+            <Text style={styles.skipText}>Skip</Text>
           </TouchableOpacity>
 
-          {/* Blue curve background */}
-          <View
-            style={{
-              width: width * 1.25,
-              height: width * 1.25,
-              backgroundColor: COLORS.primary,
-              borderRadius: width * 1.25,
-              position: "absolute",
-              top: -width * 0.55,
-              left: -width * 0.55,
-            }}
-          />
+          {/* Bottom Text Content */}
+          <View style={styles.bottomContent}>
+            <Text style={styles.heading}>Quality Hospitals, One Platform</Text>
 
-          {/* Image circle */}
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-              marginTop: 15,
-            }}
-          >
-            <View
-              style={{
-                width: 300,
-                height: 300,
-                borderRadius: 150,
-                backgroundColor: COLORS.white,
-                overflow: "hidden",
-                elevation: 8,
-                shadowColor: "#000",
-                shadowOpacity: 0.25,
-                shadowRadius: 10,
-              }}
-            >
-              <Image
-                source={require("../../assets/TrustedDoctors.png")}
-                resizeMode="cover"
-                style={{ width: "100%", height: "100%" }}
-              />
-            </View>
-          </View>
-
-          {/* Text content */}
-          <View
-            style={{
-              alignItems: "center",
-              marginBottom: 100,
-              paddingHorizontal: 32,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 28,
-                fontFamily: FONT.bold,
-                color: COLORS.black,
-                textAlign: "center",
-              }}
-            >
-              Find Trusted Doctors
-            </Text>
-
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: FONT.regular,
-                color: COLORS.gray,
-                textAlign: "center",
-                marginBottom: 100,
-                lineHeight: 24,
-              }}
-            >
-              Verified medical experts available anytime for safe and reliable care,
-              ensuring you receive trusted guidance and timely support for all your
-              health needs.
+            <Text style={styles.subText}>
+              Find hospitals you can trust for consultations, treatments, and
+              emergency care, anytime you need.
             </Text>
           </View>
 
-          {/* Pagination + Arrow */}
-          <View
-            style={{
-              position: "absolute",
-              bottom: 50,
-              width: "100%",
-              flexDirection: "row",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            {/* Pagination Dots */}
-            <View style={{ flexDirection: "row", gap: 8 }}>
-              <View style={{ width: 18, height: 8, borderRadius: 10, backgroundColor: COLORS.primary }} />
-              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.gray }} />
-              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.gray }} />
-            </View>
-
-            {/* Arrow */}
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Onboarding2")}
-              style={{
-                position: "absolute",
-                right: 25,
-                width: 36,
-                height: 36,
-                backgroundColor: COLORS.primary,
-                borderRadius: 18,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Text style={{ color: COLORS.white, fontSize: 18 }}>➜</Text>
-            </TouchableOpacity>
-          </View>
+          {/* Next Arrow Button */}
+          <TouchableOpacity onPress={goNext} style={styles.nextButton}>
+            <Text style={styles.nextArrow}>➔</Text>
+          </TouchableOpacity>
         </SafeAreaView>
-      </LinearGradient>
+      </View>
     </TouchableWithoutFeedback>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+
+  backgroundImage: {
+    width: width,
+    height: height,
+    position: 'absolute',
+  },
+
+  gradientOverlay: {
+    position: 'absolute',
+    width: width,
+    height: height,
+  },
+
+  safeArea: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+
+  skipButton: {
+    position: 'absolute',
+    top: verticalScale(50),
+    right: scale(20),
+  },
+
+  skipText: {
+    color: COLORS.white,
+    fontFamily: FONT.bold,
+    fontSize: scale(18),
+  },
+
+  bottomContent: {
+    paddingHorizontal: scale(20),
+    marginBottom: verticalScale(90),
+    alignItems: 'center',
+  },
+
+  heading: {
+    color: COLORS.white,
+    fontFamily: FONT.bold,
+    fontSize: scale(22),
+    marginBottom: verticalScale(12),
+    textAlign: 'center',
+  },
+
+  subText: {
+    color: 'rgba(255,255,255,0.9)',
+    fontFamily: FONT.regular,
+    fontSize: scale(14),
+    lineHeight: verticalScale(20),
+    textAlign: 'center',
+  },
+
+  nextButton: {
+    position: 'absolute',
+    bottom: verticalScale(30),
+    right: scale(20),
+    width: scale(50),
+    height: scale(50),
+    borderRadius: scale(25),
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+  },
+
+  nextArrow: {
+    color: COLORS.white,
+    fontSize: scale(24),
+    fontWeight: 'bold',
+  },
+});
