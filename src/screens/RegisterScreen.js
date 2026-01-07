@@ -13,8 +13,8 @@ import PrimaryButton from "../components/PrimaryButton";
 import { COLORS } from "../config/constants";
 import useAuth from "../hooks/useAuth";
 
-export default function RegisterScreen({ navigation, route }) {
-  const token = route.params.token
+export default function RegisterScreen({ navigation }) {
+  
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -30,7 +30,8 @@ export default function RegisterScreen({ navigation, route }) {
   const [isChecked, setIsChecked] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { setAuthState } = useAuth()
+  const { token } = useAuth()
+  console.log(token)
 
 
 

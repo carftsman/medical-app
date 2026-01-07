@@ -27,7 +27,7 @@ export default function EnterOTPScreenLogin({ navigation, route }) {
 
   const inputs = useRef([]);
 
-  const {setAuthState} = useAuth()
+  const {handleSaveToken} = useAuth()
   useEffect(() => {
     const i = setInterval(() => {
       setTimer(t => (t > 0 ? t - 1 : 0));
@@ -80,8 +80,9 @@ export default function EnterOTPScreenLogin({ navigation, route }) {
       const res = await authApi.verifyOtp({ phone, otp: code });
       //const res = await api.post("/hospital/user/auth/verify-otp", {phone, otp:code});
       setLoading(false)
-      navigation.navigate("Register", {token:res.data.token})
-      console.log("verify otp",res.data)
+      handleSaveToken(res.data.token)
+      navigation.navigate("Register")
+     
       // setAuthState(res.data.token)
 
       // navigation.navigate({

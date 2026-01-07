@@ -20,6 +20,7 @@ import { scale, verticalScale } from '../utils/styling';
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { Button } from "react-native";
 import useAuth from "../hooks/useAuth";
+
 export default function HomeScreen() {
   const [showSOS, setShowSOS] = React.useState(false);
 
@@ -218,7 +219,7 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
       {/* Floating SOS button */}
-      \
+      
 <View style={styles.sosContainer}>
   {showSOS && (
     <>
@@ -249,6 +250,25 @@ export default function HomeScreen() {
   </TouchableOpacity>
 </View>
 
+          {/* SOS text + button section
+          <View style={styles.sosWrapper}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.sosTextLine1}>Make it up</Text>
+              <Text style={styles.sosTextLine2}>
+                with <Text style={{ fontWeight: '800' }}>TRUST</Text>
+              </Text>
+              <Text style={styles.sosTextLine3}>Love India ❤️</Text>
+            </View>
+          </View>
+        </ScrollView> */}
+        {/* Floating SOS button */}
+        {/* <TouchableOpacity style={styles.floatingSos} activeOpacity={0.85}>
+          <Image
+            source={require('../../assets/sos.png')}
+            style={styles.sosButton}
+          />
+        </TouchableOpacity> */}
+      
     </SafeAreaView>
   );
 }
@@ -616,6 +636,10 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(2),
   },
 
+  
+
+
+
   floatingSos: {
     position: "absolute",
     bottom: verticalScale(110),
@@ -632,45 +656,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
-  sosMainBtn: {
-    width: scale(64),
-    height: scale(64),
-    borderRadius: scale(32),
-    backgroundColor: "#FF0000",
-    alignItems: "center",
-    justifyContent: "center",
-    elevation: 8,
-  },
+  
 
-  sosText: {
-    color: "#fff",
-    fontWeight: "800",
-    fontSize: scale(16),
-  },
-
-  sosMiniBtn: {
-    width: scale(44),
-    height: scale(44),
-    borderRadius: scale(22),
-    backgroundColor: "#FF0000",
-    alignItems: "center",
-    justifyContent: "center",
-    position: "absolute",
-    elevation: 6,
-  },
-
-  sosTop: {
-    bottom: verticalScale(75),
-    right: scale(50),
-  },
-
-  sosLeft: {
-    right: scale(78),
-  },
-
-  sosBottom: {
-    top: verticalScale(75),
-    right: scale(50),
-  },
-});
+  
+})
 
