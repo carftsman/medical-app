@@ -1,332 +1,272 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   TextInput,
-  Keyboard,
-  Modal,
+  TouchableOpacity,
   StatusBar,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+  Image,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { authApi } from "../api/authApi";
+import { scale, verticalScale } from "../utils/styling";
+import api from "../api/client";
+import useAuth from "../hooks/useAuth";
 
-import PrimaryButton from '../components/PrimaryButton';
-import BackButton from '../components/BackButton';
 
-import Ionicons from 'react-native-vector-icons/Ionicons';
-
-import { verifyOtp, sendOtp } from '../services/authService';
-import { isValidOtp } from '../utils/validation';
-import { COLORS, FONT, SIZES } from '../config/constants';
-import useAuth from '../hooks/useAuth';
 
 const OTP_LENGTH = 6;
-const RESEND_DELAY = 60;
 
 export default function EnterOTPScreenLogin({ navigation, route }) {
-  const phone = route?.params?.phone;
-
-  const [digits, setDigits] = useState(Array(OTP_LENGTH).fill(''));
-  const [showSuccess, setShowSuccess] = useState(false);
-
-  const [timer, setTimer] = useState(RESEND_DELAY);
-  const [canResend, setCanResend] = useState(false);
+  const phone = route?.params?.phone || "";
+  const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
+  const [timer, setTimer] = useState(30);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [inlineError, setInlineError] = useState(null);
 
-  const { saveToken } = useAuth();
+  const inputs = useRef([]);
 
-  const intervalRef = useRef(null);
-  const verifyRef = useRef(false);
-  const resendRef = useRef(false);
-  const inputsRef = useRef([]);
-
+  const {setAuthState} = useAuth()
   useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setTimer(prev => {
-        if (prev <= 1) {
-          clearInterval(intervalRef.current);
-          setCanResend(true);
-          return 0;
-        }
-        return prev - 1;
-      });
+    const i = setInterval(() => {
+      setTimer(t => (t > 0 ? t - 1 : 0));
     }, 1000);
-
-    return () => clearInterval(intervalRef.current);
+    return () => clearInterval(i);
   }, []);
 
-  const handleChange = useCallback((index, text) => {
-    const digit = text.replace(/\D/g, '');
-    setDigits(prev => {
-      const next = [...prev];
-      next[index] = digit;
-      return next;
-    });
-  }, []);
+  const handleChange = (i, v) => {
+    if (!/^\d?$/.test(v)) return;
 
-  const focusNext = (index, text) => {
-    if (text && index < OTP_LENGTH - 1) {
-      inputsRef.current[index + 1]?.focus();
+    const copy = [...otp];
+    copy[i] = v;
+    setOtp(copy);
+
+    if (v && i < OTP_LENGTH - 1) {
+      inputs.current[i + 1]?.focus();
     }
   };
+  const handleResendOtp = async () => {
+  if (timer > 0) return;
 
-  const focusPrevious = index => {
-    if (index > 0) inputsRef.current[index - 1]?.focus();
-  };
+  try {
+    setError("");
+    setTimer(30);
 
-  const handleVerify = useCallback(async () => {
-    if (verifyRef.current) return;
-    verifyRef.current = true;
-    Keyboard.dismiss();
+    await authApi.sendOtp({ phone });
 
-    const otp = digits.join('');
-
-    if (!isValidOtp(otp, OTP_LENGTH)) {
-      setInlineError(`Please enter ${OTP_LENGTH} digits`);
-      verifyRef.current = false;
-      return;
-    }
-
-    setLoading(true);
-    const resp = await verifyOtp({ phone, otp });
-    setLoading(false);
-
-    if (resp.success && resp.verified) {
-      setShowSuccess(true);
-      saveToken(resp.token);
-    } else {
-      setInlineError(resp.message || 'Verification failed');
-    }
-
-    setTimeout(() => (verifyRef.current = false), 500);
-  }, [digits, phone]);
-
-  const handleResend = async () => {
-    if (!canResend || resendRef.current) return;
-    resendRef.current = true;
-
-    setInlineError(null);
-    setCanResend(false);
-    setTimer(RESEND_DELAY);
-
-    const resp = await sendOtp(phone);
-
-    if (!resp.success) setInlineError(resp.message || 'Failed to resend OTP');
-
-    intervalRef.current = setInterval(() => {
+    const i = setInterval(() => {
       setTimer(t => {
         if (t <= 1) {
-          clearInterval(intervalRef.current);
-          setCanResend(true);
+          clearInterval(i);
           return 0;
         }
         return t - 1;
       });
     }, 1000);
+  } catch (e) {
+    setError("Failed to resend OTP");
+  }
+};
 
-    setTimeout(() => (resendRef.current = false), 800);
+  const handleVerify = async () => {
+    const code = otp.join("");
+    if (code.length !== 6) return;
+    console.log(code)
+
+    setError("")
+    setLoading(true)
+    try {
+      const res = await authApi.verifyOtp({ phone, otp: code });
+      //const res = await api.post("/hospital/user/auth/verify-otp", {phone, otp:code});
+      setLoading(false)
+      navigation.navigate("Register", {token:res.data.token})
+      console.log("verify otp",res.data)
+      // setAuthState(res.data.token)
+
+      // navigation.navigate({
+      //   index: 0,
+      //   routes: [{ name: "Bottom" }],
+      // });
+
+     
+
+    } catch (e) {
+      setLoading(false)
+      console.log("error while sending otp", e)
+      setError("Invalid OTP");
+    }
   };
+
+  const isOtpComplete = otp.every(v => v !== "");
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar backgroundColor={COLORS.white} barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" />
 
       <View style={styles.container}>
-        <View style={styles.top}>
-          <BackButton onPress={() => navigation.goBack()} />
-          <Text style={styles.header}>OTP Verification</Text>
+        <Image
+          source={require("../../assets/logo.png")}
+          style={styles.logo}
+        />
+
+        <Text style={styles.title}>Verify OTP</Text>
+
+        {/* OTP SENT + CHANGE NUMBER */}
+        <View style={styles.subRow}>
+          <Text style={styles.subText}>
+            OTP sent to +91 {phone}
+          </Text>
+
+          <TouchableOpacity onPress={() => navigation.replace("Login")}>
+            <Text style={styles.changeText}>Change Number</Text>
+          </TouchableOpacity>
         </View>
 
-        <Text style={styles.info}>
-          A 6 digit OTP has been sent to your phone number{' '}
-          <Text style={styles.phoneNumber}>{phone}</Text>
-          <Text style={styles.change} onPress={() => navigation.goBack()}>
-            {' '}
-            Change
-          </Text>
-        </Text>
-
-        <Text style={styles.label}>Enter OTP</Text>
-
-        <View style={styles.otpContainer}>
-          {digits.map((v, i) => (
+        {/* OTP BOXES */}
+        <View style={styles.otpRow}>
+          {otp.map((v, i) => (
             <TextInput
               key={i}
-              ref={r => (inputsRef.current[i] = r)}
+              ref={r => (inputs.current[i] = r)}
               value={v}
-              style={styles.otpBox}
+              style={[
+                styles.otpBox,
+                v && styles.otpFilled,
+              ]}
               keyboardType="number-pad"
               maxLength={1}
               autoFocus={i === 0}
-              onChangeText={text => {
-                handleChange(i, text);
-                focusNext(i, text);
-              }}
-              onKeyPress={e => {
-                if (e.nativeEvent.key === 'Backspace' && !digits[i]) {
-                  focusPrevious(i);
-                }
-              }}
+              onChangeText={t => handleChange(i, t)}
+              onKeyPress={({ nativeEvent }) => {
+          if (nativeEvent.key === "Backspace" && !otp[i] && i > 0) {
+            inputs.current[i - 1]?.focus();
+          }}}
             />
           ))}
         </View>
 
-        {inlineError && <Text style={styles.errorText}>{inlineError}</Text>}
+        {!!error && <Text style={styles.error}>{error}</Text>}
 
-        <PrimaryButton
-          title={loading ? 'Verifying...' : 'Verify OTP'}
-          onPress={handleVerify}
-        />
-
+        {/* VERIFY */}
         <TouchableOpacity
-          disabled={!canResend}
-          onPress={handleResend}
-          style={styles.resendRow}
+          style={[
+            styles.verifyBtn,
+            (!isOtpComplete || loading) && styles.verifyDisabled,
+          ]}
+          onPress={handleVerify}
+          disabled={!isOtpComplete || loading}
         >
-          <Text
-            style={[styles.resendText, !canResend && styles.resendDisabled]}
-          >
-            {canResend
-              ? 'Resend code'
-              : `Resend in 00:${String(timer).padStart(2, '0')}`}
-          </Text>
+          <Text style={styles.verifyText}>{loading ? "Please wait..." : "Verify"}</Text>
         </TouchableOpacity>
 
-        <Modal transparent visible={showSuccess} animationType="fade">
-          <View style={styles.overlay}>
-            <View style={styles.card}>
-              <View style={styles.iconCircle}>
-                <Ionicons name="checkmark" size={40} color={COLORS.primary} />
-              </View>
+        <TouchableOpacity onPress={handleResendOtp} disabled={timer > 0}>
+        <Text
+          style={[
+            styles.resend,
+            timer > 0 && { color: "#9CA3AF" },
+          ]}
+        >
+    {timer > 0 ? `Resend OTP in ${timer} sec` : "Resend OTP"}
+  </Text>
+</TouchableOpacity>
 
-              <Text style={styles.mTitle}>Yeay! Welcome Back</Text>
-
-              <Text style={styles.mSubtitle}>
-                Once again you login successfully into medidoc app
-              </Text>
-
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => navigation.replace('Bottom')}
-              >
-                <Text style={styles.buttonText}>Go to Home</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: COLORS.white },
+  safe: { flex: 1, backgroundColor: "#FFF" },
 
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
-    paddingHorizontal: SIZES.large,
+    padding: scale(24),
+    alignItems: "center",
   },
 
-  top: { flexDirection: 'row', alignItems: 'center', marginBottom: 25 },
-
-  header: {
-    fontSize: SIZES.large,
-    fontFamily: FONT.bold,
-    color: COLORS.black,
-    marginLeft: 50,
-    fontWeight: '700',
+  logo: {
+    width: scale(130),
+    height: scale(130),
+    resizeMode: "contain",
+    marginBottom: verticalScale(20),
   },
 
-  info: {
-    fontSize: SIZES.small + 1,
-    color: COLORS.gray,
-    marginBottom: SIZES.large,
-  },
-  change: { color: COLORS.danger },
-
-  label: {
-    fontSize: SIZES.medium,
-    fontFamily: FONT.bold,
-    marginBottom: 10,
+  title: {
+    fontSize: scale(20),
+    fontWeight: "700",
+    color: "#397AE4",
+    alignSelf: "flex-start",
+    marginBottom: verticalScale(8),
   },
 
-  otpContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 15,
+  subRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    marginBottom: verticalScale(24),
+  },
+
+  subText: {
+    fontSize: scale(13),
+    color: "#6B7280",
+  },
+
+  changeText: {
+    fontSize: scale(13),
+    color: "#2563EB",
+    fontWeight: "600",
+  },
+
+  otpRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    marginBottom: verticalScale(16),
   },
 
   otpBox: {
-    width: 48,
-    height: 55,
+    width: scale(48),
+    height: verticalScale(56),
+    borderRadius: scale(10),
     borderWidth: 1,
-    borderColor: COLORS.primary,
-    borderRadius: 10,
-    textAlign: 'center',
-    fontSize: 20,
+    borderColor: "#D1D5DB",
+    textAlign: "center",
+    fontSize: scale(18),
   },
 
-  resendText: { color: COLORS.black },
-  resendDisabled: { color: COLORS.gray },
-
-  resendRow: {
-    marginTop: 15,
-    justifyContent: 'center',
-    alignItems: 'center',
+  otpFilled: {
+    borderColor: "#2563EB",
   },
 
-  errorText: { color: 'red', textAlign: 'center', marginVertical: 10 },
-
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+  error: {
+    color: "#DC2626",
+    fontSize: scale(13),
+    marginBottom: verticalScale(10),
   },
 
-  card: {
-    width: '85%',
-    backgroundColor: COLORS.white,
-    paddingVertical: 30,
-    paddingHorizontal: 20,
-    borderRadius: 25,
-    alignItems: 'center',
-    elevation: 10,
+  verifyBtn: {
+    width: "100%",
+    height: verticalScale(52),
+    backgroundColor: "#397AE4",
+    borderRadius: scale(12),
+    alignItems: "center",
+    justifyContent: "center",
   },
 
-  iconCircle: {
-    width: 90,
-    height: 90,
-    borderRadius: 50,
-    backgroundColor: '#EEF2F7',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 15,
+  verifyDisabled: {
+    backgroundColor: "#9CA3AF",
   },
 
-  mTitle: { fontSize: 20, fontFamily: FONT.bold },
-  mSubtitle: {
-    fontSize: 14,
-    color: COLORS.gray,
-    textAlign: 'center',
-    marginVertical: 10,
+  verifyText: {
+    color: "#FFF",
+    fontSize: scale(16),
+    fontWeight: "600",
   },
 
-  button: {
-    backgroundColor: COLORS.primary,
-    width: '70%',
-    paddingVertical: 12,
-    borderRadius: 25,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-
-  buttonText: {
-    color: COLORS.white,
-    fontSize: 16,
-    fontFamily: FONT.medium,
+  resend: {
+    marginTop: verticalScale(18),
+    color: "#2563EB",
+    fontSize: scale(13),
   },
 });

@@ -6,7 +6,7 @@ const useAuth = () => {
 
   const dispatch = useDispatch();
 
-  const saveToken = token => {
+  const setAuthState = token => {
     dispatch(setToken(token));
   };
 
@@ -16,7 +16,7 @@ const useAuth = () => {
 
   return {
     ...auth,
-    saveToken,
+   setAuthState,
     handleLogout,
   };
 };

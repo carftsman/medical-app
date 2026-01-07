@@ -6,6 +6,8 @@ import useAuth from '../hooks/useAuth';
 
 export default function SplashScreen({ navigation }) {
   const { isAuthenticated } = useAuth();
+  console.log(isAuthenticated)
+
   useEffect(() => {
     const timer = setTimeout(() => {
       navigation.replace(isAuthenticated ? 'Bottom' : '/');

@@ -11,8 +11,10 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import PrimaryButton from "../components/PrimaryButton";
 import { COLORS } from "../config/constants";
+import useAuth from "../hooks/useAuth";
 
-export default function RegisterScreen({ navigation }) {
+export default function RegisterScreen({ navigation, route }) {
+  const token = route.params.token
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -27,7 +29,9 @@ export default function RegisterScreen({ navigation }) {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
+  const { setAuthState } = useAuth()
+
 
 
   const validate = () => {
@@ -48,7 +52,7 @@ export default function RegisterScreen({ navigation }) {
     return valid;
   };
 
- {/*} const handleRegister = async () => {
+  {/*} const handleRegister = async () => {
     if (!validate()) return;
 
     try {
@@ -75,38 +79,40 @@ export default function RegisterScreen({ navigation }) {
   */}
 
   const handleRegister = async () => {
-  if (!validate()) return;
+    if (!validate()) return;
 
-  try {
-    const response = await fetch(
-      "https://hospital-backend-1-9jq0.onrender.com/api/hospital/user/auth/register",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          firstName,
-          lastName,
-          email,
-          phone: `+91${mobile}`,
-          password,
-          confirmPassword,
-          termsAccepted,
-        }),
+    try {
+      // const response = await fetch(
+      //   "https://hospital-backend-1-9jq0.onrender.com/api/hospital/user/auth/register",
+      //   {
+      //     method: "POST",
+      //     headers: { "Content-Type": "application/json" },
+      //     body: JSON.stringify({
+      //       firstName,
+      //       lastName,
+      //       email,
+      //       phone: `+91${mobile}`,
+      //       password,
+      //       confirmPassword,
+      //       termsAccepted,
+      //     }),
+      //   }
+      // );
+
+      // const data = await response.json();
+      setAuthState(token)
+
+
+      if (!response.ok) {
+        alert(data.message || "Registration failed");
+        return;
       }
-    );
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      alert(data.message || "Registration failed");
-      return;
+      setSuccessModal(true);
+    } catch (err) {
+      alert("Network error");
     }
-
-    setSuccessModal(true);
-  } catch (err) {
-    alert("Network error");
-  }
-};
+  };
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -115,12 +121,12 @@ export default function RegisterScreen({ navigation }) {
       <View style={styles.inputBox}>
         <Ionicons name="person-outline" size={22} color="#7D8A99" />
         <TextInput
-  style={styles.input}
-  placeholder="Enter First Name"
-  placeholderTextColor="#7D8A99"
-  value={firstName}
-  onChangeText={setFirstName}
-/>
+          style={styles.input}
+          placeholder="Enter First Name"
+          placeholderTextColor="#7D8A99"
+          value={firstName}
+          onChangeText={setFirstName}
+        />
 
       </View>
       {errors.firstName && <Text style={styles.error}>{errors.firstName}</Text>}
@@ -134,11 +140,11 @@ export default function RegisterScreen({ navigation }) {
           onChangeText={setLastName}
         />*/}
         <TextInput
-            style={styles.input}
-            placeholder="Enter Last Name"
-            placeholderTextColor="#7D8A99"
-            value={lastName}
-            onChangeText={setLastName}
+          style={styles.input}
+          placeholder="Enter Last Name"
+          placeholderTextColor="#7D8A99"
+          value={lastName}
+          onChangeText={setLastName}
         />
 
       </View>
@@ -146,14 +152,14 @@ export default function RegisterScreen({ navigation }) {
 
       <View style={styles.inputBox}>
         <Ionicons name="mail-outline" size={22} color="#7D8A99" />
-       <TextInput
-  style={styles.input}
-  placeholder="Enter your email"
-  placeholderTextColor="#7D8A99"
-  value={email}
-  onChangeText={setEmail}
-  keyboardType="email-address"
-/>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter your email"
+          placeholderTextColor="#7D8A99"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+        />
 
       </View>
       {errors.email && <Text style={styles.error}>{errors.email}</Text>}
@@ -161,28 +167,28 @@ export default function RegisterScreen({ navigation }) {
       <View style={styles.inputBox}>
         <Ionicons name="call-outline" size={22} color="#7D8A99" />
         <TextInput
-  style={styles.input}
-  placeholder="Enter Mobile Number"
-  placeholderTextColor="#7D8A99"
-  value={mobile}
-  onChangeText={setMobile}
-  keyboardType="number-pad"
-  maxLength={10}
-/>
+          style={styles.input}
+          placeholder="Enter Mobile Number"
+          placeholderTextColor="#7D8A99"
+          value={mobile}
+          onChangeText={setMobile}
+          keyboardType="number-pad"
+          maxLength={10}
+        />
 
       </View>
       {errors.mobile && <Text style={styles.error}>{errors.mobile}</Text>}
 
       <View style={styles.inputBox}>
         <Ionicons name="lock-closed-outline" size={22} color="#7D8A99" />
-       <TextInput
-  style={styles.input}
-  placeholder="Create New Password"
-  placeholderTextColor="#7D8A99"
-  secureTextEntry={!showPassword}
-  value={password}
-  onChangeText={setPassword}
-/>
+        <TextInput
+          style={styles.input}
+          placeholder="Create New Password"
+          placeholderTextColor="#7D8A99"
+          secureTextEntry={!showPassword}
+          value={password}
+          onChangeText={setPassword}
+        />
 
         <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
           <Ionicons
@@ -197,13 +203,13 @@ export default function RegisterScreen({ navigation }) {
       <View style={styles.inputBox}>
         <Ionicons name="lock-closed-outline" size={22} color="#7D8A99" />
         <TextInput
-  style={styles.input}
-  placeholder="Confirm Password"
-  placeholderTextColor="#7D8A99"
-  secureTextEntry={!showConfirmPassword}
-  value={confirmPassword}
-  onChangeText={setConfirmPassword}
-/>
+          style={styles.input}
+          placeholder="Confirm Password"
+          placeholderTextColor="#7D8A99"
+          secureTextEntry={!showConfirmPassword}
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+        />
 
         <TouchableOpacity
           onPress={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -232,9 +238,9 @@ export default function RegisterScreen({ navigation }) {
         {/*<Text style={styles.termsText}>
           I agree to the medidoc Terms of Service and Privacy Policy
         </Text>*/}
-       <View style={{ flexDirection: "row", alignItems: "center", marginTop: 15, paddingRight: 20 }}>
-  {/* Checkbox */}
-  {/*<TouchableOpacity
+        <View style={{ flexDirection: "row", alignItems: "center", marginTop: 15, paddingRight: 20 }}>
+          {/* Checkbox */}
+          {/*<TouchableOpacity
     onPress={() => setIsChecked(!isChecked)}
     style={{
       width: 20,
@@ -259,34 +265,34 @@ export default function RegisterScreen({ navigation }) {
     )}
   </TouchableOpacity>*/}
 
-  {/* Text */}
-  <Text style={{ fontSize: 13, color: "#7D8A99", flexShrink: 1 }}>
-    By continuing, you agree to our{" "}
-    <Text
-      style={{ color: "#056FD2", fontWeight: "800" }}
-      onPress={() => navigation.navigate("TermsOfService")}
-    >
-      Terms of Service
-    </Text>{" "}
-    and{" "}
-    <Text
-      style={{ color: "#056FD2", fontWeight: "800" }}
-      onPress={() => navigation.navigate("PrivacyPolicy")}
-    >
-      Privacy Policy
-    </Text>.
-  </Text>
-</View>
+          {/* Text */}
+          <Text style={{ fontSize: 13, color: "#7D8A99", flexShrink: 1 }}>
+            By continuing, you agree to our{" "}
+            <Text
+              style={{ color: "#056FD2", fontWeight: "800" }}
+              onPress={() => navigation.navigate("TermsOfService")}
+            >
+              Terms of Service
+            </Text>{" "}
+            and{" "}
+            <Text
+              style={{ color: "#056FD2", fontWeight: "800" }}
+              onPress={() => navigation.navigate("PrivacyPolicy")}
+            >
+              Privacy Policy
+            </Text>.
+          </Text>
+        </View>
 
 
       </TouchableOpacity>
       {errors.terms && <Text style={styles.error}>{errors.terms}</Text>}
 
-      <PrimaryButton 
-                //title={loading ? "Please wait..." : "Register"}
+      <PrimaryButton
+        //title={loading ? "Please wait..." : "Register"}
 
-       title="Register"
-      onPress={handleRegister} />
+        title="Register"
+        onPress={handleRegister} />
 
       <Modal transparent visible={successModal} animationType="fade">
         <View style={styles.overlay}>
