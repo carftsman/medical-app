@@ -1,12 +1,13 @@
-import React from 'react';
+
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import SplashScreen from '../screens/SplashScreen';
 import BottomNavigation from './bottomNavigation';
 import AuthStackNavigator from './AuthStackNavigatior';
+
+import HospitalStackNavigator from "../modules/hospitals/navigation/HospitalNavigator"
 import useAuth from '../hooks/useAuth';
-import HospitalStackNavigator from '../modules/hospitals/navigation/HospitalNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -19,6 +20,8 @@ export default function AppNavigator() {
         <Stack.Screen name="Splash" component={SplashScreen} />
         {isAuthenticated ? (
           <>
+          
+           
             <Stack.Screen name="Bottom" component={BottomNavigation} />
             <Stack.Screen
               name="HospitalsTab"

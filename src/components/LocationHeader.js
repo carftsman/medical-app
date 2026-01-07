@@ -1,200 +1,183 @@
 import React, { useEffect, useState } from "react";
 import {
-    View,
-    Text,
-    PermissionsAndroid,
-    Platform,
-    StyleSheet,
-    Image,
-    TouchableOpacity,
+  View,
+  Text,
+  PermissionsAndroid,
+  Platform,
+  StyleSheet,
+  Modal,
+  TouchableOpacity,
 } from "react-native";
 import Geolocation from "react-native-geolocation-service";
-import { Linking } from "react-native";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
+export default function LocationHeader() {
+  const [address, setAddress] = useState(null);
+  const [showPermissionModal, setShowPermissionModal] = useState(true);
 
-export default function App() {
-    const [location, setLocation] = useState(null);
-    const [address, setAddress] = useState(null);
+  const requestPermissionAndStart = async () => {
+    setShowPermissionModal(false);
 
-    useEffect(() => {
-        requestPermissionAndStart();
-    }, []);
+    if (Platform.OS === "android") {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+      );
+      if (granted !== PermissionsAndroid.RESULTS.GRANTED) return;
+    }
 
-    const requestPermissionAndStart = async () => {
-        if (Platform.OS === "android") {
-            const granted = await PermissionsAndroid.request(
-                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-            );
-
-            if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-                return;
-            }
+    Geolocation.getCurrentPosition(
+      async pos => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+          );
+          const data = await res.json();
+          setAddress(data.address || null);
+        } catch (e) {
+          console.log(e);
         }
-
-        startLiveTracking();
-    };
-
-    const startLiveTracking = () => {
-        Geolocation.watchPosition(
-            async (pos) => {
-                const coords = pos.coords;
-                setLocation(coords);
-
-                // Reverse geocode using Nominatim API 
-                try {
-                    const res = await fetch(
-                        `https://nominatim.openstreetmap.org/reverse?lat=${coords.latitude}&lon=${coords.longitude}&format=json`
-                    );
-                    const data = await res.json();
-                    setAddress(data.address || null);
-                } catch (err) {
-                    console.log("Reverse geocode error:", err);
-                }
-            },
-            (error) => {
-                console.log(error);
-            },
-            {
-                enableHighAccuracy: true,
-                interval: 2000,
-                fastestInterval: 1000,
-                distanceFilter: 1,
-            }
-        );
-    };
-
-    const openInGoogleMaps = () => {
-        if (!location) return;
-
-        const url = `https://www.google.com/maps/?q=${location.latitude},${location.longitude}`;
-
-        Linking.openURL(url);
-    };
-
-
-    // Build a single line address for header (similar to your image)
-    const headerTitle = () => {
-        if (!address) return "Fetching location...";
-
-        // prefer nicer readable items
-        const parts = [];
-        // e.g. road/building/house name
-        if (address.house_number && address.road) parts.push(`${address.house_number} ${address.road}`);
-        else if (address.road) parts.push(address.road);
-        else if (address.pedestrian) parts.push(address.pedestrian);
-        else if (address.neighbourhood) parts.push(address.neighbourhood);
-
-        // area/suburb/village
-        if (address.suburb) parts.push(address.suburb);
-        else if (address.village) parts.push(address.village);
-        else if (address.town) parts.push(address.town);
-
-        // city / county fallback
-        if (address.city) parts.push(address.city);
-        else if (address.county) parts.push(address.county);
-
-        // state
-        if (address.state) parts.push(address.state);
-
-        // join and limit length to avoid overflow
-        const left = parts.join(", ");
-
-        // postcode
-        const postcode = address.postcode ? address.postcode : "";
-
-        // If left is empty, fallback to display village/town/state/postcode
-        const fallback = [address.village || address.town || address.city || address.state, postcode]
-            .filter(Boolean)
-            .join(", ");
-
-        return left || fallback || "Unknown location";
-    };
-
-    const headerSubtitle = () => {
-        if (!address) return "";
-        // Try to show a shorter second line if road + area shown above
-        // We'll show something like "PB House, pathriganagar, dhatvi bs" if available
-        const subParts = [];
-        if (address.road) subParts.push(address.road);
-        if (address.suburb) subParts.push(address.suburb);
-        if (address.village) subParts.push(address.village);
-        return subParts.join(", ");
-    };
-
-    return (
-        <View style={styles.container}>
-            {/* Top header: logo/icon + address */}
-            <View style={styles.topHeader}>
-                {/* Logo/Image on left */}
-                <TouchableOpacity onPress={openInGoogleMaps}>
-                    <Image
-                        source={require("../../assets/location.png")}
-                        style={styles.logo}
-                        resizeMode="contain"
-                    />
-                </TouchableOpacity>
-
-
-                {/* Address block */}
-                <View style={styles.addressBlock}>
-                    <Text style={styles.locationName}>{address?.city || address?.village || "Location"}</Text>
-                    <Text numberOfLines={1} ellipsizeMode="tail" style={styles.locationDetail}>
-                        {headerTitle()}
-                        {address?.postcode ? ` • ${address.postcode}` : ""}
-                    </Text>
-                    {/* optional second line (smaller)
-                    {headerSubtitle() ? (
-                        <Text numberOfLines={1} ellipsizeMode="tail" style={styles.locationSmall}>
-                            {headerSubtitle()}
-                        </Text>
-                    ) : null} */}
-                </View>
-            </View>
-
-        </View>
+      },
+      err => console.log(err),
+      { enableHighAccuracy: true }
     );
+  };
+
+  const headerTitle = () => {
+    if (!address) return "Select location";
+
+    const parts = [];
+    if (address.road) parts.push(address.road);
+    if (address.suburb) parts.push(address.suburb);
+    if (address.city) parts.push(address.city);
+    
+
+    return parts.join(", ");
+  };
+
+  return (
+    <>
+      {/* LOCATION*/}
+      <TouchableOpacity>
+      <View style={styles.container}>
+        <Ionicons name="location-sharp" size={26} color="#FF3B30" />
+
+        <View style={styles.textWrap}>
+          <Text style={styles.deliver}>Deliver to</Text>
+          <View style={styles.row}>
+            <Text numberOfLines={1} style={styles.location}>
+              {headerTitle()}
+            </Text>
+             <Ionicons name="chevron-down" size={14} color="#fff" />
+          </View>
+        </View>
+      </View>
+      </TouchableOpacity>
+      {/* LOCATION PERMISSION MODAL */}
+      <Modal visible={showPermissionModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Ionicons name="location-outline" size={36} color="#2563EB" />
+
+            <Text style={styles.modalTitle}>
+              Allow Location Access
+            </Text>
+
+            <Text style={styles.modalSub}>
+              We need your location to show nearby hospitals, labs and delivery services.
+            </Text>
+
+            <View style={styles.modalRow}>
+              <TouchableOpacity
+                style={styles.denyBtn}
+                onPress={() => setShowPermissionModal(false)}
+              >
+                <Text style={styles.denyText}>Not Now</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.allowBtn}
+                onPress={requestPermissionAndStart}
+              >
+                <Text style={styles.allowText}>Allow</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#fff" },
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  textWrap: {
+    marginLeft: 6,
+  },
+  deliver: {
+    fontSize: 12,
+    color: "#E0F7F4",
+  },
+  location: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#fff",
+    maxWidth: 200,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
 
-    topHeader: {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingHorizontal: 0,
-        paddingLeft: 2,
-        paddingRight: 16,
-        paddingVertical: 8,
-        backgroundColor:"#E9F5FF",
-        height: 50,
-    },
-    logo: {
-        width: 20,
-        height: 20,
-        borderRadius: 8,
-        marginRight: 4,
-        backgroundColor:"#E9F5FF",
-    },
-    addressBlock: {
-        flex: 1,
-        justifyContent: "center",
-        transform: [{ translateY: 2 }],
-    },
-    locationName: {
-        fontSize: 16,
-        fontWeight: "700",
-        color: "#111",
-    },
-    locationDetail: {
-        fontSize: 11,
-        color: "#333",
-        marginTop: 2,
-    },
-    locationSmall: {
-        fontSize: 10,
-        color: "#666",
-        marginTop: 2,
-    },
-
-
-});  
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalCard: {
+    width: "85%",
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 20,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginTop: 12,
+  },
+  modalSub: {
+    fontSize: 14,
+    color: "#6B7280",
+    textAlign: "center",
+    marginVertical: 10,
+  },
+  modalRow: {
+    flexDirection: "row",
+    marginTop: 16,
+  },
+  denyBtn: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginRight: 10,
+  },
+  denyText: {
+    color: "#6B7280",
+    fontWeight: "600",
+  },
+  allowBtn: {
+    backgroundColor: "#2563EB",
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  allowText: {
+    color: "#fff",
+    fontWeight: "700",
+  },
+});

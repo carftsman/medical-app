@@ -3,411 +3,269 @@ import {
   View,
   Text,
   StyleSheet,
-  Modal,
   TouchableOpacity,
   TextInput,
   StatusBar,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import PrimaryButton from '../components/PrimaryButton';
-import BackButton from '../components/BackButton';
-import useAuth from '../hooks/useAuth';
+import { scale, verticalScale } from '../utils/styling';
+import { authApi } from '../api/authApi';
 
 export default function LoginScreen({ navigation }) {
-  const [identifier, setIdentifier] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [successModal, setSuccessModal] = useState(false);
-  const { saveToken } = useAuth();
-
-  const [alertMsg, setAlertMsg] = useState('');
-  const [showAlert, setShowAlert] = useState(false);
-
+  const [activeTab, setActiveTab] = useState('phone');
+  const [value, setValue] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const validateEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  
+  const [showCodes, setShowCodes] = useState(false);
+  const [countryCode, setCountryCode] = useState('+91');
 
-  const whiteAlert = msg => {
-    setAlertMsg(msg);
-    setShowAlert(true);
-  };
+  const COUNTRY_CODES = ['+91', '+1', '+44', '+61'];
 
-  {
-    /*const handleLogin = async () => {
-    let errorMessage = null;
+  const isValidPhone = v => /^\d{10}$/.test(v);
+  const isValidEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
-    if (!email.trim()) {
-      errorMessage = "Please enter email";
-    } else if (!validateEmail(email)) {
-      errorMessage = "Please enter valid email";
-    } else if (!password.trim()) {
-      errorMessage = "Please enter password";
+  const handleSendOtp = async () => {
+    setError('');
+
+    if (!value.trim()) {
+      setError('Please enter value');
+      return;
     }
 
-    if (errorMessage) {
-      whiteAlert(errorMessage);
+    if (activeTab === 'phone' && !isValidPhone(value)) {
+      setError('Enter valid 10 digit number');
+      return;
+    }
+
+    if (activeTab === 'email' && !isValidEmail(value)) {
+      setError('Enter valid email');
       return;
     }
 
     try {
       setLoading(true);
-
-      const res = await fetch(
-        "https://hospital-backend-1-9jq0.onrender.com/api/hospital/user/auth/login"
-      );
-      const data = await res.json();
-
-      const user = data.find(
-        (item) =>
-          item.email.toLowerCase() === email.toLowerCase() &&
-          item.password === password
-      );
-
+      await authApi.sendOtp({ phone: value }); 
       setLoading(false);
 
-      if (!user) {
-        whiteAlert("Invalid email or password");
-        return;
-      }
-
-      setSuccessModal(true);
+      navigation.navigate('OTP', { phone: value });
     } catch (err) {
       setLoading(false);
-      whiteAlert("Network error, please try again");
-    }
-  };
-  */
-  }
-  const handleLogin = async () => {
-    if (!identifier.trim()) {
-      whiteAlert('Please enter email or phone number');
-      return;
-    }
+      setError('Something went wrong');
 
-    if (!password.trim()) {
-      whiteAlert('Please enter password');
-      return;
-    }
-
-    const payload = {
-      identifier: identifier.trim(),
-      password: password.trim(),
-    };
-
-    try {
-      setLoading(true);
-
-      const res = await fetch(
-        'https://hospital-backend-1-9jq0.onrender.com/api/hospital/user/auth/login',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-        },
-      );
-
-      const data = await res.json();
-      setLoading(false);
-
-      console.log('STATUS:', res.status);
-      console.log('RESPONSE:', data);
-
-      if (res.ok && data?.data?.token) {
-        setSuccessModal(true);
-        saveToken(data.data.token);
-
-        return;
-      }
-
-      whiteAlert(data?.message || 'Invalid login');
-    } catch (err) {
-      setLoading(false);
-      console.log('LOGIN ERROR:', err);
-      whiteAlert('Network error, please try again');
     }
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF' }}>
-      <StatusBar
-        translucent
-        backgroundColor="transparent"
-        barStyle="dark-content"
-      />
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="dark-content" />
 
       <View style={styles.container}>
-        <View>
-          <Text style={styles.title}>Login</Text>
+        <Image
+          source={require('../../assets/logo.png')}
+          style={styles.logo}
+        />
+
+        {/* TOGGLE */}
+        <View style={styles.toggleWrap}>
+          <TouchableOpacity
+            style={[styles.toggleBtn, activeTab === 'phone' && styles.activeToggle]}
+            onPress={() => {
+              setActiveTab('phone');
+              setValue('');
+              setError('');
+            }}
+          >
+            <Text style={styles.toggleTxt}>Phone</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.toggleBtn, activeTab === 'email' && styles.activeToggle]}
+            onPress={() => {
+              setActiveTab('email');
+              setValue('');
+              setError('');
+            }}
+          >
+            <Text style={styles.toggleTxt}>Email</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* EMAIL */}
+        <Text style={styles.label}>
+          {activeTab === 'phone' ? 'Mobile Number' : 'Email Address'}
+        </Text>
+
+        {/* INPUT BOX */}
         <View style={styles.inputBox}>
-          <Ionicons name="mail-outline" size={22} color="#7D8A99" />
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your email/Phone Number"
-            placeholderTextColor="#7D8A99"
-            value={identifier}
-            onChangeText={setIdentifier}
-          />
-          {validateEmail(identifier) && (
-            <Ionicons name="checkmark" size={22} color="#056FD2" />
+          {activeTab === 'phone' && (
+            <View>
+              <TouchableOpacity
+                style={styles.countryWrap}
+                onPress={() => setShowCodes(!showCodes)}
+              >
+                <Text style={styles.countryText}>{countryCode}</Text>
+                <Ionicons name="chevron-down" size={16} />
+              </TouchableOpacity>
+
+              {showCodes && (
+                <View style={styles.dropdown}>
+                  {COUNTRY_CODES.map(code => (
+                    <TouchableOpacity
+                      key={code}
+                      style={styles.dropItem}
+                      onPress={() => {
+                        setCountryCode(code);
+                        setShowCodes(false);
+                      }}
+                    >
+                      <Text>{code}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
           )}
-        </View>
 
-        {/* PASSWORD */}
-        <View style={styles.inputBox}>
-          <Ionicons name="lock-closed-outline" size={22} color="#7D8A99" />
+          
+          {activeTab === 'email' && (
+            <Ionicons
+              name="mail-outline"
+              size={scale(20)}
+              color="#7D8A99"
+              style={{ marginRight: scale(8) }}
+            />
+          )}
+
           <TextInput
             style={styles.input}
-            placeholder="Enter your password"
-            placeholderTextColor="#7D8A99"
-            secureTextEntry={!showPassword}
-            value={password}
-            onChangeText={setPassword}
+            placeholder={activeTab === 'phone' ? 'Enter number' : 'Enter email'}
+            placeholderTextColor="#9CA3AF"
+            keyboardType={activeTab === 'phone' ? 'number-pad' : 'email-address'}
+            autoCapitalize="none"
+            maxLength={activeTab === 'phone' ? 10 : 50}
+            value={value}
+            autoFocus
+            onChangeText={t => {
+              setValue(t);
+              setError('');
+            }}
           />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <Ionicons
-              name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-              size={22}
-              color="#7D8A99"
-            />
-          </TouchableOpacity>
         </View>
 
-        {/* FORGOT PASSWORD */}
-        {/*} <TouchableOpacity style={{ alignSelf: "flex-end", marginRight: 30 }}>
-          <Text style={styles.forgot}>Forgot Password?</Text>
-        </TouchableOpacity>*/}
+        {!!error && <Text style={styles.error}>{error}</Text>}
+
+        {/* BUTTON */}
         <TouchableOpacity
-          style={{ alignSelf: 'flex-end', marginRight: 30 }}
-          onPress={() => navigation.navigate('RequestOTP')}
+          style={styles.btn}
+          onPress={handleSendOtp}
+          disabled={loading}
         >
-          <Text style={styles.forgot}>Forgot Password?</Text>
+          <Text style={styles.btnText}>
+            {loading ? 'Sending OTP...' : 'Send OTP'}
+          </Text>
         </TouchableOpacity>
-
-        {/* LOGIN BUTTON */}
-        <PrimaryButton
-          title={loading ? 'Please wait...' : 'Login'}
-          onPress={!loading ? handleLogin : () => {}}
-        />
-
-        {/* OTP BUTTON */}
-        {/* <PrimaryButton title="Login Using OTP" onPress={() => {}} />*/}
-        <PrimaryButton
-          title="Login Using OTP"
-          onPress={() => navigation.navigate('PhoneInput')}
-        />
-
-        {/* REGISTER */}
-        {/*<View style={styles.footer}>
-          <Text style={styles.footerTxt}>Don't have an account?</Text>
-          <TouchableOpacity>
-            <Text style={styles.register}> Register</Text>
-          </TouchableOpacity>
-        </View>*/}
-        <View style={styles.footer}>
-          <Text style={styles.footerTxt}>Don't have an account?</Text>
-
-          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-            <Text style={styles.register}> Register</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* WHITE ALERT POPUP (FIXED COLOR) */}
-        <Modal visible={showAlert} transparent animationType="fade">
-          <View style={styles.alertOverlay}>
-            <View style={styles.alertBox}>
-              <Text style={styles.alertTitle}>Login Failed</Text>
-              <Text style={styles.alertMsg}>{alertMsg}</Text>
-
-              <TouchableOpacity
-                style={styles.alertBtn}
-                onPress={() => setShowAlert(false)}
-              >
-                <Text style={styles.alertBtnTxt}>OK</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-
-        {/* SUCCESS MODAL */}
-        <Modal visible={successModal} transparent animationType="fade">
-          <View style={styles.modalOverlay}>
-            <View style={styles.whiteCard}>
-              <View style={styles.tickCircle}>
-                <Ionicons name="checkmark" size={46} color="#056FD2" />
-              </View>
-
-              <Text style={styles.successTitle}>Yeay! Welcome Back</Text>
-              <Text style={styles.successMsg}>
-                You logged in successfully 😊
-              </Text>
-
-              <TouchableOpacity
-                style={styles.successBtn}
-                onPress={() => {
-                  setSuccessModal(false);
-                  navigation.replace('Bottom');
-                }}
-              >
-                <Text style={styles.successBtnTxt}>Go to home</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingTop: 30 },
+  safe: { flex: 1, backgroundColor: '#FFF' },
+  container: { flex: 1, padding: scale(24) },
 
-  title: {
-    fontSize: 22,
+  logo: {
+    width: scale(150),
+    height: scale(120),
+    resizeMode: 'contain',
+    alignSelf: 'center',
+    marginBottom: verticalScale(24),
+  },
+
+  toggleWrap: {
+    flexDirection: 'row',
+    backgroundColor: '#F1F3F5',
+    borderRadius: scale(30),
+    marginBottom: verticalScale(24),
+  },
+  toggleBtn: {
+    flex: 1,
+    paddingVertical: verticalScale(12),
+    alignItems: 'center',
+  },
+  activeToggle: {
+    backgroundColor: '#FFF',
+    borderWidth: 1,
+    color:"#2563EB",
+    borderColor: '#2563EB',
+    borderRadius: scale(30),
+  },
+  toggleTxt: { fontSize: scale(14), fontWeight: '600' },
+
+  label: {
+    fontSize: scale(20),
     fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: verticalScale(8),
   },
 
   inputBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '90%',
-    height: 56,
-    borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#E6E6E6',
+    borderColor: '#E5E7EB',
+    borderRadius: scale(12),
+    paddingHorizontal: scale(12),
+    height: verticalScale(52),
+  },
+
+  countryWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: scale(8),
+    marginRight: scale(8),
+    borderRightWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  countryText: { fontWeight: '700', marginRight: 4 },
+
+  dropdown: {
+    position: 'absolute',
+    top: verticalScale(52),
+    left: 0,
+    width: scale(70),
     backgroundColor: '#FFF',
-    alignSelf: 'center',
-    paddingHorizontal: 16,
-    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: scale(8),
+    zIndex: 10,
+  },
+  dropItem: {
+    padding: scale(8),
   },
 
   input: {
     flex: 1,
-    fontSize: 16,
-    color: '#000',
-    marginLeft: 8,
+    fontSize: scale(16),
+    color: '#111',
   },
 
-  forgot: {
-    color: '#056FD2',
-    fontSize: 13,
-    marginBottom: 20,
+  error: {
+    color: '#DC2626',
+    marginTop: verticalScale(8),
   },
 
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 30,
-  },
-
-  footerTxt: { fontSize: 14, color: '#777' },
-
-  register: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#056FD2',
-  },
-
-  alertOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
+  btn: {
+    backgroundColor: '#2563EB',
+    marginTop: verticalScale(24),
+    paddingVertical: verticalScale(14),
+    borderRadius: scale(12),
     alignItems: 'center',
   },
-
-  alertBox: {
-    width: 350,
-    height: 200,
-    backgroundColor: '#FFF',
-    borderRadius: 4,
-    paddingVertical: 22,
-    paddingHorizontal: 20,
-  },
-
-  alertTitle: {
-    fontSize: 25,
-    fontWeight: '700',
-    color: '#000',
-    marginBottom: 15,
-  },
-
-  alertMsg: {
-    fontSize: 18,
-    color: '#000',
-    marginBottom: 17,
-  },
-
-  alertBtn: {
-    alignSelf: 'flex-end',
-    paddingHorizontal: 18,
-    paddingVertical: 40,
-  },
-
-  alertBtnTxt: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#0EA5E9', // teal OK color like screenshot
-  },
-
-  /* SUCCESS MODAL (unchanged) */
-
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.28)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  whiteCard: {
-    width: 300,
-    backgroundColor: '#FFF',
-    borderRadius: 24,
-    paddingVertical: 32,
-    alignItems: 'center',
-  },
-
-  tickCircle: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: '#EEF5FF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-
-  successTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 8,
-  },
-
-  successMsg: {
-    textAlign: 'center',
-    fontSize: 14,
-    color: '#7D8A99',
-    marginBottom: 28,
-  },
-
-  successBtn: {
-    width: 200,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#056FD2',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  successBtnTxt: {
+  btnText: {
     color: '#FFF',
-    fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
+    fontSize: scale(16),
   },
 });

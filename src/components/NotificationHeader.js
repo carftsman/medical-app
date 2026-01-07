@@ -1,26 +1,35 @@
 import React from "react";
-import { TouchableOpacity, Image, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
-export default function NotificationHeader({ onPress }) {
+export default function NotificationHeader({
+  onNotificationPress,
+  onProfilePress,
+}) {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.wrapper}>
-      <Image
-        source={require("../../assets/notification.png")}  
-        style={styles.icon}
-      />
-    </TouchableOpacity>
+    <View style={styles.container}>
+      {/* Notification Icon */}
+      <TouchableOpacity onPress={onNotificationPress} style={styles.iconWrap}>
+        <Ionicons name="notifications-outline" size={26} color="#FFF" />
+      </TouchableOpacity>
+
+      {/* Profile Icon */}
+      <TouchableOpacity onPress={onProfilePress} style={styles.iconWrap}>
+        <Ionicons name="person-circle-outline" size={30} color="#FFF" />
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconWrap: {
     width: 40,
     height: 50,
     justifyContent: "center",
     alignItems: "center",
-  },
-  icon: {
-    width: 35,
-    height: 35,
   },
 });
