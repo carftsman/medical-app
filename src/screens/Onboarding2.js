@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   View,
   Text,
@@ -8,20 +8,20 @@ import {
   StatusBar,
   Dimensions,
   StyleSheet,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import LinearGradient from "react-native-linear-gradient";
-import { COLORS, FONT } from "../config/constants";
-import { scale, verticalScale } from "../utils/styling";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import LinearGradient from 'react-native-linear-gradient';
+import { COLORS, FONT } from '../config/constants';
+import { scale, verticalScale } from '../utils/styling';
 
-const { width, height } = Dimensions.get("window");
+const { width, height } = Dimensions.get('window');
 
 export default function Onboarding2({ navigation }) {
-  const goPrevious = () => navigation.navigate("Onboarding1");
-  const goNext = () => navigation.navigate("Onboarding3");
+  const goPrevious = () => navigation.navigate('Onboarding1');
+  const goNext = () => navigation.navigate('Onboarding3');
 
   return (
-    <TouchableWithoutFeedback onPress={goPrevious}>
+    <TouchableWithoutFeedback onPress={goNext}>
       <View style={styles.container}>
         <StatusBar
           translucent
@@ -31,14 +31,14 @@ export default function Onboarding2({ navigation }) {
 
         {/* Background Image */}
         <Image
-          source={require("../../assets/Labs.png")}
+          source={require('../../assets/Labs.png')}
           style={styles.backgroundImage}
           resizeMode="cover"
         />
 
         {/* Dark Gradient Overlay */}
         <LinearGradient
-          colors={["rgba(0,0,0,0.35)", "rgba(0,0,0,0.85)"]}
+          colors={['rgba(0,0,0,0.35)', 'rgba(0,0,0,0.85)']}
           style={styles.gradientOverlay}
         />
 
@@ -76,22 +76,22 @@ const styles = StyleSheet.create({
   backgroundImage: {
     width: width,
     height: height,
-    position: "absolute",
+    position: 'absolute',
   },
 
   gradientOverlay: {
-    position: "absolute",
+    position: 'absolute',
     width: width,
     height: height,
   },
 
   safeArea: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: 'flex-end',
   },
 
   skipButton: {
-    position: "absolute",
+    position: 'absolute',
     top: verticalScale(50),
     right: scale(20),
   },
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   bottomContent: {
     paddingHorizontal: scale(20),
     marginBottom: verticalScale(90),
-    alignItems: "center",
+    alignItems: 'center',
   },
 
   heading: {
@@ -113,33 +113,33 @@ const styles = StyleSheet.create({
     fontFamily: FONT.bold,
     fontSize: scale(22),
     marginBottom: verticalScale(12),
-    textAlign: "center",
+    textAlign: 'center',
   },
 
   subText: {
-    color: "rgba(255,255,255,0.9)",
+    color: 'rgba(255,255,255,0.9)',
     fontFamily: FONT.regular,
     fontSize: scale(14),
     lineHeight: verticalScale(20),
-    textAlign: "center",
+    textAlign: 'center',
   },
 
   nextButton: {
-    position: "absolute",
+    position: 'absolute',
     bottom: verticalScale(30),
     right: scale(20),
     width: scale(50),
     height: scale(50),
     borderRadius: scale(25),
     backgroundColor: COLORS.primary,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     elevation: 5,
   },
 
   nextArrow: {
     color: COLORS.white,
     fontSize: scale(24),
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
 });

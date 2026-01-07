@@ -1,4 +1,3 @@
-// src/navigation/bottomNavigation.js
 import React from 'react';
 import { Image, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -8,13 +7,14 @@ import HospitalsScreen from '../screens/HospitalsScreen';
 import PharmacyScreen from '../screens/PharmacyScreen';
 import LabTestsScreen from '../screens/LabTestsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import HospitalsNavigator from '../modules/hospitals/navigation/HospitalNavigator';
 
 const Tab = createBottomTabNavigator();
 
 export default function BottomNavigation() {
   return (
     <Tab.Navigator
-      screenOptions={{ 
+      screenOptions={{
         headerShown: false,
 
         // 🔥 KEEP TAB BAR FIXED – NEVER MOVE UP

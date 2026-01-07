@@ -1,11 +1,5 @@
 import React, { useEffect } from 'react';
-import {
-  Text,
-  Image,
-  StatusBar,
-  View,
-  StyleSheet,
-} from 'react-native';
+import { Text, Image, StatusBar, View, StyleSheet } from 'react-native';
 import { COLORS, FONT } from '../config/constants';
 import { scale, verticalScale } from '../utils/styling';
 import useAuth from '../hooks/useAuth';
@@ -15,7 +9,7 @@ export default function SplashScreen({ navigation }) {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace(isAuthenticated ? 'Bottom' : '/');
+      navigation.replace(isAuthenticated ? 'Bottom' : 'Auth');
     }, 2000);
 
     return () => clearTimeout(timer);
@@ -23,10 +17,7 @@ export default function SplashScreen({ navigation }) {
 
   return (
     <>
-      <StatusBar
-        backgroundColor={COLORS.white}
-        barStyle="dark-content"
-      />
+      <StatusBar backgroundColor={COLORS.white} barStyle="dark-content" />
 
       <View style={styles.container}>
         <Image
@@ -35,9 +26,7 @@ export default function SplashScreen({ navigation }) {
           resizeMode="contain"
         />
 
-        <Text style={styles.title}>
-          Medical Hunt
-        </Text>
+        <Text style={styles.title}>Medical Hunt</Text>
       </View>
     </>
   );
