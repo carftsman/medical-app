@@ -41,7 +41,14 @@ export default function HomeScreen() {
         {/* Search bar */}
         <SearchBar placeholder="Search doctor, drugs, tests..." />
       </View>
-      <Button onPress={handleLogout} title="Logout" />
+
+      <Button
+        onPress={() => {
+          console.log('logout...');
+          handleLogout();
+        }}
+        title="Logout"
+      />
 
       <LinearGradient
         colors={['#e6f0fa', '#ffffff']}

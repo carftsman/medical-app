@@ -11,18 +11,14 @@ import HospitalStackNavigator from '../modules/hospitals/navigation/HospitalNavi
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
-  // const { isAuthenticated } = useAuth();
-  const isAuthenticated = true;
+  const { isAuthenticated } = useAuth();
 
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Splash"
-        screenOptions={{ headerShown: false }}
-      >
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Splash" component={SplashScreen} />
         {isAuthenticated ? (
           <>
-            <Stack.Screen name="Splash" component={SplashScreen} />
             <Stack.Screen name="Bottom" component={BottomNavigation} />
             <Stack.Screen
               name="HospitalsTab"
@@ -31,8 +27,7 @@ export default function AppNavigator() {
           </>
         ) : (
           <>
-            <Stack.Screen name="Splash" component={SplashScreen} />
-            <Stack.Screen name="/" component={AuthStackNavigator} />
+            <Stack.Screen name="Auth" component={AuthStackNavigator} />
           </>
         )}
       </Stack.Navigator>
