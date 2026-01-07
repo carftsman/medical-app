@@ -1,5 +1,9 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { logOut, setToken } from '../redux/slices/authSlice';
+import {
+  logOut,
+  setIsAuthenticated,
+  setToken,
+} from '../redux/slices/authSlice';
 
 const useAuth = () => {
   const auth = useSelector(state => state.auth);
@@ -10,6 +14,10 @@ const useAuth = () => {
     dispatch(setToken(token));
   };
 
+  const handleAuthState = payload => {
+    dispatch(setIsAuthenticated(payload));
+  };
+
   const handleLogout = () => {
     dispatch(logOut());
   };
@@ -18,6 +26,7 @@ const useAuth = () => {
     ...auth,
     saveToken,
     handleLogout,
+    handleAuthState,
   };
 };
 
