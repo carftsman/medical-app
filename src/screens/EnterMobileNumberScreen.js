@@ -33,6 +33,7 @@ export default function EnterMobileNumberScreen({ navigation }) {
       setLoading(true);
 
       const resp = await sendOtp(phone);
+      console.log(resp)
 
       setLoading(false);
 

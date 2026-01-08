@@ -15,7 +15,10 @@ const API = axios.create({
 // ----------------------
 export const sendOtp = async phone => {
   try {
+    console.log("sending otp...")
     const res = await API.post('/send-otp', { phone });
+
+    console.log(res.data)
 
     return {
       success: true,
