@@ -27,7 +27,7 @@ export default function EnterOTPScreenLogin({ navigation, route }) {
 
   const inputs = useRef([]);
 
-  const {handleSaveToken} = useAuth()
+  const { handleSaveToken, handleAuthState } = useAuth()
   useEffect(() => {
     const i = setInterval(() => {
       setTimer(t => (t > 0 ? t - 1 : 0));
@@ -47,27 +47,27 @@ export default function EnterOTPScreenLogin({ navigation, route }) {
     }
   };
   const handleResendOtp = async () => {
-  if (timer > 0) return;
+    if (timer > 0) return;
 
-  try {
-    setError("");
-    setTimer(30);
+    try {
+      setError("");
+      setTimer(30);
 
-    await authApi.sendOtp({ phone });
+      await authApi.sendOtp({ phone });
 
-    const i = setInterval(() => {
-      setTimer(t => {
-        if (t <= 1) {
-          clearInterval(i);
-          return 0;
-        }
-        return t - 1;
-      });
-    }, 1000);
-  } catch (e) {
-    setError("Failed to resend OTP");
-  }
-};
+      const i = setInterval(() => {
+        setTimer(t => {
+          if (t <= 1) {
+            clearInterval(i);
+            return 0;
+          }
+          return t - 1;
+        });
+      }, 1000);
+    } catch (e) {
+      setError("Failed to resend OTP");
+    }
+  };
 
   const handleVerify = async () => {
     const code = otp.join("");
@@ -80,9 +80,17 @@ export default function EnterOTPScreenLogin({ navigation, route }) {
       const res = await authApi.verifyOtp({ phone, otp: code });
       //const res = await api.post("/hospital/user/auth/verify-otp", {phone, otp:code});
       setLoading(false)
-      handleSaveToken(res.data.token)
-      navigation.navigate("Register")
-     
+      if (res.data.isOnboardingCompleted) {
+        handleAuthState(true)
+        handleSaveToken(res.data.token)
+        // navigation.navigate("Bottom")
+        return
+      } else {
+
+        handleSaveToken(res.data.token)
+        navigation.navigate("Register")
+      }
+
       // setAuthState(res.data.token)
 
       // navigation.navigate({
@@ -90,7 +98,7 @@ export default function EnterOTPScreenLogin({ navigation, route }) {
       //   routes: [{ name: "Bottom" }],
       // });
 
-     
+
 
     } catch (e) {
       setLoading(false)
@@ -140,9 +148,10 @@ export default function EnterOTPScreenLogin({ navigation, route }) {
               autoFocus={i === 0}
               onChangeText={t => handleChange(i, t)}
               onKeyPress={({ nativeEvent }) => {
-          if (nativeEvent.key === "Backspace" && !otp[i] && i > 0) {
-            inputs.current[i - 1]?.focus();
-          }}}
+                if (nativeEvent.key === "Backspace" && !otp[i] && i > 0) {
+                  inputs.current[i - 1]?.focus();
+                }
+              }}
             />
           ))}
         </View>
@@ -162,15 +171,15 @@ export default function EnterOTPScreenLogin({ navigation, route }) {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleResendOtp} disabled={timer > 0}>
-        <Text
-          style={[
-            styles.resend,
-            timer > 0 && { color: "#9CA3AF" },
-          ]}
-        >
-    {timer > 0 ? `Resend OTP in ${timer} sec` : "Resend OTP"}
-  </Text>
-</TouchableOpacity>
+          <Text
+            style={[
+              styles.resend,
+              timer > 0 && { color: "#9CA3AF" },
+            ]}
+          >
+            {timer > 0 ? `Resend OTP in ${timer} sec` : "Resend OTP"}
+          </Text>
+        </TouchableOpacity>
 
       </View>
     </SafeAreaView>

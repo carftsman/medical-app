@@ -638,7 +638,20 @@ const styles = StyleSheet.create({
 
   
 
-
+  sosMainBtn: { 
+    width: 64,
+    height: 64, 
+    borderRadius: 32, 
+    backgroundColor: "#FF0000", 
+    alignItems: "center", 
+    justifyContent: "center", 
+    elevation: 8, 
+  },
+  sosText: {
+    color: "#fff",
+    fontWeight: "800", 
+    fontSize: 16,
+   },
 
   floatingSos: {
     position: "absolute",
@@ -654,9 +667,22 @@ const styles = StyleSheet.create({
     right: scale(20),
     alignItems: "center",
     justifyContent: "center",
+    
   },
-
-  
+  sosMiniBtn: { 
+    width: 44, 
+    height: 44, 
+    borderRadius: 22, 
+    backgroundColor: "#FF0000", 
+    alignItems: "center", 
+    justifyContent: "center", 
+    position: "absolute", 
+    elevation: 6, 
+  }, 
+  /* positions */ 
+  sosTop: { bottom: 75, right: 50 }, 
+  sosLeft: { right: 78, }, 
+  sosBottom: { top: 75, right:50 },
 
   
 })
