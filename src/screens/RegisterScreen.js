@@ -1,442 +1,294 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  ScrollView,
-  Modal,
   StyleSheet,
   TouchableOpacity,
-  TextInput,
+  Alert,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import PrimaryButton from "../components/PrimaryButton";
+
+import InputField from "../components/InputField";
 import { COLORS } from "../config/constants";
 import useAuth from "../hooks/useAuth";
+import { scale, verticalScale } from "../utils/styling";
+import api from "../api/client";
 
-export default function RegisterScreen({ navigation }) {
-  
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+const RegisterScreen = ({ navigation }) => {
+  const [fullname, setFullname] = useState("");
   const [email, setEmail] = useState("");
-  const [mobile, setMobile] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+  const [mobileNumber, setMobileNumber] = useState("");
+  const [bloodGroup, setBloodGroup] = useState("");
+  const [emergencyName, setEmergencyName] = useState("");
+  const [emergencyNumber, setEmergencyNumber] = useState("");
+  const [agree, setAgree] = useState(false);
   const [errors, setErrors] = useState({});
-  const [successModal, setSuccessModal] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const { token } = useAuth()
-  console.log(token)
+  const { handleAuthState } = useAuth();
 
-
+  useEffect(() => {
+    const getProfile = async () => {
+      try {
+        const res = await api.get("/hospital/user/profile");
+        if (res?.data) {
+          setMobileNumber(res.data.user.phone || "");
+          setEmail(res.data.user.email || "");
+        }
+      } catch (err) {
+        console.log("Profile error:", err);
+      }
+    };
+    getProfile();
+  }, []);
 
   const validate = () => {
     let temp = {};
-    let valid = true;
 
-    if (!firstName) (temp.firstName = "Enter first name"), (valid = false);
-    if (!lastName) (temp.lastName = "Enter last name"), (valid = false);
-    if (!email.includes("@")) (temp.email = "Enter valid email"), (valid = false);
-    if (mobile.length !== 10)
-      (temp.mobile = "Enter valid 10-digit mobile"), (valid = false);
-    if (!password) (temp.password = "Enter password"), (valid = false);
-    if (password !== confirmPassword)
-      (temp.confirmPassword = "Passwords do not match"), (valid = false);
-    if (!termsAccepted) (temp.terms = "Please accept terms and conditions"), (valid = false);
+    if (!fullname.trim()) temp.fullname = "Please enter full name";
+    else if (!/^[A-Za-z ]{3,}$/.test(fullname))
+      temp.fullname = "Invalid full name";
+
+    if (!email.trim()) temp.email = "Please enter email address";
+    else if (!/^\S+@\S+\.\S+$/.test(email))
+      temp.email = "Invalid email address";
+
+    if (!mobileNumber.trim())
+      temp.mobileNumber = "Please enter mobile number";
+    else if (!/^[0-9]{10}$/.test(mobileNumber))
+      temp.mobileNumber = "Invalid mobile number";
+
+    if (!bloodGroup.trim())
+      temp.bloodGroup = "Please enter blood group";
+    else if (!/^(A|B|AB|O)(\+ve|-ve)$/i.test(bloodGroup))
+      temp.bloodGroup = "Invalid blood group eg., A+ve, A-ve";
+
+    if (!emergencyName.trim())
+      temp.emergencyName = "Please enter emergency contact name";
+    else if (!/^[A-Za-z ]{3,}$/.test(emergencyName))
+      temp.emergencyName = "Invalid emergency contact name";
+
+    if (!emergencyNumber.trim())
+      temp.emergencyNumber = "Please enter emergency contact number";
+    else if (!/^[0-9]{10}$/.test(emergencyNumber))
+      temp.emergencyNumber = "Invalid emergency contact number";
+
+    if (!agree) temp.agree = "Please accept Terms & Conditions";
 
     setErrors(temp);
-    return valid;
+    return Object.keys(temp).length === 0;
   };
 
-  {/*} const handleRegister = async () => {
+  const onRegister = async () => {
     if (!validate()) return;
 
     try {
-      await fetch(
-        "https://hospital-backend-1-9jq0.onrender.com/api/hospital/user/auth/register",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            firstName,
-            lastName,
-            email,
-            mobile,
-            password,
-          }),
-        }
+      await api.post("/hospital/user/profile/complete", {
+        email,
+        mobileNumber,
+        bloodGroup,
+        emContactName: emergencyName,
+        emContactNumber: emergencyNumber,
+        fullName: fullname,
+
+      });
+
+      handleAuthState(true);
+
+
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        error.response?.data?.message || "Registration failed"
       );
-
-      setSuccessModal(true);
-    } catch (err) {
-      alert("Error: Something went wrong");
-    }
-  };
-  */}
-
-  const handleRegister = async () => {
-    if (!validate()) return;
-
-    try {
-      // const response = await fetch(
-      //   "https://hospital-backend-1-9jq0.onrender.com/api/hospital/user/auth/register",
-      //   {
-      //     method: "POST",
-      //     headers: { "Content-Type": "application/json" },
-      //     body: JSON.stringify({
-      //       firstName,
-      //       lastName,
-      //       email,
-      //       phone: `+91${mobile}`,
-      //       password,
-      //       confirmPassword,
-      //       termsAccepted,
-      //     }),
-      //   }
-      // );
-
-      // const data = await response.json();
-      setAuthState(token)
-
-
-      if (!response.ok) {
-        alert(data.message || "Registration failed");
-        return;
-      }
-
-      setSuccessModal(true);
-    } catch (err) {
-      alert("Network error");
     }
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <Text style={styles.header}>Register</Text>
+    <View
+      style={{ flex: 1, backgroundColor: COLORS.white }}
 
-      <View style={styles.inputBox}>
-        <Ionicons name="person-outline" size={22} color="#7D8A99" />
-        <TextInput
-          style={styles.input}
-          placeholder="Enter First Name"
-          placeholderTextColor="#7D8A99"
-          value={firstName}
-          onChangeText={setFirstName}
-        />
-
+    >
+      {/* FIXED HEADER */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Profile Details</Text>
       </View>
-      {errors.firstName && <Text style={styles.error}>{errors.firstName}</Text>}
 
-      <View style={styles.inputBox}>
-        <Ionicons name="person-outline" size={22} color="#7D8A99" />
-        {/*<TextInput
-          style={styles.input}
-          placeholder="Enter Last Name"
-          value={lastName}
-          onChangeText={setLastName}
-        />*/}
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Last Name"
-          placeholderTextColor="#7D8A99"
-          value={lastName}
-          onChangeText={setLastName}
-        />
-
-      </View>
-      {errors.lastName && <Text style={styles.error}>{errors.lastName}</Text>}
-
-      <View style={styles.inputBox}>
-        <Ionicons name="mail-outline" size={22} color="#7D8A99" />
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your email"
-          placeholderTextColor="#7D8A99"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-        />
-
-      </View>
-      {errors.email && <Text style={styles.error}>{errors.email}</Text>}
-
-      <View style={styles.inputBox}>
-        <Ionicons name="call-outline" size={22} color="#7D8A99" />
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Mobile Number"
-          placeholderTextColor="#7D8A99"
-          value={mobile}
-          onChangeText={setMobile}
-          keyboardType="number-pad"
-          maxLength={10}
-        />
-
-      </View>
-      {errors.mobile && <Text style={styles.error}>{errors.mobile}</Text>}
-
-      <View style={styles.inputBox}>
-        <Ionicons name="lock-closed-outline" size={22} color="#7D8A99" />
-        <TextInput
-          style={styles.input}
-          placeholder="Create New Password"
-          placeholderTextColor="#7D8A99"
-          secureTextEntry={!showPassword}
-          value={password}
-          onChangeText={setPassword}
-        />
-
-        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-          <Ionicons
-            name={showPassword ? "eye-off-outline" : "eye-outline"}
-            size={22}
-            color="#7D8A99"
-          />
-        </TouchableOpacity>
-      </View>
-      {errors.password && <Text style={styles.error}>{errors.password}</Text>}
-
-      <View style={styles.inputBox}>
-        <Ionicons name="lock-closed-outline" size={22} color="#7D8A99" />
-        <TextInput
-          style={styles.input}
-          placeholder="Confirm Password"
-          placeholderTextColor="#7D8A99"
-          secureTextEntry={!showConfirmPassword}
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-        />
-
-        <TouchableOpacity
-          onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-        >
-          <Ionicons
-            name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
-            size={22}
-            color="#7D8A99"
-          />
-        </TouchableOpacity>
-      </View>
-      {errors.confirmPassword && (
-        <Text style={styles.error}>{errors.confirmPassword}</Text>
-      )}
-
-      {/* Terms & Conditions */}
-      <TouchableOpacity
-        style={styles.termsContainer}
-        onPress={() => setTermsAccepted(!termsAccepted)}
+      <KeyboardAvoidingView
+        style={{ flex: 1, backgroundColor: COLORS.white }}
+        behavior={Platform.OS === "ios" ? "padding" : "position"}
       >
-        <Ionicons
-          name={termsAccepted ? "checkbox-outline" : "square-outline"}
-          size={20}
-          color={termsAccepted ? "green" : "red"}
-        />
-        {/*<Text style={styles.termsText}>
-          I agree to the medidoc Terms of Service and Privacy Policy
-        </Text>*/}
-        <View style={{ flexDirection: "row", alignItems: "center", marginTop: 15, paddingRight: 20 }}>
-          {/* Checkbox */}
-          {/*<TouchableOpacity
-    onPress={() => setIsChecked(!isChecked)}
-    style={{
-      width: 20,
-      height: 20,
-      borderWidth: 2,
-      borderColor: isChecked ? "#056FD2" : "red",
-      borderRadius: 4,
-      justifyContent: "center",
-      alignItems: "center",
-      marginRight: 10,
-    }}
-  >
-    {isChecked && (
-      <View
-        style={{
-          width: 12,
-          height: 12,
-          backgroundColor: "#056FD2",
-          borderRadius: 2,
-        }}
-      />
-    )}
-  </TouchableOpacity>*/}
-
-          {/* Text */}
-          <Text style={{ fontSize: 13, color: "#7D8A99", flexShrink: 1 }}>
-            By continuing, you agree to our{" "}
-            <Text
-              style={{ color: "#056FD2", fontWeight: "800" }}
-              onPress={() => navigation.navigate("TermsOfService")}
-            >
-              Terms of Service
-            </Text>{" "}
-            and{" "}
-            <Text
-              style={{ color: "#056FD2", fontWeight: "800" }}
-              onPress={() => navigation.navigate("PrivacyPolicy")}
-            >
-              Privacy Policy
-            </Text>.
-          </Text>
-        </View>
 
 
-      </TouchableOpacity>
-      {errors.terms && <Text style={styles.error}>{errors.terms}</Text>}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{
+            paddingTop: verticalScale(85),
+            paddingBottom: verticalScale(30),
+          }}
+        >
 
-      <PrimaryButton
-        //title={loading ? "Please wait..." : "Register"}
+          <View style={styles.container}>
+            <Label icon="person-outline" text="Full Name" />
+            <InputField value={fullname} onChangeText={setFullname} placeholder={"Enter your Full Name"} />
+            {errors.fullname && <Text style={styles.error}>{errors.fullname}</Text>}
 
-        title="Register"
-        onPress={handleRegister} />
+            <Label icon="mail-outline" text="Email Address" />
+            <InputField value={email} onChangeText={setEmail} placeholder={"Enter your Email Address"} />
+            {errors.email && <Text style={styles.error}>{errors.email}</Text>}
 
-      <Modal transparent visible={successModal} animationType="fade">
-        <View style={styles.overlay}>
-          <View style={styles.popup}>
-            <View style={styles.circle}>
-              <Ionicons name="checkmark" size={42} color="#1A73E8" />
-            </View>
+            <Label icon="call-outline" text="Mobile Number" />
+            <InputField value={mobileNumber} placeholder={"Enter your Mobile Number"} editable={false} />
 
-            <Text style={styles.successTitle}>Success</Text>
+            <Label icon="water-outline" text="Blood Group" />
+            <InputField value={bloodGroup} onChangeText={setBloodGroup} placeholder={"Ex: A+ve"} />
+            {errors.bloodGroup && (
+              <Text style={styles.error}>{errors.bloodGroup}</Text>
+            )}
 
-            <Text style={styles.successMsg}>
-              Your account has been successfully registered
-            </Text>
+            <Label icon="person-add-outline" text="Emergency Contact Name" />
+            <InputField
+              value={emergencyName}
+              onChangeText={setEmergencyName}
+              placeholder={"Enter your Emergency Contact Name"}
+            />
+            {errors.emergencyName && (
+              <Text style={styles.error}>{errors.emergencyName}</Text>
+            )}
+
+            <Label icon="call-outline" text="Emergency Contact Number" />
+            <InputField
+              keyboardType="numeric"
+              value={emergencyNumber}
+              onChangeText={setEmergencyNumber}
+              placeholder={"Enter your Emergency Contact Number"}
+            />
+            {errors.emergencyNumber && (
+              <Text style={styles.error}>{errors.emergencyNumber}</Text>
+            )}
+
 
             <TouchableOpacity
-              style={styles.popupButton}
-              onPress={() => {
-                setSuccessModal(false);
-                navigation.navigate("Bottom");
-              }}
+              style={styles.termsRow}
+              onPress={() => setAgree(!agree)}
             >
-              <Text style={styles.popupButtonText}>Go to Home</Text>
+              <Ionicons
+                name={agree ? "checkbox" : "square-outline"}
+                size={22}
+                color={agree ? COLORS.primary : "#9CA3AF"}
+              />
+              <Text style={styles.termsText}>
+                I agree to Medidoc{" "}
+                <Text style={styles.linkText}>
+                  Terms of Services & Privacy Policy
+                </Text>
+              </Text>
             </TouchableOpacity>
+            {errors.agree && <Text style={styles.error}>{errors.agree}</Text>}
           </View>
-        </View>
-      </Modal>
-    </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+
+      <View style={styles.fixedButtonContainer}>
+        <TouchableOpacity style={styles.registerBtn} onPress={onRegister}>
+          <Text style={styles.registerText}>Submit</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
-}
+};
+
+const Label = ({ icon, text }) => (
+  <View style={styles.labelRow}>
+    <Ionicons name={icon} size={18} color="#6B7280" />
+    <Text style={styles.label}>{text}</Text>
+  </View>
+);
+
+export default RegisterScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: COLORS.white,
-    paddingTop: 70,
   },
 
   header: {
-    fontSize: 22,
-    fontWeight: "700",
-    //color: COLORS.black,
-    textAlign: "center",
-    marginBottom: 30,
-  },
-
-  inputBox: {
-    flexDirection: "row",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: verticalScale(80),
+    backgroundColor: COLORS.white,
+    justifyContent: "center",
     alignItems: "center",
-    width: "90%",
-    height: 56,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "#E6E6E6",
-    backgroundColor: "#FFF",
-    alignSelf: "center",
-    paddingHorizontal: 16,
-    marginBottom: 12,
+    zIndex: 20,
+
   },
 
-  input: {
-    flex: 1,
-    fontSize: 16,
-    marginLeft: 8,
-    color: "#000",
+  headerTitle: {
+    fontSize: scale(18),
+    paddingTop: 45,
+    fontWeight: "600",
+    color: "#111827",
+  },
+
+  labelRow: {
+    flexDirection: "row",
+    marginLeft: scale(20),
+    marginTop: verticalScale(14),
+  },
+
+  label: {
+    marginLeft: scale(8),
+    fontSize: scale(14),
+    fontWeight: "500",
   },
 
   error: {
-    width: 330,
-    color: COLORS.danger,
-    fontSize: 12,
-    marginLeft: "auto",
-    marginRight: 30,
-    marginBottom: 6,
+    color: "red",
+    fontSize: scale(12),
+    marginLeft: scale(20),
+    marginTop: verticalScale(2),
   },
 
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.15)",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingTop: "150",
-  },
-
-  popup: {
-    width: 327,
-    backgroundColor: "#FFF",
-    paddingVertical: 35,
-    paddingHorizontal: 25,
-    borderRadius: 24,
-    alignItems: "center",
-  },
-
-  circle: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: "#E8F1FF",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  successTitle: {
-    fontSize: 22,
-    fontWeight: "700",
-    marginTop: 18,
-    color: "#000",
-  },
-
-  successMsg: {
-    fontSize: 14,
-    textAlign: "center",
-    color: COLORS.gray,
-    marginTop: 10,
-    marginBottom: 22,
-    width: 225,
-  },
-
-  popupButton: {
-    width: 200,
-    height: 48,
-    backgroundColor: "#1A73E8",
-    borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  popupButtonText: {
-    color: "#FFF",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-
-  termsContainer: {
+  termsRow: {
     flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 12,
-    marginLeft: 35,
+    marginHorizontal: scale(20),
+    marginTop: verticalScale(10),
+    marginBottom: verticalScale(4),
   },
 
   termsText: {
-    marginLeft: 8,
-    color: COLORS.black,
-    fontSize: 14,
+    marginLeft: scale(10),
+    fontSize: scale(14),
+  },
+
+  linkText: {
+    color: COLORS.primary,
+  },
+
+  registerBtn: {
+    height: verticalScale(56),
+    backgroundColor: COLORS.primary,
+    marginHorizontal: scale(20),
+    marginTop: verticalScale(6),
+    borderRadius: scale(12),
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  fixedButtonContainer: {
+    backgroundColor: COLORS.white,
+    paddingBottom: verticalScale(10),
+  },
+
+  registerText: {
+    color: COLORS.white,
+    fontSize: scale(16),
+    fontWeight: "600",
+
   },
 });
-
