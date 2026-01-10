@@ -7,42 +7,77 @@ import {
   StyleSheet,
   Modal,
   TouchableOpacity,
+  Linking,
 } from "react-native";
 import Geolocation from "react-native-geolocation-service";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LocationHeader() {
   const [address, setAddress] = useState(null);
-  const [showPermissionModal, setShowPermissionModal] = useState(true);
+  const [showPermissionModal, setShowPermissionModal] = useState(false);
+  const [permanentlyDenied, setPermanentlyDenied] = useState(false);
 
-  const requestPermissionAndStart = async () => {
-    setShowPermissionModal(false);
-
-    if (Platform.OS === "android") {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-      );
-      if (granted !== PermissionsAndroid.RESULTS.GRANTED) return;
-    }
-
+  const getLocation = () => {
     Geolocation.getCurrentPosition(
-      async pos => {
+      async position => {
         try {
-          const { latitude, longitude } = pos.coords;
+          const { latitude, longitude } = position.coords;
+
           const res = await fetch(
             `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
           );
           const data = await res.json();
+
           setAddress(data.address || null);
         } catch (e) {
           console.log(e);
         }
       },
-      err => console.log(err),
-      { enableHighAccuracy: true }
+      error => {
+        console.log(error);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 10000,
+      }
     );
   };
+
+  const requestPermissionAndStart = async () => {
+    setShowPermissionModal(false);
+
+    const result = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+    );
+
+    if (result === PermissionsAndroid.RESULTS.GRANTED) {
+      getLocation();
+    } else if (result === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+      setPermanentlyDenied(true);
+      setShowPermissionModal(true);
+    }
+  };
+
+  useEffect(() => {
+    const checkPermission = async () => {
+      if (Platform.OS === "android") {
+        const granted = await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+        );
+
+        if (granted) {
+          getLocation();
+        } else {
+          setShowPermissionModal(true);
+        }
+      } else {
+        getLocation();
+      }
+    };
+
+    checkPermission();
+  }, []);
 
   const headerTitle = () => {
     if (!address) return "Select location";
@@ -51,30 +86,27 @@ export default function LocationHeader() {
     if (address.road) parts.push(address.road);
     if (address.suburb) parts.push(address.suburb);
     if (address.city) parts.push(address.city);
-    
 
     return parts.join(", ");
   };
 
   return (
     <>
-      {/* LOCATION*/}
       <TouchableOpacity>
-      <View style={styles.container}>
-        <Ionicons name="location-sharp" size={26} color="#FF3B30" />
-
-        <View style={styles.textWrap}>
-          <Text style={styles.deliver}>Deliver to</Text>
-          <View style={styles.row}>
-            <Text numberOfLines={1} style={styles.location}>
-              {headerTitle()}
-            </Text>
-             <Ionicons name="chevron-down" size={14} color="#fff" />
+        <View style={styles.container}>
+          <Ionicons name="location-sharp" size={26} color="#FF3B30" />
+          <View style={styles.textWrap}>
+            <Text style={styles.deliver}>Deliver to</Text>
+            <View style={styles.row}>
+              <Text numberOfLines={1} style={styles.location}>
+                {headerTitle()}
+              </Text>
+              <Ionicons name="chevron-down" size={14} color="#fff" />
+            </View>
           </View>
         </View>
-      </View>
       </TouchableOpacity>
-      {/* LOCATION PERMISSION MODAL */}
+
       <Modal visible={showPermissionModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
@@ -85,7 +117,7 @@ export default function LocationHeader() {
             </Text>
 
             <Text style={styles.modalSub}>
-              We need your location to show nearby hospitals, labs and delivery services.
+              We need your location to show nearby hospitals and services.
             </Text>
 
             <View style={styles.modalRow}>
@@ -96,12 +128,21 @@ export default function LocationHeader() {
                 <Text style={styles.denyText}>Not Now</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.allowBtn}
-                onPress={requestPermissionAndStart}
-              >
-                <Text style={styles.allowText}>Allow</Text>
-              </TouchableOpacity>
+              {!permanentlyDenied ? (
+                <TouchableOpacity
+                  style={styles.allowBtn}
+                  onPress={requestPermissionAndStart}
+                >
+                  <Text style={styles.allowText}>Allow</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={styles.allowBtn}
+                  onPress={() => Linking.openSettings()}
+                >
+                  <Text style={styles.allowText}>Open Settings</Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
         </View>
@@ -132,7 +173,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.4)",
