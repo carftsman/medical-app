@@ -24,7 +24,7 @@ export default function AppNavigator() {
            
             <Stack.Screen name="Bottom" component={BottomNavigation} />
             <Stack.Screen
-              name="HospitalsTab"
+              name="HospitalsMain"
               component={HospitalStackNavigator}
             />
           </>
