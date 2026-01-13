@@ -140,7 +140,7 @@ export default function HomeScreen() {
             >
               <Text style={styles.shopOffer}>FLAT 25% OFF</Text>
               <Text style={styles.shopSub}>On First Order</Text>
-              <TouchableOpacity style={styles.shopCodeBox} onPress={copyCode}>
+              <TouchableOpacity style={styles.shopCodnveBox} onPress={copyCode}>
                 <Text style={styles.shopCode}>CODE: NEW25</Text>
               </TouchableOpacity>
             </LinearGradient>
