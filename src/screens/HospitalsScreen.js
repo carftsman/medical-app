@@ -7,7 +7,7 @@ export default function HospitalsScreen() {
   const navigation = useNavigation();
 
   useEffect(() => {
-    navigation.navigate('HospitalsTab');
+    navigation.navigate('HospitalsMain');
   }, [navigation]);
   return null;
 }
