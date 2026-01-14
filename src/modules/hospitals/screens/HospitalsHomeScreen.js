@@ -1,7 +1,8 @@
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, Text, View, Image } from 'react-native';
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import CategoryCard from '../components/CategoryCard';
 
 const HospitalsHomeScreen = () => {
   const navigation = useNavigation();
@@ -16,6 +17,8 @@ const HospitalsHomeScreen = () => {
           });
         }}
       />
+
+    
     </SafeAreaView>
   );
 };
