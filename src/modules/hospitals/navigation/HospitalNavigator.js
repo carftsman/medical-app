@@ -5,14 +5,21 @@ import HospitalsHomeScreen from '../screens/HospitalsHomeScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HospitalsScreen from '../screens/HospitalsScreen';
 import MainHomeScreen from '../../../screens/MainHomeScreen';
-
+import { verticalScale } from '../../../utils/styling';
 import WomenScreen from '../screens/WomenScreen';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { View } from 'react-native';
 import { COLORS } from '../../../config/constants';
+import DepartmentsList from '../screens/DepartmentsList';
+import HospitalDetails from '../screens/HospitalDetails';
+import DoctorsList from '../screens/DoctorsList';
+import AppointmentBooking from '../screens/AppointmentBooking';
+import Payments from '../screens/Payments';
+import BookingDetails from '../screens/BookingDetails';
 
 const HospitalTabNavigator = () => {
   const Tab = createBottomTabNavigator();
@@ -26,10 +33,20 @@ const HospitalTabNavigator = () => {
         headerShown: false,
         tabBarStyle: {
           backgroundColor: '#fff',
-          borderTopWidth: 1,
+          borderTopWidth: 0,
           borderTopColor: '#e1e8ed',
           height: 50 + insets.bottom,
           paddingTop: 8,
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: verticalScale(70),
+          paddingBottom: Platform.OS === "ios"
+            ? verticalScale(10)
+            : verticalScale(6),
+          paddingTop: verticalScale(6),
+          elevation: 10,
         },
       }}
     >
@@ -66,7 +83,7 @@ const HospitalTabNavigator = () => {
         options={{
           tabBarLabel: 'Departments',
           tabBarIcon: ({ focused, color, size }) => (
-            <FontAwesomeIcon name="stethoscope" size={size} color={color} />
+            <MaterialIcons name="category" size={size} color={color} />
           ),
         }}
       />
@@ -103,7 +120,14 @@ const HospitalStackNavigator = () => {
       }}
     >
       <Stack.Screen name="HospitalsTab" component={HospitalTabNavigator} />
+      <Stack.Screen name="DepartmentsList" component={DepartmentsList} />
       <Stack.Screen name="HospitalsScreen" component={HospitalsScreen} />
+      <Stack.Screen name="HospitalDetails" component={HospitalDetails} />
+      <Stack.Screen name="DoctorsList" component={DoctorsList} />
+      <Stack.Screen name="DoctorsScreen" component={DoctorsScreen} />
+      <Stack.Screen name="AppointmentBooking" component={AppointmentBooking} />
+      <Stack.Screen name="Payments" component={Payments} />
+      <Stack.Screen name="BookingDetails" component={BookingDetails} />
     </Stack.Navigator>
   );
 };

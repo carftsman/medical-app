@@ -36,7 +36,7 @@ export default function HomeScreen() {
 
      
      <LinearGradient
-        colors={["#00BBA7", "#155DFC"]}
+        colors={[ "#155DFC","#00BBA7"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.topHeaderWrapper}
@@ -141,7 +141,7 @@ export default function HomeScreen() {
               <Text style={styles.shopOffer}>FLAT 25% OFF</Text>
               <Text style={styles.shopSub}>On First Order</Text>
               <TouchableOpacity style={styles.shopCodnveBox} onPress={copyCode}>
-                <Text style={styles.shopCode}>CODE: NEW25</Text>
+                <Text style={styles.shopCodeBox}>CODE: NEW25</Text>
               </TouchableOpacity>
             </LinearGradient>
 
@@ -209,11 +209,14 @@ export default function HomeScreen() {
       
         <View style={styles.sosWrapper}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.sosTextLine2}>
+            <Text style={styles.sosTextLine1}>
               Make it up
             </Text>
-            <Text style={styles.sosTextLine3}>
+            <Text style={styles.sosTextLine2}>
               with <Text style={{ fontWeight: '800' }}>TRUST</Text>
+            </Text>
+            <Text style={styles.sosTextLine3}>
+              Love India ❤️
             </Text>
           </View>
         </View>
@@ -618,7 +621,7 @@ const styles = StyleSheet.create({
     fontSize: scale(70),
   },
 
-  sosTextLine2: {
+  sosTextLine1: {
     fontSize: scale(40),
     fontFamily: "serif",
     color: "#A9C1DB",
@@ -627,8 +630,17 @@ const styles = StyleSheet.create({
     paddingLeft: scale(15),
   },
 
-  sosTextLine3: {
+  sosTextLine2: {
     fontSize: scale(40),
+    paddingLeft: scale(15),
+    fontFamily: "serif",
+    color: "#A9C1DB",
+    letterSpacing: scale(0.5),
+    marginTop: verticalScale(2),
+  },
+
+  sosTextLine3: {
+    fontSize: scale(27),
     paddingLeft: scale(15),
     fontFamily: "serif",
     color: "#A9C1DB",
