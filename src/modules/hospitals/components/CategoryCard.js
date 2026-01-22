@@ -1,14 +1,16 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
 const CategoryCard = ({imageUrl, title}) => {
   return (
+    <TouchableOpacity>
     <View style={styles.container}>
       <View style={styles.imgbg}>
-      <Image  style={styles.Image} source = {imageUrl}/>
-    </View>
+        <Image  style={styles.Image} source = {imageUrl} resizeMode='contain'/>
+      </View>
       <Text style={styles.title}>{title}</Text>
     </View>
+    </TouchableOpacity>
   );
 }
 
@@ -20,8 +22,8 @@ const styles  = StyleSheet.create({
     justifyContent: 'center'
   },
   Image: {
-    width: 62,
-    height: 78,
+    width: 60,
+    height: 60,
     
   },
   imgbg: {
