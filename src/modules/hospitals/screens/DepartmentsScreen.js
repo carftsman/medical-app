@@ -1,121 +1,98 @@
-import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  StatusBar,
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import { FlatList } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
 
+import api from "../../../api/client";
+import { COLORS } from "../../../config/constants";
+
+import DoctorConsultHeader from "../components/DeptScreen-Header";
+import CategorySection from "../components/DeptScreen-CategorySection";
+import WhyChooseUsFooter from "../components/DeptScreen-Footer";
 
 const DepartmentsScreen = () => {
+  const navigation = useNavigation();
+
+  const [categories, setCategories] = useState([]);
+  const [symptoms, setSymptoms] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+
+
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+
+      const response = await api.get("/hospital/user/categories");
+
+      if (response?.data?.data) {
+        setCategories(response.data.data);
+      } else {
+        setError("No categories found");
+      }
+    } catch (err) {
+      console.log("Categories API error:", err);
+      setError("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const fetchSymptoms = async () => {
+    try {
+      const response = await api.get("/hospital/user/symptoms");
+
+      if (response?.data?.symptoms) {
+        setSymptoms(response.data.symptoms);
+      }
+    } catch (err) {
+      console.log("Symptoms API error:", err);
+    }
+  };
+
+
+
+  useEffect(() => {
+    fetchCategories();
+    fetchSymptoms();
+  }, []);
+
+  const limitedCategories = categories.slice(0, 6);
+  const limitedSymptoms = symptoms.slice(0, 6);
+
+
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
-
-      {/* Header */}
-      <Text style={styles.headerTitle}>Doctor Consult</Text>
-      <Text style={styles.headerSubtitle}>
-        Consult Certified Doctors Online 24/7
-      </Text>
-
-      {/* Banner Card */}
-      <View style={styles.banner}>
-        {/* Left */}
-        <View style={styles.left}>
-          <Text style={styles.bannerTitle}>
-            Get the Best{"\n"}medical Services
-          </Text>
-
-          <Text style={styles.bannerDesc}>
-            We provide best quality medical services without further cost.
-          </Text>
-
-          <TouchableOpacity style={styles.ctaButton}>
-            <Text style={styles.ctaText}>
-              ₹ Book consultation starting at ₹199
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <Image
-          source={require("../../../../assets/deptscr_bannerDoc.png")}
-          style={styles.doctorImage}
-        />
-      </View>
-    </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }}>
+      <FlatList
+        data={[]}
+        keyExtractor={() => "key"}
+        showsVerticalScrollIndicator={false}
+        ListHeaderComponent={
+          <>
+            <DoctorConsultHeader />
+            <CategorySection
+              title="Top Concerns"
+              data={limitedCategories}
+              showViewAll={true}
+              onViewAll={() =>
+                navigation.navigate("DepartmentsList", {
+                  data: categories,
+                })
+              }
+            />
+            <CategorySection
+              title="Regular Health Issues"
+              data={limitedSymptoms}
+              showViewAll={false}
+            />
+          </>
+        }
+        ListFooterComponent={<WhyChooseUsFooter />}
+      />
+    </SafeAreaView>
   );
 };
 
 export default DepartmentsScreen;
-
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#0B5ED7", 
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 20,
-  },
-
-  headerTitle: {
-    color: "#FFFFFF",
-    fontSize: 22,
-    fontWeight: "700",
-  },
-
-  headerSubtitle: {
-    color: "#E3ECFF",
-    fontSize: 14,
-    marginTop: 4,
-    marginBottom: 16,
-  },
-
-  banner: {
-    backgroundColor: "#1FB6D9",
-    borderRadius: 24,
-    padding: 16,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  left: {
-    flex: 1,
-    paddingRight: 10,
-  },
-
-  bannerTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#0B2B4B",
-    marginBottom: 6,
-  },
-
-  bannerDesc: {
-    fontSize: 13,
-    color: "#0B2B4B",
-    lineHeight: 18,
-    marginBottom: 14,
-  },
-
-  ctaButton: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    alignSelf: "flex-start",
-  },
-
-  ctaText: {
-    color: "#0B2B4B",
-    fontSize: 13,
-    fontWeight: "600",
-  },
-
-  doctorImage: {
-    width: 115,
-    height: 145,
-    resizeMode: "contain",
-  },
-});
