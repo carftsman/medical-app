@@ -12,6 +12,22 @@ export const hospitalApi = {
 
   // Get nearby hospitals
   getNearbyHospitals: data => {
-    return api.post('/hospital/user/nearby-hospitals', data);
+    return api.post('/hospital/user/hospitals/nearby', data);
   },
+
+  //catgories
+  getcategories:(params)=>{
+    return api.get('/hospital/user/categories',{
+      params,
+    })
+  },
+
+  getNearbyHospitals: params => {
+  return api.get('/hospital/user/hospitals/nearby', {
+    params,
+  });
+},
+
+
+  
 };

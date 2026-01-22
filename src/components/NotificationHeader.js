@@ -1,6 +1,7 @@
 import React from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { scale,verticalScale } from "../utils/styling";
 
 export default function NotificationHeader({
   onNotificationPress,
@@ -27,8 +28,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   iconWrap: {
-    width: 40,
-    height: 50,
+    width: scale(40),
+    height: scale(50),
     justifyContent: "center",
     alignItems: "center",
   },

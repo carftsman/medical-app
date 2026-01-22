@@ -36,7 +36,7 @@ const HospitalTabNavigator = () => {
           borderTopWidth: 0,
           borderTopColor: '#e1e8ed',
           height: 50 + insets.bottom,
-          paddingTop: 8,
+          paddingTop: verticalScale(8),
           position: "absolute",
           left: 0,
           right: 0,

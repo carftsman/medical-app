@@ -26,6 +26,7 @@ const AuthStackNavigator = () => {
       <Stack.Screen name="RequestOTP" component={RequestOTPScreen} />
       <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
       <Stack.Screen name="OTP" component={EnterOTPScreenLogin} />
+      
     </Stack.Navigator>
   );
 };

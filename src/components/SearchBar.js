@@ -1,63 +1,47 @@
 import React from "react";
 import { View, TextInput, StyleSheet } from "react-native";
+import { scale, verticalScale } from "../utils/styling"; 
 
-export default function SearchBar({ placeholder = "Search..." }) {
+export default function SearchBar({
+  placeholder = "Search...",
+  value,
+  onChangeText,
+}) {
   return (
     <View style={styles.searchWrapper}>
       <TextInput
         placeholder={placeholder}
         style={styles.searchInput}
         placeholderTextColor="#999"
+        value={value}
+        onChangeText={onChangeText}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-//   searchWrapper: {
-//   marginHorizontal: 16,
-//   marginTop: 16,
-//   marginBottom: 8,
-//   backgroundColor: "#fff", 
-//   borderWidth: 1,
-//   borderColor: "#00000070",             
-//   height: 50,
-//   justifyContent: "center",
-//   paddingHorizontal: 12,
-//   borderRadius: 10,
-//   keyboardShouldPersistTaps: "handled",
-//  zIndex: -1,
-// },
-searchWrapper: {
-  marginHorizontal: 1,
-  marginTop: 16,
-  marginBottom: 10,
-  backgroundColor: "#fff",
-  borderRadius: 10,
-  height: 48,
-  justifyContent: "center",
-  paddingHorizontal: 12,
+  searchWrapper: {
+    marginHorizontal: scale(1),
+    marginTop: verticalScale(16),
+    marginBottom: verticalScale(10),
+    backgroundColor: "#fff",
+    borderRadius: scale(10),
+    height: verticalScale(48),
+    justifyContent: "center",
+    paddingHorizontal: scale(12),
+    borderWidth: 1,
+    borderColor: "#00000070",
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: scale(6),
+    shadowOffset: { width: 0, height: verticalScale(3) },
+  },
 
-  // Soft modern border
-  borderWidth: 1,
-borderColor: "#00000070",
-  // Premium subtle shadow
-  elevation: 3,
-  shadowColor: "#000",
-  shadowOpacity: 0.05,
-  shadowRadius: 6,
-  shadowOffset: { width: 0, height: 3 },
-},
-
-searchInput: {
-  fontSize: 14,
-  color: "#111",
-},
-
-searchInput: {
-  fontSize: 14,
-  color: "#111",
-  backgroundColor: "#fff",     // ensure inside stays white
-},
-
+  searchInput: {
+    fontSize: scale(14),
+    color: "#111",
+    backgroundColor: "#fff",
+  },
 });
