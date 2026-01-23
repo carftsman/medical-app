@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Geolocation from 'react-native-geolocation-service';
 import LinearGradient from 'react-native-linear-gradient';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import LocationHeader from '../../../components/LocationHeader';
@@ -50,7 +51,34 @@ const HospitalsHomeScreen = () => {
       [id]: !prev[id],
     }));
   };
+ 
+const getUserLocation = () =>
 
+  new Promise((resolve, reject) => {
+
+    Geolocation.getCurrentPosition(
+
+      pos => {
+
+        resolve({
+
+          latitude: pos.coords.latitude,
+
+          longitude: pos.coords.longitude,
+
+        });
+
+      },
+
+      err => reject(err),
+
+      { enableHighAccuracy: true, timeout: 15000 }
+
+    );
+
+  });
+
+ 
   useEffect(() => {
     fetchCategories(1);
     fetchNearbyHospitals(1);
@@ -75,11 +103,11 @@ const HospitalsHomeScreen = () => {
   const fetchNearbyHospitals = async page => {
     try {
       setLoadingHospitals(true);
-
+      const { latitude, longitude } = await getUserLocation();
       const res = await hospitalApi.getNearbyHospitals({
         mode: hospitalMode,
-        latitude: 17.4474,
-        longitude: 78.3762,
+        latitude,
+        longitude,
         page,
         limit: hosLimit,
       });
@@ -87,12 +115,13 @@ const HospitalsHomeScreen = () => {
       const list = res?.data?.data || [];
       setNearbyHospitals(prev => (page === 1 ? list : [...prev, ...list]));
       setHosPage(page);
-    } catch (e) {
-      console.log('Hospitals error', e);
-    } finally {
-      setLoadingHospitals(false);
+      if (list.length < hosLimit) {
+      setHasMoreHospitals(false);
     }
-  };
+  } catch (err) {
+    console.log('Nearby hospitals error', err);
+  }
+};
 
   const goOnlineMode = () => {
     dispatch(setConsultationMode('online'));
@@ -136,7 +165,11 @@ const HospitalsHomeScreen = () => {
           <NotificationHeader />
         </View>
 
-        <SearchBar placeholder="Search medicines, healthcare…" />
+      <SearchBar
+        placeholder="Search medicines, healthcare…"
+        editable={false}
+        onPress={() => navigation.navigate("SearchScreen")}
+      />
       </LinearGradient>
 
       <ScrollView

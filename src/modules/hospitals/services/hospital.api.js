@@ -23,7 +23,7 @@ export const hospitalApi = {
   },
 
   getNearbyHospitals: params => {
-  return api.get('/hospital/user/hospitals/nearby', {
+  return api.get('/hospital/user/hospitals/nearby/filter', {
     params,
   });
 },

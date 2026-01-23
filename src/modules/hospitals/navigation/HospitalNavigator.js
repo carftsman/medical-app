@@ -20,6 +20,7 @@ import DoctorsList from '../screens/DoctorsList';
 import AppointmentBooking from '../screens/AppointmentBooking';
 import Payments from '../screens/Payments';
 import BookingDetails from '../screens/BookingDetails';
+import SearchScreen from '../screens/SearchScreen';
 
 const HospitalTabNavigator = () => {
   const Tab = createBottomTabNavigator();
@@ -128,6 +129,7 @@ const HospitalStackNavigator = () => {
       <Stack.Screen name="AppointmentBooking" component={AppointmentBooking} />
       <Stack.Screen name="Payments" component={Payments} />
       <Stack.Screen name="BookingDetails" component={BookingDetails} />
+      <Stack.Screen name='SearchScreen' component={SearchScreen}/>
     </Stack.Navigator>
   );
 };

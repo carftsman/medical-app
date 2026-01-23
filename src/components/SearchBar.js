@@ -1,22 +1,32 @@
 import React from "react";
-import { View, TextInput, StyleSheet } from "react-native";
-import { scale, verticalScale } from "../utils/styling"; 
+import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import { scale, verticalScale } from "../utils/styling";
 
 export default function SearchBar({
   placeholder = "Search...",
   value,
   onChangeText,
+  onPress,
+  editable = true,
 }) {
   return (
-    <View style={styles.searchWrapper}>
-      <TextInput
-        placeholder={placeholder}
-        style={styles.searchInput}
-        placeholderTextColor="#999"
-        value={value}
-        onChangeText={onChangeText}
-      />
-    </View>
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={onPress}
+      disabled={editable}
+    >
+      <View style={styles.searchWrapper}>
+        <TextInput
+          placeholder={placeholder}
+          style={styles.searchInput}
+          placeholderTextColor="#999"
+          value={value}
+          onChangeText={onChangeText}
+          editable={editable}
+          pointerEvents={editable ? "auto" : "none"}
+        />
+      </View>
+    </TouchableOpacity>
   );
 }
 
@@ -38,7 +48,6 @@ const styles = StyleSheet.create({
     shadowRadius: scale(6),
     shadowOffset: { width: 0, height: verticalScale(3) },
   },
-
   searchInput: {
     fontSize: scale(14),
     color: "#111",

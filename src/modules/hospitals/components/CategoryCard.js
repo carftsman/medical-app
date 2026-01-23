@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
+import {scale, verticalScale} from "../../../utils/styling"
+
 const CategoryCard = ({imageUrl, title}) => {
   return (
     <TouchableOpacity>

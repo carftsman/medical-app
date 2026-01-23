@@ -150,6 +150,7 @@ const styles = StyleSheet.create({
 
   content: {
     padding: scale(14),
+    flex: 1,
   },
 
   rowBetween: {
@@ -215,15 +216,20 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(6),
     fontSize: scale(13),
     color: '#777',
+    marginBottom:verticalScale(40),
   },
 
   button: {
-    marginTop: verticalScale(12),
+    position:'absolute',
+    bottom:verticalScale(12),
+    left:scale(14),
+    right:scale(14),
+   
     borderWidth: scale(1),
     borderColor: '#2979FF',
     borderRadius: scale(20),
     paddingVertical: verticalScale(8),
-    width: scale(180),        // ✅ fixed
+    width: scale(180),        
     alignItems: 'center',
     backgroundColor: '#056FD2',
   },
@@ -236,7 +242,7 @@ const styles = StyleSheet.create({
 
   favIcon: {
     position: 'absolute',
-    bottom: verticalScale(12),
+    bottom: verticalScale(18),
     right: scale(14),
     padding: scale(3),      
   },
