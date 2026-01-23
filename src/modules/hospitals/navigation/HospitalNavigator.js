@@ -102,12 +102,14 @@ const HospitalTabNavigator = () => {
 };
 
 const HospitalStackNavigator = () => {
-  const Stack = createNativeStackNavigator();
+  const Stack = createNativeStackNavigator(); 
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
       }}
+      initialRouteName='DepartmentsList'
+
     >
       <Stack.Screen name="HospitalsTab" component={HospitalTabNavigator} />
       <Stack.Screen name="DepartmentsList" component={DepartmentsList} />
