@@ -1,153 +1,44 @@
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  PermissionsAndroid,
-  Platform,
-  StyleSheet,
-  Modal,
-  TouchableOpacity,
-  Linking,
-} from "react-native";
-import Geolocation from "react-native-geolocation-service";
+import React from "react";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useNavigation } from "@react-navigation/native";
+import { useSelector } from "react-redux";
+import { scale, verticalScale } from "../utils/styling"; // 👈 your responsive utils
 
 export default function LocationHeader() {
-  const [address, setAddress] = useState(null);
-  const [showPermissionModal, setShowPermissionModal] = useState(false);
-  const [permanentlyDenied, setPermanentlyDenied] = useState(false);
+  const navigation = useNavigation();
+  const { address } = useSelector(state => state.location);
 
-  const getLocation = () => {
-    Geolocation.getCurrentPosition(
-      async position => {
-        try {
-          const { latitude, longitude } = position.coords;
 
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-          );
-          const data = await res.json();
-
-          setAddress(data.address || null);
-        } catch (e) {
-          console.log(e);
-        }
-      },
-      error => {
-        console.log(error);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 10000,
-      }
-    );
-  };
-
-  const requestPermissionAndStart = async () => {
-    setShowPermissionModal(false);
-
-    const result = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-    );
-
-    if (result === PermissionsAndroid.RESULTS.GRANTED) {
-      getLocation();
-    } else if (result === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
-      setPermanentlyDenied(true);
-      setShowPermissionModal(true);
-    }
-  };
-
-  useEffect(() => {
-    const checkPermission = async () => {
-      if (Platform.OS === "android") {
-        const granted = await PermissionsAndroid.check(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-        );
-
-        if (granted) {
-          getLocation();
-        } else {
-          setShowPermissionModal(true);
-        }
-      } else {
-        getLocation();
-      }
-    };
-
-    checkPermission();
-  }, []);
-
-  const headerTitle = () => {
-    if (!address) return "Select location";
-
-    const parts = [];
-    if (address.road) parts.push(address.road);
-    if (address.suburb) parts.push(address.suburb);
-    if (address.city) parts.push(address.city);
-
-    return parts.join(", ");
+  const formatPlaceCity = (fullAddress) => {
+    if (!fullAddress) return "Select location";
+    const parts = fullAddress.split(",").map(p => p.trim());
+    return parts.length >= 4 ? `${parts[0]}, ${parts[3]}` : parts.join(", ");
   };
 
   return (
-    <>
-      <TouchableOpacity>
-        <View style={styles.container}>
-          <Ionicons name="location-sharp" size={26} color="#FF3B30" />
-          <View style={styles.textWrap}>
-            <Text style={styles.deliver}>Deliver to</Text>
-            <View style={styles.row}>
-              <Text numberOfLines={1} style={styles.location}>
-                {headerTitle()}
-              </Text>
-              <Ionicons name="chevron-down" size={14} color="#fff" />
-            </View>
+    <TouchableOpacity onPress={() => navigation.navigate("SelectLocation")}>
+      <View style={styles.container}>
+        <Ionicons
+          name="location-sharp"
+          size={scale(26)}
+          color="#FF3B30"
+        />
+        <View style={styles.textWrap}>
+          <Text style={styles.deliver}>Deliver to</Text>
+          <View style={styles.row}>
+            <Text numberOfLines={1} style={styles.location}>
+              {formatPlaceCity(address)}
+            </Text>
+            <Ionicons
+              name="chevron-down"
+              size={scale(14)}
+              color="#fff"
+            />
           </View>
         </View>
-      </TouchableOpacity>
-
-      <Modal visible={showPermissionModal} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <Ionicons name="location-outline" size={36} color="#2563EB" />
-
-            <Text style={styles.modalTitle}>
-              Allow Location Access
-            </Text>
-
-            <Text style={styles.modalSub}>
-              We need your location to show nearby hospitals and services.
-            </Text>
-
-            <View style={styles.modalRow}>
-              <TouchableOpacity
-                style={styles.denyBtn}
-                onPress={() => setShowPermissionModal(false)}
-              >
-                <Text style={styles.denyText}>Not Now</Text>
-              </TouchableOpacity>
-
-              {!permanentlyDenied ? (
-                <TouchableOpacity
-                  style={styles.allowBtn}
-                  onPress={requestPermissionAndStart}
-                >
-                  <Text style={styles.allowText}>Allow</Text>
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity
-                  style={styles.allowBtn}
-                  onPress={() => Linking.openSettings()}
-                >
-                  <Text style={styles.allowText}>Open Settings</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-        </View>
-      </Modal>
-    </>
+      </View>
+    </TouchableOpacity>
   );
 }
 
@@ -157,67 +48,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   textWrap: {
-    marginLeft: 6,
+    marginLeft: scale(6),
   },
   deliver: {
-    fontSize: 12,
+    fontSize: scale(12),
     color: "#E0F7F4",
   },
   location: {
-    fontSize: 14,
+    fontSize: scale(14),
     fontWeight: "700",
     color: "#fff",
-    maxWidth: 200,
+    maxWidth: scale(200),
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalCard: {
-    width: "85%",
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 20,
-    alignItems: "center",
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginTop: 12,
-  },
-  modalSub: {
-    fontSize: 14,
-    color: "#6B7280",
-    textAlign: "center",
-    marginVertical: 10,
-  },
-  modalRow: {
-    flexDirection: "row",
-    marginTop: 16,
-  },
-  denyBtn: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    marginRight: 10,
-  },
-  denyText: {
-    color: "#6B7280",
-    fontWeight: "600",
-  },
-  allowBtn: {
-    backgroundColor: "#2563EB",
-    paddingVertical: 10,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-  },
-  allowText: {
-    color: "#fff",
-    fontWeight: "700",
   },
 });
