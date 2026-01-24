@@ -48,17 +48,25 @@ export default function LoginScreen({ navigation }) {
 
     try {
       setLoading(true);
-      await authApi.sendOtp({ phone: value }); 
+      const payload =
+        activeTab === 'phone'
+          ? { phone: value }
+          : { email: value };
+
+      await authApi.sendOtp(payload);
+ 
       setLoading(false);
 
-      navigation.navigate('OTP', { phone: value });
+      navigation.navigate('OTP', { value, type:activeTab, });
     } catch (err) {
+      console.log("send otp error", err.response)
       setLoading(false);
-      setError('Something went wrong');
+      setError(err?.response?.data?.message||'Something went wrong');
 
     }
   };
 
+  
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="dark-content" />
