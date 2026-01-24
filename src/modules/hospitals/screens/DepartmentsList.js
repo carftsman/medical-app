@@ -81,7 +81,7 @@ export default function FindDoctorsScreen() {
 
       <View style={styles.cardContent}>
         <Text style={styles.title}>{item.name}</Text>
-        <Text style={styles.description} numberOfLines={2}>
+        <Text style={styles.description} numberOfLines={4}>
           {searchText.trim().length > 0
             ? item.category?.name
             : item.description}
