@@ -8,7 +8,7 @@ import AuthStackNavigator from './AuthStackNavigatior';
 
 import HospitalStackNavigator from "../modules/hospitals/navigation/HospitalNavigator"
 import useAuth from '../hooks/useAuth';
-
+import SelectLocation from '../screens/SelectLocation';
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
@@ -27,12 +27,15 @@ export default function AppNavigator() {
               name="HospitalsMain"
               component={HospitalStackNavigator}
             />
+            
           </>
         ) : (
           <>
             <Stack.Screen name="Auth" component={AuthStackNavigator} />
           </>
         )}
+
+        <Stack.Screen name="SelectLocation" component={SelectLocation} />
       </Stack.Navigator>
     </NavigationContainer>
   );

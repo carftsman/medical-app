@@ -19,7 +19,9 @@ import useAuth from "../hooks/useAuth";
 const OTP_LENGTH = 6;
 
 export default function EnterOTPScreenLogin({ navigation, route }) {
-  const phone = route?.params?.phone || "";
+  const value = route?.params?.value || '';
+const type = route?.params?.type || 'phone';
+
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
   const [timer, setTimer] = useState(30);
   const [error, setError] = useState("");
@@ -77,7 +79,12 @@ export default function EnterOTPScreenLogin({ navigation, route }) {
     setError("")
     setLoading(true)
     try {
-      const res = await authApi.verifyOtp({ phone, otp: code });
+      const payload =
+      type === 'phone'
+        ? { phone: value, otp: code }
+        : { email: value, otp: code };
+
+    const res = await authApi.verifyOtp(payload);
       //const res = await api.post("/hospital/user/auth/verify-otp", {phone, otp:code});
       setLoading(false)
       if (res.data.isOnboardingCompleted) {
@@ -101,6 +108,7 @@ export default function EnterOTPScreenLogin({ navigation, route }) {
 
 
     } catch (e) {
+      
       setLoading(false)
       console.log("error while sending otp", e)
       setError("Invalid OTP");
@@ -124,8 +132,9 @@ export default function EnterOTPScreenLogin({ navigation, route }) {
         {/* OTP SENT + CHANGE NUMBER */}
         <View style={styles.subRow}>
           <Text style={styles.subText}>
-            OTP sent to +91 {phone}
-          </Text>
+          OTP sent to {type === 'phone' ? `+91 ${value}` : value}
+        </Text>
+
 
           <TouchableOpacity onPress={() => navigation.replace("Login")}>
             <Text style={styles.changeText}>Change Number</Text>
