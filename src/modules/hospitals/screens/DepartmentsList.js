@@ -12,6 +12,10 @@ import {
 import Icon from "react-native-vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import api from "../../../api/client";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
+
+import { setCategory } from "../redux/slices/BookingSlice";
 
 export default function FindDoctorsScreen() {
   const [searchText, setSearchText] = useState("");
@@ -19,6 +23,14 @@ export default function FindDoctorsScreen() {
   const [symptoms, setSymptoms] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+
+  const mode = useSelector(
+    (state) => state.hospital.consultation.mode
+  );
+  console.log(mode)
 
   useEffect(() => {
     fetchCategories();
@@ -62,16 +74,43 @@ export default function FindDoctorsScreen() {
     }
   };
 
+  // 🔹 Navigation handler (ADDED)
+  const handleNavigation = () => {
+    if (mode === "online") {
+      navigation.navigate("DoctorsList");
+    } else if (mode === "offline") {
+      navigation.navigate("HospitalsScreen");
+    } else if (mode === "instant") {
+      navigation.navigate("PatientDetails");
+    }
+    else {
+      navigation.navigate("DoctorsList");
+    }
+  };
+
   // Decide what list to show
-  const listData = useMemo(() => { 
+  const listData = useMemo(() => {
     return searchText.trim().length > 0 ? symptoms : categories;
   }, [searchText, symptoms, categories]);
 
-  // Render Item (Category + Disease/Symptom)
+  // Render Item (UPDATED ONLY onPress)
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.card} activeOpacity={0.85}>
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.85}
+      onPress={() => {
+        dispatch(
+          setCategory({
+            id: item.id,
+            name: item.name,
+          })
+        );
+
+        handleNavigation();
+      }}
+    >
       <Image
-        source={{ 
+        source={{
           uri: item.imageUrl
             ? item.imageUrl
             : "https://via.placeholder.com/80",
@@ -93,10 +132,8 @@ export default function FindDoctorsScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        {/* STATIC HEADER */}
         <Text style={styles.header}>Find Doctors</Text>
 
-        {/* STATIC SEARCH BAR */}
         <View style={styles.searchBox}>
           <Icon name="search-outline" size={18} color="#9CA3AF" />
           <TextInput
@@ -108,7 +145,6 @@ export default function FindDoctorsScreen() {
           />
         </View>
 
-        {/* SCROLLABLE LIST */}
         {error ? (
           <Text style={styles.error}>{error}</Text>
         ) : (
@@ -140,19 +176,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F4F6FA",
   },
-
   container: {
     flex: 1,
     paddingHorizontal: 16,
   },
-
   header: {
     fontSize: 22,
     fontWeight: "700",
     marginVertical: 12,
     color: "#111827",
   },
-
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
@@ -161,35 +194,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 25,
     marginBottom: 17,
-
     elevation: 1,
     shadowColor: "#000",
     shadowOpacity: 0.04,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
   },
-
   searchInput: {
     marginLeft: 8,
     flex: 1,
     fontSize: 14,
     color: "#111827",
   },
-
   card: {
     flexDirection: "row",
     backgroundColor: "#FFFFFF",
     borderRadius: 14,
     padding: 12,
     marginBottom: 12,
-
     elevation: 2,
     shadowColor: "#000",
     shadowOpacity: 0.06,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
   },
-
   image: {
     width: 70,
     height: 70,
@@ -197,30 +225,25 @@ const styles = StyleSheet.create({
     marginRight: 12,
     backgroundColor: "#E5E7EB",
   },
-
   cardContent: {
     flex: 1,
     justifyContent: "center",
   },
-
   title: {
     fontSize: 15,
     fontWeight: "700",
     color: "#111827",
     marginBottom: 4,
   },
-
   description: {
     fontSize: 12,
     color: "#9CA3AF",
   },
-
   error: {
     textAlign: "center",
     color: "red",
     marginTop: 20,
   },
-
   empty: {
     textAlign: "center",
     marginTop: 40,
