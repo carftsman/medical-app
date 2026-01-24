@@ -20,7 +20,7 @@ import DoctorsList from '../screens/DoctorsList';
 import AppointmentBooking from '../screens/AppointmentBooking';
 import Payments from '../screens/Payments';
 import BookingDetails from '../screens/BookingDetails';
-
+import DoctorDetails from '../screens/DoctorDetails';
 const HospitalTabNavigator = () => {
   const Tab = createBottomTabNavigator();
 
@@ -114,7 +114,7 @@ const HospitalStackNavigator = () => {
       <Stack.Screen name="HospitalsScreen" component={HospitalsScreen} />
       <Stack.Screen name="HospitalDetails" component={HospitalDetails} />
       <Stack.Screen name="DoctorsList" component={DoctorsList} />
-      <Stack.Screen name="DoctorsScreen" component={DoctorsScreen} />
+      <Stack.Screen name="DoctorDetails" component={DoctorDetails} />
       <Stack.Screen name="AppointmentBooking" component={AppointmentBooking} />
       <Stack.Screen name="Payments" component={Payments} />
       <Stack.Screen name="BookingDetails" component={BookingDetails} />
