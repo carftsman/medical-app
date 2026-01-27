@@ -86,6 +86,7 @@ const DepartmentsScreen = () => {
             <CategorySection
               title="Regular Health Issues"
               data={limitedSymptoms}
+              loading={loading}
               showViewAll={false}
             />
           </>
