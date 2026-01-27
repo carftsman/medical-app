@@ -20,6 +20,7 @@ import DoctorsList from '../screens/DoctorsList';
 import AppointmentBooking from '../screens/AppointmentBooking';
 import Payments from '../screens/Payments';
 import BookingDetails from '../screens/BookingDetails';
+import DoctorDetails from '../screens/DoctorDetails';
 import SearchScreen from '../screens/SearchScreen';
 import PatientDetails from '../screens/PatientDetaills';
 
@@ -37,8 +38,6 @@ const HospitalTabNavigator = () => {
           backgroundColor: '#fff',
           borderTopWidth: 0,
           borderTopColor: '#e1e8ed',
-          height: 50 + insets.bottom,
-          paddingTop: verticalScale(8),
           position: "absolute",
           left: 0,
           right: 0,
@@ -127,7 +126,7 @@ const HospitalStackNavigator = () => {
       <Stack.Screen name="HospitalsScreen" component={HospitalsScreen} />
       <Stack.Screen name="HospitalDetails" component={HospitalDetails} />
       <Stack.Screen name="DoctorsList" component={DoctorsList} />
-      <Stack.Screen name="DoctorsScreen" component={DoctorsScreen} />
+      <Stack.Screen name="DoctorDetails" component={DoctorDetails} />
       <Stack.Screen name="AppointmentBooking" component={AppointmentBooking} />
       <Stack.Screen name="Payments" component={Payments} />
       <Stack.Screen name="BookingDetails" component={BookingDetails} />
