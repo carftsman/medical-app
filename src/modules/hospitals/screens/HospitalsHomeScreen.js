@@ -367,7 +367,7 @@ const getUserLocation = () =>
     </SafeAreaView>
   );
 };
-
+ 
 export default HospitalsHomeScreen;
 
 const styles = StyleSheet.create({
