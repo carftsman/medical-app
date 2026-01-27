@@ -75,6 +75,7 @@ const DepartmentsScreen = () => {
             <CategorySection
               title="Top Concerns"
               data={limitedCategories}
+              loading={loading}
               showViewAll={true}
               onViewAll={() =>
                 navigation.navigate("DepartmentsList", {
