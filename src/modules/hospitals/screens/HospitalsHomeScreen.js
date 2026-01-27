@@ -299,51 +299,7 @@ const getUserLocation = () =>
 
 
         {/* Recent Appointments Header */}
-        <View style={styles.recentHeader}>
-          <Text style={styles.recentTitle}>Recent Appointments</Text>
-          <TouchableOpacity >
-            <Text style={styles.viewAll}>View All</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Recent Appointment Card */}
-        <View style={styles.recentCard}>
-          <View style={styles.recentRow}>
-            <Image
-              source={require('../../../../assets/Doctors.png')}
-              style={styles.doctorImage}
-            />
-
-            <View style={{ flex: 1 }}>
-              <Text style={styles.hospitalName}>Apollo Hospitals</Text>
-              <Text style={styles.doctorName}>Dr. Rajesh Kumar</Text>
-
-              <View style={styles.dateRow}>
-                <View style={styles.iconRow}>
-                  <Ionicons name="calendar-outline" size={14} color="#6B7280" />
-                  <Text style={styles.dateText}>Dec 28, 2025</Text>
-                </View>
-
-                <View style={styles.iconRow}>
-                  <Ionicons name="time-outline" size={14} color="#6B7280" />
-                  <Text style={styles.timeText}>10:30 AM</Text>
-                </View>
-              </View>
-
-            </View>
-
-            <View style={styles.statusWrap}>
-              <Text style={styles.statusText}>Completed</Text>
-            </View>
-          </View>
-
-          <TouchableOpacity
-            style={styles.detailsBtn}
-            onPress={() => navigation.navigate('BookingDetails')}
-          >
-            <Text style={styles.detailsText}>View Details</Text>
-          </TouchableOpacity>
-        </View>
+        
 
 
         <View style={styles.sosWrapper}>
@@ -367,7 +323,7 @@ const getUserLocation = () =>
     </SafeAreaView>
   );
 };
-
+ 
 export default HospitalsHomeScreen;
 
 const styles = StyleSheet.create({

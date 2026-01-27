@@ -22,6 +22,7 @@ import Payments from '../screens/Payments';
 import BookingDetails from '../screens/BookingDetails';
 import DoctorDetails from '../screens/DoctorDetails';
 import SearchScreen from '../screens/SearchScreen';
+import PatientDetails from '../screens/PatientDetaills';
 
 const HospitalTabNavigator = () => {
   const Tab = createBottomTabNavigator();
@@ -112,12 +113,13 @@ const HospitalTabNavigator = () => {
 };
 
 const HospitalStackNavigator = () => {
-  const Stack = createNativeStackNavigator();
+  const Stack = createNativeStackNavigator(); 
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
       }}
+      
     >
       <Stack.Screen name="HospitalsTab" component={HospitalTabNavigator} />
       <Stack.Screen name="DepartmentsList" component={DepartmentsList} />
@@ -129,6 +131,7 @@ const HospitalStackNavigator = () => {
       <Stack.Screen name="Payments" component={Payments} />
       <Stack.Screen name="BookingDetails" component={BookingDetails} />
       <Stack.Screen name='SearchScreen' component={SearchScreen}/>
+      <Stack.Screen name='PatientDetails' component={PatientDetails}/>
     </Stack.Navigator>
   );
 };
