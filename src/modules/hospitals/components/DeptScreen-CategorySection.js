@@ -10,33 +10,47 @@ import { scale, verticalScale } from "../../../utils/styling";
 import { COLORS, SIZES } from "../../../config/constants";
 import CategoryCard from "./CategoryCard";
 
-const CategorySection = ({ title, data, onViewAll, showViewAll = true }) => {
+const CategorySection = ({ title, data, onViewAll, showViewAll = true, loading = false }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
-        {showViewAll && (
+        {showViewAll && !loading &&(
           <TouchableOpacity onPress={onViewAll}>
             <Text style={styles.viewAll}>View All</Text>
           </TouchableOpacity>
         )}
       </View>
 
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item.id.toString()}
-        numColumns={3}
-        scrollEnabled={false}
-        renderItem={({ item }) => (
-          <CategoryCard
-            title={item.name}
-            imageUrl={{ uri: item.imageUrl }}
-          />
+      {loading ? (
+        <View>
+          {[1, 2].map((row) => (
+            <View key={row} style={styles.skeletonRow}>
+              {[1, 2, 3].map((item) => (
+                <View key={item} style={styles.skeletonItem}>
+                  <View style={styles.skeletonCircle} />
+                  <View style={styles.skeletonText} />
+                </View>
+              ))}
+            </View>
+          ))}
+        </View>
+      ) : (
+        <FlatList
+          data={data}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={3}
+          scrollEnabled={false}
+          renderItem={({ item }) => (
+            <CategoryCard
+              title={item.name}
+              imageUrl={{ uri: item.imageUrl }}
+            />
+          )}
+          columnWrapperStyle={styles.columnWrapper}
+        />
+      )}
 
-        )}
-
-        columnWrapperStyle={styles.columnWrapper}
-      />
     </View>
   );
 };
@@ -70,4 +84,28 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: verticalScale(16),
   },
+  skeletonItem: {
+    alignItems: "center",
+    width: scale(90),
+  },
+  skeletonCircle: {
+    width: scale(100),
+    height: scale(100),
+    borderRadius: scale(100),
+    backgroundColor: COLORS.lightgray || "#E5E7EB",
+    marginBottom: verticalScale(8),
+  },
+  skeletonText: {
+    width: scale(50),
+    height: verticalScale(10),
+    borderRadius: scale(4),
+    backgroundColor: COLORS.lightgray || "#E5E7EB",
+  },
+  skeletonRow: {
+  flexDirection: "row", 
+  justifyContent: "space-between",
+  marginBottom: verticalScale(16),
+},
+
+
 });
