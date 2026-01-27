@@ -40,50 +40,54 @@ const DoctorCard = ({ doctor }) => {
         <Icon name={isFavourite ? "heart" : "heart-outline"} size={scale(26)} color="#f52323" />
       </TouchableOpacity>
 
-      {/* Top Row */}
       <TouchableOpacity
-        style={styles.topRow}
-        onPress={() => navigation.navigate('DoctorDetails')}
-      >
-        <Image source={{ uri: imageUrl }} style={styles.image} />
+  style={styles.cardContainer}
+  activeOpacity={0.8}
+  onPress={() => navigation.navigate('DoctorDetails')}
+>
+  {/* Top Row */}
+  <View style={styles.topRow}>
+    <Image source={{ uri: imageUrl }} style={styles.image} />
 
-        <View style={styles.topContent}>
-          <View style={styles.nameRow}>
-            <Text style={styles.name}>{doctorName} </Text>
+    <View style={styles.topContent}>
+      <View style={styles.nameRow}>
+        <Text style={styles.name}>{doctorName} </Text>
 
-            <View style={styles.rating}>
-              <Icon name="star" size={scale(14)} color="#FFC107" />
-              <Text style={styles.ratingText}>{String(rating)}</Text>
-            </View>
-          </View>
-
-          <Text style={styles.specialization}>
-            {specialization} | 
-            <Text style={styles.hospital}> {hospitalName}</Text>
-          </Text>
-        </View>
-      </TouchableOpacity>
-
-      {/* Divider */}
-      <View style={styles.divider} />
-
-      {/* Info Row */}
-      <View style={styles.infoRow}>
-        <View style={styles.infoBox}>
-          <Text style={styles.infoLabel}>Experience</Text>
-          <Text style={styles.infoValue}>{experience} years +</Text>
-        </View>
-
-        <View style={styles.infoBox}>
-          <Text style={styles.infoLabel}>Fee</Text>
-          <Text style={styles.infoValue}>₹{fee}/-</Text>
-        </View>
-
-        <View style={styles.infoBox}>
-          <Text style={styles.infoLabel}>Available @ {availableDate}</Text>
-          <Text style={styles.infoValue}>{availableTime}</Text>
+        <View style={styles.rating}>
+          <Icon name="star" size={scale(14)} color="#FFC107" />
+          <Text style={styles.ratingText}>{String(rating)}</Text>
         </View>
       </View>
+
+      <Text style={styles.specialization}>
+        {specialization} | 
+        <Text style={styles.hospital}> {hospitalName}</Text>
+      </Text>
+    </View>
+  </View>
+
+  {/* Divider */}
+  <View style={styles.divider} />
+
+  {/* Info Row */}
+  <View style={styles.infoRow}>
+    <View style={styles.infoBox}>
+      <Text style={styles.infoLabel}>Experience</Text>
+      <Text style={styles.infoValue}>{experience} years +</Text>
+    </View>
+
+    <View style={styles.infoBox}>
+      <Text style={styles.infoLabel}>Fee</Text>
+      <Text style={styles.infoValue}>₹{fee}/-</Text>
+    </View>
+
+    <View style={styles.infoBox}>
+      <Text style={styles.infoLabel}>Available @ {availableDate}</Text>
+      <Text style={styles.infoValue}>{availableTime}</Text>
+    </View>
+  </View>
+</TouchableOpacity>
+
 
       {/* Book Button */}
       <TouchableOpacity
@@ -101,17 +105,25 @@ export default DoctorCard;
 const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.white,
-    borderRadius: scale(16),
-    padding: scale(12),
+    borderRadius: scale(10),
+    padding: scale(5),
     marginBottom: verticalScale(16),
     borderWidth: scale(1),
     borderColor: COLORS.lightGray,
   },
 
+cardContainer: {
+  backgroundColor: '#fff',
+  borderRadius: scale(12),
+  marginBottom: scale(-4),
+  padding: scale(1),
+  elevation: 2,
+},
+
   favBtn: {
     position: 'absolute',
-    right: scale(10),
-    top: verticalScale(142),
+    right: scale(5),
+    top: verticalScale(136),
     zIndex: 20,
   },
 
@@ -122,6 +134,7 @@ const styles = StyleSheet.create({
   image: {
     width: scale(64),
     height: verticalScale(64),
+    fitmode: 'cover',
     borderRadius: scale(8),
   },
 
@@ -146,6 +159,7 @@ const styles = StyleSheet.create({
   rating: {
     flexDirection: 'row',
     alignItems: 'center',
+    right: scale(6),
   },
 
   ratingText: {
