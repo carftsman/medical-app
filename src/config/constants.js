@@ -19,14 +19,15 @@ export const COLORS = {
   seablue:"#67B6FF",
   teal: "#78dfff",
   blueshade: "#a791ce",
+  verylightblue: "#c4eeee",
 };
-
+ 
 export const FONT = {
   regular: "System",
   medium: "System",
   bold: "System",
 };
-
+ 
 export const SIZES = {
   base: 8,
   small: 12,
@@ -34,3 +35,4 @@ export const SIZES = {
   large: 20,
   xLarge: 24,
 };
+ 
