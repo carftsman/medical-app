@@ -1,5 +1,5 @@
 // ================= SearchHospital.js =================
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { scale } from '../../../utils/styling';
@@ -7,36 +7,42 @@ import { hospitalApi } from '../../../api/hospitalApi';
 
 const SearchHospital = ({ mode = 'BOTH', onResults }) => {
   const [query, setQuery] = useState('');
+  const lastRequestId = useRef(0);
 
   useEffect(() => {
+    const trimmed = query.trim();
+
     const timer = setTimeout(() => {
-      if (query.trim().length === 0) {
-        onResults([]);
+      if (trimmed.length === 0) {
+        onResults(null); 
         return;
       }
 
-      searchHospitals();
-    }, 500); // debounce
+      searchHospitals(trimmed);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [query, mode]);
 
-  const searchHospitals = async () => {
+  const searchHospitals = async text => {
+    const requestId = ++lastRequestId.current;
+
     try {
       const res = await hospitalApi.searchHospitals({
-        query,
-        mode,
+        query: text,
+        mode: mode.toUpperCase(),
         page: 1,
         limit: 20,
       });
+      if (requestId !== lastRequestId.current) return;
 
-      // ✅ Swagger response uses `data`
       const hospitals = res?.data?.data || [];
-
       onResults(Array.isArray(hospitals) ? hospitals : []);
     } catch (error) {
-      console.log('Search API error:', error);
-      onResults([]);
+      if (requestId === lastRequestId.current) {
+        console.log('Search API error:', error);
+        onResults([]);
+      }
     }
   };
 

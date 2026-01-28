@@ -2,7 +2,6 @@ import { combineReducers } from '@reduxjs/toolkit';
 import locationReducer from "./slices/locationSlice"
 import favouritesReducer from './slices/favouritesSlice';
 import authReducer from './slices/authSlice';
-import locationReducer from './slices/locationSlice';
 import hospitalReducer from '../modules/hospitals/redux/hospitalReducer';
 
 

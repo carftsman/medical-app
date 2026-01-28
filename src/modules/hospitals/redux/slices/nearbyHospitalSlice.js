@@ -4,10 +4,14 @@ import { hospitalApi } from '../../api/hospitalApi';
 export const fetchNearbyHospitals = createAsyncThunk(
   'nearbyHospitals/fetchNearbyHospitals',
   async (
-    { mode = 'BOTH', latitude, longitude },
-    { rejectWithValue }
+    { latitude, longitude },
+    { getState, rejectWithValue }
   ) => {
     try {
+      const {
+        nearbyHospitals: { mode },
+      } = getState();
+
       const res = await hospitalApi.getHospitalsByMode({
         mode,
         latitude,
@@ -21,7 +25,7 @@ export const fetchNearbyHospitals = createAsyncThunk(
 
       return {
         hospitals: Array.isArray(hospitals) ? hospitals : [],
-        mode: mode.toUpperCase(),
+        mode,
       };
     } catch (error) {
       return rejectWithValue(
@@ -35,19 +39,24 @@ export const fetchNearbyHospitals = createAsyncThunk(
 const nearbyHospitalSlice = createSlice({
   name: 'nearbyHospitals',
   initialState: {
-    hospitals: [],
+    hospitals: [],          
+    originalHospitals: [], 
     loading: false,
     error: null,
     mode: 'BOTH',
   },
 
   reducers: {
-    clearHospitals: state => {
-      state.hospitals = [];
-    },
-
     setHospitalMode: (state, action) => {
       state.mode = action.payload.toUpperCase();
+    },
+
+    setFilteredHospitals: (state, action) => {
+      state.hospitals = action.payload;
+    },
+
+    resetHospitals: state => {
+      state.hospitals = state.originalHospitals;
     },
   },
 
@@ -61,18 +70,22 @@ const nearbyHospitalSlice = createSlice({
       .addCase(fetchNearbyHospitals.fulfilled, (state, action) => {
         state.loading = false;
         state.hospitals = action.payload.hospitals;
+        state.originalHospitals = action.payload.hospitals;
         state.mode = action.payload.mode;
       })
+
       .addCase(fetchNearbyHospitals.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        state.hospitals = [];
+        
       });
   },
 });
 
-
-export const { clearHospitals, setHospitalMode } =
-  nearbyHospitalSlice.actions;
+export const {
+  setHospitalMode,
+  setFilteredHospitals,
+  resetHospitals,
+} = nearbyHospitalSlice.actions;
 
 export default nearbyHospitalSlice.reducer;

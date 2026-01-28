@@ -1,15 +1,20 @@
 import api from './client';
 
-/* ================= HELPERS ================= */
 const mergeUniqueById = (offline = [], online = []) => [
   ...offline,
-  ...online.filter(
-    o => !offline.some(f => f.id === o.id)
-  ),
+  ...online.filter(o => !offline.some(f => f.id === o.id)),
 ];
 
+const cleanParams = obj =>
+  Object.fromEntries(
+    Object.entries(obj).filter(
+      ([, v]) => v !== undefined && v !== null && v !== ''
+    )
+  );
+
+/* ===================== API ===================== */
 export const hospitalApi = {
-  /* ================= OFFLINE (NEARBY) ================= */
+  /* ---------- OFFLINE ---------- */
   getOfflineHospitals: ({ latitude, longitude, radius = 15 }) => {
     return api.get('/hospital/user/hospitals/nearby', {
       params: {
@@ -21,7 +26,7 @@ export const hospitalApi = {
     });
   },
 
-  /* ================= ONLINE ================= */
+  /* ---------- ONLINE ---------- */
   getOnlineHospitals: ({ latitude, longitude, radius = 15 }) => {
     return api.get('/hospital/user/hospitals/nearby', {
       params: {
@@ -33,7 +38,7 @@ export const hospitalApi = {
     });
   },
 
-  /* ================= OFFLINE / ONLINE / BOTH ================= */
+  /* ---------- BOTH ---------- */
   getHospitalsByMode: async ({
     mode = 'BOTH',
     latitude,
@@ -58,18 +63,9 @@ export const hospitalApi = {
       });
     }
 
-    // BOTH
     const [offlineRes, onlineRes] = await Promise.all([
-      hospitalApi.getOfflineHospitals({
-        latitude,
-        longitude,
-        radius,
-      }),
-      hospitalApi.getOnlineHospitals({
-        latitude,
-        longitude,
-        radius,
-      }),
+      hospitalApi.getOfflineHospitals({ latitude, longitude, radius }),
+      hospitalApi.getOnlineHospitals({ latitude, longitude, radius }),
     ]);
 
     const offline = offlineRes?.data?.data || [];
@@ -82,37 +78,62 @@ export const hospitalApi = {
     };
   },
 
-  /* ================= FILTER ================= */
+  /* ---------- FILTER ---------- */
   getFilteredNearbyHospitals: params => {
+    const cleanedParams = cleanParams({
+      latitude: params.latitude,
+      longitude: params.longitude,
+      radius: params.radius,
+      categoryIds:
+        params.categoryIds?.length > 0
+          ? params.categoryIds.join(',')
+          : undefined,
+      mode: (params.mode || 'BOTH').toUpperCase(),
+      openNow: params.openNow,
+      open24x7: params.open24x7,
+      page: params.page || 1,
+      limit: params.limit || 20,
+    });
+
     return api.get('/hospital/user/hospitals/nearby', {
-      params: {
-        latitude: params.latitude,
-        longitude: params.longitude,
-        radius: params.radius,
-        categoryIds: params.categoryIds,
-        mode: (params.mode || 'BOTH').toUpperCase(),
-        openNow: params.openNow,
-        open24x7: params.open24x7,
-        page: params.page || 1,
-        limit: params.limit || 20,
-      },
+      params: cleanedParams,
     });
   },
 
-/* ================= SEARCH ================= */
-searchHospitals: ({ query, mode, page = 1, limit = 20 }) => {
-  return api.get('/hospital/user/modeSearch', {
-    params: {
-      q: query,
-      type: 'hospital',
-      mode: mode || undefined, // ONLINE / OFFLINE / BOTH
-      page,
-      limit,
-    },
-  });
-},
+  searchHospitals: async ({
+    query,
+    mode = 'BOTH',
+    page = 1,
+    limit = 20,
+  }) => {
+    if (!query || query.trim().length === 0) {
+      return { data: { data: [] } };
+    }
 
-  /* ================= CATEGORIES ================= */
+    const res = await api.get('/hospital/user/modeSearch', {
+      params: cleanParams({
+        q: query,
+        type: 'hospital',
+        mode: mode.toUpperCase(),
+        page,
+        limit,
+      }),
+    });
+
+    const hospitals =
+      res?.data?.data ||
+      res?.data?.hospitals ||
+      res?.data?.results ||
+      [];
+
+    return {
+      data: {
+        data: Array.isArray(hospitals) ? hospitals : [],
+      },
+    };
+  },
+
+  /* ---------- CATEGORIES ---------- */
   getCategories: ({ mode }) => {
     return api.get('/hospital/user/categories', {
       params: {

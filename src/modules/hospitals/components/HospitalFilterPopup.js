@@ -20,22 +20,24 @@ const HospitalFilterPopup = ({
   onApply,
   latitude,
   longitude,
-  mode,
+  mode = 'BOTH',
 }) => {
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
 
+  /* UI-only states (Figma match) */
+  const [sortBy, setSortBy] = useState('distance');
   const [stateName, setStateName] = useState('');
   const [cityName, setCityName] = useState('');
 
   const [distance, setDistance] = useState(8);
-  const [sort, setSort] = useState('distance');
   const [openNow, setOpenNow] = useState(false);
   const [open24x7, setOpen24x7] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [catLoading, setCatLoading] = useState(false);
 
+  /* ================= FETCH CATEGORIES ================= */
   useEffect(() => {
     if (!visible) return;
 
@@ -43,7 +45,7 @@ const HospitalFilterPopup = ({
       try {
         setCatLoading(true);
         const res = await hospitalApi.getCategories({ mode });
-        setCategories(res.data?.categories || res.data?.data || res.data || []);
+        setCategories(res.data?.data || []);
       } catch {
         setCategories([]);
       } finally {
@@ -54,6 +56,7 @@ const HospitalFilterPopup = ({
     fetchCategories();
   }, [visible, mode]);
 
+  /* ================= TOGGLE CATEGORY ================= */
   const toggleCategory = id => {
     setSelectedCategories(prev =>
       prev.includes(id)
@@ -62,16 +65,20 @@ const HospitalFilterPopup = ({
     );
   };
 
+  /* ================= CLEAR ALL ================= */
   const handleClearAll = () => {
     setSelectedCategories([]);
-    setStateName('');
-    setCityName('');
     setDistance(8);
-    setSort('distance');
     setOpenNow(false);
     setOpen24x7(false);
+
+    // UI-only reset
+    setSortBy('distance');
+    setStateName('');
+    setCityName('');
   };
 
+  /* ================= APPLY ================= */
   const handleApply = async () => {
     try {
       setLoading(true);
@@ -80,14 +87,8 @@ const HospitalFilterPopup = ({
         latitude,
         longitude,
         radius: distance,
-        sort,
-        state: stateName.trim() || undefined,
-        city: cityName.trim() || undefined,
-        categoryIds:
-          selectedCategories.length > 0
-            ? selectedCategories.join(',')
-            : undefined,
-        mode,
+        categoryIds: selectedCategories,
+        mode: mode.toUpperCase(),
         openNow,
         open24x7,
         page: 1,
@@ -95,8 +96,7 @@ const HospitalFilterPopup = ({
       };
 
       const res = await hospitalApi.getFilteredNearbyHospitals(payload);
-
-      let hospitals = res.data?.hospitals || res.data?.data || res.data || [];
+      const hospitals = res.data?.data || [];
 
       onApply(hospitals);
       onClose();
@@ -129,27 +129,29 @@ const HospitalFilterPopup = ({
             {['distance', 'rating', 'popularity'].map(item => (
               <Chip
                 key={item}
-                text={item.toUpperCase()}
-                active={sort === item}
-                onPress={() => setSort(item)}
+                text={item.charAt(0).toUpperCase() + item.slice(1)}
+                active={sortBy === item}
+                onPress={() => setSortBy(item)}
               />
             ))}
           </View>
 
           {/* LOCATION */}
           <Text style={styles.section}>Location</Text>
-          <TextInput
-            placeholder="State"
-            value={stateName}
-            onChangeText={setStateName}
-            style={styles.input}
-          />
-          <TextInput
-            placeholder="City"
-            value={cityName}
-            onChangeText={setCityName}
-            style={styles.input}
-          />
+          <View style={styles.locationRow}>
+            <TextInput
+              placeholder="State"
+              value={stateName}
+              onChangeText={setStateName}
+              style={styles.locationInput}
+            />
+            <TextInput
+              placeholder="City"
+              value={cityName}
+              onChangeText={setCityName}
+              style={styles.locationInput}
+            />
+          </View>
 
           {/* SPECIALITY */}
           <Text style={styles.section}>Speciality</Text>
@@ -192,7 +194,7 @@ const HospitalFilterPopup = ({
           />
         </ScrollView>
 
-        {/* BOTTOM ACTIONS */}
+        {/* ACTIONS */}
         <View style={styles.bottomRow}>
           <TouchableOpacity style={styles.applyBtn} onPress={handleApply}>
             {loading ? (
@@ -212,6 +214,8 @@ const HospitalFilterPopup = ({
 };
 
 export default HospitalFilterPopup;
+
+/* ================= UI COMPONENTS ================= */
 
 const Chip = ({ text, active, onPress }) => (
   <TouchableOpacity
@@ -233,12 +237,13 @@ const CheckBox = ({ label, checked, onPress }) => (
   </TouchableOpacity>
 );
 
+/* ================= STYLES ================= */
+
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.3)',
   },
-
   container: {
     backgroundColor: '#FFF',
     padding: 20,
@@ -246,70 +251,60 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     maxHeight: '85%',
   },
-
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
     marginBottom: 10,
   },
-
   title: {
     fontSize: 20,
     fontWeight: '700',
   },
-
   clearText: {
     color: '#2979FF',
     fontWeight: '700',
   },
-
   section: {
     fontSize: 16,
     fontWeight: '700',
     marginVertical: 10,
   },
-
   rowWrap: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,
   },
-
+  locationRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  locationInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#CDE0FF',
+    borderRadius: 12,
+    padding: 12,
+  },
   chip: {
     backgroundColor: '#F3F8FF',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
   },
-
   chipActive: {
     backgroundColor: '#2979FF',
   },
-
   chipText: {
     fontSize: 13,
   },
-
   chipTextActive: {
     color: '#FFF',
   },
-
-  input: {
-    borderWidth: 1,
-    borderColor: '#CDE0FF',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 8,
-  },
-
   checkboxRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 20,
-    marginTop: 8,
   },
-
   checkbox: {
     width: 22,
     height: 22,
@@ -319,25 +314,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
   checked: {
     backgroundColor: '#2979FF',
     borderColor: '#2979FF',
   },
-
   tick: {
     color: '#FFF',
     fontWeight: 'bold',
-    fontSize: 14,
-    lineHeight: 18,
   },
-
   bottomRow: {
     flexDirection: 'row',
     gap: 12,
     marginTop: 16,
   },
-
   applyBtn: {
     flex: 1,
     backgroundColor: '#2979FF',
@@ -345,13 +334,11 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: 'center',
   },
-
   applyText: {
     color: '#FFF',
     fontSize: 16,
     fontWeight: '700',
   },
-
   cancelBtn: {
     flex: 1,
     backgroundColor: '#EEF3FF',
@@ -359,7 +346,6 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: 'center',
   },
-
   cancelText: {
     color: '#2979FF',
     fontSize: 16,

@@ -24,16 +24,16 @@ const LONGITUDE = 78.486671;
 const HospitalsScreen = ({ navigation }) => {
   const [mode, setMode] = useState('BOTH');
   const [hospitals, setHospitals] = useState([]);
-  const [searchResults, setSearchResults] = useState([]);
-  const [favorites, setFavorites] = useState({}); // ✅ FIX 1
+  const [overrideResults, setOverrideResults] = useState(null); // 🔑 KEY FIX
+  const [favorites, setFavorites] = useState({});
   const [loading, setLoading] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
 
   /* ================= LOAD HOSPITALS ================= */
   const loadHospitals = async selectedMode => {
-    setMode(selectedMode);
-    setSearchResults([]);
     setLoading(true);
+    setMode(selectedMode);
+    setOverrideResults(null); // reset search/filter safely
 
     try {
       const res = await hospitalApi.getHospitalsByMode({
@@ -60,8 +60,9 @@ const HospitalsScreen = ({ navigation }) => {
     loadHospitals('BOTH');
   }, []);
 
+  /* ================= DATA SOURCE ================= */
   const dataSource =
-    searchResults.length > 0 ? searchResults : hospitals;
+    overrideResults !== null ? overrideResults : hospitals;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -79,7 +80,7 @@ const HospitalsScreen = ({ navigation }) => {
         <View style={styles.searchRow}>
           <SearchHospital
             mode={mode}
-            onResults={setSearchResults}
+            onResults={setOverrideResults} // ✅ unified
           />
           <HospitalFilters onPress={() => setShowFilter(true)} />
         </View>
@@ -107,24 +108,20 @@ const HospitalsScreen = ({ navigation }) => {
             }
             renderItem={({ item }) => (
               <HospitalCard
-                image={item.imageUrl ? { uri: item.imageUrl } : null}
+                image={item.imageUrl || null} // ✅ let card handle it
                 hospitalName={item.name || item.hospitalName}
-                distance={
-                  item.distance
-                    ? `${Number(item.distance).toFixed(1)} km`
-                    : ''
-                }
+                distance={item.distance}
                 location={item.place || item.location || ''}
                 description={item.speciality || item.department || ''}
-                isOpen24Hours={item.isOpen}
+                isOpen24Hours={item.isOpen24x7 || item.isOpen}
 
                 isFavorite={!!favorites[item.id]}
-                onFavoritePress={() => {
+                onFavoritePress={() =>
                   setFavorites(prev => ({
                     ...prev,
                     [item.id]: !prev[item.id],
-                  }));
-                }}
+                  }))
+                }
 
                 onViewDetails={() =>
                   navigation.navigate('HospitalDetails', {
@@ -149,7 +146,7 @@ const HospitalsScreen = ({ navigation }) => {
           latitude={LATITUDE}
           longitude={LONGITUDE}
           onClose={() => setShowFilter(false)}
-          onApply={setSearchResults}
+          onApply={data => setOverrideResults(data)} // ✅ unified
         />
       </View>
     </SafeAreaView>
@@ -183,7 +180,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -195,12 +191,10 @@ const styles = StyleSheet.create({
     fontSize: scale(18),
     fontWeight: '700',
   },
-
   searchRow: {
     flexDirection: 'row',
     paddingHorizontal: scale(16),
   },
-
   modeRow: {
     flexDirection: 'row',
     margin: scale(16),
@@ -224,7 +218,6 @@ const styles = StyleSheet.create({
   activeModeText: {
     color: '#FFF',
   },
-
   emptyText: {
     textAlign: 'center',
     marginTop: 40,
