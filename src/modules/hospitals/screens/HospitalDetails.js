@@ -21,7 +21,7 @@ const HospitalDetails = ({ hId }) => {
     loading,
     error,
   } = useHospital(HOSPITAL_ID);
-  console.log("hospitals", hospital);
+ 
   const { doctors } = useHospitalDoctors(HOSPITAL_ID);
 
   if (loading) {
