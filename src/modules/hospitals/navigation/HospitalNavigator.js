@@ -116,6 +116,7 @@ const HospitalStackNavigator = () => {
   const Stack = createNativeStackNavigator(); 
   return (
     <Stack.Navigator
+    initialRouteName='HospitalDetails'
       screenOptions={{
         headerShown: false,
       }}
