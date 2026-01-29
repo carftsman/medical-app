@@ -9,6 +9,7 @@ const DoctList = ({
   loading,
   getFilteredDoctors,
   search,
+  error
 }) => {
   return (
     <View style={{ flex: 1 }}>
@@ -17,7 +18,10 @@ const DoctList = ({
           data={[1, 2, 3, 4, 5, 6]}
           keyExtractor={(item, index) => index.toString()}
           renderItem={() => <DoctorSkeleton />}
+
         />
+          ) : error ? (
+    <Text style={styles.errorText}>{error}</Text>
       ) : (
         <FlatList
           data={getFilteredDoctors()}
@@ -58,4 +62,12 @@ const styles = StyleSheet.create({
     color: COLORS.gray,
     fontFamily: FONT.medium,
   },
+  errorText: {
+  textAlign: 'center',
+  marginTop: verticalScale(20),
+  fontSize: scale(16),
+  color: 'red',
+  fontFamily: FONT.medium,
+},
+
 });
