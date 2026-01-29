@@ -1,86 +1,26 @@
 import React from 'react';
-import { View, Text,StyleSheet ,TextInput,FlatList,TouchableOpacity,Image,} from 'react-native';
-// import { TextInput } from 'react-native-gesture-handler';
-import { useEffect,useState } from 'react';
-import axios from 'axios';
+import { View, Text } from 'react-native';
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { setCategory } from "../redux/slices/BookingSlice";
+
+
 
 const DoctorsList = () => {
-  const[ doctors, setDoctors ] =useState([]);
-  const[selectedtab, setSelectedTab]= useState('All');
-  const[search, setSearch]= useState('');
 
-  useEffect(() => {
-    getDoctors();
-  }, []);
-
-  const getDoctors = async () => {
-    try {
-      const response = await axios.get('https://api.example.com/doctors');
-      setDoctors(response.data);
-    } catch (error) {
-      console.error('Error fetching doctors:', error);
-    }
-  };
-   const filteredDoctors = doctors.filter(item => {
-    const matchSearch = item.name.toLowerCase().includes(search.toLowerCase());
-    const matchTab = selectedTab === 'All' || item.specialization === selectedTab;
-    return matchSearch && matchTab;
-   });
-     const renderDoctor = ({item}) => (
-    <View style={styles.card}>
-      <Image source={{uri: item.image}} style={styles.image} />
-      <View style={styles.info}>
-        <View style={styles.row}>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text> ⭐ {item.rating} </Text>
-        </View>
-        <Text style={styles.speciality}>{item.speciality}</Text>
-        <Text style={styles.hospital}>{item.hospital}</Text>
-         <View style={styles.detailsrow}>
-           <Text>{item.experience}</Text>
-           <Text> {item.fee}</Text>
-           <Text>{item.time}</Text>
-         </View>
-         <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Book Appointment</Text>
-         </TouchableOpacity>
-      </View>
-      </View>
-   
-  );
+   const navigation = useNavigation();
+    const dispatch = useDispatch();
+  
+    const mode = useSelector(
+      (state) => state.hospital.consultation
+    );
+    console.log(mode)
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Doctors List</Text>
-      <TextInput
-        style={styles.searchInput}
-        placeholder="Search doctors..."
-        value={search}
-        onChangeText={setSearch}
-      />
-      <View style={styles.tabs}>
-        {['All', 'Gynecologist', 'Cardiologist'].map(tab => (
-          <TouchableOpacity
-            key={tab}
-            onPress={() => setSelectedTab(tab)}
-          >
-            <Text
-              style={[
-                styles.tab,
-                selectedTab === tab && styles.activeTab,
-              ]}
-            >
-              {tab}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-       <FlatList
-        data={filteredDoctors}
-        renderItem={renderDoctor}
-        keyExtractor={(item) => item.id.toString()}
-         showsHorizontalScrollIndicator={false}
-      />
-    </View>
+    <SafeAreaView>
+      <Text >Doctors List</Text>
+    </SafeAreaView>
   );
 }
 

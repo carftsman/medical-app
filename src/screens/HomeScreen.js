@@ -9,6 +9,7 @@ import {
   StatusBar,
   Alert,
 } from "react-native";
+//import SOSButton from "../components/SosButton";
 import { SafeAreaView } from "react-native-safe-area-context";
 import LocationHeader from "../components/LocationHeader";
 import NotificationHeader from "../components/NotificationHeader";
@@ -20,15 +21,25 @@ import { scale, verticalScale } from '../utils/styling';
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { Button } from "react-native";
 import useAuth from "../hooks/useAuth";
-
+import Clipboard from "@react-native-clipboard/clipboard";
+import { ToastAndroid, Platform } from "react-native";
+import SOSButton from "../components/SosButton";
 export default function HomeScreen() {
   const [showSOS, setShowSOS] = React.useState(false);
 
   const {handleLogout} = useAuth()
 
-  const copyCode = () => {
-    Alert.alert("Coupon Code", "NEW25 copied");
-  };
+  const copyCode = (text) => {
+  // text = "CODE: NEW25"
+  const code = text.replace("CODE:", "").trim();
+
+  Clipboard.setString(code);
+
+  if (Platform.OS === "android") {
+    ToastAndroid.show("Coupon code copied", ToastAndroid.SHORT);
+  }
+};
+
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FFF" }}>
@@ -36,7 +47,7 @@ export default function HomeScreen() {
 
      
      <LinearGradient
-        colors={["#00BBA7", "#155DFC"]}
+        colors={[ "#155DFC","#00BBA7"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.topHeaderWrapper}
@@ -140,9 +151,14 @@ export default function HomeScreen() {
             >
               <Text style={styles.shopOffer}>FLAT 25% OFF</Text>
               <Text style={styles.shopSub}>On First Order</Text>
-              <TouchableOpacity style={styles.shopCodeBox} onPress={copyCode}>
-                <Text style={styles.shopCode}>CODE: NEW25</Text>
+              <TouchableOpacity
+                style={styles.shopCodnveBox}
+                onPress={() => copyCode("CODE: NEW25")}
+              >
+                <Text style={styles.shopCodeBox}>CODE: NEW25</Text>
               </TouchableOpacity>
+
+
             </LinearGradient>
 
             <LinearGradient
@@ -209,65 +225,20 @@ export default function HomeScreen() {
       
         <View style={styles.sosWrapper}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.sosTextLine2}>
+            <Text style={styles.sosTextLine1}>
               Make it up
             </Text>
-            <Text style={styles.sosTextLine3}>
+            <Text style={styles.sosTextLine2}>
               with <Text style={{ fontWeight: '800' }}>TRUST</Text>
+            </Text>
+            <Text style={styles.sosTextLine3}>
+              Love India ❤️
             </Text>
           </View>
         </View>
       </ScrollView>
       {/* Floating SOS button */}
-      
-<View style={styles.sosContainer}>
-  {showSOS && (
-    <>
-      {/* CALL */}
-      <TouchableOpacity style={[styles.sosMiniBtn, styles.sosTop]}>
-        <Ionicons name="call" size={22} color="#fff" />
-      </TouchableOpacity>
-
-      {/* LOCATION */}
-      <TouchableOpacity style={[styles.sosMiniBtn, styles.sosLeft]}>
-        <Ionicons name="location" size={22} color="#fff" />
-      </TouchableOpacity>
-
-      {/* AMBULANCE */}
-      <TouchableOpacity style={[styles.sosMiniBtn, styles.sosBottom]}>
-        <MaterialCommunityIcons name="ambulance" size={22} color="#fff" />
-      </TouchableOpacity>
-    </>
-  )}
-
-  {/* MAIN SOS BUTTON */}
-  <TouchableOpacity
-    style={styles.sosMainBtn}
-    activeOpacity={0.8}
-    onPress={() => setShowSOS(!showSOS)}
-  >
-    <Text style={styles.sosText}>SOS</Text>
-  </TouchableOpacity>
-</View>
-
-          {/* SOS text + button section
-          <View style={styles.sosWrapper}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.sosTextLine1}>Make it up</Text>
-              <Text style={styles.sosTextLine2}>
-                with <Text style={{ fontWeight: '800' }}>TRUST</Text>
-              </Text>
-              <Text style={styles.sosTextLine3}>Love India ❤️</Text>
-            </View>
-          </View>
-        </ScrollView> */}
-        {/* Floating SOS button */}
-        {/* <TouchableOpacity style={styles.floatingSos} activeOpacity={0.85}>
-          <Image
-            source={require('../../assets/sos.png')}
-            style={styles.sosButton}
-          />
-        </TouchableOpacity> */}
+          <SOSButton/>
       
     </SafeAreaView>
   );
@@ -618,7 +589,7 @@ const styles = StyleSheet.create({
     fontSize: scale(70),
   },
 
-  sosTextLine2: {
+  sosTextLine1: {
     fontSize: scale(40),
     fontFamily: "serif",
     color: "#A9C1DB",
@@ -627,7 +598,7 @@ const styles = StyleSheet.create({
     paddingLeft: scale(15),
   },
 
-  sosTextLine3: {
+  sosTextLine2: {
     fontSize: scale(40),
     paddingLeft: scale(15),
     fontFamily: "serif",
@@ -635,6 +606,25 @@ const styles = StyleSheet.create({
     letterSpacing: scale(0.5),
     marginTop: verticalScale(2),
   },
+
+  sosTextLine3: {
+    fontSize: scale(27),
+    paddingLeft: scale(15),
+    fontFamily: "serif",
+    color: "#A9C1DB",
+    letterSpacing: scale(0.5),
+    marginTop: verticalScale(2),
+  },
+  sosOverlay: {
+  position: "absolute",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: "transparent",
+  zIndex: 1,
+},
+
 
   
 
@@ -667,6 +657,7 @@ const styles = StyleSheet.create({
     right: scale(20),
     alignItems: "center",
     justifyContent: "center",
+    zIndex:2
     
   },
   sosMiniBtn: { 
