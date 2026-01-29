@@ -1,9 +1,9 @@
 import { React, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
 import { scale, verticalScale } from '../../../utils/styling';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-const Hospitainfo = ({ hospital }) => {
+const HospitalInfo = ({ hospital }) => {
   const [show1, setShow1] = useState(false);
   const [show2, setShow2] = useState(false);
   const categories = hospital?.specializations;
@@ -15,14 +15,11 @@ const Hospitainfo = ({ hospital }) => {
   };
   return (
     <View>
-      <ImageBackground source={{ uri: hospital.imageUrl }} style={styles.Imagebg}>
-        <TouchableOpacity style={styles.backbtn} onPress={() => navigation.goBack()}>
-          <AntDesign name="left" size={scale(26)} color="#000" />
-        </TouchableOpacity>
-      </ImageBackground>
+      <Image source={{ uri: hospital.imageUrl }} style={styles.Imagebg}
+      />
       <View style={styles.details}>
         <View style={styles.d1}>
-          <Text style={styles.count}>{hospital?.stats.patients || 0}</Text>
+          <Text style={styles.count}>{hospital?.stats.patients || 0}+</Text>
           <Text style={styles.sub}>Patients</Text>
         </View>
         <View style={styles.d1}>
@@ -87,18 +84,12 @@ const Hospitainfo = ({ hospital }) => {
   );
 }
 
-export default Hospitainfo;
+export default HospitalInfo;
 const styles = StyleSheet.create({
   Imagebg: {
     width: '100%',
     height: verticalScale(280),
-    // objectFit: 'contain',
-    resizeMode: "cover"
-  },
-  backbtn: {
-    justifyContent: 'flex-start',
-    marginLeft: 30,
-    marginTop: 40
+    resizeMode: "cover",
   },
   details: {
     marginTop: verticalScale(-30),
