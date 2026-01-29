@@ -4,6 +4,9 @@ import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CategoryCard from '../components/CategoryCard';
 
+
+
+
 const HospitalsHomeScreen = () => {
   const navigation = useNavigation();
   return (
