@@ -1,20 +1,29 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
+
 const initialState = {
   mode: 'all',
   selectedDate: null,
   selectedTime: null,
   consultationType: null,
   bookingId: null,
+  mode: "all",
+  category: {
+    id: null,
+    name: "",
+  },
 };
+
 const BookingSlice = createSlice({
-  name: 'consultation',
+  name: "consultation",
   initialState,
   reducers: {
     setConsultationMode: (state, action) => {
       state.mode = action.payload;
     },
-    clearConsultationMode: (state) => {
-      state.mode = null;
+
+    setCategory: (state, action) => {
+      state.category.id = action.payload.id;
+      state.category.name = action.payload.name;
     },
     setDate(state, action) {
       state.selectedDate = action.payload;
@@ -46,6 +55,8 @@ export const {
   resetSlot,
   setConsultationType,
   resetConsultationType,
-  setBookingId } = BookingSlice.actions;
+  setBookingId,
+  setCategory} = BookingSlice.actions;
+
 
 export default BookingSlice.reducer;
