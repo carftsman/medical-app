@@ -21,6 +21,7 @@ import AppointmentBooking from '../screens/AppointmentBooking';
 import Payments from '../screens/Payments';
 import BookingDetails from '../screens/BookingDetails';
 import SearchScreen from '../screens/SearchScreen';
+import DoctorDetails from '../screens/DoctorDetails';
 
 const HospitalTabNavigator = () => {
   const Tab = createBottomTabNavigator();
@@ -119,13 +120,14 @@ const HospitalStackNavigator = () => {
       screenOptions={{
         headerShown: false,
       }}
+      initialRouteName='DoctorDetails'
     >
       <Stack.Screen name="HospitalsTab" component={HospitalTabNavigator} />
       <Stack.Screen name="DepartmentsList" component={DepartmentsList} />
       <Stack.Screen name="HospitalsScreen" component={HospitalsScreen} />
       <Stack.Screen name="HospitalDetails" component={HospitalDetails} />
       <Stack.Screen name="DoctorsList" component={DoctorsList} />
-      <Stack.Screen name="DoctorsScreen" component={DoctorsScreen} />
+      <Stack.Screen name="DoctorDetails" component={DoctorDetails} />
       <Stack.Screen name="AppointmentBooking" component={AppointmentBooking} />
       <Stack.Screen name="Payments" component={Payments} />
       <Stack.Screen name="BookingDetails" component={BookingDetails} />
