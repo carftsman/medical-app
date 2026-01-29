@@ -27,6 +27,9 @@ import CategoryCard from '../components/CategoryCard';
 import HospitalCardmain from '../components/HospitalCardmain';
 import SOSButton from '../../../components/SosButton';
 
+
+
+
 const HospitalsHomeScreen = () => {
   const navigation = useNavigation();
   const tabBarHeight = useBottomTabBarHeight();
