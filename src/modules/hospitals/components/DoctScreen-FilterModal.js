@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  Modal,
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Picker } from '@react-native-picker/picker';
 import Slider from '@react-native-community/slider';
@@ -44,7 +38,6 @@ const DoctModalButton = ({
       visible={showFilter}
       animationType="slide"
       transparent
-      
       onRequestClose={() => setShowFilter(false)}
     >
       <View style={styles.modalOverlay}>
@@ -119,9 +112,7 @@ const DoctModalButton = ({
               <TouchableOpacity
                 key={fee}
                 style={[styles.chip, feeRange === fee && styles.activeChip]}
-                onPress={() =>
-                  setFeeRange(prev => (prev === fee ? null : fee))
-                }
+                onPress={() => setFeeRange(prev => (prev === fee ? null : fee))}
               >
                 <Text style={{ color: feeRange === fee ? '#fff' : '#000' }}>
                   ₹{fee}
@@ -198,15 +189,14 @@ export default DoctModalButton;
 const styles = StyleSheet.create({
   /* ---------- MODAL BACKDROP ---------- */
   modalOverlay: {
-  position: 'absolute',
-  top: 0,
-  bottom: 0,
-  left: 0,
-  right: 0,
-  backgroundColor: 'rgba(0,0,0,0.45)',
-  justifyContent: 'flex-end',
-},
-
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'flex-end',
+  },
 
   /* ---------- MODAL CONTAINER ---------- */
   filterModal: {
@@ -215,8 +205,8 @@ const styles = StyleSheet.create({
     borderTopRightRadius: scale(20),
     paddingHorizontal: scale(16),
     paddingTop: verticalScale(16),
-    paddingBottom: verticalScale(20),
-    maxHeight: '90%',
+    paddingBottom: verticalScale(25),
+    maxHeight: '95%',
   },
 
   /* ---------- HEADER ---------- */
@@ -258,6 +248,7 @@ const styles = StyleSheet.create({
     borderRadius: scale(8),
     overflow: 'hidden',
     backgroundColor: COLORS.white,
+    marginBottom: verticalScale(10),
   },
 
   /* ---------- EXPERIENCE RANGE ---------- */

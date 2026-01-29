@@ -36,9 +36,16 @@ const DoctorCard = ({ doctor }) => {
   return (
     <View style={styles.card}>
       {/* ❤️ Favourite */}
-      <TouchableOpacity style={styles.favBtn} onPress={() => dispatch(toggleFavourite(doctor))}>
-        <Icon name={isFavourite ? "heart" : "heart-outline"} size={scale(26)} color="#f52323" />
-      </TouchableOpacity>
+      <TouchableOpacity
+  style={styles.favBtn}
+  onPress={() => dispatch(toggleFavourite(doctor))}
+>
+  <Icon
+    name={isFavourite ? "heart" : "heart-outline"}
+    size={scale(28)}
+    color={isFavourite ? "red" : COLORS.gray}
+  />
+</TouchableOpacity>
 
       <TouchableOpacity
   style={styles.cardContainer}
@@ -106,8 +113,8 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.white,
     borderRadius: scale(10),
-    padding: scale(5),
-    marginBottom: verticalScale(16),
+    padding: scale(9),
+    marginBottom: verticalScale(18),
     borderWidth: scale(1),
     borderColor: COLORS.lightGray,
   },
@@ -122,8 +129,8 @@ cardContainer: {
 
   favBtn: {
     position: 'absolute',
-    right: scale(5),
-    top: verticalScale(136),
+    right: scale(9),
+    bottom: verticalScale(15),
     zIndex: 20,
   },
 
