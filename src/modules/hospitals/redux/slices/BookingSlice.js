@@ -1,6 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
+  mode: 'all',
+  selectedDate: null,
+  selectedTime: null,
+  consultationType: null,
+  bookingId: null,
   mode: "all",
   category: {
     id: null,
@@ -20,12 +25,38 @@ const BookingSlice = createSlice({
       state.category.id = action.payload.id;
       state.category.name = action.payload.name;
     },
+    setDate(state, action) {
+      state.selectedDate = action.payload;
+      state.selectedTime = null; // reset time when date changes
+    },
+    setTime(state, action) {
+      state.selectedTime = action.payload;
+    },
+    resetSlot(state) {
+      state.selectedDate = null;
+      state.selectedTime = null;
+    },
+    setConsultationType: (state, action) => {
+      state.consultationType = action.payload;
+    },
+    resetConsultationType: (state) => {
+      state.consultationType = null;
+    },
+    setBookingId: (state, action) => {
+      state.bookingId = action.payload;
+    }
   },
 });
 
 export const {
   setConsultationMode,
-  setCategory,
-} = BookingSlice.actions;
+  setDate,
+  setTime,
+  resetSlot,
+  setConsultationType,
+  resetConsultationType,
+  setBookingId,
+  setCategory} = BookingSlice.actions;
+
 
 export default BookingSlice.reducer;
