@@ -23,14 +23,15 @@ export default function BottomNavigation() {
           left: 0,
           right: 0,
           bottom: 0,
-          height: verticalScale(60),
+          height: verticalScale(70),
           paddingBottom: Platform.OS === "ios"
             ? verticalScale(10)
             : verticalScale(6),
-          paddingTop: verticalScale(6),
+          paddingTop: verticalScale(8),
           backgroundColor: "#fff",
           borderTopWidth: 0,
           elevation: 10,
+          
         },
 
         tabBarActiveTintColor: "#2563EB",
