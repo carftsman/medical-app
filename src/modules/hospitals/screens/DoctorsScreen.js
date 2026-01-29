@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-} from 'react-native';
+import { View, StyleSheet } from 'react-native';
 
 import { scale, verticalScale } from '../../../utils/styling';
-import { COLORS} from '../../../config/constants';
+import { COLORS } from '../../../config/constants';
 
 import api from '../../../api/client';
 import DoctorSearchBar from '../components/DoctScreen-SearchBar';
@@ -42,19 +39,18 @@ const DoctorsScreen = () => {
       const response = await api.get('/hospital/user/doctors');
 
       const mappedDoctors = response.data.doctors.map(item => ({
-  id: item.id.toString(),
-  doctorName: item.name || '',
-  specialization: item.specialization || '',
-  experience: Number(item.experience) || 0,
-  rating: Number(item.rating) || 0,
-  fee: Number(item.consultationFee) || 0,
-  hospitalName: item.hospital?.name || '',
-  distance: Number(item.distance) || 0,
-  availableDate: item.availableDate || 'today',
-  availableTime: item.availableTime || '9AM - 5PM',
-  imageUrl: item.imageUrl || 'https://via.placeholder.com/150',
-}));
-
+        id: item.id.toString(),
+        doctorName: item.name || '',
+        specialization: item.specialization || '',
+        experience: Number(item.experience) || 0,
+        rating: Number(item.rating) || 0,
+        fee: Number(item.consultationFee) || 0,
+        hospitalName: item.hospital?.name || '',
+        distance: Number(item.distance) || 0,
+        availableDate: item.availableDate || 'today',
+        availableTime: item.availableTime || '9AM - 5PM',
+        imageUrl: item.imageUrl || 'https://via.placeholder.com/150',
+      }));
 
       setDoctorsData(mappedDoctors);
     } catch (err) {
@@ -117,7 +113,7 @@ const DoctorsScreen = () => {
     if (distance) {
       data = data.filter(d => d.distance <= distance);
     }
- 
+
     // Availability
     if (availability.today)
       data = data.filter(d => d.availableDate === 'today');
@@ -147,61 +143,58 @@ const DoctorsScreen = () => {
   };
 
   const allModalProps = {
-  showFilter,
-  setShowFilter,
+    showFilter,
+    setShowFilter,
 
+    sortBy,
+    setSortBy,
 
+    department,
+    setDepartment,
 
-  sortBy,
-  setSortBy,
+    specializations,
 
-  department,
-  setDepartment,
+    experience,
+    setExperience,
 
-  specializations,
+    feeRange,
+    setFeeRange,
 
-  experience,
-  setExperience,
+    distance,
+    setDistance,
 
-  feeRange,
-  setFeeRange,
+    availability,
+    setAvailability,
 
-  distance,
-  setDistance,
+    clearFilters,
+    applyFilters,
+  };
 
-  availability,
-  setAvailability,
-
-  clearFilters,
-  applyFilters,
-};
-
-    
-    return (
+  return (
     <View style={styles.container}>
-      {/* 🔍 Search Bar */}
+      {/*Search Bar */}
       <DoctorSearchBar search={search} setSearch={setSearch} />
 
-      {/*  Filter Bar */}
+      {/* Filter Bar */}
       <DoctFilterButton
-    specializations={specializations}
-    selectedFilter={selectedFilter}
-    setSelectedFilter={setSelectedFilter}
-    setShowFilter={setShowFilter}
-  />
-      {/* ---------- FILTER MODAL ---------- */}
+        specializations={specializations}
+        selectedFilter={selectedFilter}
+        setSelectedFilter={setSelectedFilter}
+        setShowFilter={setShowFilter}
+      />
+      {/* FILTER MODAL */}
 
       <DoctModalButton {...allModalProps} />
 
-{/* 🧑‍⚕️ Doctor Card */}
-<DoctList
-    loading={loading}
-    getFilteredDoctors={getFilteredDoctors}
-    search={search}
-  />
-</View>
-    );
-  }
+      {/* Doctor Card */}
+      <DoctList
+        loading={loading}
+        getFilteredDoctors={getFilteredDoctors}
+        search={search}
+      />
+    </View>
+  );
+};
 
 export default DoctorsScreen;
 
