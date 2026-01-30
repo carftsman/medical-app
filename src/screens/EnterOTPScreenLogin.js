@@ -11,7 +11,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { authApi } from "../api/authApi";
 import { scale, verticalScale } from "../utils/styling";
-import api from "../api/client";
 import useAuth from "../hooks/useAuth";
 
 
@@ -20,7 +19,7 @@ const OTP_LENGTH = 6;
 
 export default function EnterOTPScreenLogin({ navigation, route }) {
   const value = route?.params?.value || '';
-const type = route?.params?.type || 'phone';
+  const type = route?.params?.type || 'phone';
 
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
   const [timer, setTimer] = useState(30);
@@ -55,7 +54,7 @@ const type = route?.params?.type || 'phone';
       setError("");
       setTimer(30);
 
-      await authApi.sendOtp({ phone });
+      await authApi.sendOtp({ phone: value });
 
       const i = setInterval(() => {
         setTimer(t => {
@@ -80,22 +79,23 @@ const type = route?.params?.type || 'phone';
     setLoading(true)
     try {
       const payload =
-      type === 'phone'
-        ? { phone: value, otp: code }
-        : { email: value, otp: code };
+        type === 'phone'
+          ? { phone: value, otp: code }
+          : { email: value, otp: code };
 
-    const res = await authApi.verifyOtp(payload);
+      const res = await authApi.verifyOtp(payload);
       //const res = await api.post("/hospital/user/auth/verify-otp", {phone, otp:code});
       setLoading(false)
-      if (res.data.isOnboardingCompleted) {
-        handleAuthState(true)
-        handleSaveToken(res.data.token)
-        // navigation.navigate("Bottom")
-        return
-      } else {
+      const completed =
+        res?.data?.isOnboardingCompleted === true ||
+        res?.data?.isOnboardingCompleted === 'true';
 
-        handleSaveToken(res.data.token)
-        navigation.navigate("Register")
+      if (completed) {
+        handleAuthState(true);
+        handleSaveToken(res.data.token);
+      } else {
+        handleSaveToken(res.data.token);
+        navigation.navigate('Register');
       }
 
       // setAuthState(res.data.token)
@@ -108,7 +108,7 @@ const type = route?.params?.type || 'phone';
 
 
     } catch (e) {
-      
+
       setLoading(false)
       console.log("error while sending otp", e)
       setError("Invalid OTP");
@@ -129,11 +129,11 @@ const type = route?.params?.type || 'phone';
 
         <Text style={styles.title}>Verify OTP</Text>
 
-        {/* OTP SENT + CHANGE NUMBER */}
+
         <View style={styles.subRow}>
           <Text style={styles.subText}>
-          OTP sent to {type === 'phone' ? `+91 ${value}` : value}
-        </Text>
+            OTP sent to {type === 'phone' ? ` ${value}` : value}
+          </Text>
 
 
           <TouchableOpacity onPress={() => navigation.replace("Login")}>

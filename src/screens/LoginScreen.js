@@ -19,7 +19,7 @@ export default function LoginScreen({ navigation }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  
+
   const [showCodes, setShowCodes] = useState(false);
   const [countryCode, setCountryCode] = useState('+91');
 
@@ -28,7 +28,23 @@ export default function LoginScreen({ navigation }) {
   const isValidPhone = v => /^\d{10}$/.test(v);
   const isValidEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
+    const handlePhoneChange = (text) => {
+    const cleaned = text.replace(/\D/g, '');
+    if (cleaned.length > 10) return;
+    setValue(cleaned);
+  };
+
+  const handleEmailChange = (text) => {
+    const email = text.toLowerCase();
+    setValue(email);
+
+    if (!email) {
+      setError('');
+      return;
+    }
+  };
   const handleSendOtp = async () => {
+    if (loading) return;
     setError('');
 
     if (!value.trim()) {
@@ -54,19 +70,19 @@ export default function LoginScreen({ navigation }) {
           : { email: value };
 
       await authApi.sendOtp(payload);
- 
+
       setLoading(false);
 
-      navigation.navigate('OTP', { value, type:activeTab, });
+      navigation.navigate('OTP', { value, type: activeTab, });
     } catch (err) {
       console.log("send otp error", err.response)
       setLoading(false);
-      setError(err?.response?.data?.message||'Something went wrong');
+      setError(err?.response?.data?.message || 'Something went wrong');
 
     }
   };
 
-  
+
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="dark-content" />
@@ -137,7 +153,7 @@ export default function LoginScreen({ navigation }) {
             </View>
           )}
 
-          
+
           {activeTab === 'email' && (
             <Ionicons
               name="mail-outline"
@@ -156,10 +172,13 @@ export default function LoginScreen({ navigation }) {
             maxLength={activeTab === 'phone' ? 10 : 50}
             value={value}
             autoFocus
-            onChangeText={t => {
-              setValue(t);
-              setError('');
-            }}
+            onChangeText={
+              activeTab === 'phone'
+                ? handlePhoneChange
+                : handleEmailChange
+            }
+
+
           />
         </View>
 
@@ -167,9 +186,12 @@ export default function LoginScreen({ navigation }) {
 
         {/* BUTTON */}
         <TouchableOpacity
-          style={styles.btn}
+          style={[
+            styles.btn,
+            (loading || !!error || !value) && { opacity: 0.6 },
+          ]}
           onPress={handleSendOtp}
-          disabled={loading}
+          disabled={loading || !!error || !value}
         >
           <Text style={styles.btnText}>
             {loading ? 'Sending OTP...' : 'Send OTP'}
@@ -206,7 +228,7 @@ const styles = StyleSheet.create({
   activeToggle: {
     backgroundColor: '#FFF',
     borderWidth: 1,
-    color:"#2563EB",
+    color: "#2563EB",
     borderColor: '#2563EB',
     borderRadius: scale(30),
   },
@@ -219,6 +241,7 @@ const styles = StyleSheet.create({
   },
 
   inputBox: {
+    position: 'relative',
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
