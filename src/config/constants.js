@@ -20,6 +20,7 @@ export const COLORS = {
   seablue:"#67B6FF",
   teal: "#78dfff",
   blueshade: "#a791ce",
+  verylightblue: "#c4eeee",
 };
  
 export const FONT = {

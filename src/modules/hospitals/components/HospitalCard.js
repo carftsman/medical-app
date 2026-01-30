@@ -11,23 +11,34 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { scale } from '../../../utils/styling';
 
 const HospitalCard = ({
-  image,
-  hospitalName,
+  image,               // can be URL or require()
+  hospitalName = '',
   distance,
-  location,
-  description,
-  isEmergency,
-  isOpen24Hours,
-  isFavorite,
+  location = '',
+  description = '',
+  isEmergency = true,
+  isOpen24Hours = true,
+  isFavorite = false,
   onFavoritePress,
   onViewDetails,
 }) => {
+  /* ---------- IMAGE SOURCE FIX ---------- */
+  const imageSource =
+    typeof image === 'string'
+      ? { uri: image }
+      : image;
+
   return (
     <View style={styles.container}>
-      {/* Image */}
+      {/* IMAGE SECTION */}
       <View style={styles.imageWrapper}>
-        <Image source={image} style={styles.image} />
+        {imageSource ? (
+          <Image source={imageSource} style={styles.image} resizeMode="cover" />
+        ) : (
+          <View style={styles.imagePlaceholder} />
+        )}
 
+        {/* EMERGENCY BADGE */}
         {isEmergency && (
           <View style={styles.emergencyBadge}>
             <Icon name="alert-circle" size={scale(14)} color="#FFF" />
@@ -36,55 +47,83 @@ const HospitalCard = ({
         )}
       </View>
 
-      {/* Content */}
+      {/* CONTENT */}
       <View style={styles.content}>
+        {/* NAME + OPEN */}
         <View style={styles.rowBetween}>
-          <Text style={styles.hospitalName}>{hospitalName}</Text>
+          <Text style={styles.hospitalName} numberOfLines={1}>
+            {hospitalName}
+          </Text>
 
           {isOpen24Hours && (
             <View style={styles.openBadge}>
-              <Icon name="clock-outline" size={scale(14)} color="#FFF" />
-              <Text style={styles.openText}>Opens 24 hours</Text>
+              <Text style={styles.openText}>Open 24 hrs</Text>
             </View>
           )}
         </View>
 
+        {/* LOCATION */}
         <View style={styles.locationRow}>
-          <View style={styles.iconTextRow}>
-            <Icon name="navigation" size={scale(14)} color="#056FD2" />
-            <Text style={styles.distanceText}>{distance}</Text>
-          </View>
+          {distance !== undefined && distance !== null && (
+            <>
+              <View style={styles.iconTextRow}>
+                <Icon name="navigation" size={scale(13)} color="#056FD2" />
+              <Text style={styles.distanceText}>
+  {Number(distance).toFixed(1)} km
+</Text>
 
-          <View style={styles.divider} />
+              </View>
+              <View style={styles.divider} />
+            </>
+          )}
 
           <View style={styles.iconTextRow}>
-            <Icon name="map-marker-outline" size={scale(14)} color="#777" />
-            <Text style={styles.locationText}>{location}</Text>
+            <Icon name="map-marker-outline" size={scale(13)} color="#777" />
+            <Text style={styles.locationText} numberOfLines={1}>
+              {location}
+            </Text>
           </View>
         </View>
 
-        <Text style={styles.description} numberOfLines={2}>
-          {description}
-        </Text>
+        {/* DESCRIPTION */}
+        {!!description && (
+          <Text style={styles.description} numberOfLines={2}>
+            {description}
+          </Text>
+        )}
 
-        <TouchableOpacity style={styles.button} onPress={onViewDetails}>
-          <Text style={styles.buttonText}>View Details</Text>
-        </TouchableOpacity>
+        {/* ACTIONS */}
+        <View style={styles.bottomActions}>
+          <TouchableOpacity
+            style={styles.viewDetailsBtn}
+            onPress={onViewDetails}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.viewDetailsText}>View Details</Text>
+          </TouchableOpacity>
+
+          {typeof onFavoritePress === 'function' && (
+            <TouchableOpacity
+              style={styles.favBtn}
+              onPress={onFavoritePress}
+              activeOpacity={0.8}
+            >
+              <Icon
+                name={isFavorite ? 'heart' : 'heart-outline'}
+                size={scale(18)}
+                color={isFavorite ? '#FF2727' : '#999'}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
-
-      {/* Favorite */}
-      <TouchableOpacity style={styles.favIcon} onPress={onFavoritePress}>
-        <Icon
-          name={isFavorite ? 'heart' : 'heart-outline'}
-          size={scale(18)}
-          color={isFavorite ? '#FF2727' : '#C4C4C4'}
-        />
-      </TouchableOpacity>
     </View>
   );
 };
 
 export default HospitalCard;
+
+/* ======================= STYLES ======================= */
 const styles = StyleSheet.create({
   container: {
     width: scale(340),
@@ -93,15 +132,26 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
     backgroundColor: '#FFF',
     overflow: 'hidden',
-    margin: scale(16),
+    marginVertical: scale(12),
+    alignSelf: 'center',
   },
-  imageWrapper: { position: 'relative' },
-  image: { width: '100%', height: scale(180) },
-
+  imageWrapper: {
+    height: scale(180),
+    backgroundColor: '#F2F4F7',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  imagePlaceholder: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#EAEAEA',
+  },
   emergencyBadge: {
     position: 'absolute',
     top: scale(10),
-    right: scale(10),
+    left: scale(10),
     backgroundColor: '#FB2C36',
     paddingHorizontal: scale(10),
     paddingVertical: scale(4),
@@ -111,18 +161,18 @@ const styles = StyleSheet.create({
   },
   emergencyText: {
     color: '#FFF',
-    fontSize: scale(12),
+    fontSize: scale(11),
     marginLeft: scale(4),
+    fontWeight: '600',
   },
-
-  content: { padding: scale(14) },
-
+  content: {
+    padding: scale(14),
+  },
   rowBetween: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-
   hospitalName: {
     fontSize: scale(16),
     fontWeight: '700',
@@ -130,34 +180,33 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: scale(8),
   },
-
   openBadge: {
     backgroundColor: '#00C950',
+    borderRadius: scale(12),
     paddingHorizontal: scale(10),
     paddingVertical: scale(4),
-    borderRadius: scale(14),
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   openText: {
     color: '#FFF',
     fontSize: scale(11),
-    marginLeft: scale(4),
+    fontWeight: '600',
   },
-
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: scale(6),
   },
-  iconTextRow: { flexDirection: 'row', alignItems: 'center' },
+  iconTextRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   distanceText: {
     marginLeft: scale(4),
     fontSize: scale(13),
     color: '#056FD2',
   },
   divider: {
-    width: scale(1),
+    width: 1,
     height: scale(14),
     backgroundColor: '#DADADA',
     marginHorizontal: scale(8),
@@ -166,31 +215,34 @@ const styles = StyleSheet.create({
     marginLeft: scale(4),
     fontSize: scale(13),
     color: '#777',
+    flexShrink: 1,
   },
-
   description: {
     marginTop: scale(6),
     fontSize: scale(13),
     color: '#777',
   },
-
-  button: {
-    marginTop: scale(12),
-    borderWidth: scale(1),
-    borderColor: '#2979FF',
-    borderRadius: scale(20),
-    paddingVertical: scale(8),
+  bottomActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: scale(10),
   },
-  buttonText: {
+  viewDetailsBtn: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#056FD2',
+    borderRadius: scale(14),
+    paddingVertical: scale(6),
+    alignItems: 'center',
+    marginRight: scale(10),
+  },
+  viewDetailsText: {
     color: '#056FD2',
-    fontSize: scale(14),
+    fontSize: scale(12),
     fontWeight: '600',
   },
-
-  favIcon: {
-    position: 'absolute',
-    bottom: scale(14),
-    right: scale(14),
+  favBtn: {
+    padding: scale(6),
   },
 });
