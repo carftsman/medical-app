@@ -65,7 +65,6 @@ export default function HomeScreen() {
       </LinearGradient>
 
       {/* <Button title="logout" onPress={handleLogout}/> */}
-
       
       <ScrollView
         style={styles.scrollContainer}

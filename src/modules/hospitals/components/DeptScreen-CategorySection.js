@@ -21,7 +21,6 @@ const CategorySection = ({ title, data, onViewAll, showViewAll = true }) => {
           </TouchableOpacity>
         )}
       </View>
-
       <FlatList
         data={data}
         keyExtractor={(item) => item.id.toString()}
