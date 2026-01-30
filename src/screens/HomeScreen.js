@@ -64,7 +64,7 @@ export default function HomeScreen() {
         <SearchBar placeholder="Search medicines, healthcare…" />
       </LinearGradient>
 
-      {/* <Button title="logout" onPress={handleLogout}/> */}
+      <Button title="logout" onPress={handleLogout}/>
 
       
       <ScrollView

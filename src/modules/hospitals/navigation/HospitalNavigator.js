@@ -14,7 +14,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { COLORS } from '../../../config/constants';
 import DepartmentsList from '../screens/DepartmentsList';
 import HospitalDetails from '../screens/HospitalDetails';
@@ -22,9 +22,11 @@ import DoctorsList from '../screens/DoctorsList';
 import AppointmentBooking from '../screens/AppointmentBooking';
 import Payments from '../screens/Payments';
 import BookingDetails from '../screens/BookingDetails';
-import SearchScreen from "../screens/SearchScreen";
-// import PatientDetails from '../screens/PatientDetails';
- 
+import DoctorDetails from '../screens/DoctorDetails';
+import SearchScreen from '../screens/SearchScreen';
+import PatientDetails from '../screens/PatientDetaills';
+import { verticalScale } from '../../../utils/styling';
+
 const HospitalTabNavigator = () => {
   const Tab = createBottomTabNavigator();
  
@@ -39,8 +41,16 @@ const HospitalTabNavigator = () => {
           backgroundColor: '#fff',
           borderTopWidth: 1,
           borderTopColor: '#e1e8ed',
-          height: 50 + insets.bottom,
-          paddingTop: 8,
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: verticalScale(70),
+          paddingBottom: Platform.OS === "ios"
+            ? verticalScale(10)
+            : verticalScale(6),
+          paddingTop: verticalScale(6),
+          elevation: 10,
         },
       }}
     >
@@ -106,26 +116,26 @@ const HospitalTabNavigator = () => {
 };
  
 const HospitalStackNavigator = () => {
-  const Stack = createNativeStackNavigator();
+  const Stack = createNativeStackNavigator(); 
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
       }}
-        //  initialRouteName='Payments'
-        initialRouteName='SearchScreen'
+  
     >
       <Stack.Screen name="HospitalsTab" component={HospitalTabNavigator} />
       <Stack.Screen name="DepartmentsList" component={DepartmentsList} />
       <Stack.Screen name="HospitalsScreen" component={HospitalsScreen} />
       <Stack.Screen name="HospitalDetails" component={HospitalDetails} />
       <Stack.Screen name="DoctorsList" component={DoctorsList} />
-      <Stack.Screen name="DoctorsScreen" component={DoctorsScreen} />
+      <Stack.Screen name="DoctorDetails" component={DoctorDetails} />
       <Stack.Screen name="AppointmentBooking" component={AppointmentBooking} />
       <Stack.Screen name="Payments" component={Payments} />
       <Stack.Screen name="SearchScreen" component={SearchScreen}/>
       <Stack.Screen name="BookingDetails" component={BookingDetails} />
-      {/* <Stack.Screen name="PatientDetails" component={PatientDetails}/> */}
+      <Stack.Screen name='SearchScreen' component={SearchScreen}/>
+      <Stack.Screen name='PatientDetails' component={PatientDetails}/>
     </Stack.Navigator>
   );
 };
