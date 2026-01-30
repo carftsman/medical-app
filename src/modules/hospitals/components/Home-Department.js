@@ -12,15 +12,15 @@ const DepartmentsSection = ({
 }) => {
   return (
     <>
-          <View style={styles.header}>
-            <Text style={styles.title}>Departments</Text>
-            <TouchableOpacity onPress={onViewAll}>
-              <Text style={styles.viewAll}>View All</Text>
-            </TouchableOpacity>
-          </View>
+      <View style={styles.header}>
+        <Text style={styles.title}>Departments</Text>
+        <TouchableOpacity onPress={onViewAll}>
+          <Text style={styles.viewAll}>View All</Text>
+        </TouchableOpacity>
+      </View>
       {loading ? (
         <SkeletonPlaceholder>
-          
+
           {/* Category skeletons */}
           <View style={styles.skeletonRow}>
             {[1, 2, 3, 4].map(i => (
@@ -32,19 +32,19 @@ const DepartmentsSection = ({
           </View>
         </SkeletonPlaceholder>
       ) : (
-        
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {categories.map(item => (
-              <View key={item.id} style={{ marginHorizontal: 5 }}>
-                <CategoryCard
-                  title={item.name}
-                  imageUrl={{ uri: item.imageUrl }}
-                />
-              </View>
-            ))}
-          </ScrollView>
-        
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {categories.map(item => (
+            <View key={item.id} style={{ marginHorizontal: 5 }}>
+              <CategoryCard
+                title={item.name}
+                imageUrl={{ uri: item.imageUrl }}
+              />
+            </View>
+          ))}
+        </ScrollView>
+
       )}
     </>
   );
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginHorizontal: scale(15),
-    marginBottom:scale(15),
+    marginBottom: scale(15),
     marginTop: verticalScale(20),
   },
   title: {
@@ -69,22 +69,10 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontFamily: FONT.medium,
   },
-
-  
-  skeletonTitle: {
-    width: scale(120),
-    height: 18,
-    borderRadius: 4,
-  },
-  skeletonViewAll: {
-    width: scale(60),
-    height: 14,
-    borderRadius: 4,
-  },
   skeletonRow: {
     flexDirection: 'row',
     paddingHorizontal: scale(15),
-    marginTop: verticalScale(12),
+    marginTop: verticalScale(5),
   },
   skeletonCardWrap: {
     alignItems: 'center',
