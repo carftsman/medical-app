@@ -28,6 +28,9 @@ import SOSButton from '../../../components/SosButton';
 import RecentAppointments from '../components/Home-RecentAppointments';
 import HospitalsSection from '../components/Home-Hospitals';
 
+
+
+
 const HospitalsHomeScreen = () => {
   const navigation = useNavigation();
   const tabBarHeight = useBottomTabBarHeight();
@@ -251,7 +254,7 @@ const HospitalsHomeScreen = () => {
     </SafeAreaView>
   );
 };
-
+ 
 export default HospitalsHomeScreen;
 
 const styles = StyleSheet.create({
