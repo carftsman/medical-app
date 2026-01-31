@@ -9,23 +9,21 @@ import {
   StatusBar,
   Alert,
 } from "react-native";
-//import SOSButton from "../components/SosButton";
+
 import { SafeAreaView } from "react-native-safe-area-context";
 import LocationHeader from "../components/LocationHeader";
 import NotificationHeader from "../components/NotificationHeader";
 import SearchBar from "../components/SearchBar";
 import ServiceBlock from "../components/ServiceBlock";
 import LinearGradient from "react-native-linear-gradient";
-import Ionicons from "react-native-vector-icons/Ionicons";
 import { scale, verticalScale } from '../utils/styling';
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { Button } from "react-native";
 import useAuth from "../hooks/useAuth";
 import Clipboard from "@react-native-clipboard/clipboard";
 import { ToastAndroid, Platform } from "react-native";
 import SOSButton from "../components/SosButton";
 export default function HomeScreen() {
-  const [showSOS, setShowSOS] = React.useState(false);
+  
 
   const {handleLogout} = useAuth()
 
@@ -64,7 +62,7 @@ export default function HomeScreen() {
         <SearchBar placeholder="Search medicines, healthcare…" />
       </LinearGradient>
 
-      <Button title="logout" onPress={handleLogout}/>
+      {/* <Button title="logout" onPress={handleLogout}/> */}
 
       
       <ScrollView
