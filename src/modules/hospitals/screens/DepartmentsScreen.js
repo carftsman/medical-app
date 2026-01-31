@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
-
 import api from "../../../api/client";
 import { COLORS } from "../../../config/constants";
 
