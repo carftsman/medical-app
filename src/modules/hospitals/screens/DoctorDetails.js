@@ -184,6 +184,7 @@ const DoctorDetails = ({ route, navigation }) => {
         visible={showModal}
         onClose={() => setShowModal(false)}
         bookAppointmentForSelf={bookAppointmentForSelf}
+        doctorId={doctorId}
       />
     </SafeAreaView>
   );
