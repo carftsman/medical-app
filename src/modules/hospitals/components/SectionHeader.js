@@ -1,15 +1,17 @@
 import { StyleSheet, Text, View,TouchableOpacity } from 'react-native'
 import React from 'react'
 import { scale, verticalScale } from '../../../utils/styling';
+import { useNavigation } from '@react-navigation/native';
 
 
 const SectionHeader = ({title, showChange}) => {
+  const navigation = useNavigation();
   return (
     
     <View style={styles.sectionHeader}>
     <Text style={styles.sectionTitle}>{title}</Text>
     {showChange && (
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('DoctorDetails')}>
         <Text style={styles.changeText}>Change</Text>
       </TouchableOpacity>
     )}

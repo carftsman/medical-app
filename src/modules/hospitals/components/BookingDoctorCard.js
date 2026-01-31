@@ -1,37 +1,44 @@
-import { StyleSheet, Text, View, Image, } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, Image } from 'react-native';
+import React from 'react';
 import { scale, verticalScale } from '../../../utils/styling';
 
+const BookingDoctorCard = ({ doctor }) => {
+  if (!doctor) return null;
 
-const BookingDoctorCard = () => {
   return (
     <View style={styles.doctorCard}>
-    <View style={styles.doctorImageContainer}>
-      <Image
-        source={require('../../../../assets/Doctor.jpg')}
-        style={styles.doctorImage}
-      />
-    </View>
-
-    <View style={styles.doctorInfo}>
-      <Text style={styles.doctorName}>Dr. John Wick</Text>
-
-      <View style={styles.subRow}>
-        <Text style={styles.doctorSpec}>Gynecologist</Text>
-        <Text style={styles.dot}>•</Text>
-        <Text style={styles.experience}>7 Years</Text>
+      <View style={styles.doctorImageContainer}>
+        <Image
+          source= {{ uri: doctor.image }}
+          style={styles.doctorImage}
+        />
       </View>
 
-      <View style={styles.ratingRow}>
-        <Text style={styles.star}>★★★★★</Text>
-        <Text style={styles.reviewText}>4.5 (121 reviews)</Text>
+      <View style={styles.doctorInfo}>
+        <Text style={styles.doctorName}>{doctor.name}</Text>
+
+        <View style={styles.subRow}>
+          <Text style={styles.doctorSpec}>
+            {doctor.specialization}
+          </Text>
+          <Text style={styles.dot}>•</Text>
+          <Text style={styles.experience}>
+            {doctor.experience} Years
+          </Text>
+        </View>
+
+        <View style={styles.ratingRow}>
+          <Text style={styles.star}>★★★★★</Text>
+          <Text style={styles.reviewText}>
+            {doctor.rating} ({doctor.reviews} reviews)
+          </Text>
+        </View>
       </View>
     </View>
-  </View>
-  )
-}
+  );
+};
 
-export default BookingDoctorCard
+export default BookingDoctorCard;
 const styles = StyleSheet.create({
      doctorCard: {
         flexDirection: 'row',

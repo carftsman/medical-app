@@ -1,13 +1,16 @@
-import { StyleSheet, Text, View ,TouchableOpacity,} from 'react-native'
+import { Text, View ,TouchableOpacity,} from 'react-native'
 import React from 'react';
+import { StyleSheet } from 'react-native';  
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { scale, verticalScale } from '../../../utils/styling';
+import { useNavigation } from '@react-navigation/native';
 
 const Header = () => {
+  const navigation = useNavigation();
   return (
      <View style={styles.header}>
-    <TouchableOpacity style={styles.backBtn}>
+    <TouchableOpacity  onPress={() => navigation.goBack()} style={styles.backBtn}>
       <Feather name="arrow-left" size={scale(22)} color="#111827" />
     </TouchableOpacity>
 
