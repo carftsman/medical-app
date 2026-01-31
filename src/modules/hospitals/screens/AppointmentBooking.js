@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { Alert } from "react-native";
+
 import {
   StyleSheet,
   Text,
@@ -22,7 +24,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { patientSchema } from "../utils/Validations";
 
 import { useSelector, useDispatch } from "react-redux";
-import { setBookingId } from "../../../redux/slices/BookingSlice";
+import { setBookingId } from "../redux/slices/BookingSlice";
 
 
 import api from "../../../api/client";
@@ -68,20 +70,22 @@ const AppointmentBooking = ({ route }) => {
 
   /*  FETCH DOCTOR */
   useEffect(() => {
-    const fetchDoctor = async () => {
-      try {
-        const res = await api.get("/hospital/user/doctors");
-        const doctors = res?.data?.doctors || [];
-        const selected =
-          doctors.find(d => d.id === doctorId) || doctors[0];
-        setDoctor(selected);
-      } catch (error) {
-        console.log("Doctor fetch error", error);
-      }
-    };
+  const fetchDoctor = async () => {
+    try {
+      if (!doctorId) return;
 
-    fetchDoctor();
-  }, [doctorId]);
+      const res = await api.get(
+        `/hospital/user/doctors/${doctorId}`
+      );
+
+      setDoctor(res?.data);
+    } catch (error) {
+      console.log("Doctor fetch error", error);
+    }
+  };
+
+  fetchDoctor();
+}, [doctorId]);
 
   /*  SAVE PATIENT  */
   const onSubmit = data => {
@@ -138,27 +142,46 @@ const AppointmentBooking = ({ route }) => {
       navigation.navigate("BookingDetails", { bookingId });
 
       console.log("Hold appointment success:", res.data);
-    } catch (error) {
-      console.log("Hold appointment error:", error?.response || error);
+    }catch (error) {
+  if (error?.response?.status === 409) {
+    Alert.alert(
+
+      "Slot Unavailable",
+      "This slot is no longer available. Please select another time."
+    );
+  } else {
+    Alert.alert(
+      "Error",
+      "Something went wrong. Please try again."
+    );
+  }
     }
-  };
+ };
   return (
     <View style={styles.container}>
       {/* HEADER */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn}>
-          <Text style={styles.backIcon}>‹</Text>
-        </TouchableOpacity>
+        <TouchableOpacity
+  style={styles.backBtn}
+  onPress={() => navigation.goBack()}
+>
+  <Text style={styles.backIcon}>‹</Text>
+</TouchableOpacity>
         <Text style={styles.headerTitle}>Book an Appointment</Text>
         <View style={{ width: 20 }} />
       </View>
 
       {/* DOCTOR CARD */}
       <View style={styles.doctorCard}>
-        <Image
-          source={require("../../../../assets/Doctor.jpg")}
-          style={styles.doctorImg}
-        />
+       <Image
+  source={
+    doctor?.imageUrl
+      ? { uri: doctor.imageUrl }
+      : require("../../../../assets/Doctor.jpg") 
+  }
+  style={styles.doctorImg}
+/>
+
         <View style={{ flex: 1 }}>
           <Text style={styles.doctorName}>{doctor?.name}</Text>
           <Text style={styles.specialization}>
