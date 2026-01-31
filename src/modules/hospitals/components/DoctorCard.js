@@ -50,7 +50,8 @@ const DoctorCard = ({ doctor }) => {
       <TouchableOpacity
   style={styles.cardContainer}
   activeOpacity={0.8}
-  onPress={() => navigation.navigate('DoctorDetails')}
+  onPress={() => navigation.navigate('DoctorDetails', { doctorId: doctor.id })}
+
 >
   {/* Top Row */}
   <View style={styles.topRow}>
@@ -99,7 +100,8 @@ const DoctorCard = ({ doctor }) => {
       {/* Book Button */}
       <TouchableOpacity
         style={styles.bookBtn}
-        onPress={() => navigation.navigate('DoctorDetails')}
+        onPress={() => navigation.navigate('DoctorDetails', { doctorId: doctor.id })}
+
       >
         <Text style={styles.bookText}>Book Appointment</Text>
       </TouchableOpacity>
