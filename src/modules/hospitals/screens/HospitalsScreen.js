@@ -126,6 +126,7 @@ const HospitalsScreen = ({ navigation }) => {
                 onViewDetails={() =>
                   navigation.navigate('HospitalDetails', {
                     data: item,
+                    id: item.id,
                   })
                 }
               />
