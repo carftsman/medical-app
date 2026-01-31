@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unstable-nested-components */
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -122,7 +123,8 @@ const HospitalStackNavigator = () => {
       screenOptions={{
         headerShown: false,
       }}
-  
+    //  initialRouteName="Payments"
+        initialRouteName='SearchScreen'
     >
       <Stack.Screen name="HospitalsTab" component={HospitalTabNavigator} />
       <Stack.Screen name="DepartmentsList" component={DepartmentsList} />
@@ -132,7 +134,6 @@ const HospitalStackNavigator = () => {
       <Stack.Screen name="DoctorDetails" component={DoctorDetails} />
       <Stack.Screen name="AppointmentBooking" component={AppointmentBooking} />
       <Stack.Screen name="Payments" component={Payments} />
-      <Stack.Screen name="SearchScreen" component={SearchScreen}/>
       <Stack.Screen name="BookingDetails" component={BookingDetails} />
       <Stack.Screen name='SearchScreen' component={SearchScreen}/>
       <Stack.Screen name='PatientDetails' component={PatientDetails}/>

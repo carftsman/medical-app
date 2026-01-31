@@ -52,7 +52,7 @@ const PaymentScreen = ({ navigation }) => {
   const [showDebitForm, setShowDebitForm] = useState(false);
   const [showUpiForm, setShowUpiForm] = useState(false);
  
-  /* ---------------- Debit Card Form ---------------- */
+  /* Debit Card Form */
   const debitForm = useForm({
     resolver: zodResolver(debitCardSchema),
     mode: 'onChange',
@@ -64,7 +64,7 @@ const PaymentScreen = ({ navigation }) => {
     },
   });
  
-  /* ---------------- UPI Form ---------------- */
+  /* UPI Form */
   const upiForm = useForm({
     resolver: zodResolver(upiSchema),
     mode: 'onChange',
@@ -106,11 +106,9 @@ const PaymentScreen = ({ navigation }) => {
       {item.id === 'upi' && showUpiForm && renderUpiForm()}
     </View>
   );
- //
-  /* ---------------- Debit Card UI ---------------- */
+
   const renderDebitForm = () => (
     <View style={styles.formContainer}>
-      {/* Card Number */}
       <Text style={styles.fieldLabel}>Card Number</Text>
       <Controller
   control={debitForm.control}
@@ -126,7 +124,7 @@ const PaymentScreen = ({ navigation }) => {
         const formatted = digitsOnly.replace(/(.{4})/g, '$1 ').trim();
         field.onChange(formatted);
       }}
-      maxLength={19} // 16 digits + 3 spaces (optional but recommended)
+      maxLength={19}
     />
   )}
 />
@@ -136,8 +134,7 @@ const PaymentScreen = ({ navigation }) => {
           {debitForm.formState.errors.cardNumber.message}
         </Text>
       )}
- 
-      {/* Card Holder Name */}
+
       <Text style={styles.fieldLabel}>Card Holder’s Name</Text>
       <Controller
         control={debitForm.control}
@@ -156,8 +153,7 @@ const PaymentScreen = ({ navigation }) => {
           {debitForm.formState.errors.cardHolderName.message}
         </Text>
       )}
- 
-      {/* Expiry & CVV */}
+
       <View style={styles.row}>
         <View style={{ flex: 1 }}>
           <Text style={styles.fieldLabel}>Valid Upto</Text>
@@ -220,8 +216,6 @@ const PaymentScreen = ({ navigation }) => {
           )}
         </View>
       </View>
- 
-      {/* Proceed */}
       <TouchableOpacity
         disabled={!debitForm.formState.isValid}
         style={[
@@ -235,7 +229,7 @@ const PaymentScreen = ({ navigation }) => {
     </View>
   );
  
-  /* ---------------- UPI UI ---------------- */
+  /* UPI */
   const renderUpiForm = () => (
     <View style={styles.formContainer}>
       <Text style={styles.fieldLabel}>UPI ID</Text>

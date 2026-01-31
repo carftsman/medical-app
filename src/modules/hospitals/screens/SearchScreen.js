@@ -1,5 +1,6 @@
-/* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react-native/no-inline-styles */
+/* eslint-disable react/no-unstable-nested-components */
+
 
 import React, { useEffect, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -350,7 +351,6 @@ const styles = {
     flexDirection: 'row',
     backgroundColor: COLORS.white,
     padding: scale(12),
-    paddingVertical:scale(),
     borderRadius: scale(14),
     marginBottom: verticalScale(12),
     marginRight:scale(8),
@@ -461,3 +461,370 @@ onlineDot: {
 };
 
 export default SearchScreen;
+
+
+
+
+
+
+
+
+
+
+
+
+// /* eslint-disable react/no-unstable-nested-components */
+// import React, { useEffect, useRef, useState } from 'react';
+// import { SafeAreaView } from 'react-native-safe-area-context';
+// import Ionicons from 'react-native-vector-icons/Ionicons';
+// import {
+//   View,
+//   Text,
+//   TextInput,
+//   ScrollView,
+//   TouchableOpacity,
+//   Image,
+//   ActivityIndicator,
+// } from 'react-native';
+
+// import api from '../../../api/client';
+// import { COLORS, FONT, SIZES } from '../../../config/constants';
+// import { scale, verticalScale } from '../../../utils/styling';
+
+// /* ---------------- CONSTANTS ---------------- */
+// const RECENT_SEARCHES = ['Cardiology', 'Skin allergy', 'Pediatrics'];
+// const USER_LAT = 17.385;
+// const USER_LNG = 78.4867;
+
+// /* ---------------- SCREEN ---------------- */
+// const SearchScreen = ({ navigation }) => {
+//   const [search, setSearch] = useState('');
+//   const [loading, setLoading] = useState(false);
+
+//   const [doctors, setDoctors] = useState([]);
+//   const [hospitals, setHospitals] = useState([]);
+
+//   const [topDoctors, setTopDoctors] = useState([]);
+//   const [nearbyHospitals, setNearbyHospitals] = useState([]);
+
+//   const debounceRef = useRef(null);
+//   const isSearching = search.trim().length >= 2;
+
+//   /* ---------------- SEARCH API ---------------- */
+//   const fetchResults = async (query) => {
+//     try {
+//       setLoading(true);
+//       const res = await api.get('/hospital/user/modeSearch', {
+//         params: { q: query },
+//         timeout: 8000,
+//       });
+
+//       setDoctors(res?.data?.doctors || []);
+//       setHospitals(res?.data?.hospitals || []);
+//     } catch (e) {
+//       console.log('Search error:', e?.message);
+//       setDoctors([]);
+//       setHospitals([]);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   /* ---------------- BEFORE SEARCH APIs ---------------- */
+//   useEffect(() => {
+//     api
+//       .get('/hospital/user/doctors', {
+//         params: { lat: USER_LAT, lng: USER_LNG },
+//       })
+//       .then((res) => setTopDoctors(res?.data?.doctors || []))
+//       .catch(() => setTopDoctors([]));
+
+//     api
+//       .get('/hospital/user/hospitals/nearby', {
+//         params: { latitude: USER_LAT, longitude: USER_LNG },
+//       })
+//       .then((res) => setNearbyHospitals(res?.data?.data || []))
+//       .catch(() => setNearbyHospitals([]));
+//   }, []);
+
+//   /* ---------------- SEARCH HANDLER ---------------- */
+//   const onChangeSearch = (text) => {
+//     setSearch(text);
+
+//     if (debounceRef.current) clearTimeout(debounceRef.current);
+
+//     debounceRef.current = setTimeout(() => {
+//       if (text.trim().length >= 2) {
+//         fetchResults(text.trim());
+//       } else {
+//         setDoctors([]);
+//         setHospitals([]);
+//       }
+//     }, 500);
+//   };
+
+//   /* ---------------- UI COMPONENTS ---------------- */
+//   const DoctorCard = ({ item }) => (
+//     <TouchableOpacity
+//       style={styles.card}
+//       onPress={() =>
+//         navigation.navigate('DoctorDetails', { doctorId: item.id })
+//       }
+//     >
+//       <View style={styles.avatarWrapper}>
+//         <Image source={{ uri: item.imageUrl }} style={styles.avatar} />
+//         <View style={styles.onlineDot} />
+//       </View>
+
+//       <View style={{ flex: 1 }}>
+//         <Text style={styles.title}>{item.name}</Text>
+//         <Text style={styles.sub}>{item.specialization}</Text>
+//         <Text style={styles.meta}>⭐ 4.5 (200+ reviews)</Text>
+//       </View>
+
+//       <TouchableOpacity style={styles.bookBtn}>
+//         <Text style={styles.bookText}>Book</Text>
+//       </TouchableOpacity>
+//     </TouchableOpacity>
+//   );
+
+//   const HospitalCard = ({ item }) => (
+//     <View style={styles.hospitalCard}>
+//       <View style={styles.hospitalRow}>
+//         <Image source={{ uri: item.imageUrl }} style={styles.hospitalImage} />
+//         <View style={{ flex: 1, marginLeft: scale(10) }}>
+//           <View style={styles.hospitalTitleRow}>
+//             <Text style={styles.title}>{item.name}</Text>
+//             {item.isOpen && (
+//               <View style={styles.openBadge}>
+//                 <Text style={styles.openText}>Open</Text>
+//               </View>
+//             )}
+//           </View>
+//           <Text style={styles.hospitalMeta}>2.4 kms | {item.place}</Text>
+//         </View>
+//       </View>
+
+//       <TouchableOpacity
+//         style={styles.viewBtn}
+//         onPress={() =>
+//           navigation.navigate('HospitalDetails', { hospitalId: item.id })
+//         }
+//       >
+//         <Text style={styles.viewText}>View Details</Text>
+//       </TouchableOpacity>
+//     </View>
+//   );
+
+//   /* ---------------- UI ---------------- */
+//   return (
+//     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.lightGray }}>
+//       <View style={styles.container}>
+//         <Text style={styles.screenTitle}>Find Your Doctor</Text>
+
+//         <View style={styles.searchBox}>
+//           <Ionicons name="search-outline" size={20} color={COLORS.gray} />
+//           <TextInput
+//             placeholder="Search doctors, Specialties"
+//             value={search}
+//             onChangeText={onChangeSearch}
+//             style={styles.searchInput}
+//           />
+//           <Ionicons name="mic-outline" size={20} color={COLORS.gray} />
+//         </View>
+
+//         {loading && <ActivityIndicator color={COLORS.primary} />}
+
+//         <ScrollView showsVerticalScrollIndicator={false}>
+//           {/* -------- BEFORE SEARCH -------- */}
+//           {!isSearching && (
+//             <>
+//               <Text style={styles.headerText}>Recent Searches</Text>
+
+//               {RECENT_SEARCHES.map((item) => (
+//                 <TouchableOpacity
+//                   key={item}
+//                   style={styles.recentCard}
+//                   onPress={() => {
+//                     setSearch(item);
+//                     fetchResults(item);
+//                   }}
+//                 >
+//                   <Text style={styles.recentText}>{item}</Text>
+//                 </TouchableOpacity>
+//               ))}
+
+//               <Text style={styles.section}>Top Doctors</Text>
+//               <View style={{ height: verticalScale(110) }}>
+//                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+//                   {topDoctors.map((d) => (
+//                     <DoctorCard key={d.id} item={d} />
+//                   ))}
+//                 </ScrollView>
+//               </View>
+
+//               <Text style={styles.section}>Near by hospitals</Text>
+//               {nearbyHospitals.map((h) => (
+//                 <HospitalCard key={h.id} item={h} />
+//               ))}
+//             </>
+//           )}
+
+//           {/* -------- AFTER SEARCH -------- */}
+//           {isSearching && (
+//             <>
+//               <Text style={styles.instant}>INSTANT RESULTS</Text>
+
+//               {doctors.map((d) => (
+//                 <DoctorCard key={d.id} item={d} />
+//               ))}
+
+//               {hospitals.map((h) => (
+//                 <HospitalCard key={h.id} item={h} />
+//               ))}
+
+//               {!loading &&
+//                 doctors.length === 0 &&
+//                 hospitals.length === 0 && (
+//                   <Text style={styles.emptyText}>No results found</Text>
+//                 )}
+//             </>
+//           )}
+//         </ScrollView>
+//       </View>
+//     </SafeAreaView>
+//   );
+// };
+
+// export default SearchScreen;
+
+// /* ---------------- STYLES ---------------- */
+// const styles = {
+//   container: { flex: 1, padding: scale(16) },
+
+//   screenTitle: {
+//     fontSize: SIZES.large,
+//     fontFamily: FONT.bold,
+//     marginBottom: verticalScale(14),
+//   },
+
+//   searchBox: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     backgroundColor: COLORS.white,
+//     borderRadius: scale(14),
+//     paddingHorizontal: scale(14),
+//     height: verticalScale(48),
+//     marginBottom: verticalScale(16),
+//   },
+//   searchInput: {
+//     flex: 1,
+//     marginHorizontal: scale(10),
+//     fontSize: SIZES.medium,
+//     fontFamily: FONT.regular,
+//   },
+
+//   headerText: {
+//     fontSize: SIZES.medium,
+//     fontFamily: FONT.bold,
+//     marginBottom: verticalScale(10),
+//   },
+
+//   recentCard: {
+//     backgroundColor: COLORS.white,
+//     borderRadius: scale(12),
+//     padding: scale(14),
+//     marginBottom: verticalScale(10),
+//   },
+//   recentText: { fontSize: SIZES.medium },
+
+//   section: {
+//     fontSize: SIZES.medium,
+//     fontFamily: FONT.bold,
+//     marginVertical: verticalScale(12),
+//   },
+
+//   instant: {
+//     fontSize: SIZES.small,
+//     color: COLORS.gray,
+//     letterSpacing: 1,
+//     marginBottom: verticalScale(10),
+//   },
+
+//   card: {
+//     flexDirection: 'row',
+//     backgroundColor: COLORS.white,
+//     borderRadius: scale(14),
+//     padding: scale(12),
+//     alignItems: 'center',
+//     marginRight: scale(10),
+//   },
+
+//   avatarWrapper: { position: 'relative', marginRight: scale(12) },
+//   avatar: { width: scale(56), height: scale(56), borderRadius: scale(28) },
+//   onlineDot: {
+//     position: 'absolute',
+//     bottom: 2,
+//     right: 2,
+//     width: scale(12),
+//     height: scale(12),
+//     borderRadius: scale(6),
+//     backgroundColor: COLORS.lightGreen,
+//     borderWidth: 2,
+//     borderColor: COLORS.white,
+//   },
+
+//   title: { fontSize: SIZES.medium, fontFamily: FONT.bold },
+//   sub: { fontSize: SIZES.small, color: COLORS.gray },
+//   meta: { fontSize: SIZES.small, color: COLORS.darkgray },
+
+//   bookBtn: {
+//     borderWidth: 1,
+//     borderColor: COLORS.primary,
+//     borderRadius: scale(20),
+//     paddingHorizontal: scale(16),
+//     paddingVertical: verticalScale(6),
+//   },
+//   bookText: { fontSize: SIZES.small, color: COLORS.primary },
+
+//   hospitalCard: {
+//     backgroundColor: COLORS.white,
+//     borderRadius: scale(14),
+//     padding: scale(12),
+//     marginBottom: verticalScale(14),
+//   },
+//   hospitalRow: { flexDirection: 'row', alignItems: 'center' },
+//   hospitalImage: { width: scale(80), height: scale(80), borderRadius: scale(10) },
+
+//   hospitalTitleRow: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//   },
+//   hospitalMeta: {
+//     marginTop: verticalScale(6),
+//     fontSize: SIZES.small,
+//     color: COLORS.gray,
+//   },
+
+//   openBadge: {
+//     backgroundColor: COLORS.Iceblue,
+//     borderRadius: scale(6),
+//     paddingHorizontal: scale(8),
+//   },
+//   openText: { fontSize: SIZES.small, color: COLORS.primary },
+
+//   viewBtn: {
+//     marginTop: verticalScale(12),
+//     backgroundColor: COLORS.primary,
+//     borderRadius: scale(20),
+//     alignItems: 'center',
+//     paddingVertical: verticalScale(8),
+//   },
+//   viewText: { color: COLORS.white, fontSize: SIZES.small },
+
+//   emptyText: {
+//     textAlign: 'center',
+//     marginTop: verticalScale(30),
+//     color: COLORS.gray,
+//   },
+// };
