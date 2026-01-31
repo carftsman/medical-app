@@ -120,16 +120,6 @@ const SlotBooking = ({ dates, times, timeSlotsLoading }) => {
             {/* ---------- TIME SLOTS ---------- */}
             <FetchTimeSlots />
 
-            {/* ---------- DEBUG / CONFIRM ---------- */}
-            {selectedTime && (
-                <View style={{ marginTop: 20 }}>
-                    <Text>Selected:</Text>
-                    <Text>Date: {selectedTime.date}</Text>
-                    <Text>Time: {selectedTime.time}</Text>
-                    <Text>Id: {selectedTime.slotId}</Text>
-                </View>
-            )}
-
         </View>
     );
 };
