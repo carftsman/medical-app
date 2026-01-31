@@ -33,7 +33,7 @@ const AppointmentBooking = ({ route }) => {
   const navigation = useNavigation();
 
   const doctorId = route?.params?.doctorId || 1;
-  
+
   const { selectedDate, selectedTime } = useSelector(
     state => state.hospital.consultation
   );
@@ -104,44 +104,44 @@ const AppointmentBooking = ({ route }) => {
   };
 
   /*  CONTINUE (HOLD APPOINTMENT)*/
- const onContinue = async () => {
-  try {
-     if (!selectedTime?.slotId) {
-      console.log("No slot selected");
-      return;
+  const onContinue = async () => {
+    try {
+      if (!selectedTime?.slotId) {
+        console.log("No slot selected");
+        return;
+      }
+      const patient = patients[selectedIndex];
+
+      const [dd, mm, yyyy] = patient.dob.split("/");
+      const formattedDob = `${yyyy}-${mm}-${dd}`;
+
+      const payload = {
+        slotId: selectedTime.slotId,
+        bookingFor: "OTHER",
+        reason: patient.reason,
+        patient: {
+          fullName: patient.name,
+          phone: patient.mobile,
+          email: patient.email,
+          dob: formattedDob,
+        },
+      };
+
+      console.log("Hold appointment payload:", payload);
+
+      const res = await api.post("/appointments/hold", payload);
+
+      const bookingId = res.data.bookingId;
+
+      dispatch(setBookingId(bookingId));
+
+      navigation.navigate("BookingDetails", { bookingId });
+
+      console.log("Hold appointment success:", res.data);
+    } catch (error) {
+      console.log("Hold appointment error:", error?.response || error);
     }
-    const patient = patients[selectedIndex];
-
-    const [dd, mm, yyyy] = patient.dob.split("/");
-    const formattedDob = `${yyyy}-${mm}-${dd}`;
-
-    const payload = {
-      slotId: selectedTime.slotId,
-      bookingFor: "OTHER",
-      reason: patient.reason,
-      patient: {
-        fullName: patient.name,
-        phone: patient.mobile,
-        email: patient.email,
-        dob: formattedDob,
-      },
-    };
-
-    console.log("Hold appointment payload:", payload);
-
-    const res = await api.post("/appointments/hold", payload);
-
-    const bookingId = res.data.bookingId;
-
-    dispatch(setBookingId(bookingId));
-
-    navigation.navigate("BookingDetails", { bookingId });
-
-    console.log("Hold appointment success:", res.data);
-  } catch (error) {
-    console.log("Hold appointment error:", error?.response || error);
-  }
-};
+  };
   return (
     <View style={styles.container}>
       {/* HEADER */}
@@ -167,23 +167,23 @@ const AppointmentBooking = ({ route }) => {
           </Text>
           <Text style={styles.rating}>⭐⭐⭐⭐⭐ 4.5 (121 reviews)</Text>
 
- {selectedDate && selectedTime && (
-      <View style={styles.dateTimeRow}>
-        <View style={styles.dateTimeItem}>
-          <Ionicons name="calendar-outline" size={14} color="#6B7280" />
-          <Text style={styles.dateTimeText}>{selectedDate}</Text>
-        </View>
+          {selectedDate && selectedTime && (
+            <View style={styles.dateTimeRow}>
+              <View style={styles.dateTimeItem}>
+                <Ionicons name="calendar-outline" size={14} color="#6B7280" />
+                <Text style={styles.dateTimeText}>{selectedDate}</Text>
+              </View>
 
-        <Text style={styles.separator}> | </Text>
+              <Text style={styles.separator}> | </Text>
 
-        <View style={styles.dateTimeItem}>
-          <Ionicons name="time-outline" size={14} color="#6B7280" />
-          <Text style={styles.dateTimeText}>
-            {selectedTime.time}
-          </Text>
-        </View>
-      </View>
-    )}
+              <View style={styles.dateTimeItem}>
+                <Ionicons name="time-outline" size={14} color="#6B7280" />
+                <Text style={styles.dateTimeText}>
+                  {selectedTime.time}
+                </Text>
+              </View>
+            </View>
+          )}
         </View>
       </View>
 
@@ -334,7 +334,7 @@ const AppointmentBooking = ({ route }) => {
                   value={value}
                   style={styles.input}
                   placeholder="Enter Patient Name"
-                   placeholderTextColor="#9CA3AF"
+                  placeholderTextColor="#9CA3AF"
                   onChangeText={onChange}
                 />
               )}
@@ -353,7 +353,7 @@ const AppointmentBooking = ({ route }) => {
                   keyboardType="number-pad"
                   style={styles.input}
                   placeholder="Enter Mobile Number"
-                   placeholderTextColor="#9CA3AF"
+                  placeholderTextColor="#9CA3AF"
                   onChangeText={onChange}
                 />
               )}
@@ -371,7 +371,7 @@ const AppointmentBooking = ({ route }) => {
                   value={value}
                   style={styles.input}
                   placeholder="Enter Email ID"
-                   placeholderTextColor="#9CA3AF"
+                  placeholderTextColor="#9CA3AF"
                   onChangeText={onChange}
                 />
               )}
@@ -383,13 +383,13 @@ const AppointmentBooking = ({ route }) => {
             <Text style={styles.inputLabel}>Reason</Text>
             <Controller
               control={control}
-              name="reason" 
+              name="reason"
               render={({ field: { value, onChange } }) => (
                 <TextInput
                   value={value}
                   style={styles.input}
-                  placeholder="Enter Reason" 
-                   placeholderTextColor="#9CA3AF" 
+                  placeholder="Enter Reason"
+                  placeholderTextColor="#9CA3AF"
                   onChangeText={onChange}
                 />
               )}
@@ -461,9 +461,9 @@ const styles = StyleSheet.create({
 
   doctorImg: { width: scale(87), height: scale(87), borderRadius: scale(8), resizeMode: "cover", marginRight: scale(16) },
 
-  doctorName: {fontSize: scale(20),fontWeight: "600",  color: "#000000",marginBottom: verticalScale(4),flexWrap: "wrap",},
+  doctorName: { fontSize: scale(20), fontWeight: "600", color: "#000000", marginBottom: verticalScale(4), flexWrap: "wrap", },
 
-  specialization: { fontSize: SIZES.medium,color: COLORS.gray,marginVertical: 4, fontWeight: "400", flexWrap: "wrap"},
+  specialization: { fontSize: SIZES.medium, color: COLORS.gray, marginVertical: 4, fontWeight: "400", flexWrap: "wrap" },
 
   exp: { width: 53, height: 18, fontSize: 15, lineHeight: 15, fontWeight: "500", color: "#05A836" },
 
@@ -499,7 +499,7 @@ const styles = StyleSheet.create({
 
   editText: { color: COLORS.primary, fontWeight: "500" },
 
-  deleteText: { color: COLORS.danger, fontWeight: "500"},
+  deleteText: { color: COLORS.danger, fontWeight: "500" },
 
   footer: { padding: scale(16), backgroundColor: COLORS.white, borderTopWidth: 1, borderTopColor: "#E5E7EB" },
   /*  Continue Button  */
@@ -525,15 +525,15 @@ const styles = StyleSheet.create({
 
   saveText: { color: COLORS.white, textAlign: "center", fontSize: SIZES.medium, fontFamily: FONT.bold },
 
-  dateInput: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderWidth: 1, borderColor: COLORS.lightGray, borderRadius: scale(12), paddingVertical: verticalScale(14), paddingHorizontal: scale(14), marginBottom: verticalScale(12)},
+  dateInput: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderWidth: 1, borderColor: COLORS.lightGray, borderRadius: scale(12), paddingVertical: verticalScale(14), paddingHorizontal: scale(14), marginBottom: verticalScale(12) },
 
   error: { color: "red", fontSize: 12, marginBottom: 6 },
 
-dateTimeRow: {flexDirection: "row", alignItems: "center",marginTop: 6},
+  dateTimeRow: { flexDirection: "row", alignItems: "center", marginTop: 6 },
 
-dateTimeItem: {flexDirection: "row",alignItems: "center"},
+  dateTimeItem: { flexDirection: "row", alignItems: "center" },
 
-dateTimeText: {marginLeft: 4, fontSize: 13,color: "#374151"},
+  dateTimeText: { marginLeft: 4, fontSize: 13, color: "#374151" },
 
-separator: { marginHorizontal: 6,  color: "#9CA3AF"},
+  separator: { marginHorizontal: 6, color: "#9CA3AF" },
 });

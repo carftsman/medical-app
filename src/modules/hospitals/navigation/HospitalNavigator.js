@@ -28,10 +28,11 @@ const HospitalTabNavigator = () => {
   const Tab = createBottomTabNavigator();
 
   const insets = useSafeAreaInsets();
+  
 
   return (
     <Tab.Navigator
-      initialRouteName="HospitalsHomeScreeen"
+     initialRouteName='HospitalsHomeScreeen'
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
@@ -114,13 +115,14 @@ const HospitalTabNavigator = () => {
 
 const HospitalStackNavigator = () => {
   const Stack = createNativeStackNavigator(); 
+  console.log("HospitalStackNavigator rendered")
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
        
       }}
-  initialRouteName='DoctorDetails'
+  initialRouteName='HospitalsTab'
     >
       <Stack.Screen name="HospitalsTab" component={HospitalTabNavigator} />
       <Stack.Screen name="DepartmentsList" component={DepartmentsList} />

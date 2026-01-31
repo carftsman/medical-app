@@ -109,8 +109,8 @@ const getUserLocation = () =>
       const { latitude, longitude } = await getUserLocation();
       const res = await hospitalApi.getNearbyHospitals({
         mode: hospitalMode,
-        latitude,
-        longitude,
+        latitude: 17.385,
+        longitude: 78.4867,
         page,
         limit: hosLimit,
       });

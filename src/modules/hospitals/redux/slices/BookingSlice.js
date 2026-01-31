@@ -5,7 +5,7 @@ const initialState = {
   selectedDate: null,
   selectedTime: null,
   consultationType: null,
-  bookingId: null,
+  bookingId:null,
   mode: "all",
   category: {
     id: null,
