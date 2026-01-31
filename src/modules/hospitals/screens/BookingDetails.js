@@ -41,7 +41,7 @@ const BookingDetails = () => {
       setError('');
 
       const response = await api.get(
-        `/appointments/${bookingId || 23}`,
+        `/appointments/${bookingId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -98,7 +98,7 @@ const BookingDetails = () => {
 
         {/* Booking Details */}
         <View style={styles.section}>
-          <SectionHeader title="Booking Details" showChange />
+          <SectionHeader title="Booking Details" showChange doctorId={bookingData.doctor.id} />
 
           <DetailRow
             icon="person-outline"

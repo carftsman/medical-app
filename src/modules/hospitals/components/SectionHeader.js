@@ -4,14 +4,14 @@ import { scale, verticalScale } from '../../../utils/styling';
 import { useNavigation } from '@react-navigation/native';
 
 
-const SectionHeader = ({title, showChange}) => {
+const SectionHeader = ({title, showChange,doctorId}) => {
   const navigation = useNavigation();
   return (
     
     <View style={styles.sectionHeader}>
     <Text style={styles.sectionTitle}>{title}</Text>
     {showChange && (
-      <TouchableOpacity onPress={() => navigation.navigate('DoctorDetails')}>
+      <TouchableOpacity onPress={() => navigation.navigate('DoctorDetails',{doctorId:doctorId})}>
         <Text style={styles.changeText}>Change</Text>
       </TouchableOpacity>
     )}
