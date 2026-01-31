@@ -5,11 +5,11 @@ import { View, Text, StyleSheet } from 'react-native';
 export default function HospitalsScreen() {
   const navigation = useNavigation();
 
+
+
   useEffect(() => {
     navigation.navigate('HospitalsMain');
-  }, [navigation]);
+    console.log("navigating...")
+  });
   return null;
 } 
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-});
