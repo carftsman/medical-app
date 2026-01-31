@@ -11,9 +11,9 @@ import { scale, verticalScale } from '../../../utils/styling';
 import HospitalInfo from '../components/HospitalInfo';
 import HospitalContactInfo from '../components/HospitalContactInfo';
 
-const HospitalDetails = ({ hId }) => {
+const HospitalDetails = ({ route }) => {
 
-  const HOSPITAL_ID = hId || 1;
+  const HOSPITAL_ID = route.params.id || 1;
 
   const navigation = useNavigation();
   const {

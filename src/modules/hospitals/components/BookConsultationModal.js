@@ -12,8 +12,9 @@ import { scale, verticalScale } from '../../../utils/styling';
 import { useDispatch, useSelector } from 'react-redux';
 import { setConsultationType, resetConsultationType } from '../redux/slices/BookingSlice';
 
-const BookConsultationModal = ({ visible, onClose, bookAppointmentForSelf }) => {
+const BookConsultationModal = ({ visible, onClose, bookAppointmentForSelf, doctorId }) => {
 
+    console.log("Doctor ID: ", doctorId);
     const navigation = useNavigation();
     const dispatch = useDispatch();
     const selectedType = useSelector(
@@ -27,7 +28,9 @@ const BookConsultationModal = ({ visible, onClose, bookAppointmentForSelf }) => 
             await bookAppointmentForSelf();
             navigation.navigate('BookingDetails');
         } else {
-            navigation.navigate('AppointmentBooking');
+            navigation.navigate('AppointmentBooking', {
+                doctorId: doctorId,
+            });
         }
     };
 
