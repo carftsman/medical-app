@@ -112,7 +112,7 @@ const HospitalsHomeScreen = () => {
 
   const goInstantMode = () => {
     dispatch(setConsultationMode('instant'));
-    navigation.navigate('DoctorsList');
+    navigation.navigate('PatientDetails');
   };
 
   const goToDepartments = () => {
