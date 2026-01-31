@@ -181,7 +181,6 @@ const AppointmentBooking = ({ route }) => {
   }
   style={styles.doctorImg}
 />
-
         <View style={{ flex: 1 }}>
           <Text style={styles.doctorName}>{doctor?.name}</Text>
           <Text style={styles.specialization}>
