@@ -120,6 +120,7 @@ const HospitalStackNavigator = () => {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
+       
       }}
   initialRouteName='HospitalsTab'
     >
