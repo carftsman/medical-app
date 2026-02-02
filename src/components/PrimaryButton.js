@@ -14,7 +14,6 @@ const PrimaryButton = ({ title, onPress, disabled }) => {
     </TouchableOpacity>
   );
 };
-
 const styles = StyleSheet.create({
   button: {
     width: 327,
