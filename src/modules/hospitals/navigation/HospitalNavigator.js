@@ -4,7 +4,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import DepartmentsScreen from '../screens/DepartmentsScreen';
 import DoctorsScreen from '../screens/DoctorsScreen';
-import HospitalsHomeScreen from '../screens/HospitalsHomeScreen';
+// import HospitalsHomeScreen from '../screens/HospitalsHomeScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HospitalsScreen from '../screens/HospitalsScreen';
 import MainHomeScreen from '../../../screens/MainHomeScreen';
@@ -28,6 +28,8 @@ import SearchScreen from '../screens/SearchScreen';
 import PatientDetails from '../screens/PatientDetaills';
 import { verticalScale } from '../../../utils/styling';
 
+import HospitalsHomeScreen from "../screens/HospitalsHomeScreen"
+
 const HospitalTabNavigator = () => {
   const Tab = createBottomTabNavigator();
  
@@ -36,7 +38,7 @@ const HospitalTabNavigator = () => {
 
   return (
     <Tab.Navigator
-     initialRouteName='HospitalsHomeScreeen'
+     initialRouteName='HospitalsHomeScreen'
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
@@ -125,7 +127,7 @@ const HospitalStackNavigator = () => {
       screenOptions={{
         headerShown: false,
       }}
-  initialRouteName='HospitalsTab'
+             initialRouteName='HospitalsTab'
     >
       <Stack.Screen name="HospitalsTab" component={HospitalTabNavigator} />
       <Stack.Screen name="DepartmentsList" component={DepartmentsList} />
@@ -138,6 +140,7 @@ const HospitalStackNavigator = () => {
       <Stack.Screen name="BookingDetails" component={BookingDetails} />
       <Stack.Screen name='SearchScreen' component={SearchScreen}/>
       <Stack.Screen name='PatientDetails' component={PatientDetails}/>
+      {/* <Stack.Screen name="HospitalsHomeScreen" component={HospitalsHomeScreen}/> */}
     </Stack.Navigator>
   );
 };
