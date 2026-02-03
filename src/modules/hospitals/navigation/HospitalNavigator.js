@@ -26,6 +26,7 @@ import BookingDetails from '../screens/BookingDetails';
 import DoctorDetails from '../screens/DoctorDetails';
 import SearchScreen from '../screens/SearchScreen';
 import PatientDetails from '../screens/PatientDetaills';
+import BookingSuccess from '../screens/BookingSuccess';
 import { verticalScale } from '../../../utils/styling';
 
 import HospitalsHomeScreen from "../screens/HospitalsHomeScreen"
@@ -141,7 +142,7 @@ const HospitalStackNavigator = () => {
       <Stack.Screen name="BookingDetails" component={BookingDetails} />
       <Stack.Screen name='SearchScreen' component={SearchScreen}/>
       <Stack.Screen name='PatientDetails' component={PatientDetails}/>
-      {/* <Stack.Screen name="HospitalsHomeScreen" component={HospitalsHomeScreen}/> */}
+      <Stack.Screen name="BookingSuccess"component={BookingSuccess}/>
     </Stack.Navigator>
   );
 };
