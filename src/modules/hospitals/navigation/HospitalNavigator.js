@@ -26,6 +26,7 @@ import BookingDetails from '../screens/BookingDetails';
 import DoctorDetails from '../screens/DoctorDetails';
 import SearchScreen from '../screens/SearchScreen';
 import PatientDetails from '../screens/PatientDetaills';
+import BookingSuccess from '../screens/BookingSuccess';
 import { verticalScale } from '../../../utils/styling';
 
 import HospitalsHomeScreen from "../screens/HospitalsHomeScreen"
