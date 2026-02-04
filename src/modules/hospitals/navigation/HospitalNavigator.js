@@ -129,7 +129,7 @@ const HospitalStackNavigator = () => {
         headerShown: false,
        
       }}
-             initialRouteName='HospitalsTab'
+            
     >
       <Stack.Screen name="HospitalsTab" component={HospitalTabNavigator} />
       <Stack.Screen name="DepartmentsList" component={DepartmentsList} />
@@ -142,7 +142,9 @@ const HospitalStackNavigator = () => {
       <Stack.Screen name="BookingDetails" component={BookingDetails} />
       <Stack.Screen name='SearchScreen' component={SearchScreen}/>
       <Stack.Screen name='PatientDetails' component={PatientDetails}/>
-      <Stack.Screen name="BookingSuccess"component={BookingSuccess}/>
+      <Stack.Screen name='BookingSuccess' component={BookingSuccess}/>
+      
+      {/* <Stack.Screen name="HospitalsHomeScreen" component={HospitalsHomeScreen}/> */}
     </Stack.Navigator>
   );
 };
