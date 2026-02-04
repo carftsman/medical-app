@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -12,7 +13,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { scale, verticalScale } from '../../../utils/styling';
 import { useSelector } from 'react-redux';
-import axios from 'axios';
 
 import Header from '../components/Header';
 import SectionHeader from '../components/SectionHeader';
@@ -22,9 +22,8 @@ import PaymentRow from '../components/PaymentRow';
 import api from '../../../api/client';
 
 const BookingDetails = () => {
-  const bookingId = useSelector(
-    state => state.hospital.consultation.bookingId
-  );
+  const navigation = useNavigation();
+  const bookingId = useSelector(state => state.hospital.consultation.bookingId);
 
   const [bookingData, setBookingData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -172,9 +171,14 @@ const BookingDetails = () => {
       </ScrollView>
 
       {/* Pay Button */}
-      <TouchableOpacity style={styles.payButton}>
+      <TouchableOpacity
+        style={styles.payButton}
+        onPress={() => navigation.navigate('Payments',{
+          totalFee:bookingData?.payment?.totalPayable
+        })}
+        >
        <Text style={styles.payText}>
-  Pay ₹{bookingData.payment?.totalPayable}
+       Pay ₹{bookingData.payment?.totalPayable}
 </Text>
 
       </TouchableOpacity>
