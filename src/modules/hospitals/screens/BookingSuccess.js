@@ -11,15 +11,14 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Feather from "react-native-vector-icons/Feather";
 import AntDesign from "react-native-vector-icons/AntDesign";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { scale, verticalScale } from "../../../utils/styling";
 import api from "../../../api/client";
 import { COLORS } from "../../../config/constants";
 
 const BookingSuccess = ({ route }) => {
   const navigation = useNavigation();
-
-  const { bookingId } = route.params || {};
+  const bookingId = route?.params?.bookingId || 13;
 
   const [successData, setSuccessData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -37,16 +36,10 @@ const BookingSuccess = ({ route }) => {
       setError("");
 
       const response = await api.get(
-        `/appointments/${bookingId}/success`,
-        {
-          params: {
-            bookingId,
-          },
-        }
+        `/appointments/${bookingId}/success`
       );
 
       setSuccessData(response.data);
-      console.log("DATA", response?.data);
     } catch (err) {
       setError("Unable to fetch booking success details");
     } finally {
@@ -70,15 +63,13 @@ const BookingSuccess = ({ route }) => {
     );
   }
 
-  if (!successData) {
-    return null;
-  }
-console.log("BOOKING SUCCESS");
+  if (!successData) return null;
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
 
-        {/* TOP BLUE SECTION */}
+        {/* TOP BLUE */}
         <View style={styles.topBlue}>
           <View style={styles.badgeOuter}>
             <View style={styles.badgeMid}>
@@ -120,7 +111,7 @@ console.log("BOOKING SUCCESS");
                 </Text>
 
                 <View style={styles.ratingRow}>
-                  <Text style={styles.star}>⭐</Text>
+                  <Text style={styles.star}>⭐⭐⭐⭐⭐</Text>
                   <Text style={styles.rating}>
                     {successData.doctor?.rating}
                   </Text>
@@ -131,30 +122,29 @@ console.log("BOOKING SUCCESS");
               </View>
             </View>
 
-            {/* DATE & TIME */}
             <View style={styles.dateTimeBox}>
-              <View style={styles.dateItem}>
-                <Feather name="calendar" size={scale(18)} color="#056FD2" />
-                <Text style={styles.dateText}>
+              <View style={styles.dateTimeItem}>
+                <Feather name="calendar" size={scale(16)} color="#056FD2" />
+                <Text style={styles.dateTimeText}>
                   {successData.appointment?.date}
                 </Text>
               </View>
 
-              <View style={styles.dateItem}>
-                <Feather name="clock" size={scale(18)} color="#056FD2" />
-                <Text style={styles.dateText}>
+              <View style={styles.dateTimeItem}>
+                <Feather name="clock" size={scale(16)} color="#056FD2" />
+                <Text style={styles.dateTimeText}>
                   {successData.appointment?.time}
                 </Text>
               </View>
             </View>
           </View>
 
-          {/* MAP PLACEHOLDER */}
+          {/* MAP */}
           <View style={styles.mapPreview}>
             <Text style={styles.mapText}>Map Preview</Text>
           </View>
 
-          {/* DONE BUTTON */}
+          {/* DONE */}
           <TouchableOpacity
             style={styles.doneBtn}
             onPress={() =>
@@ -175,19 +165,16 @@ console.log("BOOKING SUCCESS");
 export default BookingSuccess;
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
-  container: {
-    flex: 1,
-  },
+  safeArea: { flex: 1, backgroundColor: "#fff" },
+  container: { flex: 1 },
+
   topBlue: {
     height: verticalScale(260),
     backgroundColor: "#056FD2",
     justifyContent: "center",
     alignItems: "center",
   },
+
   badgeOuter: {
     width: scale(110),
     height: scale(110),
@@ -195,8 +182,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.25)",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: verticalScale(14),
   },
+
   badgeMid: {
     width: scale(82),
     height: scale(82),
@@ -205,28 +192,31 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+
   badgeInner: {
     width: scale(56),
     height: scale(56),
     borderRadius: scale(28),
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
   },
+
   successText: {
-    color: "#FFFFFF",
+    color: "#fff",
     fontSize: scale(20),
     fontWeight: "600",
+    marginTop: 10,
   },
+
   subText: {
     color: "#EAF3FF",
     fontSize: scale(13),
-    marginTop: verticalScale(6),
+    marginTop: 6,
   },
-  content: {
-    flex: 1,
-    padding: scale(16),
-  },
+
+  content: { padding: scale(16) },
+
   doctorCard: {
     backgroundColor: "#F3F9FF",
     borderRadius: scale(16),
@@ -234,101 +224,102 @@ const styles = StyleSheet.create({
     borderColor: "#9CC9FF",
     padding: scale(12),
   },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
+
+  row: { flexDirection: "row" },
+
   doctorImg: {
     width: scale(87),
     height: scale(87),
     borderRadius: scale(8),
   },
-  infoBox: {
-    marginLeft: scale(12),
-    width: scale(236),
-  },
-  docName: {
-    fontSize: scale(16),
-    fontWeight: "700",
-    color: "#000",
-  },
-  docSub: {
-    fontSize: scale(13),
-    color: "#666",
-    marginTop: verticalScale(2),
-  },
-  green: {
-    color: "#1DB954",
-    fontWeight: "600",
-  },
-  ratingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: verticalScale(4),
-  },
-  star: {
-    fontSize: scale(12),
-  },
-  rating: {
-    fontWeight: "700",
-    fontSize: scale(12),
-    color: "#000",
-  },
-  review: {
-    fontSize: scale(12),
-    color: "#777",
-  },
+
+  infoBox: { 
+  marginLeft: 12, 
+  flex: 1 
+},
+
+  docName: { 
+  fontSize: scale(16), 
+  fontWeight: "700"
+ },
+  docSub: { 
+  fontSize: scale(13),
+  color: "#666" 
+},
+  green: { 
+  color: "#1DB954",
+  fontWeight: "600" },
+
+  ratingRow: { 
+  flexDirection: "row", 
+  alignItems: "center", 
+  marginTop: 4 
+},
+  star: { fontSize: scale(12) },
+  rating: { fontSize: scale(12), 
+  fontWeight: "700" },
+  review: { 
+  fontSize: scale(12), 
+  color: "#777" 
+},
+
   dateTimeBox: {
-    marginTop: verticalScale(12),
-    borderWidth: 1,
-    borderColor: "#7FB5FF",
-    borderRadius: scale(14),
-    paddingVertical: verticalScale(12),
-    paddingHorizontal: scale(14),
     flexDirection: "row",
     justifyContent: "space-between",
+    marginTop: 20,
   },
-  dateItem: {
+
+  dateTimeItem: {
+    width: "48%",                 
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10, 
+    paddingHorizontal: 18,           
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#7FB5FF",
+    backgroundColor: "#EAF3FF",
   },
-  dateText: {
-    fontSize: scale(14),
+
+  dateTimeText: {
+    fontSize: scale(14),           
     fontWeight: "600",
+    marginLeft: 11,
     color: "#000",
-    marginLeft: scale(6),
   },
+
   mapPreview: {
-    width: "100%",
     height: verticalScale(170),
-    borderRadius: scale(14),
+    marginTop: 12,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: "#D0D0D0",
-    backgroundColor: "#F5F5F5",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: verticalScale(10),
   },
-  mapText: {
-    color: "#888",
-    fontSize: scale(14),
-  },
+
+  mapText: { 
+  color: "#888" 
+},
+
   doneBtn: {
     height: verticalScale(48),
     backgroundColor: "#056FD2",
     borderRadius: scale(24),
     justifyContent: "center",
     alignItems: "center",
-    marginTop: verticalScale(14),
+    marginTop: 22,
   },
-  doneText: {
-    color: "#FFFFFF",
-    fontSize: scale(16),
-    fontWeight: "600",
-  },
-  errorText: {
-    textAlign: "center",
-    marginTop: 20,
-    color: "red",
-  },
+
+  doneText: { 
+  color: "#fff", 
+  fontSize: scale(16), 
+  fontWeight: "600" 
+},
+  errorText: { 
+  textAlign: "center", 
+  color: "red", 
+  marginTop: 20 
+},
 });

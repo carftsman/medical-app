@@ -30,7 +30,6 @@ import BookingSuccess from '../screens/BookingSuccess';
 import { verticalScale } from '../../../utils/styling';
 
 import HospitalsHomeScreen from "../screens/HospitalsHomeScreen"
-import BookingSuccess from '../screens/BookingSuccess';
 
 const HospitalTabNavigator = () => {
   const Tab = createBottomTabNavigator();
@@ -130,7 +129,7 @@ const HospitalStackNavigator = () => {
         headerShown: false,
        
       }}
-             initialRouteName='BookingSuccess'
+            
     >
       <Stack.Screen name="HospitalsTab" component={HospitalTabNavigator} />
       <Stack.Screen name="DepartmentsList" component={DepartmentsList} />
