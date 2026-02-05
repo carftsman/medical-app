@@ -1,15 +1,15 @@
 // src/screens/HospitalsScreen.js
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { useNavigation } from '@react-navigation/native';
+import React, { useEffect } from 'react';
 
-export default function HospitalsScreen() {
-  return (
-    <View style={styles.container}>
-      <Text>Lab Tests Screen</Text>
-    </View>
-  );
-}
+export default function LabTestsScreen() {
+  const navigation = useNavigation();
 
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center" },
-});
+
+console.log("labsscreen")
+  useEffect(() => {
+    navigation.navigate('LabsMain');
+
+  });
+  return null;
+} 

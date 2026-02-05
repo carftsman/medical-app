@@ -31,8 +31,8 @@ import HospitalsSection from '../components/Home-Hospitals';
 
 
 
-const HospitalsHomeScreen = () => {
-  const navigation = useNavigation();
+const HospitalsHomeScreen = ({navigation}) => {
+  //const navigation = useNavigation();
   const tabBarHeight = useBottomTabBarHeight();
   const dispatch = useDispatch();
   const [favorites, setFavorites] = useState({});
@@ -89,8 +89,8 @@ const HospitalsHomeScreen = () => {
       const { latitude, longitude } = await getUserLocation();
       const res = await hospitalApi.getNearbyHospitals({
         mode: 'BOTH',
-        latitude: 17.385,
-        longitude: 78.4867,
+        latitude: 17.385044,
+        longitude: 78.486671,
       });
       setNearbyHospitals(res?.data?.data || []);
     } catch (err) {
@@ -123,6 +123,16 @@ const HospitalsHomeScreen = () => {
   const goToHospitals = () => {
     navigation.navigate('HospitalsScreen');
   };
+  const onDepartmentPress = (item) => {
+  console.log('Pressed department:', item.name);
+
+  navigation.getParent().navigate('DoctorsList', {
+    categoryId: item.id,
+    categoryName: item.name,
+    mode: 'offline',
+  });
+};
+
 
 
   return (
@@ -193,6 +203,7 @@ const HospitalsHomeScreen = () => {
           categories={categories}
           onViewAll={goToDepartments}
           loading={loadingDepartments}
+          onCategoryPress={onDepartmentPress}
         />
 
         {deptError && (

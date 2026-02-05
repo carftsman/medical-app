@@ -12,10 +12,8 @@ import {
 import Icon from "react-native-vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import api from "../../../api/client";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
-
-import { setCategory } from "../redux/slices/BookingSlice";
 
 export default function FindDoctorsScreen() {
   const [searchText, setSearchText] = useState("");
@@ -25,12 +23,10 @@ export default function FindDoctorsScreen() {
   const [error, setError] = useState("");
 
   const navigation = useNavigation();
-  const dispatch = useDispatch();
 
   const mode = useSelector(
-    (state) => state.hospital.consultation.mode
+    state => state.hospital.consultation.mode
   );
-  console.log(mode)
 
   useEffect(() => {
     fetchCategories();
@@ -44,7 +40,6 @@ export default function FindDoctorsScreen() {
     }
   }, [searchText]);
 
-  // 🔹 Categories API
   const fetchCategories = async () => {
     try {
       setLoading(true);
@@ -58,8 +53,7 @@ export default function FindDoctorsScreen() {
     }
   };
 
-  // Symptoms API (SEARCH)
-  const fetchSymptoms = async (query) => {
+  const fetchSymptoms = async query => {
     try {
       setLoading(true);
       setError("");
@@ -74,46 +68,40 @@ export default function FindDoctorsScreen() {
     }
   };
 
-  // 🔹 Navigation handler (ADDED)
-  const handleNavigation = () => {
+  /* ---------- NAVIGATION (LOGIC UNCHANGED, MODE PASSED AS-IS) ---------- */
+  const handleNavigation = (item) => {
     if (mode === "online") {
-      navigation.navigate("DoctorsList");
+      navigation.navigate("DoctorsList", {
+        categoryId: item.id,
+        categoryName: item.name,
+        mode: mode,
+      });
     } else if (mode === "offline") {
       navigation.navigate("HospitalsScreen");
     } else if (mode === "instant") {
       navigation.navigate("PatientDetails");
-    }
-    else {
-      navigation.navigate("DoctorsList");
+    } else {
+      navigation.navigate("DoctorsList", {
+        categoryId: item.id,
+        categoryName: item.name,
+        mode: "offline", 
+      });
     }
   };
 
-  // Decide what list to show
   const listData = useMemo(() => {
     return searchText.trim().length > 0 ? symptoms : categories;
   }, [searchText, symptoms, categories]);
 
-  // Render Item (UPDATED ONLY onPress)
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
       activeOpacity={0.85}
-      onPress={() => {
-        dispatch(
-          setCategory({
-            id: item.id,
-            name: item.name,
-          })
-        );
-
-        handleNavigation();
-      }}
+      onPress={() => handleNavigation(item)}
     >
       <Image
         source={{
-          uri: item.imageUrl
-            ? item.imageUrl
-            : "https://via.placeholder.com/80",
+          uri: item.imageUrl || "https://via.placeholder.com/80",
         }}
         style={styles.image}
       />
@@ -150,7 +138,7 @@ export default function FindDoctorsScreen() {
         ) : (
           <FlatList
             data={listData}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={item => item.id.toString()}
             renderItem={renderItem}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
@@ -194,11 +182,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 25,
     marginBottom: 17,
-    elevation: 1,
-    shadowColor: "#000",
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
   },
   searchInput: {
     marginLeft: 8,
@@ -212,11 +195,6 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 12,
     marginBottom: 12,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
   },
   image: {
     width: 70,

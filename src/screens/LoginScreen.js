@@ -189,10 +189,10 @@ export default function LoginScreen({ navigation }) {
         <TouchableOpacity
           style={[
             styles.btn,
-            (loading || !!error || !value) && { opacity: 0.6 },
+            (loading || !value) && { opacity: 0.6 },
           ]}
           onPress={handleSendOtp}
-          disabled={loading || !!error || !value}
+          disabled={loading || !value}
         >
           <Text style={styles.btnText}>
             {loading ? 'Sending OTP...' : 'Send OTP'}
