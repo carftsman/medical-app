@@ -30,6 +30,16 @@ import BookingSuccess from '../screens/BookingSuccess';
 import { verticalScale } from '../../../utils/styling';
 
 import HospitalsHomeScreen from "../screens/HospitalsHomeScreen"
+import WomenDepartmentsScreen from '../women/screens/WomenDepartmentsScreen';
+import WomenHospitalsScreen from '../women/screens/WomenHospitalsScreen';
+import WomenHospitalDetails from '../women/screens/WomenHospitalDetails';
+import WomenDoctorsScreen from '../women/screens/WomenDoctorsScreen';
+import WomenDoctorDetails from '../women/screens/WomenDoctorDetails';
+import WomenAppointmentBooking from '../women/screens/WomenAppointmentBooking';
+import WomenBookingDetails from '../women/screens/WomenBookingDetails';
+import WomenBookingSuccess from '../women/screens/WomenBookingSuccess';
+import WomenSearchScreen from '../women/screens/WomenSearchScreen';
+import WomenReminders from '../women/screens/WomenReminders';
 
 const HospitalTabNavigator = () => {
   const Tab = createBottomTabNavigator();
@@ -145,6 +155,18 @@ const HospitalStackNavigator = () => {
       <Stack.Screen name='BookingSuccess' component={BookingSuccess}/>
       
       {/* <Stack.Screen name="HospitalsHomeScreen" component={HospitalsHomeScreen}/> */}
+
+      <Stack.Screen name="WomenDepartmentsScreen" component={WomenDepartmentsScreen}/>
+      <Stack.Screen name='WomenHospitalScreen' component={WomenHospitalsScreen}/>
+      <Stack.Screen name='WomenHospitalDetails' component={WomenHospitalDetails}/>
+      <Stack.Screen name='WomenDoctorsScreen' component={WomenDoctorsScreen}/>
+      <Stack.Screen name='WomenDoctorDetails' component={WomenDoctorDetails}/>
+      <Stack.Screen name='WomenAppointmentBooking' component={WomenAppointmentBooking}/>
+      <Stack.Screen name='WomenBookingDetails' component={WomenBookingDetails}/>
+      <Stack.Screen name='WomenBookingSuccess' component={WomenBookingSuccess}/>
+      <Stack.Screen name='WomenSearchScreen' component={WomenSearchScreen}/>
+      <Stack.Screen name='WomenReminders' component={WomenReminders}/>
+      
     </Stack.Navigator>
   );
 };
