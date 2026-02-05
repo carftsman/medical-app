@@ -15,7 +15,7 @@ const DoctorSkeleton = () => {
 const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
-    padding: 12,
+    padding: 30,
     marginVertical: 8,
     borderRadius: 10,
     backgroundColor: "#f2f2f2",
@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   image: {
     width: 70,
     height: 70,
-    borderRadius: 35,
+    
     backgroundColor: "#e0e0e0",
   },
   content: {
