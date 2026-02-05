@@ -10,7 +10,9 @@ import { scale, verticalScale } from "../../../utils/styling";
 import { COLORS, SIZES } from "../../../config/constants";
 import CategoryCard from "./CategoryCard";
 
-const CategorySection = ({ title, data, onViewAll, showViewAll = true, loading = false }) => {
+const CategorySection = ({ title, data, onViewAll, showViewAll = true, loading = false,onCategoryPress, }) => {
+  const handleCategoryPress = (item) => {
+  onCategoryPress?.(item);}
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -42,10 +44,12 @@ const CategorySection = ({ title, data, onViewAll, showViewAll = true, loading =
           numColumns={3}
           scrollEnabled={false}
           renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => handleCategoryPress(item)}>
             <CategoryCard
               title={item.name}
               imageUrl={{ uri: item.imageUrl }}
             />
+            </TouchableOpacity>
           )}
           columnWrapperStyle={styles.columnWrapper}
         />

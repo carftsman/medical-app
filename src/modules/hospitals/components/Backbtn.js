@@ -1,7 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
- 
 const Backbtn = ({ onPress }) => {
   return (
     <TouchableOpacity
@@ -13,11 +12,11 @@ const Backbtn = ({ onPress }) => {
     </TouchableOpacity>
   );
 };
- 
+
 export default Backbtn;
- 
+
 const styles = StyleSheet.create({
   container: {
-    padding: 4, // touch comfort only
+    padding: 4, 
   },
 });

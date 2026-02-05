@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+//import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { scale, verticalScale } from '../../../utils/styling';
 
 const RecentAppointments = ({
@@ -18,29 +18,6 @@ const RecentAppointments = ({
         </TouchableOpacity>
       </View>
 
-      {loadingRecent ? (
-        <SkeletonPlaceholder>
-          <View style={styles.recentCard}>
-            <View style={styles.recentRow}>
-              <View style={styles.skeletonImage} />
-
-              <View style={{ flex: 1 }}>
-                <View style={styles.skeletonLineLg} />
-                <View style={styles.skeletonLineSm} />
-
-                <View style={styles.skeletonRow}>
-                  <View style={styles.skeletonDate} />
-                  <View style={styles.skeletonTime} />
-                </View>
-              </View>
-
-              <View style={styles.skeletonStatus} />
-            </View>
-
-            <View style={styles.skeletonButton} />
-          </View>
-        </SkeletonPlaceholder>
-      ) : (
         <View style={styles.recentCard}>
           <View style={styles.recentRow}>
             <Image
@@ -74,7 +51,6 @@ const RecentAppointments = ({
             <Text style={styles.detailsText}>View Details</Text>
           </TouchableOpacity>
         </View>
-      )}
     </>
   );
 };
