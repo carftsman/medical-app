@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
-import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import HospitalCardmain from './HospitalCardmain';
 import { scale, verticalScale } from '../../../utils/styling';
 import { COLORS, SIZES, FONT } from '../../../config/constants';
@@ -15,7 +14,6 @@ const HospitalsSection = ({
 }) => {
   return (
     <>
-      
       <View style={styles.header}>
         <Text style={styles.title}>Near by Hospitals</Text>
         <TouchableOpacity onPress={onViewAll}>
@@ -24,43 +22,42 @@ const HospitalsSection = ({
       </View>
 
       {loading ? (
-        <SkeletonPlaceholder>
-          <View style={styles.skeletonRow}>
-            {[1, 2].map(i => (
-              <View key={i} style={styles.skeletonCard}>
-                <View style={styles.skeletonImage} />
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {[1, 2].map(i => (
+            <View key={i} style={styles.skeletonCard}>
+              <View style={styles.skeletonImage} />
 
-                <View style={styles.skeletonContent}>
-                  <View style={styles.skeletonTitleLine} />
-                  <View style={styles.skeletonSubLine} />
-                  <View style={styles.skeletonSubLineSmall} />
+              <View style={styles.skeletonLineLarge} />
+              <View style={styles.skeletonLineMedium} />
+              <View style={styles.skeletonLineSmall} />
 
-                  <View style={styles.skeletonMetaRow}>
-                    <View style={styles.skeletonMeta} />
-                    <View style={styles.skeletonMetaSmall} />
-                  </View>
-                </View>
+              <View style={styles.skeletonMetaRow}>
+                <View style={styles.skeletonMeta} />
+                <View style={styles.skeletonMetaSmall} />
               </View>
-            ))}
-          </View>
-        </SkeletonPlaceholder>
+            </View>
+          ))}
+        </ScrollView>
       ) : (
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {hospitals.map(item => (
-            <View key={item.id} style={{ marginLeft: 6 }}>
-            <HospitalCardmain
-              key={item.id}
-              image={item.imageUrl ? { uri: item.imageUrl } : null}
-              hospitalName={item.name}
-              distance={`${item.distance.toFixed(1)} km`}
-              location={item.place}
-              description={item.speciality}
-              isOpen24Hours={item.isOpen}
-              isFavorite={!!favorites[item.id]}
-              onFavoritePress={() => onToggleFav(item.id)}
-              onViewDetails={() => onDetails(item.id)}
-            />
-            </View>
+            <TouchableOpacity key={item.id} style={{ marginLeft: 6 }} onPress={() => onDetails(item.id)}> 
+              <HospitalCardmain
+                image={item.imageUrl ? { uri: item.imageUrl } : null}
+                hospitalName={item.name}
+                distance={
+                  item.distance != null
+                    ? `${Number(item.distance).toFixed(1)} km`
+                    : '-- km'
+                }
+                location={item.place}
+                description={item.speciality}
+                isOpen24Hours={item.isOpen}
+                isFavorite={!!favorites[item.id]}
+                onFavoritePress={() => onToggleFav(item.id)}
+                onViewDetails={() => onDetails(item.id)}
+              />
+            </TouchableOpacity>
           ))}
         </ScrollView>
       )}
@@ -87,58 +84,57 @@ const styles = StyleSheet.create({
     fontFamily: FONT.medium,
   },
 
-
-  skeletonRow: {
-    flexDirection: 'row',
-    paddingHorizontal: scale(15),
-    marginTop: verticalScale(12),
-  },
+  
   skeletonCard: {
     width: scale(260),
     height: verticalScale(310),
-    borderRadius: scale(10),
-    marginRight: scale(12),
+    borderRadius: scale(12),
+    marginLeft: scale(15),
     padding: scale(12),
+    //backgroundColor: '#E5E7EB',
   },
   skeletonImage: {
     width: '100%',
     height: verticalScale(140),
     borderRadius: scale(8),
-    marginBottom: verticalScale(10),
+    backgroundColor: '#D1D5DB',
+    marginBottom: verticalScale(12),
   },
-  skeletonContent: {
-    flex: 1,
-  },
-  skeletonTitleLine: {
+  skeletonLineLarge: {
     width: '80%',
-    height: 16,
-    borderRadius: 4,
-    marginBottom: 8,
+    height: verticalScale(16),
+    backgroundColor: '#D1D5DB',
+    borderRadius: 6,
+    marginBottom: verticalScale(8),
   },
-  skeletonSubLine: {
+  skeletonLineMedium: {
     width: '60%',
-    height: 12,
-    borderRadius: 4,
-    marginBottom: 6,
+    height: verticalScale(14),
+    backgroundColor: '#D1D5DB',
+    borderRadius: 6,
+    marginBottom: verticalScale(6),
   },
-  skeletonSubLineSmall: {
+  skeletonLineSmall: {
     width: '50%',
-    height: 12,
-    borderRadius: 4,
-    marginBottom: 10,
+    height: verticalScale(14),
+    backgroundColor: '#D1D5DB',
+    borderRadius: 6,
+    marginBottom: verticalScale(12),
   },
   skeletonMetaRow: {
     flexDirection: 'row',
   },
-  skeletonMeta: {
-    width: 70,
-    height: 12,
-    borderRadius: 4,
-    marginRight: 10,
+  skeletonMeta: { 
+    width: scale(70),
+    height: verticalScale(12),
+    backgroundColor: '#D1D5DB',
+    borderRadius: 6,
+    marginRight: scale(10),
   },
   skeletonMetaSmall: {
-    width: 50,
-    height: 12,
-    borderRadius: 4,
+    width: scale(50),
+    height: verticalScale(12),
+    backgroundColor: '#D1D5DB',
+    borderRadius: 6,
   },
 });

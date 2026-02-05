@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, { useState } from 'react';
 import {
   View,
@@ -75,7 +76,7 @@ export default function LoginScreen({ navigation }) {
 
       navigation.navigate('OTP', { value, type: activeTab, });
     } catch (err) {
-      console.log("send otp error", err.response)
+      console.log("send otp error", err)
       setLoading(false);
       setError(err?.response?.data?.message || 'Something went wrong');
 
@@ -188,10 +189,10 @@ export default function LoginScreen({ navigation }) {
         <TouchableOpacity
           style={[
             styles.btn,
-            (loading || !!error || !value) && { opacity: 0.6 },
+            (loading || !value) && { opacity: 0.6 },
           ]}
           onPress={handleSendOtp}
-          disabled={loading || !!error || !value}
+          disabled={loading || !value}
         >
           <Text style={styles.btnText}>
             {loading ? 'Sending OTP...' : 'Send OTP'}

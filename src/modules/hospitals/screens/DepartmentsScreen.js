@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-inline-styles */
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -60,6 +62,15 @@ const DepartmentsScreen = () => {
 
   const limitedCategories = categories.slice(0, 6);
   const limitedSymptoms = symptoms.slice(0, 6);
+  const onDepartmentPress = (item) => {
+  console.log('Pressed department:', item.name);
+
+  navigation.getParent().navigate('DoctorsList', {
+    categoryId: item.id,
+    categoryName: item.name,
+    
+  });
+};
 
 
   return (
@@ -81,12 +92,14 @@ const DepartmentsScreen = () => {
                   data: categories,
                 })
               }
+              onCategoryPress={onDepartmentPress}
             />
             <CategorySection
               title="Regular Health Issues"
               data={limitedSymptoms}
               loading={loading}
               showViewAll={false}
+              
             />
           </>
         }

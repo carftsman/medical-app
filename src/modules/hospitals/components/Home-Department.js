@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
-import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import CategoryCard from './CategoryCard';
 import { scale, verticalScale } from '../../../utils/styling';
 import { COLORS, SIZES, FONT } from '../../../config/constants';
@@ -9,7 +8,12 @@ const DepartmentsSection = ({
   categories = [],
   onViewAll,
   loading = false,
+  onCategoryPress,
 }) => {
+  const handleCategoryPress = (item) => {
+  onCategoryPress?.(item);
+};
+
   return (
     <>
       <View style={styles.header}>
@@ -18,10 +22,9 @@ const DepartmentsSection = ({
           <Text style={styles.viewAll}>View All</Text>
         </TouchableOpacity>
       </View>
-      {loading ? (
-        <SkeletonPlaceholder>
 
-          {/* Category skeletons */}
+      {loading ? (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.skeletonRow}>
             {[1, 2, 3, 4].map(i => (
               <View key={i} style={styles.skeletonCardWrap}>
@@ -30,21 +33,19 @@ const DepartmentsSection = ({
               </View>
             ))}
           </View>
-        </SkeletonPlaceholder>
+        </ScrollView>
       ) : (
-
-
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {categories.map(item => (
-            <View key={item.id} style={{ marginHorizontal: 5 }}>
+            <TouchableOpacity key={item.id} style={{ marginHorizontal: 5 }}
+            onPress={() => handleCategoryPress(item)}>
               <CategoryCard
                 title={item.name}
                 imageUrl={{ uri: item.imageUrl }}
               />
-            </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
-
       )}
     </>
   );
@@ -69,10 +70,11 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontFamily: FONT.medium,
   },
+
+  /* Skeleton (pure View-based) */
   skeletonRow: {
     flexDirection: 'row',
     paddingHorizontal: scale(15),
-    marginTop: verticalScale(5),
   },
   skeletonCardWrap: {
     alignItems: 'center',
@@ -81,12 +83,14 @@ const styles = StyleSheet.create({
   skeletonCircle: {
     width: scale(90),
     height: scale(90),
-    borderRadius: 45,
+    borderRadius: scale(45),
+    backgroundColor: '#E5E7EB',
   },
   skeletonText: {
     marginTop: verticalScale(8),
     width: scale(70),
-    height: 12,
-    borderRadius: 4,
+    height: verticalScale(12),
+    borderRadius: scale(4),
+    backgroundColor: '#D1D5DB',
   },
 });
