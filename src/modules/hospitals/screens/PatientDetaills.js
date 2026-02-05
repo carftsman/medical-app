@@ -18,7 +18,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 
-import { patientDetailsSchema } from '../../../utils/FormValidation';
+import { patientDetailsSchema } from '../utils/FormValidation';
 import Backbtn from '../components/Backbtn';
 import Button from '../components/Button';
 
@@ -152,7 +152,7 @@ const PatientDetails = ({ navigation }) => {
         <TouchableOpacity
           style={styles.dropdown}
           onPress={() =>
-            navigation.navigate('ConcernScreen', {
+            navigation.navigate('DepartmentsList', {
               onSelect: value => setProblem(value),
             })
           }
