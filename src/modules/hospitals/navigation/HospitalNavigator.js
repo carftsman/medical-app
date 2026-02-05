@@ -1,18 +1,21 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/no-unstable-nested-components */
+
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import DepartmentsScreen from '../screens/DepartmentsScreen';
 import DoctorsScreen from '../screens/DoctorsScreen';
-import HospitalsHomeScreen from '../screens/HospitalsHomeScreen';
+// import HospitalsHomeScreen from '../screens/HospitalsHomeScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HospitalsScreen from '../screens/HospitalsScreen';
 import MainHomeScreen from '../../../screens/MainHomeScreen';
-import { verticalScale } from '../../../utils/styling';
+ 
 import WomenScreen from '../screens/WomenScreen';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { COLORS } from '../../../config/constants';
 import DepartmentsList from '../screens/DepartmentsList';
 import HospitalDetails from '../screens/HospitalDetails';
@@ -23,21 +26,25 @@ import BookingDetails from '../screens/BookingDetails';
 import DoctorDetails from '../screens/DoctorDetails';
 import SearchScreen from '../screens/SearchScreen';
 import PatientDetails from '../screens/PatientDetaills';
+import BookingSuccess from '../screens/BookingSuccess';
+import { verticalScale } from '../../../utils/styling';
+
+import HospitalsHomeScreen from "../screens/HospitalsHomeScreen"
 
 const HospitalTabNavigator = () => {
   const Tab = createBottomTabNavigator();
-
+ 
   const insets = useSafeAreaInsets();
   
 
   return (
     <Tab.Navigator
-     initialRouteName='HospitalsHomeScreeen'
+     initialRouteName='HospitalsHomeScreen'
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
           backgroundColor: '#fff',
-          borderTopWidth: 0,
+          borderTopWidth: 1,
           borderTopColor: '#e1e8ed',
           position: "absolute",
           left: 0,
@@ -68,9 +75,9 @@ const HospitalTabNavigator = () => {
           ),
         }}
       />
-
+ 
       <Tab.Screen
-        name="HospitalsHomeScreeen"
+        name="HospitalsHomeScreen"
         component={HospitalsHomeScreen}
         options={{
           tabBarLabel: 'Hospitals',
@@ -92,7 +99,7 @@ const HospitalTabNavigator = () => {
       <Tab.Screen
         name="DoctorsScreen"
         component={DoctorsScreen}
-        options={{
+        options={{ 
           tabBarLabel: 'Doctors',
           tabBarIcon: ({ focused, color, size }) => (
             <FontAwesomeIcon name="stethoscope" size={size} color={color} />
@@ -112,7 +119,7 @@ const HospitalTabNavigator = () => {
     </Tab.Navigator>
   );
 };
-
+ 
 const HospitalStackNavigator = () => {
   const Stack = createNativeStackNavigator(); 
   console.log("HospitalStackNavigator rendered")
@@ -120,8 +127,9 @@ const HospitalStackNavigator = () => {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
+       
       }}
-  initialRouteName='HospitalsTab'
+            
     >
       <Stack.Screen name="HospitalsTab" component={HospitalTabNavigator} />
       <Stack.Screen name="DepartmentsList" component={DepartmentsList} />
@@ -134,8 +142,11 @@ const HospitalStackNavigator = () => {
       <Stack.Screen name="BookingDetails" component={BookingDetails} />
       <Stack.Screen name='SearchScreen' component={SearchScreen}/>
       <Stack.Screen name='PatientDetails' component={PatientDetails}/>
+      <Stack.Screen name='BookingSuccess' component={BookingSuccess}/>
+      
+      {/* <Stack.Screen name="HospitalsHomeScreen" component={HospitalsHomeScreen}/> */}
     </Stack.Navigator>
   );
 };
-
+ 
 export default HospitalStackNavigator;

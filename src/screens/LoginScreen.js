@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, { useState } from 'react';
 import {
   View,
@@ -75,7 +76,7 @@ export default function LoginScreen({ navigation }) {
 
       navigation.navigate('OTP', { value, type: activeTab, });
     } catch (err) {
-      console.log("send otp error", err.response)
+      console.log("send otp error", err)
       setLoading(false);
       setError(err?.response?.data?.message || 'Something went wrong');
 
