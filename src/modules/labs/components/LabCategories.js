@@ -70,7 +70,7 @@ const LabCategories = ({ labId }) => {
         style={styles.card}
         activeOpacity={0.85}
         onPress={() =>
-          navigation.navigate("CategoriesTab", {
+          navigation.navigate("LabsScreen", {
             categoryId: item.id,
             categoryName: item.name,
           })
