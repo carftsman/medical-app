@@ -44,18 +44,7 @@ const LabTestByAge = ({ labId }) => {
       labId,
       selectedAge: age,
     });
-
-    // API 
-    try {
-      await api.get("/labs/packages/by-age", {
-        params: {
-          labId,
-          age,
-        },
-      });
-    } catch (error) {
-      console.log("Age API error:", error);
-    }
+   
   };
 
   const renderItem = ({ item }) => (
