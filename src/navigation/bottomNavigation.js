@@ -3,6 +3,9 @@ import React from "react";
 import { Platform } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import Fontisto from "react-native-vector-icons/Fontisto"
+
+
 
 import HomeScreen from "../screens/HomeScreen";
 import HospitalsScreen from "../screens/HospitalsScreen";
@@ -98,11 +101,7 @@ export default function BottomNavigation() {
         options={{
           tabBarLabel: "Lab Tests",
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons
-              name="file-document-outline"
-              color={color}
-              size={26}
-            />
+            <Fontisto name="laboratory" size={26} color={color} />
           ),
         }}
       />
