@@ -14,7 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 import { scale, verticalScale } from "../../../utils/styling";
 
 import LocationHeader from "../../../components/LocationHeader";
-import SosButton from "../../../components/SosButton"; // ✅ IMPORT SOS
+import SosButton from "../../../components/SosButton";
 
 import CallToBookCard from "../components/CallToBookCard";
 import LabTestByAge from "../components/LabTestByAge";
@@ -43,18 +43,7 @@ export default function LabsHomeScreen() {
               <TouchableOpacity style={styles.iconBtn}>
                 <Ionicons
                   name="notifications-outline"
-                  size={scale(26)}
-                  color="#FFFFFF"
-                />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.iconBtn}
-                onPress={() => navigation.navigate("CartScreen")}
-              >
-                <Ionicons
-                  name="cart-outline"
-                  size={scale(26)}
+                  size={scale(32)}
                   color="#FFFFFF"
                 />
               </TouchableOpacity>
@@ -62,28 +51,42 @@ export default function LabsHomeScreen() {
               <TouchableOpacity style={styles.iconBtn}>
                 <Ionicons
                   name="person-circle-outline"
-                  size={scale(28)}
+                  size={scale(32)}
                   color="#FFFFFF"
                 />
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* SEARCH */}
-          <TouchableOpacity
-            activeOpacity={0.8}
-            style={styles.searchBar}
-            onPress={() => navigation.navigate("SearchScreen")}
-          >
-            <Ionicons
-              name="search-outline"
-              size={scale(18)}
-              color="#9AA5B1"
-            />
-            <Text style={styles.searchPlaceholder}>
-              Search for labs, Categories
-            </Text>
-          </TouchableOpacity>
+          {/* SEARCH  */}
+          <View style={styles.searchRow}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={styles.searchBar}
+              onPress={() => navigation.navigate("SearchScreen")}
+            >
+              <Ionicons
+                name="search-outline"
+                size={scale(28)}
+                color="#9AA5B1"
+              />
+              <Text style={styles.searchPlaceholder}>
+                Search for labs, Categories
+              </Text>
+            </TouchableOpacity>
+
+            {/*CART  */}
+            <TouchableOpacity
+              style={styles.cartRight}
+              onPress={() => navigation.navigate("CartScreen")}
+            >
+              <Ionicons
+                name="cart-outline"
+                size={scale(32)}
+                color="#FFFFFF"
+              />
+            </TouchableOpacity>
+          </View>
         </LinearGradient>
 
         {/* BODY */}
@@ -122,7 +125,6 @@ export default function LabsHomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* BANNER */}
           <View style={styles.bannerWrapper}>
             <TouchableOpacity activeOpacity={0.9}>
               <ImageBackground
@@ -157,14 +159,13 @@ export default function LabsHomeScreen() {
           <CertifiedLabs />
         </ScrollView>
 
-        {/* ✅ SOS ALWAYS VISIBLE */}
+        {/* SOS  */}
         <SosButton />
       </View>
     </SafeAreaView>
   );
 }
 
-/* STYLES */
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#1E63F2" },
   container: { flex: 1, backgroundColor: "#F5FAFF" },
@@ -178,19 +179,30 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: verticalScale(26),
+    marginBottom: verticalScale(16),
   },
 
   rightIcons: { flexDirection: "row" },
   iconBtn: { marginLeft: scale(14) },
 
+  searchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
   searchBar: {
+    flex: 1,
     backgroundColor: "#FFFFFF",
     borderRadius: scale(10),
     height: verticalScale(44),
     paddingHorizontal: scale(12),
     flexDirection: "row",
     alignItems: "center",
+  },
+
+  cartRight: {
+    marginLeft: scale(12),
   },
 
   searchPlaceholder: {
@@ -202,7 +214,6 @@ const styles = StyleSheet.create({
   body: {
     paddingHorizontal: scale(18),
     paddingTop: verticalScale(18),
-    paddingBottom: verticalScale(160), // space for SOS
   },
 
   sideBySideRow: { flexDirection: "row" },

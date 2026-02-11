@@ -74,6 +74,6 @@ const styles = StyleSheet.create({
     color: "#333",
     textAlign: "center",
     lineHeight: scale(18),
-    alignSelf: "center", // ✅ ONLY CHANGE
+    alignSelf: "center",
   },
 });

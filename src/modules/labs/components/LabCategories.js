@@ -11,7 +11,7 @@ import { useNavigation } from "@react-navigation/native";
 import api from "../../../api/client";
 import { scale, verticalScale } from "../../../utils/styling";
 
-/* STATIC CATEGORY IMAGES */
+/* Categories  */
 const CATEGORY_IMAGES = {
   "Blood Tests": require("../../../../assets/blood.jpg"),
   "Imaging": require("../../../../assets/imaging.jpg"),
@@ -25,9 +25,13 @@ const CATEGORY_IMAGES = {
   "Kidney Function": require("../../../../assets/Kidney.jpg"),
   "Heart Profile": require("../../../../assets/heart.jpg"),
   "Women Health": require("../../../../assets/women.jpg"),
+  "Fertility Tests": require("../../../../assets/Fertility.jpg"),
   "Pregnancy Tests": require("../../../../assets/Fertility.png"),
+  "MRI": require("../../../../assets/MRIScan.jpg"),
   "Cancer Markers": require("../../../../assets/cancer.png"),
   "Senior Citizen": require("../../../../assets/60+.png"),
+  "X-Ray": require("../../../../assets/X-ray.jpg"),
+  "CT Scan": require("../../../../assets/CTScan.jpg"),
 };
 
 /* COMPONENT */
@@ -40,7 +44,6 @@ const LabCategories = ({ labId }) => {
     fetchCategories();
   }, []);
 
-  /* 🔹 UPDATED API CALL ONLY */
   const fetchCategories = async () => {
     try {
       setLoading(true);
@@ -53,7 +56,6 @@ const LabCategories = ({ labId }) => {
     }
   };
 
-  /* SKELETON */
   const SkeletonCard = () => (
     <View style={styles.card}>
       <View style={styles.skeletonCircle} />
@@ -61,7 +63,6 @@ const LabCategories = ({ labId }) => {
     </View>
   );
 
-  /* RENDER ITEM */
   const renderItem = ({ item }) => {
     const image = CATEGORY_IMAGES[item.name];
 
@@ -93,7 +94,7 @@ const LabCategories = ({ labId }) => {
         <Text style={styles.heading}>Categories</Text>
 
         <TouchableOpacity
-          onPress={() => navigation.navigate("CategoriesTab")}
+          onPress={() => navigation.navigate("LabsScreen")}
         >
           <Text style={styles.viewAll}>View All</Text>
         </TouchableOpacity>
@@ -127,32 +128,27 @@ const styles = StyleSheet.create({
   container: {
     marginTop: verticalScale(22),
   },
-
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: verticalScale(12),
   },
-
   heading: {
     fontSize: scale(16),
     fontWeight: "700",
     color: "#222",
   },
-
   viewAll: {
     fontSize: scale(13),
     fontWeight: "600",
     color: "#056FD2",
   },
-
   card: {
     width: scale(80),
     alignItems: "center",
     marginRight: scale(14),
   },
-
   imageWrapper: {
     width: scale(64),
     height: scale(64),
@@ -164,21 +160,18 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     marginBottom: verticalScale(6),
   },
-
   image: {
     width: scale(64),
     height: scale(64),
     borderRadius: scale(32),
     resizeMode: "cover",
   },
-
   label: {
     fontSize: scale(11),
     fontWeight: "600",
     color: "#444",
     textAlign: "center",
   },
-
   skeletonCircle: {
     width: scale(64),
     height: scale(64),
@@ -186,7 +179,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#E6ECF2",
     marginBottom: verticalScale(6),
   },
-
   skeletonText: {
     width: scale(44),
     height: verticalScale(10),
