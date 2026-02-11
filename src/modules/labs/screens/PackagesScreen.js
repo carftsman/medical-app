@@ -42,6 +42,8 @@ const PackagesScreen = () => {
     }
   };
 
+  console.log("packages", data)
+
   return (
     <View style={styles.container}>
       {/* HEADER */}
