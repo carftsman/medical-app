@@ -1,179 +1,269 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from "react";
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
-  Image,
-  TextInput,
   TouchableOpacity,
+  TextInput,
   ScrollView,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+  Image,
+} from "react-native";
+import Icon from "react-native-vector-icons/Ionicons";
+import api from "../../../api/client";
+import { scale, verticalScale } from "../../../utils/styling";
+import { COLORS, SIZES } from "../../../config/constants";
 
-/* ---------- STATIC CATEGORY DATA ---------- */
+// ✅ Static Images Mapping
+const categoryImages = {
+  "Full Body Checkup": require("../../../../assets/fullbody.png"),
+  "Vitamin Tests": require("../../../../assets/vitamins.png"),
+  "Hormone Tests": require("../../../../assets/hormone.png"),
+  "Fertility Tests": require("../../../../assets/fertility.png"),
+  "Immunity": require("../../../../assets/immunity.png"),
+  "Women Health": require("../../../../assets/women.png"),
+  "Pregnancy Tests": require("../../../../assets/pregnancy.png"),
+  "Kidney Function": require("../../../../assets/kidney.png"),
+  "Blood Tests": require("../../../../assets/Bloodtest.png"),
+  "CT Scan": require("../../../../assets/"),
+  "MRI": require("../../../../assets/"),
+  "Diabetes": require("../../../../assets/"),
+  "Heart Profile": require("../../../../assets/"),
+  "Liver Function": require("../../../../assets/"),
+  "X-Ray": require("../../../../assets/")
+  
+};
 
-const GENERAL_HEALTH = [
-  { id: '1', title: 'Full Body Checkup', image: require('../../../../assets/full_body.png') },
-  { id: '2', title: 'Vitamins', image: require('../../../../assets/vitamins.png') },
-  { id: '3', title: 'Hormone Health', image: require('../../../../assets/hormone.png') },
-  { id: '4', title: 'Fertility', image: require('../../../../assets/fertility.png') },
-  { id: '5', title: 'Immunity', image: require('../../../../assets/immunity.png') },
-  { id: '6', title: 'Hair Fall', image: require('../../../../assets/hair_fall.png') },
-  { id: '7', title: 'Sexual Health', image: require('../../../../assets/sexual_health.png') },
-  { id: '8', title: 'Pregnancy', image: require('../../../../assets/pregnancy.png') },
-];
+const LabCategories = ({ labId = 1, navigation }) => {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
 
-const ILLNESS_CONDITIONS = [
-  { id: '9', title: 'Fever', image: require('../../../../assets/fever.png') },
-  { id: '10', title: 'Infection', image: require('../../../../assets/infection.png') },
-  { id: '11', title: 'Kidney', image: require('../../../../assets/kidney.png') },
-  { id: '12', title: 'Allergies', image: require('../../../../assets/allergies.png') },
-  { id: '13', title: 'Blood Test', image: require('../../../../assets/Bloodtest.png') },
-  { id: '14', title: 'Respiratory Issues', image: require('../../../../assets/respiratory.png') },
-];
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
-/* ---------- CATEGORY ITEM ---------- */
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get("/labs/categories/all");
+      setCategories(res?.data?.data || []);
+    } catch (error) {
+      console.log("Categories API error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-const CategoryItem = ({ item }) => (
-  <TouchableOpacity style={styles.categoryItem}>
-    <Image source={item.image} style={styles.icon} />
-    <Text style={styles.label}>{item.title}</Text>
-  </TouchableOpacity>
-);
+  const handleSearch = async (text) => {
+    setSearchText(text);
 
-/* ---------- MAIN SCREEN ---------- */
+    if (!text.trim()) {
+      setSearchResults([]);
+      return;
+    }
 
-export default function CategoriesScreen() {
-  const [searchText, setSearchText] = useState('');
+    try {
+      const res = await api.get(`/api/labs/${labId}/categories`);
+      const apiData = res?.data?.data || [];
 
-  const filteredGeneralHealth = useMemo(() => {
-    if (!searchText.trim()) return GENERAL_HEALTH;
-    return GENERAL_HEALTH.filter(item =>
-      item.title.toLowerCase().includes(searchText.toLowerCase())
+      const matchedIds = apiData
+        .filter((item) =>
+          item.name.toLowerCase().includes(text.toLowerCase())
+        )
+        .map((item) => item.id);
+
+      const filteredFullData = categories.filter((cat) =>
+        matchedIds.includes(cat.id)
+      );
+
+      setSearchResults(filteredFullData);
+    } catch (error) {
+      console.log("Search API error:", error);
+    }
+  };
+
+  const displayData = searchText.trim() ? searchResults : categories;
+
+  const generalHealthCategories = useMemo(() => {
+    return displayData.filter(
+      (item) => item.group === "GENERAL_HEALTH"
     );
-  }, [searchText]);
+  }, [displayData]);
 
-  const filteredIllnessConditions = useMemo(() => {
-    if (!searchText.trim()) return ILLNESS_CONDITIONS;
-    return ILLNESS_CONDITIONS.filter(item =>
-      item.title.toLowerCase().includes(searchText.toLowerCase())
+  const illnessCategories = useMemo(() => {
+    return displayData.filter(
+      (item) => item.group === "ILLNESS"
     );
-  }, [searchText]);
+  }, [displayData]);
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      style={styles.itemContainer}
+      activeOpacity={0.7}
+      onPress={() =>
+        navigation?.navigate("CategoryDetails", { category: item })
+      }
+    >
+      <View style={styles.circle}>
+        <Image
+          source={categoryImages[item.name]}
+          style={styles.image}
+        />
+      </View>
+      <Text style={styles.categoryText}>{item.name}</Text>
+    </TouchableOpacity>
+  );
+
+  const renderSection = (title, data) => {
+    if (data.length === 0) return null;
+
+    return (
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{title}</Text>
+        <FlatList
+          data={data}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          numColumns={3}
+          scrollEnabled={false}
+        />
+      </View>
+    );
+  };
 
   return (
-    <View style={styles.container}>
-
-      {/* ---------- HEADER ---------- */}
+    <ScrollView
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+    >
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Categories</Text>
-        <TouchableOpacity>
-          <Icon name="cart-outline" size={22} color="#111827" />
+        <TouchableOpacity style={styles.cartWrapper}>
+          <Icon name="cart-outline" size={scale(24)} color={COLORS.black} />
         </TouchableOpacity>
       </View>
 
-      {/* ---------- SEARCH BAR ---------- */}
-      <View style={styles.searchBox}>
-        <Icon name="search-outline" size={18} color="#9CA3AF" />
-        <TextInput
-          placeholder="Search by Category, Gen..."
-          placeholderTextColor="#9CA3AF"
-          value={searchText}
-          onChangeText={setSearchText}
-          style={styles.searchInput}
-        />
-        <Icon name="mic-outline" size={18} color="#9CA3AF" />
+      <View style={styles.searchWrapper}>
+        <View style={styles.searchContainer}>
+          <Icon name="search-outline" size={18} color={COLORS.gray} />
+          <TextInput
+            placeholder="Search categories"
+            placeholderTextColor={COLORS.gray}
+            value={searchText}
+            onChangeText={handleSearch}
+            style={styles.searchInput}
+          />
+          <Icon name="mic-outline" size={18} color={COLORS.gray} />
+        </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Text style={styles.sectionTitle}>General Health</Text>
-        <FlatList
-          data={filteredGeneralHealth}
-          numColumns={4}
-          scrollEnabled={false}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => <CategoryItem item={item} />}
-        />
-
-        <Text style={styles.sectionTitle}>Illness Conditions</Text>
-        <FlatList
-          data={filteredIllnessConditions}
-          numColumns={4}
-          scrollEnabled={false}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => <CategoryItem item={item} />}
-        />
-      </ScrollView>
-    </View>
+      {loading ? (
+        <Text style={styles.loadingText}>Loading...</Text>
+      ) : (
+        <>
+          {renderSection("General Health", generalHealthCategories)}
+          {renderSection("Illness Health", illnessCategories)}
+        </>
+      )}
+    </ScrollView>
   );
-}
+};
 
-/* ---------- STYLES ---------- */
+export default LabCategories;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
+    paddingTop: verticalScale(15),
   },
 
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: verticalScale(20),
+    paddingHorizontal: scale(16),
+    marginTop: verticalScale(10),
+  },
+
+  cartWrapper: {
+    marginTop: verticalScale(4),
   },
 
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
+    fontSize: scale(SIZES.large),
+    fontWeight: "700",
+    color: COLORS.black,
   },
 
-  searchBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    backgroundColor: '#F3F4F6',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    height: 44,
-    marginBottom: 8,
+  searchWrapper: {
+    paddingHorizontal: scale(16),
+  },
+
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.lightGray,
+    borderRadius: scale(10),
+    paddingHorizontal: scale(12),
+    marginBottom: verticalScale(20),
+    height: verticalScale(40),
   },
 
   searchInput: {
     flex: 1,
-    fontSize: 14,
-    marginHorizontal: 8,
-    color: '#111827',
+    marginHorizontal: scale(8),
+    fontSize: scale(SIZES.small),
+    color: COLORS.black,
+  },
+
+  section: {
+    marginBottom: verticalScale(24),
+    paddingHorizontal: scale(16),
   },
 
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 16,
-    marginTop: 20,
-    marginBottom: 14,
-    color: '#111827',
+    fontSize: scale(SIZES.medium),
+    fontWeight: "700",
+    color: COLORS.black,
+    marginBottom: verticalScale(16),
   },
 
-  categoryItem: {
-    width: '25%',
-    alignItems: 'center',
-    marginBottom: 22,
+  loadingText: {
+    fontSize: scale(SIZES.small),
+    color: COLORS.gray,
+    paddingHorizontal: scale(16),
   },
 
-  icon: {
-    width: 71,
-    height: 99,
-    resizeMode: 'contain',
-    marginBottom: 8,
+  itemContainer: {
+    width: "33%",
+    alignItems: "center",
+    marginBottom: verticalScale(20),
   },
 
-  label: {
-    fontSize: 12,
-    textAlign: 'center',
-    color: '#374151',
-    paddingHorizontal: 6,
+  circle: {
+    width: scale(70),
+    height: scale(70),
+    borderRadius: scale(35),
+    backgroundColor: COLORS.Iceblue,
+    marginBottom: verticalScale(8),
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  image: {
+    width: scale(50),
+    height: scale(50),
+    resizeMode: "contain",
+  },
+
+  categoryText: {
+    fontSize: scale(SIZES.small),
+    fontWeight: "600",
+    color: COLORS.darkgray,
+    textAlign: "center",
   },
 });

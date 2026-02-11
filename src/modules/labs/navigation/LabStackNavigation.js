@@ -23,7 +23,7 @@ const LabStackNavigation = () => {
         <Stack.Navigator screenOptions={{
             headerShown: false
         }}
-            initialRouteName='CategoriesTab'
+             initialRouteName='CategoriesTab'
         >
             <Stack.Screen name="LabTabNavigation" component={LabTabNavigation} />
             <Stack.Screen name='SearchScreen' component={LabsSearchScreen} />
