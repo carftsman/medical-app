@@ -2,39 +2,69 @@ import React, { useEffect, useState } from 'react';
 import {
   View,
   FlatList,
-  StyleSheet,
-  TextInput,
   Text,
-  TouchableOpacity,
+  StyleSheet,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import PackagesFilterModal from '../components/PackagesFilterModal';
 import { labApi } from '../services/labApi';
-import { addToCart } from '../redux/labsCartSlice';
 import PackageCard from '../components/PackageCard';
 import PackageCardSkeleton from '../components/PackageCardSkeleton';
-import { COLORS, SIZES, FONT } from '../../../config/constants';
-import { scale, verticalScale } from '../../../utils/styling';
-
+import PackagesHeader from '../components/PackagesHeader';
+import { useRoute } from '@react-navigation/native';
+import { COLORS } from '../../../config/constants';
+import { scale } from '../../../utils/styling';
+import { useLabCart } from '../context/LabCartContext';
 const PackagesScreen = () => {
   const navigation = useNavigation();
-  const dispatch = useDispatch();
+  const [filterVisible, setFilterVisible] = useState(false);
+  const route = useRoute();
+  const labId = route?.params?.labId ?? 1;
+  const { cartItems, addToCart } = useLabCart();
 
-  const cartItems = useSelector(state => state.labsCart.items);
-
-  const labId = 1;
+  
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState('');
+  const [addingItemIds, setAddingItemIds] = useState([]); // track adding
 
   useEffect(() => {
     fetchPackages();
+    
   }, []);
+  useEffect(() => {
+  if (searchText.trim().length === 0) {
+    fetchPackages(); // reload all packages when search cleared
+  } else {
+    const delayDebounce = setTimeout(() => {
+      searchPackages(searchText);
+    }, 400); // small debounce
 
+    return () => clearTimeout(delayDebounce);
+  }
+}, [searchText]);
+
+
+  // fetch packages
   const fetchPackages = async () => {
     try {
+      setLoading(true);
       const res = await labApi.getLabTests(labId);
-      setData(res?.data?.tests || []);
+
+      const formattedData =
+        res?.data?.packages?.map(item => ({
+          id: item.packageId,
+          name: item.packageName,
+          price: item.finalPrice,
+          reportTime: item.reportTime,
+          testsCount: item.testsCount,
+          originalPrice: item.originalPrice,
+          discountPercent: item.discountPercent,
+          labId,
+          image: item.imageUrl || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTxEscPwXOmagb4I6akEBtLthHxH2gFrB_xg&s',
+        })) || [];
+
+      setData(formattedData);
     } catch (error) {
       console.log('Packages API error', error);
     } finally {
@@ -42,68 +72,129 @@ const PackagesScreen = () => {
     }
   };
 
+  
+  // handle Add to Cart
+ const handleAddToCart = async (item) => {
+  try {
+    if (addingItemIds.includes(item.id)) return;
+
+    setAddingItemIds(prev => [...prev, item.id]);
+
+    const payload = {
+      userId: item.userId || 21,
+      labId: item.labId,
+      labTestId: item.id,
+    };
+
+    await addToCart(payload);
+
+  } catch (error) {
+    console.log('Add to cart failed:', error?.response?.data || error.message);
+  } finally {
+    setAddingItemIds(prev => prev.filter(id => id !== item.id));
+  }
+};
+  // apply filters
+  const applyFilters = async (filters) => {
+  try {
+    setLoading(true);
+
+    let minPrice = null;
+    let maxPrice = null;
+
+    if (filters.feeRange) {
+      const parts = filters.feeRange.split('-');
+      minPrice = parts[0].replace('<', '');
+      maxPrice = parts[1]?.replace('>', '');
+    }
+
+    const payload = {
+      minPrice,
+      maxPrice,
+      age: filters.age,
+    };
+
+    console.log("Filter Payload:", payload);
+
+    const res = await labApi.filterPackages(labId, payload);
+
+    const formatted =
+      res?.data?.packages?.map(item => ({
+        id: item.packageId,
+        name: item.packageName,
+        price: item.finalPrice,
+        reportTime: item.reportTime,
+        testsCount: item.testsCount,
+        labId,
+      })) || [];
+
+    setData(formatted);
+  } catch (e) {
+    console.log('Filter error', e);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  // search packages
+  const searchPackages = async (text) => {
+    try {
+      setLoading(true);
+      const res = await labApi.searchLabTests(labId, text);
+
+      const formattedData =
+        res?.data?.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          description: item.description,
+          labId: item.labId,
+          image: //item.imageUrl || 
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTxEscPwXOmagb4I6akEBtLthHxH2gFrB_xg&s',
+        })) || [];
+
+      setData(formattedData);
+    } catch (error) {
+      console.log('Search API error', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      {/* HEADER */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-left" size={scale(22)} color={COLORS.black} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Multi Specialty Laboratory</Text>
-      </View>
+      <PackagesHeader
+        searchText={searchText}
+        setSearchText={setSearchText}
+        onFilterPress={() => setFilterVisible(true)}
+      />
 
-      {/* SEARCH */}
-      <View style={styles.searchRow}>
-        <View style={styles.searchBox}>
-          <Icon name="magnify" size={scale(18)} color={COLORS.gray} />
-          <TextInput
-            placeholder="Search for tests, Packages"
-            placeholderTextColor={COLORS.gray}
-            style={styles.searchInput}
-          />
-          <Icon name="microphone" size={scale(18)} color={COLORS.gray} />
-        </View>
-
-        <TouchableOpacity style={styles.filterBtn}>
-          <Icon name="tune-variant" size={scale(20)} color={COLORS.black} />
-        </TouchableOpacity>
-      </View>
-
-      {/* LIST / SKELETON */}
       {loading ? (
-        <>
-          {Array.from({ length: 4 }).map((_, index) => (
-            <PackageCardSkeleton key={index} />
-          ))}
-        </>
+        Array.from({ length: 4 }).map((_, index) => (
+          <PackageCardSkeleton key={index} />
+        ))
+      ) : data.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>No tests found</Text>
+        </View>
       ) : (
         <FlatList
           data={data}
           keyExtractor={item => String(item.id)}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => {
-            const isAdded = cartItems.some(
-              cart => cart.labTestId === item.id,
-            );
+            const isAdded = cartItems.some(cart => cart.labTestId === item.id);
 
             return (
               <PackageCard
                 item={item}
                 isAdded={isAdded}
-                onAddToCart={() =>
-                  dispatch(
-                    addToCart({
-                      labTestId: item.id,
-                      labId: item.labId,
-                      name: item.name,
-                      price: item.price,
-                      reportTime: item.reportTime,
-                    }),
-                  )
-                }
+                onAddToCart={() => handleAddToCart(item)}
                 onViewDetails={() =>
                   navigation.navigate('PackagesDetails', {
-                    labTestId: item.id,
+                    packageId: item.id,
+                    labId: item.labId,
                   })
                 }
               />
@@ -111,6 +202,12 @@ const PackagesScreen = () => {
           }}
         />
       )}
+
+      <PackagesFilterModal
+        visible={filterVisible}
+        onClose={() => setFilterVisible(false)}
+        onApply={applyFilters}
+      />
     </View>
   );
 };
@@ -123,40 +220,14 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.lightGray,
     padding: scale(16),
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: verticalScale(16),
-  },
-  headerTitle: {
-    marginLeft: scale(12),
-    fontSize: SIZES.large,
-    fontFamily: FONT.bold,
-    color: COLORS.black,
-  },
-  searchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: verticalScale(14),
-  },
-  searchBox: {
+  emptyContainer: {
     flex: 1,
-    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
-    borderRadius: scale(10),
-    paddingHorizontal: scale(10),
-    height: verticalScale(54),
+    marginTop: 50,
   },
-  searchInput: {
-    flex: 1,
-    marginHorizontal: scale(8),
-    fontSize: SIZES.medium,
-  },
-  filterBtn: {
-    marginLeft: scale(10),
-    backgroundColor: COLORS.white,
-    padding: scale(10),
-    borderRadius: scale(10),
+  emptyText: {
+    fontSize: 16,
+    color: '#999',
   },
 });

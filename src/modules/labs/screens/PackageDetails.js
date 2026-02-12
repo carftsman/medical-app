@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Image,
   ScrollView,
+  Share
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -13,32 +14,35 @@ import { labApi } from '../services/labApi';
 import { COLORS, SIZES } from '../../../config/constants';
 import { scale, verticalScale } from '../../../utils/styling';
 import PackageDetailsSkeleton from '../components/PackageDetailsSkeleton';
- 
+import { useLabCart } from '../context/LabCartContext';
 const PackageDetails = () => {
   const route = useRoute();
   const navigation = useNavigation();
- 
+
   const packageId = route?.params?.packageId ?? 1;
- 
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [openIncludes, setOpenIncludes] = useState(false);
-  const [isAdded, setIsAdded] = useState(false);
- 
+  const { cartItems, addToCart } = useLabCart();
+  const isAdded = cartItems.some(
+    item => item.labTestId === packageId
+  );
+
+
   useEffect(() => {
     if (packageId) {
       fetchDetails();
-      checkIfInCart();
     }
   }, [packageId]);
- 
+
   const fetchDetails = async () => {
     try {
       const res = await labApi.getPackageDetails(packageId);
       const apiData = res?.data;
-  
+
       if (!apiData) return;
-  
+
       // 🔥 Transform API schema to match existing UI
       const formattedData = {
         id: apiData.packageId,
@@ -57,7 +61,7 @@ const PackageDetails = () => {
         instructions: [], // not provided in API
         pricing: apiData.pricing,
       };
-  
+
       setData(formattedData);
     } catch (error) {
       console.log(
@@ -68,42 +72,48 @@ const PackageDetails = () => {
       setLoading(false);
     }
   };
- 
-  const checkIfInCart = async () => {
+
+  const handleShare = async () => {
     try {
-      const res = await labApi.getLabCart();
-      const exists = res?.data?.items?.some(
-        item => item.labTestId === packageId,
-      );
-      setIsAdded(!!exists);
+      const locationText =
+        data.address || `${data.name}, ${data.city}`;
+
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        locationText,
+      )}`;
+
+      await Share.share({
+        message: `🏥 ${data.name}
+        📍 Location: ${locationText}
+        🗺️ Google Maps:
+        ${mapsUrl}`,
+      });
     } catch (error) {
-      console.log('Get cart error:', error?.message);
+      console.log('Share error:', error);
     }
   };
- 
+
   const handleAddToCart = async () => {
-  try {
-    const payload = {
-      userId: 21, // change dynamically later if needed
-      labId: data?.labs?.[0]?.id || 1,
-      labTestId: data?.id,
-    };
- 
-    const res = await labApi.addToLabCart(payload);
- 
-    if (res?.data?.message === 'Added to cart') {
-      setIsAdded(true);
+    try {
+      const payload = {
+        userId: data?.userId || 21,
+        labId: data?.labs?.[0]?.id || 1,
+        labTestId: data?.id,
+      };
+
+      await addToCart(payload);
+
+    } catch (error) {
+      console.log(
+        'Add to cart failed:',
+        error?.response?.data || error.message,
+      );
     }
-  } catch (error) {
-    console.log(
-      'Add to cart failed:',
-      error?.response?.data || error.message,
-    );
-  }
-};
- 
+  };
+
+
   if (loading) return <PackageDetailsSkeleton />;
- 
+
   if (!data) {
     return (
       <View style={styles.center}>
@@ -111,31 +121,31 @@ const PackageDetails = () => {
       </View>
     );
   }
- 
+
   const testsBlock = data.testsIncluded?.[0];
- 
+
   return (
     <View style={styles.container}>
       {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.canGoBack() && navigation.goBack()
-          //onPress={() => navigation.navigate('LabDetails')
-          //onPress={() => navigation.navigate('PackagesScreen')
+            //onPress={() => navigation.navigate('LabDetails')
+            //onPress={() => navigation.navigate('PackagesScreen')
           }
         >
           <Icon name="arrow-left" size={scale(22)} color={COLORS.black} />
         </TouchableOpacity>
- 
+
         <Text style={styles.headerTitle} numberOfLines={1}>
           {data.name}
         </Text>
- 
-        <TouchableOpacity>
-          <Icon name="share-variant" size={scale(20)} color={COLORS.black} />
+
+        <TouchableOpacity onPress={handleShare}>
+          <Icon name="share-variant" size={scale(20)} />
         </TouchableOpacity>
       </View>
- 
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: verticalScale(20) }}
@@ -148,29 +158,29 @@ const PackageDetails = () => {
           }}
           style={styles.banner}
         />
- 
+
         <Text style={styles.title}>{data.name}</Text>
- 
+
         <View style={styles.infoRow}>
           <Text style={styles.info}>🧪 Tests</Text>
           <Text style={styles.infoValue}>
             {data.summary?.testsCount}
           </Text>
         </View>
- 
+
         <View style={styles.infoRow}>
           <Text style={styles.info}>⏱ Reports</Text>
           <Text style={styles.infoValue}>
             {data.summary?.reportTime}
           </Text>
         </View>
- 
+
         {/* TESTS INCLUDED */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
             Tests Included ({testsBlock?.tests?.length || 0})
           </Text>
- 
+
           <TouchableOpacity
             style={styles.accordion}
             onPress={() => setOpenIncludes(!openIncludes)}
@@ -184,7 +194,6 @@ const PackageDetails = () => {
                 size={scale(20)}
               />
             </View>
- 
             {openIncludes && (
               <View style={styles.accordionBody}>
                 {testsBlock?.tests?.map((test, index) => (
@@ -197,11 +206,11 @@ const PackageDetails = () => {
             )}
           </TouchableOpacity>
         </View>
- 
+
         {/* INSTRUCTIONS */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Instructions</Text>
- 
+
           <View style={styles.instructionBox}>
             {data.instructions?.map((item, index) => (
               <View key={index} style={styles.bulletRow}>
@@ -212,7 +221,6 @@ const PackageDetails = () => {
           </View>
         </View>
       </ScrollView>
- 
       {/* BOTTOM CTA */}
       <View style={styles.bottom}>
         <View>
@@ -223,7 +231,6 @@ const PackageDetails = () => {
             ₹{data.pricing?.finalPrice}
           </Text>
         </View>
- 
         {!isAdded ? (
           <TouchableOpacity style={styles.btn} onPress={handleAddToCart}>
             <Text style={styles.btnText}>Add to Cart</Text>
@@ -240,13 +247,13 @@ const PackageDetails = () => {
     </View>
   );
 };
- 
+
 export default PackageDetails;
- 
- 
- 
+
+
+
 /* ================= STYLES ================= */
- 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -273,7 +280,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: COLORS.lightGray,
   },
- 
   headerTitle: {
     flex: 1,
     marginHorizontal: scale(12),
