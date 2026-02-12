@@ -37,18 +37,42 @@ const PackageDetails = () => {
   }, [packageId]);
 
   const fetchDetails = async () => {
-    try {
-      const res = await labApi.getPackageDetails(packageId);
-      setData(res?.data);
-    } catch (error) {
-      console.log(
-        'Package details API error:',
-        error?.response?.data || error.message,
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const res = await labApi.getPackageDetails(packageId);
+    const apiData = res?.data;
+
+    if (!apiData) return;
+
+    
+    const formattedData = {
+      id: apiData.packageId,
+      name: apiData.packageName,
+      image: null, 
+      summary: {
+        testsCount: apiData.testsCount,
+        reportTime: apiData.reportTime,
+      },
+      testsIncluded: [
+        {
+          category: "Tests Included",
+          tests: apiData.tests || [],
+        },
+      ],
+      instructions: [], 
+      pricing: apiData.pricing,
+    };
+
+    setData(formattedData);
+  } catch (error) {
+    console.log(
+      'Package details API error:',
+      error?.response?.data || error.message,
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleShare = async () => {
       try {

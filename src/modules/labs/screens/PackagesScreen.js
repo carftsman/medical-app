@@ -139,28 +139,44 @@ const PackagesScreen = () => {
 
   // search packages
   const searchPackages = async (text) => {
-    try {
-      setLoading(true);
-      const res = await labApi.searchLabTests(labId, text);
+  try {
+    setLoading(true);
 
-      const formattedData =
-        res?.data?.map(item => ({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          description: item.description,
-          labId: item.labId,
-          image: //item.imageUrl || 
+    // Call same packages API
+    const res = await labApi.getLabTests(labId);
+
+    const allPackages = res?.data?.packages || [];
+
+    // 🔥 Filter locally by packageName
+    const filtered = allPackages.filter(item =>
+      item.packageName
+        ?.toLowerCase()
+        .includes(text.toLowerCase())
+    );
+
+    const formattedData =
+      filtered.map(item => ({
+        id: item.packageId,
+        name: item.packageName,
+        price: item.finalPrice,
+        reportTime: item.reportTime,
+        testsCount: item.testsCount,
+        originalPrice: item.originalPrice,
+        discountPercent: item.discountPercent,
+        labId,
+        image:
+          item.imageUrl ||
           'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTxEscPwXOmagb4I6akEBtLthHxH2gFrB_xg&s',
-        })) || [];
+      })) || [];
 
-      setData(formattedData);
-    } catch (error) {
-      console.log('Search API error', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    setData(formattedData);
+  } catch (error) {
+    console.log('Search API error', error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <View style={styles.container}>
