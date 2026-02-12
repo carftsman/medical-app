@@ -158,7 +158,7 @@ const HospitalStackNavigator = () => {
       {/* <Stack.Screen name="HospitalsHomeScreen" component={HospitalsHomeScreen}/> */}
 
       <Stack.Screen name="WomenDepartmentsScreen" component={WomenDepartmentsScreen}/>
-      <Stack.Screen name='WomenHospitalScreen' component={WomenHospitalsScreen}/>
+      <Stack.Screen name='WomenHospitalsScreen' component={WomenHospitalsScreen}/>
       <Stack.Screen name='WomenHospitalDetails' component={WomenHospitalDetails}/>
       <Stack.Screen name='WomenDoctorsScreen' component={WomenDoctorsScreen}/>
       <Stack.Screen name='WomenDoctorDetails' component={WomenDoctorDetails}/>

@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 import { COLORS, FONT, SIZES } from "../../../../config/constants";
 import { scale, verticalScale } from "../../../../utils/styling";
@@ -16,8 +17,18 @@ const PLACEHOLDER_IMAGE =
 
 const WomenSymptoms = ({ data = [], loading = false }) => {
 
+  const navigation = useNavigation();
+
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.card} activeOpacity={0.85}>
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.85}
+      onPress={() =>
+        navigation.navigate("WomenHospitalsScreen", {
+          symptomId: item.id,
+        })
+      }
+    >
       <Image
         source={{
           uri: item?.imageUrl || PLACEHOLDER_IMAGE,
@@ -74,7 +85,6 @@ const styles = StyleSheet.create({
     paddingRight: scale(8),
   },
 
-  /* CARD */
   card: {
     width: scale(100),
     marginRight: scale(14),
@@ -96,7 +106,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  /* SKELETON */
   skeletonImage: {
     width: scale(100),
     height: scale(80),

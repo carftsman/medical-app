@@ -21,7 +21,7 @@ const WomenHospitals = ({ data = [], loading = false }) => {
   };
 
   const onHospitalPress = (item) => {
-    navigation.navigate("WomenHospitalDetailsScreen", {
+    navigation.navigate("WomenHospitalDetails", {
       hospitalId: item.id,
     });
   };
@@ -50,7 +50,7 @@ const WomenHospitals = ({ data = [], loading = false }) => {
 
         {/* Distance + Location */}
         <Text style={styles.location}>
-          📍 {item.distance?.toFixed(1)} kms | {item.place}
+           {item.distance?.toFixed(1)} kms | {item.place}
         </Text>
 
         <Text style={styles.speciality} numberOfLines={2}>

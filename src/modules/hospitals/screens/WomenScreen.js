@@ -9,6 +9,7 @@ import {
   Text
 } from "react-native";
 
+import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { RefreshControl } from "react-native";
 import api from "../../../api/client";
@@ -30,6 +31,7 @@ import { COLORS, FONT, SIZES } from "../../../config/constants";
 import { scale, verticalScale } from "../../../utils/styling";
 
 const WomenScreen = () => {
+  const navigation = useNavigation();
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
 
@@ -151,7 +153,6 @@ const fetchWomenDoctors = async () => {
         mode: "BOTH",
         availability: "ALL",
         page: 1,
-        // limit: 3,
       },
     });
 
@@ -191,7 +192,11 @@ const fetchWomenDoctors = async () => {
     </View>
   </View>
 
- <View style={styles.searchBar}>
+ <TouchableOpacity
+  style={styles.searchBar}
+  activeOpacity={0.8}
+  onPress={() => navigation.navigate("WomenSearchScreen")}
+>
   <Ionicons
     name="search-outline"
     size={20}
@@ -203,9 +208,7 @@ const fetchWomenDoctors = async () => {
   >
     Search doctors, specialists...
   </Text>
-</View>
-
-
+</TouchableOpacity>
 </LinearGradient>
         <ScrollView
   showsVerticalScrollIndicator={false}
@@ -213,12 +216,11 @@ const fetchWomenDoctors = async () => {
     <RefreshControl
       refreshing={refreshing}
       onRefresh={onRefresh}
-      tintColor={COLORS.pink}          // iOS loader color
-      colors={[COLORS.pink]}           // Android loader color
+      tintColor={COLORS.pink}          
+      colors={[COLORS.pink]}           
     />
   }
 >
-          {/* HERO IMAGE */}
           <TouchableOpacity style={styles.heroImageWrapper} activeOpacity={0.9}>
             <Image
               source={WomenWeCare}
@@ -233,10 +235,10 @@ const fetchWomenDoctors = async () => {
             loading={loadingCategories}
           />
 
-          {/* FREE HEALTH CHECKUP */}
+          {/* Banner */}
           <TouchableOpacity activeOpacity={0.95}>
             <LinearGradient
-              colors={["#C084FC", COLORS.pink]}
+              colors={[COLORS.purple, COLORS.pink]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.freeCheckupBanner}
@@ -256,19 +258,19 @@ const fetchWomenDoctors = async () => {
   data={symptoms}
   loading={loadingSymptoms}
 />
-
+{/* Hospitals */}
           <WomenHospitals
   data={hospitals}
   loading={loadingHospitals}
 />
-
+{/* Doctors */}
          <WomenDoctors
   data={doctors}
   loading={loadingDoctors}
 />
 
 
-          {/* ================= MAKE IT UP (FIGMA STYLE) ================= */}
+          {/*MAKE IT UP  */}
 <View style={styles.makeItWrapper}>
   <View style={styles.makeItLeft}>
     <Text style={styles.makeItTitle}>Make it up with Ease</Text>
@@ -298,7 +300,6 @@ const fetchWomenDoctors = async () => {
 
 export default WomenScreen;
 
-/* STYLES */
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: COLORS.white },
   container: { flex: 1, backgroundColor: COLORS.white },
@@ -325,7 +326,7 @@ const styles = StyleSheet.create({
   flexDirection: "row",
   alignItems: "center",
   paddingHorizontal: scale(20),
-  shadowColor: "#000",
+  shadowColor:COLORS.black,
   shadowOffset: { width: 0, height: 3 },
   shadowOpacity: 0.1,
   shadowRadius: 6,
@@ -382,9 +383,8 @@ searchPlaceholder: {
   freeBtnText: {
     fontSize: SIZES.small,
     fontFamily: FONT.bold,
-    color: "#A855F7",
+    color: COLORS.purple,
   },
-  /* ================= MAKE IT UP – SMOKY FIGMA STYLE ================= */
 
 makeItWrapper: {
   marginTop: verticalScale(105),
@@ -426,7 +426,7 @@ makeItPlusBtn: {
 },
 
 makeItPlus: {
-  fontSize: scale(38),          // 🔥 bold +
+  fontSize: scale(38),         
   color: COLORS.white,
   fontWeight: "700",
   lineHeight: scale(42),

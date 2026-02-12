@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
-  Platform,
   Alert,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -23,7 +22,6 @@ const AddReminderModal = ({ visible, onClose }) => {
   const [repeat, setRepeat] = useState("NONE");
   const [notes, setNotes] = useState("");
 
-  // ✅ EMPTY INITIALLY
   const [date, setDate] = useState(null);
   const [time, setTime] = useState(null);
 
@@ -49,14 +47,18 @@ const AddReminderModal = ({ visible, onClose }) => {
       return;
     }
 
-    // ✅ Combine date & time properly
     const reminderDateTime = new Date(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate(),
-      time.getHours(),
-      time.getMinutes()
-    );
+  date.getFullYear(),
+  date.getMonth(),
+  date.getDate(),
+  time.getHours(),
+  time.getMinutes()
+);
+
+if (reminderDateTime <= new Date()) {
+  Alert.alert("Invalid Time", "Please select a future date and time.");
+  return;
+}
 
     try {
       await api.post("/hospital/user/reminders", {
@@ -68,7 +70,6 @@ const AddReminderModal = ({ visible, onClose }) => {
         isImportant: false,
       });
 
-      // ✅ SHOW SUCCESS POPUP
       setShowSuccess(true);
 
       setTimeout(() => {
@@ -92,9 +93,17 @@ const AddReminderModal = ({ visible, onClose }) => {
     setType("MEDICINE");
   };
 
+  const isToday = (selectedDate) => {
+  const today = new Date();
+  return (
+    selectedDate &&
+    selectedDate.getDate() === today.getDate() &&
+    selectedDate.getMonth() === today.getMonth() &&
+    selectedDate.getFullYear() === today.getFullYear()
+  );
+};
   return (
     <>
-      {/* ================= MAIN MODAL ================= */}
       <Modal
         visible={visible}
         transparent
@@ -105,7 +114,6 @@ const AddReminderModal = ({ visible, onClose }) => {
           <View style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false}>
 
-              {/* HEADER */}
               <View style={styles.header}>
                 <Text style={styles.headerTitle}>Add New Reminder</Text>
                 <TouchableOpacity onPress={onClose}>
@@ -113,7 +121,6 @@ const AddReminderModal = ({ visible, onClose }) => {
                 </TouchableOpacity>
               </View>
 
-              {/* TYPE */}
               <Text style={styles.label}>Reminder Type</Text>
               <View style={styles.typeRow}>
                 {["MEDICINE", "APPOINTMENT", "TEST", "CUSTOM"].map((item) => (
@@ -137,7 +144,6 @@ const AddReminderModal = ({ visible, onClose }) => {
                 ))}
               </View>
 
-              {/* TITLE */}
               <Text style={styles.label}>Title *</Text>
               <TextInput
                 style={styles.input}
@@ -146,7 +152,6 @@ const AddReminderModal = ({ visible, onClose }) => {
                 onChangeText={setTitle}
               />
 
-              {/* DATE & TIME */}
               <View style={styles.row}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.label}>Date</Text>
@@ -175,32 +180,47 @@ const AddReminderModal = ({ visible, onClose }) => {
                 </View>
               </View>
 
-              {/* PICKERS */}
               {showDatePicker && (
-                <DateTimePicker
-                  value={date || new Date()}
-                  mode="date"
-                  display="default"
-                  onChange={(event, selectedDate) => {
-                    setShowDatePicker(false);
-                    if (selectedDate) setDate(selectedDate);
-                  }}
-                />
-              )}
+  <DateTimePicker
+    value={date || new Date()}
+    mode="date"
+    display="default"
+    minimumDate={new Date()}  
+    onChange={(event, selectedDate) => {
+      setShowDatePicker(false);
+      if (selectedDate) setDate(selectedDate);
+    }}
+  />
+)}
 
-              {showTimePicker && (
-                <DateTimePicker
-                  value={time || new Date()}
-                  mode="time"
-                  display="default"
-                  onChange={(event, selectedTime) => {
-                    setShowTimePicker(false);
-                    if (selectedTime) setTime(selectedTime);
-                  }}
-                />
-              )}
+{showTimePicker && (
+  <DateTimePicker
+    value={time || new Date()}
+    mode="time"
+    display="default"
+    onChange={(event, selectedTime) => {
+      setShowTimePicker(false);
 
-              {/* REPEAT */}
+      if (!selectedTime) return;
+      const combinedDateTime = new Date(
+        date?.getFullYear() || new Date().getFullYear(),
+        date?.getMonth() || new Date().getMonth(),
+        date?.getDate() || new Date().getDate(),
+        selectedTime.getHours(),
+        selectedTime.getMinutes()
+      );
+      if (isToday(date) && combinedDateTime <= new Date()) {
+        Alert.alert(
+          "Invalid Time",
+          "Please select a future time."
+        );
+        return;
+      }
+
+      setTime(selectedTime);
+    }}
+  />
+)}
               <Text style={styles.label}>Repeat</Text>
               <View style={styles.repeatRow}>
                 {["NONE", "DAILY", "WEEKLY", "MONTHLY"].map((item) => (
@@ -223,8 +243,6 @@ const AddReminderModal = ({ visible, onClose }) => {
                   </TouchableOpacity>
                 ))}
               </View>
-
-              {/* NOTES */}
               <Text style={styles.label}>Notes (Optional)</Text>
               <TextInput
                 style={[styles.input, { height: verticalScale(80) }]}
@@ -233,8 +251,6 @@ const AddReminderModal = ({ visible, onClose }) => {
                 value={notes}
                 onChangeText={setNotes}
               />
-
-              {/* BUTTONS */}
               <View style={styles.buttonRow}>
                 <TouchableOpacity style={styles.cancelBtn} onPress={onClose}>
                   <Text>Cancel</Text>
@@ -250,7 +266,7 @@ const AddReminderModal = ({ visible, onClose }) => {
         </View>
       </Modal>
 
-      {/* ================= SUCCESS POPUP ================= */}
+      {/* SUCCESS POPUP */}
       <Modal visible={showSuccess} transparent animationType="fade">
         <View style={styles.successOverlay}>
           <View style={styles.successCard}>
@@ -326,7 +342,6 @@ const styles = StyleSheet.create({
   },
   repeatRow:{
     flexDirection: "row",
-    // flexWrap: "wrap",
     gap: scale(6),
     justifyContent:"center"
   },
@@ -383,7 +398,7 @@ const styles = StyleSheet.create({
   },
   successOverlay: {
   flex: 1,
-  backgroundColor: "rgba(0,0,0,0.4)",
+  backgroundColor: COLORS.black,
   justifyContent: "center",
   alignItems: "center",
 },

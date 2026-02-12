@@ -20,7 +20,7 @@ const WomenCategories = ({ data = [], loading = false }) => {
   };
 
   const onCategoryPress = (item) => {
-    navigation.navigate("WomenDepartmentsScreen", {
+    navigation.navigate("WomenHospitalsScreen", {
       categoryId: item.id,
       categoryName: item.name,
     });
@@ -120,7 +120,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  /* SKELETON */
   skeletonImage: {
     width: scale(100),
     height: scale(80),

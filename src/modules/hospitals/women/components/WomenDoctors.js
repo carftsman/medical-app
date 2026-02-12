@@ -7,31 +7,41 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 import { COLORS, FONT, SIZES } from "../../../../config/constants";
 import { scale, verticalScale } from "../../../../utils/styling";
 
 const WomenDoctors = ({ data = [], loading = false }) => {
-  const renderItem = ({ item }) => (
-    <TouchableOpacity activeOpacity={0.9} style={styles.card}>
-      
-      {/* IMAGE SECTION */}
-      <View >
-      <View style={styles.imageWrapper}>
-        <Image
-          source={{ uri: item.imageUrl }}
-          style={styles.image}
-          resizeMode="cover"
-        />
 
-        {/* EXPERIENCE BADGE */}
-        <View style={styles.expBadge}>
-          <Text style={styles.expText}>{item.experience}+Yrs Exp</Text>
+  const navigation = useNavigation();
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      activeOpacity={0.9}
+      style={styles.card}
+      onPress={() =>
+        navigation.navigate("WomenDoctorDetails", {
+          doctorId: item.id,
+        })
+      }
+    >
+      <View>
+        <View style={styles.imageWrapper}>
+          <Image
+            source={{ uri: item.imageUrl }}
+            style={styles.image}
+            resizeMode="cover"
+          />
+
+          <View style={styles.expBadge}>
+            <Text style={styles.expText}>
+              {item.experience}+Yrs Exp
+            </Text>
+          </View>
         </View>
       </View>
-      </View>
 
-      {/* PINK CONTENT SECTION */}
       <View style={styles.bottomSection}>
         <Text style={styles.name} numberOfLines={1}>
           {item.name}
@@ -45,7 +55,6 @@ const WomenDoctors = ({ data = [], loading = false }) => {
           {item.hospital?.place}, {item.hospital?.location}
         </Text>
 
-        {/* RATING */}
         <View style={styles.ratingBadge}>
           <Text style={styles.star}>★</Text>
           <Text style={styles.rating}>{item.rating}</Text>
@@ -55,32 +64,29 @@ const WomenDoctors = ({ data = [], loading = false }) => {
   );
 
   return (
-  <View style={styles.container}>
-    
-    {/* HEADER ROW */}
-    <View style={styles.headerRow}>
-      <Text style={styles.title}>Available Doctors</Text>
+    <View style={styles.container}>
+      <View style={styles.headerRow}>
+        <Text style={styles.title}>Available Doctors</Text>
 
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={() => console.log("View All Doctors pressed")}
-      >
-        <Text style={styles.viewAll}>View All ›</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate("WomenDoctorsScreen")}
+        >
+          <Text style={styles.viewAll}>View All ›</Text>
+        </TouchableOpacity>
+      </View>
+
+      <FlatList
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        removeClippedSubviews={false}
+        data={data}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+        contentContainerStyle={{ paddingLeft: scale(16) }}
+      />
     </View>
-
-    <FlatList
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      removeClippedSubviews={false}
-      data={data}
-      keyExtractor={(item) => item.id.toString()}
-      renderItem={renderItem}
-      contentContainerStyle={{ paddingLeft: scale(16) }}
-    />
-  </View>
-);
-
+  );
 };
 
 export default WomenDoctors;
