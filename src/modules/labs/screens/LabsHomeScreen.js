@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ImageBackground,
+  RefreshControl,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import LinearGradient from "react-native-linear-gradient";
@@ -25,6 +26,21 @@ import CertifiedLabs from "../components/CertifiedLabs";
 
 export default function LabsHomeScreen() {
   const navigation = useNavigation();
+
+  /* ================= REFRESH STATE ================= */
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+
+    // If your child components use API inside useEffect,
+    // just re-rendering is enough.
+    // You can also trigger global state refresh here if needed.
+
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1500);
+  }, []);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -75,7 +91,7 @@ export default function LabsHomeScreen() {
               </Text>
             </TouchableOpacity>
 
-            {/*CART  */}
+            {/* CART  */}
             <TouchableOpacity
               style={styles.cartRight}
               onPress={() => navigation.navigate("CartScreen")}
@@ -93,6 +109,14 @@ export default function LabsHomeScreen() {
         <ScrollView
           contentContainerStyle={styles.body}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={["#1E63F2"]}
+              tintColor="#1E63F2"
+            />
+          }
         >
           {/* ACTION CARDS */}
           <View style={styles.sideBySideRow}>
