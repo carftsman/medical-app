@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   },
 
   book: {
-    color: COLORS.black,
+    color: COLORS.white,
     fontSize: scale(SIZES.medium),
     paddingVertical: verticalScale(18),
     textAlign: 'center',

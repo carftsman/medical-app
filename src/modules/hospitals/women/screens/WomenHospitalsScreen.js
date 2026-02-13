@@ -4,10 +4,8 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  TouchableOpacity,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+
 import { scale } from '../../../../utils/styling';
 import WomenHospitalCard from '../components/WomenHospitalScreen-Card';
 import WomenHospitalFilter from '../components/WomenHopitalScreen-Filter';
@@ -24,7 +22,7 @@ const DEFAULT_RADIUS = 20;
 
 
 
-const WomenHospitalsScreen = ({ navigation }) => {
+const WomenHospitalsScreen = ({ navigation, route }) => {
   const [hospitals, setHospitals] = useState([]);
   const [searchResults, setSearchResults] = useState(null);
   const [filterResults, setFilterResults] = useState(null);

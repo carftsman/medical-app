@@ -9,19 +9,32 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { scale, verticalScale } from '../../../utils/styling';
 import HospitalInfo from '../components/HospitalInfo';
 import HospitalContactInfo from '../components/HospitalContactInfo';
+import { RefreshControl } from 'react-native';
 
-const HospitalDetails = ({ route }) => {
+
+const HospitalDetails = ({ route, navigation }) => {
 
   const HOSPITAL_ID = route.params.id || 1;
 
-  const navigation = useNavigation();
   const {
-    hospital,
-    loading,
-    error,
-  } = useHospital(HOSPITAL_ID);
+  hospital,
+  loading,
+  refreshing: hospitalRefreshing,
+  error,
+  refetch: refetchHospital,
+} = useHospital(HOSPITAL_ID);
  
-  const { doctors } = useHospitalDoctors(HOSPITAL_ID);
+  const {
+  doctors,
+  refreshing: doctorsRefreshing,
+  refetch: refetchDoctors,
+} = useHospitalDoctors(HOSPITAL_ID);
+
+const onRefresh = () => {
+  refetchHospital();
+  refetchDoctors();
+};
+
 
   if (loading) {
     return (
@@ -48,9 +61,17 @@ const HospitalDetails = ({ route }) => {
         <Text style={styles.screenHeaderText}>Hospital Info</Text>
         <View style={{ width: scale(26) }}></View>
       </View>
-      <ScrollView 
-      showsVerticalScrollIndicator={false}
-      >
+      <ScrollView
+  showsVerticalScrollIndicator={false}
+  refreshControl={
+    <RefreshControl
+      refreshing={hospitalRefreshing || doctorsRefreshing}
+      onRefresh={onRefresh}
+      colors={['#056FD2']}
+    />
+  }
+>
+
         <HospitalInfo hospital={hospital} />
         <HospitalDoctorList doctor={doctors.data} hospitalId={HOSPITAL_ID} />
         <HospitalContactInfo hospital={hospital} />

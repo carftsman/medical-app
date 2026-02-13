@@ -43,7 +43,7 @@ const WomenHospitalContactInfo = ({ hospital, hospitalId, }) => {
 
       <View style={styles.contact}>
         <TouchableOpacity style={styles.chat} >
-          <Ionicons style={styles.chatIcon} name="chatbubble" size={28} color="#E8899E" />
+          <Ionicons style={styles.chatIcon} name="chatbubble" size={28} color={COLORS.white} />
           <View style={styles.comCard}>
             <Text style={styles.comHeading}>Chat</Text>
             <Text style={styles.comSub}>Chat me up</Text>
@@ -52,7 +52,7 @@ const WomenHospitalContactInfo = ({ hospital, hospitalId, }) => {
 
         <TouchableOpacity style={styles.chat} onPress={handleCallPress}>
 
-          <Ionicons style={styles.phoneIcon} name="call" size={scale(28)} color="#7ACEFA" />
+          <Ionicons style={styles.phoneIcon} name="call" size={scale(28)} color={COLORS.white} />
           <View style={styles.comCard}>
             <Text style={styles.comHeading}>Audio Call</Text>
             <Text style={styles.comSub}>call your doctor directly</Text>
@@ -121,6 +121,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: scale(8),
   },
+  
 
   comHeading: {
     fontSize: scale(SIZES.medium),

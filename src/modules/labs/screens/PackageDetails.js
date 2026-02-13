@@ -1,53 +1,127 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   Image,
+  ScrollView,
+  Share,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { labApi } from '../services/labApi';
-import { addToCart } from '../redux/labsCartSlice';
 import { COLORS, SIZES } from '../../../config/constants';
 import { scale, verticalScale } from '../../../utils/styling';
 import PackageDetailsSkeleton from '../components/PackageDetailsSkeleton';
+import { useLabCart } from '../context/LabCartContext';
+
 const PackageDetails = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const dispatch = useDispatch();
 
-  const cartItems = useSelector(state => state.labsCart.items);
+  const packageId = route?.params?.packageId ?? 1;
 
-  const labTestId = route?.params?.labTestId;
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [openIncludes, setOpenIncludes] = useState(false);
 
-  useEffect(() => {
-    fetchDetails();
-  }, []);
+  const { cartItems, addToCart } = useLabCart();
+
+  const isAdded = cartItems.some(
+    item => item.labTestId === packageId
+  );
 
   const fetchDetails = async () => {
-    if (!labTestId) {
-      setLoading(false);
-      return;
-    }
-
     try {
-      const res = await labApi.getLabTestDetails(labTestId);
-      setData(res?.data);
+      const res = await labApi.getPackageDetails(packageId);
+      const apiData = res?.data;
+
+      if (!apiData) return;
+
+      const formattedData = {
+        id: apiData.packageId,
+        name: apiData.packageName,
+        image: null,
+        summary: {
+          testsCount: apiData.testsCount,
+          reportTime: apiData.reportTime,
+        },
+        testsIncluded: [
+          {
+            category: "Tests Included",
+            tests: apiData.tests || [],
+          },
+        ],
+        instructions: apiData.instructions || [],
+        pricing: apiData.pricing,
+        labId: apiData.labId || 1,
+      };
+
+      setData(formattedData);
     } catch (error) {
-      console.log('Package details API error', error);
+      console.log(
+        'Package details API error:',
+        error?.response?.data || error.message,
+      );
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  if (loading) {
-    return <PackageDetailsSkeleton />;
-  }
+  useEffect(() => {
+    if (packageId) {
+      fetchDetails();
+    }
+  }, [packageId]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchDetails();
+  }, [packageId]);
+
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        message: `🧪 ${data.name}
+        📊 Tests: ${data.summary?.testsCount}
+        ⏱ Report Time: ${data.summary?.reportTime}`,
+      });
+    } catch (error) {
+      console.log('Share error:', error);
+    }
+  };
+
+  const handleAddToCart = async () => {
+    try {
+      if (adding) return;
+
+      setAdding(true);
+
+      const payload = {
+        userId: 21,
+        labId: data?.labId,
+        labTestId: data?.id,
+      };
+
+      await addToCart(payload);
+
+    } catch (error) {
+      console.log(
+        'Add to cart failed:',
+        error?.response?.data || error.message,
+      );
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  if (loading) return <PackageDetailsSkeleton />;
 
   if (!data) {
     return (
@@ -57,13 +131,38 @@ const PackageDetails = () => {
     );
   }
 
-  const isAdded = cartItems.some(
-    item => item.labTestId === data.id,
-  );
+  const testsBlock = data.testsIncluded?.[0];
 
   return (
     <View style={styles.container}>
-      <View>
+      {/* HEADER */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => navigation.canGoBack() && navigation.goBack()}
+        >
+          <Icon name="arrow-left" size={scale(22)} color={COLORS.black} />
+        </TouchableOpacity>
+
+        <Text style={styles.headerTitle} numberOfLines={1}>
+          {data.name}
+        </Text>
+
+        <TouchableOpacity onPress={handleShare}>
+          <Icon name="share-variant" size={scale(20)} />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: verticalScale(20) }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[COLORS.primary]}
+          />
+        }
+      >
         <Image
           source={{
             uri:
@@ -73,53 +172,92 @@ const PackageDetails = () => {
           style={styles.banner}
         />
 
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon name="arrow-left" size={scale(22)} color={COLORS.black} />
-          </TouchableOpacity>
+        <Text style={styles.title}>{data.name}</Text>
 
-          <Text style={styles.headerTitle} numberOfLines={1}>
-            {data.name}
+        <View style={styles.infoRow}>
+          <Text style={styles.info}>🧪 Tests</Text>
+          <Text style={styles.infoValue}>
+            {data.summary?.testsCount}
+          </Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Text style={styles.info}>⏱ Reports</Text>
+          <Text style={styles.infoValue}>
+            {data.summary?.reportTime}
+          </Text>
+        </View>
+
+        {/* TESTS INCLUDED */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>
+            Tests Included ({testsBlock?.tests?.length || 0})
           </Text>
 
-          <TouchableOpacity>
-            <Icon name="share-variant" size={scale(20)} color={COLORS.white} />
+          <TouchableOpacity
+            style={styles.accordion}
+            onPress={() => setOpenIncludes(!openIncludes)}
+          >
+            <View style={styles.accordionHeader}>
+              <Text style={styles.accordionTitle}>
+                {testsBlock?.category}
+              </Text>
+              <Icon
+                name={openIncludes ? 'chevron-up' : 'chevron-down'}
+                size={scale(20)}
+              />
+            </View>
+
+            {openIncludes && (
+              <View style={styles.accordionBody}>
+                {testsBlock?.tests?.map((test, index) => (
+                  <View key={index} style={styles.bulletRow}>
+                    <Text style={styles.bullet}>•</Text>
+                    <Text style={styles.bulletText}>{test}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
           </TouchableOpacity>
         </View>
-      </View>
 
-      <Text style={styles.title}>{data.name}</Text>
-      <Text style={styles.desc}>{data.description}</Text>
+        {/* INSTRUCTIONS */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Instructions</Text>
 
-      <View style={styles.infoRow}>
-        <Text style={styles.info}>🧪 Tests</Text>
-        <Text style={styles.infoValue}>12</Text>
-      </View>
+          <View style={styles.instructionBox}>
+            {data.instructions?.map((item, index) => (
+              <View key={index} style={styles.bulletRow}>
+                <Text style={styles.bullet}>•</Text>
+                <Text style={styles.bulletText}>{item}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </ScrollView>
 
-      <View style={styles.infoRow}>
-        <Text style={styles.info}>⏱ Reports</Text>
-        <Text style={styles.infoValue}>{data.reportTime}</Text>
-      </View>
-
+      {/* BOTTOM CTA */}
       <View style={styles.bottom}>
-        <Text style={styles.price}>₹{data.price}</Text>
+        <View>
+          <Text style={styles.originalPrice}>
+            ₹{data.pricing?.originalPrice}
+          </Text>
+          <Text style={styles.price}>
+            ₹{data.pricing?.finalPrice}
+          </Text>
+        </View>
 
         {!isAdded ? (
           <TouchableOpacity
             style={styles.btn}
-            onPress={() =>
-              dispatch(
-                addToCart({
-                  labTestId: data.id,
-                  labId: data.labId,
-                  name: data.name,
-                  price: data.price,
-                  reportTime: data.reportTime,
-                }),
-              )
-            }
+            onPress={handleAddToCart}
+            disabled={adding}
           >
-            <Text style={styles.btnText}>Add to Cart</Text>
+            {adding ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.btnText}>Add to Cart</Text>
+            )}
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
@@ -136,6 +274,9 @@ const PackageDetails = () => {
 
 export default PackageDetails;
 
+
+
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -146,26 +287,34 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  banner: {
-    width: '100%',
-    height: verticalScale(300),
-    marginTop: 80,
-  },
   header: {
     position: 'absolute',
-    top: verticalScale(40),
-    left: scale(16),
-    right: scale(16),
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    backgroundColor: COLORS.white,
+    paddingHorizontal: scale(16),
+    paddingTop: verticalScale(40),
+    paddingBottom: verticalScale(12),
+    borderBottomWidth: 1,
+    borderColor: COLORS.lightGray,
   },
+
   headerTitle: {
     flex: 1,
     marginHorizontal: scale(12),
     fontSize: SIZES.large,
     color: COLORS.black,
     fontWeight: '800',
+  },
+  banner: {
+    width: '100%',
+    height: verticalScale(300),
+    marginTop: verticalScale(80)
   },
   title: {
     fontSize: SIZES.large,
@@ -184,19 +333,71 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(10),
     backgroundColor: '#d7eafc',
     alignItems: 'center',
+    marginHorizontal: scale(10),
+    borderRadius: 10,
+    paddingVertical: verticalScale(5),
   },
   info: {
     color: COLORS.darkgray,
-    fontSize: SIZES.medium,
+    fontSize: SIZES.large,
   },
   infoValue: {
     color: COLORS.primary,
     fontWeight: '600',
     padding: 12,
+    fontSize: SIZES.large,
+  },
+  section: {
+    paddingHorizontal: scale(16),
+    marginBottom: verticalScale(16),
+  },
+  sectionTitle: {
+    fontSize: SIZES.large,
+    fontWeight: '700',
+    marginBottom: verticalScale(8),
+  },
+  accordion: {
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+    borderRadius: scale(8),
+    backgroundColor: COLORS.white,
+  },
+  accordionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: scale(12),
+    alignItems: 'center',
+  },
+  accordionTitle: {
+    fontSize: SIZES.large,
+    fontWeight: '600',
+  },
+  accordionBody: {
+    paddingHorizontal: scale(12),
+    paddingBottom: scale(10),
+  },
+  bulletRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: verticalScale(6),
+  },
+  bullet: {
+    fontSize: SIZES.large,
+    marginRight: scale(6),
+  },
+  bulletText: {
+    flex: 1,
     fontSize: SIZES.medium,
+    color: COLORS.darkgray,
+  },
+  instructionBox: {
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    borderRadius: scale(8),
+    padding: scale(12),
+    backgroundColor: COLORS.Iceblue,
   },
   bottom: {
-    marginTop: 'auto',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -208,6 +409,11 @@ const styles = StyleSheet.create({
     fontSize: SIZES.large,
     color: COLORS.primary,
     fontWeight: '700',
+  },
+  originalPrice: {
+    fontSize: SIZES.small,
+    color: COLORS.gray,
+    textDecorationLine: 'line-through',
   },
   btn: {
     backgroundColor: COLORS.primary,
