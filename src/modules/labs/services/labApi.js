@@ -24,9 +24,8 @@ searchLabTests: (labId, text) => {
     params: { query: text },
   });
 },
-filterPackages: (labId, filters) => {
-  return api.post(`/labs/${labId}/packages/filter`, filters);
-},
+filterPackages: (labId, params) =>
+  api.get(`/labs/${labId}/packages/filter`, { params }),
 
 
 };
