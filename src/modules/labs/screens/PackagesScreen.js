@@ -1,176 +1,216 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   FlatList,
   Text,
   StyleSheet,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import PackagesFilterModal from '../components/PackagesFilterModal';
 import { labApi } from '../services/labApi';
 import PackageCard from '../components/PackageCard';
 import PackageCardSkeleton from '../components/PackageCardSkeleton';
 import PackagesHeader from '../components/PackagesHeader';
-import { useRoute } from '@react-navigation/native';
 import { COLORS } from '../../../config/constants';
 import { scale } from '../../../utils/styling';
 import { useLabCart } from '../context/LabCartContext';
+
 const PackagesScreen = () => {
   const navigation = useNavigation();
-  const [filterVisible, setFilterVisible] = useState(false);
   const route = useRoute();
-  const labId = route?.params?.labId ?? 1;
+  const labId = route?.params?.labId;
+
   const { cartItems, addToCart } = useLabCart();
 
-  
+  const [filterVisible, setFilterVisible] = useState(false);
+  const [labName, setLabName] = useState('');
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [listLoading, setListLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchText, setSearchText] = useState('');
-  const [addingItemIds, setAddingItemIds] = useState([]); // track adding
+  const [addingItemIds, setAddingItemIds] = useState([]);
+
+  
+  const formatPackages = (packages) => {
+    return packages?.map(item => ({
+      id: item.packageId,
+      name: item.packageName,
+      price: item.finalPrice,
+      reportTime: item.reportTime,
+      testsCount: item.testsCount,
+      tests: item.tests,
+      originalPrice: item.originalPrice,
+      discountPercent: item.discountPercent,
+      gender: item.gender || 'ALL',
+      labId,
+      image:
+        item.imageUrl ||
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTxEscPwXOmagb4I6akEBtLthHxH2gFrB_xg&s',
+    })) || [];
+  };
+
+  
+  useFocusEffect(
+    useCallback(() => {
+      if (labId) {
+        fetchLabDetails();
+        fetchPackages();
+      }
+    }, [labId])
+  );
 
   useEffect(() => {
-    fetchPackages();
-    
-  }, []);
-  useEffect(() => {
-  if (searchText.trim().length === 0) {
-    fetchPackages(); // reload all packages when search cleared
-  } else {
     const delayDebounce = setTimeout(() => {
-      searchPackages(searchText);
-    }, 400); // small debounce
+      handleSearch();
+    }, 400);
 
     return () => clearTimeout(delayDebounce);
-  }
-}, [searchText]);
+  }, [searchText]);
 
+  const fetchLabDetails = async () => {
+    try {
+      const res = await labApi.getLabDetails(labId);
+      setLabName(res?.data?.name || 'Laboratory');
+    } catch (error) {
+      console.log('Lab details fetch error:', error?.response?.data || error.message);
+    }
+  };
 
-  // fetch packages
   const fetchPackages = async () => {
     try {
-      setLoading(true);
+      setListLoading(true);
       const res = await labApi.getLabTests(labId);
-
-      const formattedData =
-        res?.data?.packages?.map(item => ({
-          id: item.packageId,
-          name: item.packageName,
-          price: item.finalPrice,
-          reportTime: item.reportTime,
-          testsCount: item.testsCount,
-          originalPrice: item.originalPrice,
-          discountPercent: item.discountPercent,
-          labId,
-          image: item.imageUrl || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTxEscPwXOmagb4I6akEBtLthHxH2gFrB_xg&s',
-        })) || [];
-
-      setData(formattedData);
+      setData(formatPackages(res?.data?.packages));
     } catch (error) {
       console.log('Packages API error', error);
     } finally {
-      setLoading(false);
+      setListLoading(false);
     }
   };
 
-  
-  // handle Add to Cart
- const handleAddToCart = async (item) => {
+  const handleSearch = async () => {
+    try {
+      setListLoading(true);
+
+      const res = await labApi.getLabTests(labId);
+      const allPackages = res?.data?.packages || [];
+
+      const filtered =
+        searchText.trim().length === 0
+          ? allPackages
+          : allPackages.filter(item =>
+              item.packageName
+                ?.toLowerCase()
+                .includes(searchText.toLowerCase())
+            );
+
+      setData(formatPackages(filtered));
+    } catch (error) {
+      console.log('Search error:', error);
+    } finally {
+      setListLoading(false);
+    }
+  };
+
+  const onRefresh = async () => {
+    try {
+      setRefreshing(true);
+      await fetchPackages();
+    } catch (error) {
+      console.log('Refresh error:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleAddToCart = async (item) => {
+    try {
+      if (addingItemIds.includes(item.id)) return;
+
+      setAddingItemIds(prev => [...prev, item.id]);
+
+      const payload = {
+        userId: item.userId || 21,
+        labId: item.labId,
+        labTestId: item.id,
+      };
+
+      await addToCart(payload);
+
+    } catch (error) {
+      console.log('Add to cart failed:', error?.response?.data || error.message);
+    } finally {
+      setAddingItemIds(prev => prev.filter(id => id !== item.id));
+    }
+  };
+
+const applyFilters = async (filters) => {
   try {
-    if (addingItemIds.includes(item.id)) return;
+    setListLoading(true);
 
-    setAddingItemIds(prev => [...prev, item.id]);
+    let params = {};
 
-    const payload = {
-      userId: item.userId || 21,
-      labId: item.labId,
-      labTestId: item.id,
-    };
+    
+    if (filters.feeRange) {
+      const [min, max] = filters.feeRange.split('-');
+      params.minPrice = Number(min);
+      params.maxPrice = Number(max);
+    }
 
-    await addToCart(payload);
+    // AGE
+    if (filters.age) {
+      const [min, max] = filters.age.split('-');
+      params.minAge = Number(min);
+      params.maxAge = Number(max);
+    }
+
+    // GENDER
+    if (filters.gender) {
+      params.gender = filters.gender;
+    }
+
+    // SORT 
+    if (filters.sort) {
+      params.sortBy = filters.sort;
+    }
+
+    console.log("FILTER PARAMS:", params);
+
+    const res = await labApi.filterPackages(labId, params);
+
+    let packages = formatPackages(res?.data?.packages || []);
+
+    
+    if (filters.sort === 'price_asc') {
+      packages.sort((a, b) => a.price - b.price);
+    }
+
+    if (filters.sort === 'price_desc') {
+      packages.sort((a, b) => b.price - a.price);
+    }
+
+    setData([...packages]); 
 
   } catch (error) {
-    console.log('Add to cart failed:', error?.response?.data || error.message);
+    console.log('Filter error:', error?.response?.data || error.message);
   } finally {
-    setAddingItemIds(prev => prev.filter(id => id !== item.id));
-  }
-};
-  // apply filters
-  const applyFilters = async (filters) => {
-  try {
-    setLoading(true);
-
-    let minPrice = null;
-    let maxPrice = null;
-
-    if (filters.feeRange) {
-      const parts = filters.feeRange.split('-');
-      minPrice = parts[0].replace('<', '');
-      maxPrice = parts[1]?.replace('>', '');
-    }
-
-    const payload = {
-      minPrice,
-      maxPrice,
-      age: filters.age,
-    };
-
-    console.log("Filter Payload:", payload);
-
-    const res = await labApi.filterPackages(labId, payload);
-
-    const formatted =
-      res?.data?.packages?.map(item => ({
-        id: item.packageId,
-        name: item.packageName,
-        price: item.finalPrice,
-        reportTime: item.reportTime,
-        testsCount: item.testsCount,
-        labId,
-      })) || [];
-
-    setData(formatted);
-  } catch (e) {
-    console.log('Filter error', e);
-  } finally {
-    setLoading(false);
+    setListLoading(false);
   }
 };
 
 
-  // search packages
-  const searchPackages = async (text) => {
-    try {
-      setLoading(true);
-      const res = await labApi.searchLabTests(labId, text);
 
-      const formattedData =
-        res?.data?.map(item => ({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          description: item.description,
-          labId: item.labId,
-          image: //item.imageUrl || 
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTxEscPwXOmagb4I6akEBtLthHxH2gFrB_xg&s',
-        })) || [];
-
-      setData(formattedData);
-    } catch (error) {
-      console.log('Search API error', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <View style={styles.container}>
       <PackagesHeader
+        title={labName || 'Laboratory'}
         searchText={searchText}
         setSearchText={setSearchText}
         onFilterPress={() => setFilterVisible(true)}
       />
 
-      {loading ? (
+      {listLoading ? (
         Array.from({ length: 4 }).map((_, index) => (
           <PackageCardSkeleton key={index} />
         ))
@@ -183,6 +223,8 @@ const PackagesScreen = () => {
           data={data}
           keyExtractor={item => String(item.id)}
           showsVerticalScrollIndicator={false}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
           renderItem={({ item }) => {
             const isAdded = cartItems.some(cart => cart.labTestId === item.id);
 

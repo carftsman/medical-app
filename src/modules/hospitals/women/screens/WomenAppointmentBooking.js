@@ -14,6 +14,7 @@ import {
 
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation } from "@react-navigation/native";
 
@@ -35,11 +36,6 @@ const AppointmentBooking = ({ route }) => {
   const navigation = useNavigation();
 
   const doctorId = route?.params?.doctorId || 1;
-  const doctorName = route?.params?.doctorName || "Likith";
-  const doctorSpecialization = route?.params?.doctorSpecialization || "General Medicine";
-  const doctorExperience = route?.params?.doctorExperience || "15";
-  const doctorRating = route?.params?.doctorRating || "4";
-  const doctorReviews = route?.params?.doctorReviews || "111";
 
   const { selectedDate, selectedTime } = useSelector(
     state => state.hospital.consultation
@@ -95,30 +91,30 @@ const AppointmentBooking = ({ route }) => {
   }, [doctorId]);
 
   const formatDate = (date) => {
-  if (!date) return "";
-  const newDate = new Date(date);
-  return newDate.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-};
-
-const formatTimeRange = (timeRange) => {
-  if (!timeRange) return "";
-
-  const [start, end] = timeRange.split(" - ");
-
-  const convertTo12Hour = (time) => {
-    const [hour, minute] = time.split(":");
-    const h = parseInt(hour);
-    const ampm = h >= 12 ? "PM" : "AM";
-    const formattedHour = h % 12 || 12;
-    return `${formattedHour}:${minute} ${ampm}`;
+    if (!date) return "";
+    const newDate = new Date(date);
+    return newDate.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   };
 
-  return `${convertTo12Hour(start)} - ${convertTo12Hour(end)}`;
-};
+  const formatTimeRange = (timeRange) => {
+    if (!timeRange) return "";
+
+    const [start, end] = timeRange.split(" - ");
+
+    const convertTo12Hour = (time) => {
+      const [hour, minute] = time.split(":");
+      const h = parseInt(hour);
+      const ampm = h >= 12 ? "PM" : "AM";
+      const formattedHour = h % 12 || 12;
+      return `${formattedHour}:${minute} ${ampm}`;
+    };
+
+    return `${convertTo12Hour(start)} - ${convertTo12Hour(end)}`;
+  };
 
 
 
@@ -190,7 +186,7 @@ const formatTimeRange = (timeRange) => {
           "Slot Unavailable",
           "This slot is no longer available. Please select another time."
         );
-      } else if(error?.response?.status === 404){
+      } else if (error?.response?.status === 404) {
         Alert.alert(
           "Error",
           "Something went wrong. Please try again."
@@ -210,7 +206,7 @@ const formatTimeRange = (timeRange) => {
           style={styles.backBtn}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backIcon}>‹</Text>
+          <AntDesign name="left" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Book an Appointment</Text>
         <View style={{ width: 20 }} />
@@ -259,23 +255,23 @@ const formatTimeRange = (timeRange) => {
             </Text>
           </View>
 
-         {selectedDate && selectedTime && (
-  <View style={styles.dateTimeContainer}>
-    <View style={styles.dateRow}>
-      <Ionicons name="calendar-outline" size={16} color="#EC4899" />
-      <Text style={styles.dateText}>
-        {formatDate(selectedDate)}
-      </Text>
-    </View>
+          {selectedDate && selectedTime && (
+            <View style={styles.dateTimeContainer}>
+              <View style={styles.dateRow}>
+                <Ionicons name="calendar-outline" size={16} color="#EC4899" />
+                <Text style={styles.dateText}>
+                  {formatDate(selectedDate)}
+                </Text>
+              </View>
 
-    <View style={styles.dateRow}>
-      <Ionicons name="time-outline" size={16} color="#EC4899" />
-      <Text style={styles.timeText}>
-        {formatTimeRange(selectedTime.time)}
-      </Text>
-    </View>
-  </View>
-)}
+              <View style={styles.dateRow}>
+                <Ionicons name="time-outline" size={16} color="#EC4899" />
+                <Text style={styles.timeText}>
+                  {formatTimeRange(selectedTime.time)}
+                </Text>
+              </View>
+            </View>
+          )}
 
         </View>
 
@@ -296,7 +292,6 @@ const formatTimeRange = (timeRange) => {
         </TouchableOpacity>
       </View>
 
-      {/* PATIENT LIST */}
       {/* PATIENT LIST */}
       <ScrollView showsVerticalScrollIndicator={false}>
         {patients.length === 0 ? (
@@ -443,38 +438,38 @@ const formatTimeRange = (timeRange) => {
                 <View style={styles.genderRow}>
 
                   {/* WOMEN OPTION */}
-                 <View style={styles.genderRow}>
+                  <View style={styles.genderRow}>
 
-  {/* WOMEN */}
-  <TouchableOpacity
-    style={styles.genderOption}
-    onPress={() => onChange("FEMALE")}
-  >
-    <View style={styles.outerCircle}>
-      {value === "FEMALE" && <View style={styles.innerCircle} />}
-    </View>
-    <Text style={styles.genderText}>Women</Text>
-  </TouchableOpacity>
+                    {/* WOMEN */}
+                    <TouchableOpacity
+                      style={styles.genderOption}
+                      onPress={() => onChange("FEMALE")}
+                    >
+                      <View style={styles.outerCircle}>
+                        {value === "FEMALE" && <View style={styles.innerCircle} />}
+                      </View>
+                      <Text style={styles.genderText}>Women</Text>
+                    </TouchableOpacity>
 
-  {/* MEN (Disabled but same layout) */}
-  <TouchableOpacity
-    style={styles.genderOption}
-    disabled={true}
-  >
-    <View style={styles.outerCircleDisabled} />
-    <Text style={styles.genderTextDisabled}>Men</Text>
-  </TouchableOpacity>
+                    {/* MEN (Disabled but same layout) */}
+                    <TouchableOpacity
+                      style={styles.genderOption}
+                      disabled={true}
+                    >
+                      <View style={styles.outerCircleDisabled} />
+                      <Text style={styles.genderTextDisabled}>Men</Text>
+                    </TouchableOpacity>
 
-  {/* OTHERS (Disabled but same layout) */}
-  <TouchableOpacity
-    style={styles.genderOption}
-    disabled={true}
-  >
-    <View style={styles.outerCircleDisabled} />
-    <Text style={styles.genderTextDisabled}>Others</Text>
-  </TouchableOpacity>
+                    {/* OTHERS (Disabled but same layout) */}
+                    <TouchableOpacity
+                      style={styles.genderOption}
+                      disabled={true}
+                    >
+                      <View style={styles.outerCircleDisabled} />
+                      <Text style={styles.genderTextDisabled}>Others</Text>
+                    </TouchableOpacity>
 
-</View>
+                  </View>
 
 
                 </View>
@@ -654,7 +649,7 @@ const styles = StyleSheet.create({
     marginRight: scale(16),
     borderWidth: 2,
     borderColor: "#FBCFE8",
-    top:scale(5),
+    top: scale(5),
   },
 
   doctorDetails: {
@@ -703,7 +698,7 @@ const styles = StyleSheet.create({
 
 
 
-  
+
 
   /* ================= DATE & TIME ================= */
 
@@ -861,58 +856,58 @@ const styles = StyleSheet.create({
 
   /* ================= GENDER ================= */
 
- genderRow: {
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "flex-start",
-  marginBottom: verticalScale(10),
-  top:scale(3),
-  
-},
+  genderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    marginBottom: verticalScale(10),
+    top: scale(3),
 
-genderOption: {
-  flexDirection: "row",
-  alignItems: "center",
-  marginRight: scale(25),
- 
-},
+  },
 
-outerCircle: {
-  height: scale(20),
-  width: scale(20),
-  borderRadius: scale(10),
-  borderWidth: 2,
-  borderColor: "#EC4899",
-  alignItems: "center",
-  justifyContent: "center",
-  marginRight: scale(8),
-},
+  genderOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: scale(25),
 
-innerCircle: {
-  height: scale(10),
-  width: scale(10),
-  borderRadius: scale(5),
-  backgroundColor: "#EC4899",
-},
+  },
 
-outerCircleDisabled: {
-  height: scale(20),
-  width: scale(20),
-  borderRadius: scale(10),
-  borderWidth: 2,
-  borderColor: "#D1D5DB",
-  marginRight: scale(8),
-},
+  outerCircle: {
+    height: scale(20),
+    width: scale(20),
+    borderRadius: scale(10),
+    borderWidth: 2,
+    borderColor: "#EC4899",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: scale(8),
+  },
 
-genderText: {
-  fontSize: scale(14),
-  color: "#111827",
-},
+  innerCircle: {
+    height: scale(10),
+    width: scale(10),
+    borderRadius: scale(5),
+    backgroundColor: "#EC4899",
+  },
 
-genderTextDisabled: {
-  fontSize: scale(14),
-  color: "#9CA3AF",
-},
+  outerCircleDisabled: {
+    height: scale(20),
+    width: scale(20),
+    borderRadius: scale(10),
+    borderWidth: 2,
+    borderColor: "#D1D5DB",
+    marginRight: scale(8),
+  },
+
+  genderText: {
+    fontSize: scale(14),
+    color: "#111827",
+  },
+
+  genderTextDisabled: {
+    fontSize: scale(14),
+    color: "#9CA3AF",
+  },
 
   /* ================= FOOTER ================= */
 
