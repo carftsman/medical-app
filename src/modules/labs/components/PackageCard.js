@@ -33,14 +33,21 @@ const PackageCard = ({
 
         <View style={styles.content}>
           <Text style={styles.title} numberOfLines={1}>
-            {item.name}
+            {item.packageName || item.name}
           </Text>
 
-          <Text style={styles.price}>₹{item.price}/-</Text>
+
+          <Text style={styles.price}>
+            ₹{item.finalPrice || item.price}/-
+          </Text>
+
 
           <Text style={styles.subText} numberOfLines={1}>
-           {item.description}
+            {item.testsCount
+              ? `${item.testsCount} Tests: ${item.description || 'Diabetes screening'}`
+              : item.description}
           </Text>
+
         </View>
       </View>
 
@@ -114,45 +121,47 @@ const styles = StyleSheet.create({
   },
 
   buttonRow: {
-  flexDirection: 'row',
-  gap: scale(10),
-},
+    flexDirection: 'row',
+    gap: scale(10),
+  },
 
-button: {
-  flex: 1,                
-  height: verticalScale(44), 
-  justifyContent: 'center',
-  alignItems: 'center',
-  borderRadius: scale(6),
-},
+  button: {
+    flex: 1,
+    height: verticalScale(44),
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: scale(6),
+  },
 
-addBtn: {
-  borderWidth: 1,
-  borderColor: COLORS.primary,
-  backgroundColor: COLORS.white,
-},
+  addBtn: {
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.white,
+  },
 
-viewCartBtn: {
-  borderWidth: 1,
-  borderColor: COLORS.primary,
-  backgroundColor: COLORS.white,
-},
+  viewCartBtn: {
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.white,
+  },
 
-viewBtn: {
-  borderWidth: 1,
-  borderColor: COLORS.primary,
-  backgroundColor: COLORS.white,
-},
+  viewBtn: {
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.white,
+  },
 
   addText: {
     color: COLORS.primary,
     fontSize: SIZES.medium,
   },
-   viewCartBtn: {
-    backgroundColor: COLORS.primary,
+  viewCartBtn: {
+    borderWidth:1,
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.white,
   },
   viewCartText: {
-    color: COLORS.white,
+    color: COLORS.primary,
     fontSize: SIZES.medium,
   },
   viewBtn: {
@@ -163,3 +172,6 @@ viewBtn: {
     fontSize: SIZES.medium,
   },
 });
+
+
+
