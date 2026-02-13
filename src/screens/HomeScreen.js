@@ -40,7 +40,7 @@ export default function HomeScreen() {
 
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFF" }}>
+    <View style={{ flex: 1, backgroundColor: "#FFF" }}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
      
@@ -238,7 +238,7 @@ export default function HomeScreen() {
       {/* Floating SOS button */}
           <SOSButton/>
       
-    </SafeAreaView>
+    </View>
   );
 }
 
