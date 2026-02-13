@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
   },
 
   container: {
-    marginTop: verticalScale(28),
+    marginTop: verticalScale(11),
     marginBottom: verticalScale(90),
     paddingVertical: verticalScale(26),
     paddingHorizontal: scale(16),

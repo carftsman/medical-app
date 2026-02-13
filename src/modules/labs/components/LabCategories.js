@@ -11,29 +11,6 @@ import { useNavigation } from "@react-navigation/native";
 import api from "../../../api/client";
 import { scale, verticalScale } from "../../../utils/styling";
 
-/* Categories  */
-const CATEGORY_IMAGES = {
-  "Blood Tests": require("../../../../assets/blood.jpg"),
-  "Imaging": require("../../../../assets/imaging.jpg"),
-  "Hormone Tests": require("../../../../assets/HormoneHealth.png"),
-  "Diabetes": require("../../../../assets/diabetes.jpg"),
-  "Full Body Checkup": require("../../../../assets/CheckUp.png"),
-  "Urine Tests": require("../../../../assets/urine.jpg"),
-  "Thyroid": require("../../../../assets/thyroid.jpg"),
-  "Vitamin Tests": require("../../../../assets/Nutrition.png"),
-  "Liver Function": require("../../../../assets/liver.jpg"),
-  "Kidney Function": require("../../../../assets/Kidney.jpg"),
-  "Heart Profile": require("../../../../assets/heart.jpg"),
-  "Women Health": require("../../../../assets/women.jpg"),
-  "Fertility Tests": require("../../../../assets/Fertility.jpg"),
-  "Pregnancy Tests": require("../../../../assets/Fertility.png"),
-  "MRI": require("../../../../assets/MRIScan.jpg"),
-  "Cancer Markers": require("../../../../assets/cancer.png"),
-  "Senior Citizen": require("../../../../assets/60+.png"),
-  "X-Ray": require("../../../../assets/X-ray.jpg"),
-  "CT Scan": require("../../../../assets/CTScan.jpg"),
-};
-
 /* COMPONENT */
 const LabCategories = ({ labId }) => {
   const navigation = useNavigation();
@@ -47,8 +24,13 @@ const LabCategories = ({ labId }) => {
   const fetchCategories = async () => {
     try {
       setLoading(true);
+
       const res = await api.get("/labs/categories/all");
-      setCategories(res?.data?.data || []);
+      const sections = res?.data?.sections || [];
+      const allCategories = sections.flatMap(section => section.categories || []);
+
+      setCategories(allCategories);
+
     } catch (e) {
       console.log("Categories API error:", e);
     } finally {
@@ -64,8 +46,6 @@ const LabCategories = ({ labId }) => {
   );
 
   const renderItem = ({ item }) => {
-    const image = CATEGORY_IMAGES[item.name];
-
     return (
       <TouchableOpacity
         style={styles.card}
@@ -78,9 +58,12 @@ const LabCategories = ({ labId }) => {
         }
       >
         <View style={styles.imageWrapper}>
-          {image && <Image source={{
-            uri:item.imageUrl
-          }} style={styles.image} />}
+          {item.imageUrl && (
+            <Image
+              source={{ uri: item.imageUrl }}
+              style={styles.image}
+            />
+          )}
         </View>
 
         <Text style={styles.label} numberOfLines={2}>
