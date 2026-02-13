@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,9 @@ import {
   StyleSheet,
   Image,
   ScrollView,
-  Share
+  Share,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -15,6 +17,7 @@ import { COLORS, SIZES } from '../../../config/constants';
 import { scale, verticalScale } from '../../../utils/styling';
 import PackageDetailsSkeleton from '../components/PackageDetailsSkeleton';
 import { useLabCart } from '../context/LabCartContext';
+
 const PackageDetails = () => {
   const route = useRoute();
   const navigation = useNavigation();
@@ -23,23 +26,43 @@ const PackageDetails = () => {
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [adding, setAdding] = useState(false);
   const [openIncludes, setOpenIncludes] = useState(false);
+
   const { cartItems, addToCart } = useLabCart();
+
   const isAdded = cartItems.some(
-  item => item.labTestId === packageId
-);
-
-
-  useEffect(() => {
-    if (packageId) {
-      fetchDetails();
-    }
-  }, [packageId]);
+    item => item.labTestId === packageId
+  );
 
   const fetchDetails = async () => {
     try {
       const res = await labApi.getPackageDetails(packageId);
-      setData(res?.data);
+      const apiData = res?.data;
+
+      if (!apiData) return;
+
+      const formattedData = {
+        id: apiData.packageId,
+        name: apiData.packageName,
+        image: null,
+        summary: {
+          testsCount: apiData.testsCount,
+          reportTime: apiData.reportTime,
+        },
+        testsIncluded: [
+          {
+            category: "Tests Included",
+            tests: apiData.tests || [],
+          },
+        ],
+        instructions: apiData.instructions || [],
+        pricing: apiData.pricing,
+        labId: apiData.labId || 1,
+      };
+
+      setData(formattedData);
     } catch (error) {
       console.log(
         'Package details API error:',
@@ -47,47 +70,56 @@ const PackageDetails = () => {
       );
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
+  useEffect(() => {
+    if (packageId) {
+      fetchDetails();
+    }
+  }, [packageId]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchDetails();
+  }, [packageId]);
+
   const handleShare = async () => {
-      try {
-        const locationText =
-          data.address || `${data.name}, ${data.city}`;
-  
-        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-          locationText,
-        )}`;
-  
-        await Share.share({
-          message: `🏥 ${data.name}
-        📍 Location: ${locationText}
-        🗺️ Google Maps:
-        ${mapsUrl}`,
-        });
-      } catch (error) {
-        console.log('Share error:', error);
-      }
-    };
+    try {
+      await Share.share({
+        message: `🧪 ${data.name}
+        📊 Tests: ${data.summary?.testsCount}
+        ⏱ Report Time: ${data.summary?.reportTime}`,
+      });
+    } catch (error) {
+      console.log('Share error:', error);
+    }
+  };
 
   const handleAddToCart = async () => {
-  try {
-    const payload = {
-      userId: data?.userId || 21,
-      labId: data?.labs?.[0]?.id || 1,
-      labTestId: data?.id,
-    };
+    try {
+      if (adding) return;
 
-    await addToCart(payload);
+      setAdding(true);
 
-  } catch (error) {
-    console.log(
-      'Add to cart failed:',
-      error?.response?.data || error.message,
-    );
-  }
-};
+      const payload = {
+        userId: 21,
+        labId: data?.labId,
+        labTestId: data?.id,
+      };
 
+      await addToCart(payload);
+
+    } catch (error) {
+      console.log(
+        'Add to cart failed:',
+        error?.response?.data || error.message,
+      );
+    } finally {
+      setAdding(false);
+    }
+  };
 
   if (loading) return <PackageDetailsSkeleton />;
 
@@ -106,10 +138,7 @@ const PackageDetails = () => {
       {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity
-          onPress={() => navigation.canGoBack() && navigation.goBack()
-          //onPress={() => navigation.navigate('LabDetails')
-          //onPress={() => navigation.navigate('PackagesScreen')
-          }
+          onPress={() => navigation.canGoBack() && navigation.goBack()}
         >
           <Icon name="arrow-left" size={scale(22)} color={COLORS.black} />
         </TouchableOpacity>
@@ -119,13 +148,20 @@ const PackageDetails = () => {
         </Text>
 
         <TouchableOpacity onPress={handleShare}>
-                  <Icon name="share-variant" size={scale(20)} />
-                </TouchableOpacity>
+          <Icon name="share-variant" size={scale(20)} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: verticalScale(20) }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[COLORS.primary]}
+          />
+        }
       >
         <Image
           source={{
@@ -212,8 +248,16 @@ const PackageDetails = () => {
         </View>
 
         {!isAdded ? (
-          <TouchableOpacity style={styles.btn} onPress={handleAddToCart}>
-            <Text style={styles.btnText}>Add to Cart</Text>
+          <TouchableOpacity
+            style={styles.btn}
+            onPress={handleAddToCart}
+            disabled={adding}
+          >
+            {adding ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.btnText}>Add to Cart</Text>
+            )}
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
@@ -232,7 +276,6 @@ export default PackageDetails;
 
 
 
-/* ================= STYLES ================= */
 
 const styles = StyleSheet.create({
   container: {
