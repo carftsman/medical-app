@@ -33,17 +33,14 @@ export default function LabsHomeScreen() {
   const onRefresh = useCallback(() => {
     setRefreshing(true);
 
-    // If your child components use API inside useEffect,
-    // just re-rendering is enough.
-    // You can also trigger global state refresh here if needed.
-
+    
     setTimeout(() => {
       setRefreshing(false);
     }, 1500);
   }, []);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <View style={styles.container}>
         {/* HEADER */}
         <LinearGradient
@@ -186,7 +183,7 @@ export default function LabsHomeScreen() {
         {/* SOS  */}
         <SosButton />
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 

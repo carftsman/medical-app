@@ -26,11 +26,7 @@ const LabCategories = ({ labId }) => {
       setLoading(true);
 
       const res = await api.get("/labs/categories/all");
-
-      // ✅ NEW BACKEND STRUCTURE SUPPORT
       const sections = res?.data?.sections || [];
-
-      // Flatten all categories from sections
       const allCategories = sections.flatMap(section => section.categories || []);
 
       setCategories(allCategories);
