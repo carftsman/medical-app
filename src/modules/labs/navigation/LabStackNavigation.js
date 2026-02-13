@@ -13,9 +13,11 @@ import LabsCartScreen from '../screens/LabsCartScreen';
 import AddAddressScreen from '../screens/AddAddressScreen';
 import ReviewCart from '../screens/ReviewCart';
 import ReportsTab from '../screens/ReportsTab';
-import ReportDetailsSreen from '../screens/ReportDetailsSreen';
+
 import LabFeedbackScreen from '../screens/LabFeedback';
 import CategoriesTab from '../screens/CategoriesTab';
+import ReportDetailsScreen from '../screens/ReportDetailsScreen';
+import LabFeedbackSuccessScreen from '../screens/LabFeedbackSuccessScreen';
 
 const LabStackNavigation = () => {
     const Stack = createNativeStackNavigator();
@@ -38,9 +40,12 @@ const LabStackNavigation = () => {
             <Stack.Screen name='AddAddress' component={AddAddressScreen} />
             <Stack.Screen name='ReviewCart' component={ReviewCart} />
             <Stack.Screen name='ReportsTab' component={ReportsTab} />
-            <Stack.Screen name='ReportDetails' component={ReportDetailsSreen} />
+            <Stack.Screen name='ReportDetails' component={ReportDetailsScreen} />
             <Stack.Screen name='Feedback' component={LabFeedbackScreen} />
-            <Stack.Screen name='CategoriesTab' component={CategoriesTab} />
+              <Stack.Screen name='LabFeedbackSuccess' component={LabFeedbackSuccessScreen} />
+            
+            
+           
         </Stack.Navigator>
     )
 }
