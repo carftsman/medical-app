@@ -1,12 +1,306 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { scale } from '../../../../utils/styling';
+import WomenHospitalCard from '../components/WomenHospitalScreen-Card';
+import WomenHospitalFilter from '../components/WomenHopitalScreen-Filter';
+import WomenHospitalFilterPopup from '../components/WomenHopitalScreen-FilterPopup';
+import WomenHospitalSearch from '../components/WomenHospitalScreen-Search';
+import WomenHospitalCardSkeleton from '../components/WomenHospialScreen-Skeleton';
+import Backbtn from '../../components/Backbtn';
+import api from "../../../../api/client";
 
-const WomenHospitalsScreen = () => {
+
+const LATITUDE = 17.385044;
+const LONGITUDE = 78.486671;
+const DEFAULT_RADIUS = 20;
+
+
+
+const WomenHospitalsScreen = ({ navigation }) => {
+  const [hospitals, setHospitals] = useState([]);
+  const [searchResults, setSearchResults] = useState(null);
+  const [filterResults, setFilterResults] = useState(null);
+  const [searchText, setSearchText] = useState('');
+
+  const [favorites, setFavorites] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
+
+  const loadHospitals = async () => {
+
+    setLoading(true);
+    setSearchResults(null);
+    setFilterResults(null);
+
+    try {
+      const res = await api.get(
+        '/hospital/user/hospitals/nearby',
+        {
+          params: {
+            latitude: LATITUDE,
+            longitude: LONGITUDE,
+            radius: DEFAULT_RADIUS,
+            women: true,
+            sort: 'distance',
+            page: 1,
+            limit: 20,
+          },
+        }
+      );
+      console.log("API FULL RESPONSE:", res?.data);
+      console.log("HOSPITAL LIST:", res?.data?.data);
+      console.log("COUNT:", res?.data?.data?.length);
+
+      console.log("INITIAL LOAD RESPONSE:", res?.data);
+      console.log("PARAMS SENT:",
+        {
+          latitude: LATITUDE,
+          longitude: LONGITUDE,
+
+        });
+
+
+      const hospitalList =
+        res?.data?.data ||
+
+        [];
+
+      setHospitals(Array.isArray(hospitalList) ? hospitalList : []);
+    } catch (error) {
+      console.log('Hospital fetch error:', error);
+      setHospitals([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (typeof searchText !== 'string' || searchText.trim() === '') {
+      setSearchResults(null);
+      return;
+    }
+
+    const text = searchText.toLowerCase();
+
+    const filtered = hospitals.filter(item =>
+      item.name?.toLowerCase().includes(text) ||
+      item.place?.toLowerCase().includes(text) ||
+      item.location?.toLowerCase().includes(text) ||
+      item.speciality?.toLowerCase().includes(text)
+    );
+
+    setSearchResults(filtered);
+  }, [searchText, hospitals]);
+
+
+  const handleApplyFilter = async filters => {
+    try {
+      setLoading(true);
+      setSearchText('');
+      setSearchResults(null);
+
+      const res = await api.get(
+        '/hospital/user/hospitals/nearby',
+        {
+          params: {
+            latitude: LATITUDE,
+            longitude: LONGITUDE,
+            radius: filters.distance || DEFAULT_RADIUS,
+            sort: filters.sortBy || 'distance',
+            categoryIds: filters.categoryIds?.join(',') || undefined,
+            state: filters.state || undefined,
+            city: filters.city || undefined,
+            openNow: filters.openNow || undefined,
+            open24x7: filters.open24x7 || undefined,
+
+            women: true,
+
+            page: 1,
+            limit: 20,
+          },
+        }
+      );
+      console.log("FILTER PARAMS SENT:", {
+        radius: filters.distance,
+        categoryIds: filters.categoryIds,
+        state: filters.state,
+        city: filters.city,
+        openNow: filters.openNow,
+        open24x7: filters.open24x7,
+      });
+
+      console.log("FILTER API RESPONSE:", res?.data);
+      let result = res?.data?.data || [];
+
+
+      if (filters.openNow) {
+        result = result.filter(h => h.isOpen === true);
+      }
+
+      if (filters.open24x7) {
+        result = result.filter(h => h.isOpen24x7 === true);
+      }
+
+      if (filters.city) {
+        result = result.filter(h =>
+          (h.location || h.place || '')
+            .toLowerCase()
+            .includes(filters.city.toLowerCase())
+
+        );
+      }
+
+      if (filters.state) {
+        result = result.filter(h =>
+          (h.location || '')
+            .toLowerCase()
+            .includes(filters.state.toLowerCase())
+        );
+      }
+
+      
+
+
+
+
+      setFilterResults(result);
+    } catch (e) {
+      console.log('Filter error:', e);
+      setFilterResults([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    loadHospitals();
+  }, []);
+
+  const dataSource =
+    searchText?.trim().length > 0
+      ? searchResults || []
+      : filterResults !== null
+        ? filterResults
+        : hospitals;
+
+
+
   return (
-    <View>
-      <Text>Women Hospitals Screen</Text>
+
+    <View style={styles.safeArea}>
+      <View style={styles.container}>
+
+        <View style={styles.header}>
+          <Backbtn onPress={() => navigation.goBack()} />
+          <Text style={styles.title}>Nearby Hospitals</Text>
+          <View style={{ width: 22 }} />
+        </View>
+
+
+        <View style={styles.searchRow}>
+          <WomenHospitalSearch
+            value={searchText}
+            onChange={setSearchText}
+
+          />
+          <WomenHospitalFilter onPress={() => setShowFilter(true)} />
+        </View>
+
+        {loading ? (
+          <>
+            {[1, 2, 3].map(item => (
+              <WomenHospitalCardSkeleton key={item} />
+            ))}
+          </>
+        ) : (
+
+          <FlatList
+            data={dataSource}
+            keyExtractor={(item, index) =>
+              String(item.id || index)
+            }
+            renderItem={({ item }) => (
+              <WomenHospitalCard
+                image={item.imageUrl || null}
+                hospitalName={item.name || item.hospitalName}
+                distance={item.distance}
+                location={item.place || item.location || ''}
+                description={item.speciality || item.department || ''}
+                isOpen24Hours={item.isOpen24x7 || item.isOpen}
+                rating={item.rating}
+                isFavorite={!!favorites[item.id]}
+                onFavoritePress={() =>
+                  setFavorites(prev => ({
+                    ...prev,
+                    [item.id]: !prev[item.id],
+                  }))
+                }
+
+                onViewDetails={() =>
+                  navigation.navigate('WomenHospitalDetails', {
+                    data: item,
+                    id: item.id,
+                  })
+                }
+              />
+            )}
+            ListEmptyComponent={
+              <Text style={styles.emptyText}>
+                No hospitals found
+              </Text>
+            }
+            showsVerticalScrollIndicator={false}
+          />
+        )}
+
+        <WomenHospitalFilterPopup
+          visible={showFilter}
+          onClose={() => setShowFilter(false)}
+          onApply={handleApplyFilter}
+        />
+      </View>
     </View>
   );
-}
+};
 
 export default WomenHospitalsScreen;
+
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#FFF',
+    
+  },
+  container: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: scale(16),
+  },
+  title: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: scale(18),
+    fontWeight: '700',
+  },
+  searchRow: {
+    flexDirection: 'row',
+    paddingHorizontal: scale(16),
+  },
+  emptyText: {
+    textAlign: 'center',
+    marginTop: 40,
+    color: '#888',
+  },
+});

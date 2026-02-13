@@ -1,14 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking } from 'react-native';
-import { scale, verticalScale } from '../../../utils/styling';
+import { scale, verticalScale } from '../../../../utils/styling';
+import { COLORS, SIZES, FONT } from '../../../../config/constants';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-const HospitalContactInfo = ({ hospital, hospitalId }) => {
+const WomenHospitalContactInfo = ({ hospital, hospitalId, }) => {
   const navigation = useNavigation();
-    const PHONE_NUMBER = '9876543210';
-    const handleCallPress = () => {
-      Linking.openURL(`tel:${PHONE_NUMBER}`);
-    };
+  const PHONE_NUMBER = '9876543210';
+  const handleCallPress = () => {
+    Linking.openURL(`tel:${PHONE_NUMBER}`);
+  };
   const formatTime24 = (isoString) => {
     if (!isoString) return '';
     const date = new Date(isoString);
@@ -17,11 +18,11 @@ const HospitalContactInfo = ({ hospital, hospitalId }) => {
       minute: '2-digit',
     });
   };
-//
+
   return (
     <View style={styles.main}>
-      <TouchableOpacity style={styles.aval} onPress={() => navigation.navigate('WomenDoctorsList', {
-        hospitalId: hospitalId,
+      <TouchableOpacity style={styles.aval} onPress={() => navigation.navigate('WomenDoctorsScreen', {
+        hospitalId,
       })}>
         <Ionicons name="time-outline" size={scale(25)} color="#fff" />
         <View style={styles.slot}>
@@ -50,7 +51,7 @@ const HospitalContactInfo = ({ hospital, hospitalId }) => {
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.chat} onPress={handleCallPress}>
-          
+
           <Ionicons style={styles.phoneIcon} name="call" size={scale(28)} color="#7ACEFA" />
           <View style={styles.comCard}>
             <Text style={styles.comHeading}>Audio Call</Text>
@@ -64,7 +65,7 @@ const HospitalContactInfo = ({ hospital, hospitalId }) => {
   );
 }
 
-export default HospitalContactInfo;
+export default WomenHospitalContactInfo;
 const styles = StyleSheet.create({
 
   aval: {
@@ -73,43 +74,46 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: scale(14),
     borderRadius: scale(18),
-    backgroundColor: '#056FD2',
+    backgroundColor: COLORS.pink,
   },
+
   main: {
     padding: scale(10),
   },
+
   slot: {
     alignItems: 'center',
   },
 
   availabilty: {
-    color: '#fff',
-    fontSize: scale(16),
+    color: COLORS.white,
+    fontSize: scale(SIZES.medium),
+    fontFamily: FONT.medium,
   },
 
   time: {
-    color: '#fff',
-    fontSize: scale(12),
-
+    color: COLORS.white,
+    fontSize: scale(SIZES.small),
+    fontFamily: FONT.regular,
   },
 
   arrow: {
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.white,
     borderRadius: scale(16),
     padding: scale(4),
   },
 
   communication: {
-    fontSize: scale(18),
-    fontWeight: '600',
+    fontSize: scale(SIZES.large),
+    fontFamily: FONT.medium,
+    color: COLORS.black,
     marginVertical: verticalScale(10),
-
   },
 
   contact: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: verticalScale(20)
+    marginBottom: verticalScale(20),
   },
 
   chat: {
@@ -117,34 +121,39 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: scale(8),
   },
+
   comHeading: {
-    fontSize: scale(16),
-    fontWeight: '600',
+    fontSize: scale(SIZES.medium),
+    fontFamily: FONT.medium,
+    color: COLORS.darkgray,
   },
 
   comSub: {
-    fontSize: scale(12),
-    color: '#6B779A',
+    fontSize: scale(SIZES.small),
+    fontFamily: FONT.regular,
+    color: COLORS.gray,
   },
 
   chatIcon: {
-    backgroundColor: '#EDA1AB26',
+    backgroundColor: COLORS.pink,
     padding: scale(6),
     borderRadius: scale(14),
   },
+
   phoneIcon: {
-    backgroundColor: '#7ACEFA26',
+    backgroundColor: COLORS.pink,
     padding: scale(6),
     borderRadius: scale(14),
   },
 
   book: {
-    backgroundColor: '#056FD2',
-    color: '#fff',
-    fontSize: scale(16),
+    backgroundColor: COLORS.pink,
+    color: COLORS.white,
+    fontSize: scale(SIZES.medium),
     paddingVertical: verticalScale(18),
     textAlign: 'center',
-    fontWeight: '600',
-    borderRadius: 20
+    fontFamily: FONT.medium,
+    borderRadius: scale(20),
   },
-})
+
+});
