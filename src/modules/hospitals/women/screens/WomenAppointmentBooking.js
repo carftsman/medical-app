@@ -24,7 +24,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { patientSchema } from "../../../../modules/hospitals/utils/Validations";
 import { useSelector, useDispatch } from "react-redux";
-import { setBookingId } from "../redux/slices/BookingSlice";
+import { setBookingId } from "../../redux/slices/BookingSlice";
 
 
 import api from "../../../../api/client";
@@ -51,6 +51,7 @@ const AppointmentBooking = ({ route }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   // const slotId = selectedTime?.slotId;
+  console.log("Time:", selectedTime?.slotId);
 
 
 
@@ -72,7 +73,7 @@ const AppointmentBooking = ({ route }) => {
       email: "",
       reason: "",
       dob: "",
-      gender: "",
+      gender: "FEMALE",
     },
     mode: "onChange",
   });
@@ -92,6 +93,33 @@ const AppointmentBooking = ({ route }) => {
 
     fetchDoctor();
   }, [doctorId]);
+
+  const formatDate = (date) => {
+  if (!date) return "";
+  const newDate = new Date(date);
+  return newDate.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+const formatTimeRange = (timeRange) => {
+  if (!timeRange) return "";
+
+  const [start, end] = timeRange.split(" - ");
+
+  const convertTo12Hour = (time) => {
+    const [hour, minute] = time.split(":");
+    const h = parseInt(hour);
+    const ampm = h >= 12 ? "PM" : "AM";
+    const formattedHour = h % 12 || 12;
+    return `${formattedHour}:${minute} ${ampm}`;
+  };
+
+  return `${convertTo12Hour(start)} - ${convertTo12Hour(end)}`;
+};
+
 
 
   /*  SAVE PATIENT  */
@@ -127,21 +155,21 @@ const AppointmentBooking = ({ route }) => {
       const formattedDob = `${yyyy}-${mm}-${dd}`;
 
       const payload = {
-        slotId: selectedTime.slotId,
+        slotId: selectedTime?.slotId,
         bookingFor: "OTHER",
+        reason: patient.reason,
         patient: {
           fullName: patient.name,
-          gender: patient.gender,
           phone: patient.mobile,
           email: patient.email,
-          reason: patient.reason,
           dob: formattedDob,
-        },
+          gender: "FEMALE",
+        }
       };
 
       console.log("Hold appointment payload:", payload);
 
-      const res = await api.post("/api/appointments/hold", payload);
+      const res = await api.post("/appointments/hold", payload);
 
       console.log("STATUS:", res.status);
       console.log("FULL RESPONSE:", JSON.stringify(res.data, null, 2));
@@ -149,7 +177,7 @@ const AppointmentBooking = ({ route }) => {
 
       dispatch(setBookingId(bookingId));
 
-      navigation.navigate("WomenAppointmentBooking", {
+      navigation.navigate("WomenBookingDetails", {
         bookingId,
       });
 
@@ -162,11 +190,15 @@ const AppointmentBooking = ({ route }) => {
           "Slot Unavailable",
           "This slot is no longer available. Please select another time."
         );
-      } else {
+      } else if(error?.response?.status === 404){
         Alert.alert(
           "Error",
           "Something went wrong. Please try again."
         );
+        console.log("ERRORRR", error);
+      }
+      else {
+        console.log(error);
       }
     }
   };
@@ -196,7 +228,7 @@ const AppointmentBooking = ({ route }) => {
         />
         <View style={styles.doctorDetails}>
           <Text style={styles.doctorName}>
-            Dr. {doctor?.name}
+            {doctor?.name}
           </Text>
 
           <Text style={styles.specialization}>
@@ -227,17 +259,24 @@ const AppointmentBooking = ({ route }) => {
             </Text>
           </View>
 
-          {selectedDate && selectedTime && (
-            <View style={styles.dateTimeRow}>
-              <Ionicons name="calendar-outline" size={14} color="#6B7280" />
-              <Text>{selectedDate}</Text>
+         {selectedDate && selectedTime && (
+  <View style={styles.dateTimeContainer}>
+    <View style={styles.dateRow}>
+      <Ionicons name="calendar-outline" size={16} color="#EC4899" />
+      <Text style={styles.dateText}>
+        {formatDate(selectedDate)}
+      </Text>
+    </View>
 
-              <Text> | </Text>
+    <View style={styles.dateRow}>
+      <Ionicons name="time-outline" size={16} color="#EC4899" />
+      <Text style={styles.timeText}>
+        {formatTimeRange(selectedTime.time)}
+      </Text>
+    </View>
+  </View>
+)}
 
-              <Ionicons name="time-outline" size={14} color="#6B7280" />
-              <Text>{selectedTime.time}</Text>
-            </View>
-          )}
         </View>
 
       </View>
@@ -404,33 +443,39 @@ const AppointmentBooking = ({ route }) => {
                 <View style={styles.genderRow}>
 
                   {/* WOMEN OPTION */}
-                  <TouchableOpacity
-                    style={styles.genderOption}
-                    onPress={() => onChange("Female")}
-                  >
-                    <View style={styles.outerCircle}>
-                      {value === "Female" && <View style={styles.innerCircle} />}
-                    </View>
-                    <Text style={styles.genderText}>Women</Text>
-                  </TouchableOpacity>
+                 <View style={styles.genderRow}>
 
-                  {/* MEN OPTION - DISABLED */}
-                  <TouchableOpacity
-                    style={[styles.genderOption, styles.disabled]}
-                    disabled={true}
-                  >
-                    <View style={styles.outerCircleDisabled} />
-                    <Text style={styles.disabledText}>Men</Text>
-                  </TouchableOpacity>
+  {/* WOMEN */}
+  <TouchableOpacity
+    style={styles.genderOption}
+    onPress={() => onChange("FEMALE")}
+  >
+    <View style={styles.outerCircle}>
+      {value === "FEMALE" && <View style={styles.innerCircle} />}
+    </View>
+    <Text style={styles.genderText}>Women</Text>
+  </TouchableOpacity>
 
-                  {/* OTHER OPTION - DISABLED */}
-                  <TouchableOpacity
-                    style={[styles.OtherOption, styles.disabled]}
-                    disabled={true}
-                  >
-                    <View style={styles.outerCircleDisabled} />
-                    <Text style={styles.disabledText}>Others</Text>
-                  </TouchableOpacity>
+  {/* MEN (Disabled but same layout) */}
+  <TouchableOpacity
+    style={styles.genderOption}
+    disabled={true}
+  >
+    <View style={styles.outerCircleDisabled} />
+    <Text style={styles.genderTextDisabled}>Men</Text>
+  </TouchableOpacity>
+
+  {/* OTHERS (Disabled but same layout) */}
+  <TouchableOpacity
+    style={styles.genderOption}
+    disabled={true}
+  >
+    <View style={styles.outerCircleDisabled} />
+    <Text style={styles.genderTextDisabled}>Others</Text>
+  </TouchableOpacity>
+
+</View>
+
 
                 </View>
               )}
@@ -587,52 +632,46 @@ const styles = StyleSheet.create({
   },
 
   /* ================= DOCTOR CARD ================= */
+
   doctorCard: {
     width: "100%",
     flexDirection: "row",
-    alignItems: "center",
-    padding: scale(18),
-    borderRadius: scale(14),
+    alignItems: "flex-start",
+    padding: scale(16),
+    borderRadius: scale(18),
     borderWidth: 1,
-    borderColor: "#F472B6",
+    borderColor: "#FBCFE8",
     backgroundColor: "#FFF1F5",
     marginBottom: verticalScale(18),
+    elevation: 4,
   },
 
   doctorImg: {
-    width: scale(90),
-    height: scale(90),
-    borderRadius: scale(12),
+    width: scale(105),
+    height: scale(105),
+    borderRadius: scale(18),
     resizeMode: "cover",
     marginRight: scale(16),
+    borderWidth: 2,
+    borderColor: "#FBCFE8",
+    top:scale(5),
   },
 
   doctorDetails: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
   },
 
   doctorName: {
     fontSize: scale(18),
     fontWeight: "700",
     color: "#1F2937",
-    marginBottom: verticalScale(4),
-  },
-
-  specRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: verticalScale(6),
+    marginBottom: verticalScale(2),
   },
 
   specialization: {
     fontSize: scale(14),
     color: "#6B7280",
-  },
-
-  separator: {
-    marginHorizontal: scale(6),
-    color: "#9CA3AF",
   },
 
   exp: {
@@ -644,10 +683,8 @@ const styles = StyleSheet.create({
   ratingRow: {
     flexDirection: "row",
     alignItems: "center",
-  },
-
-  starIcon: {
-    marginRight: scale(2),
+    marginTop: verticalScale(2),
+    marginBottom: verticalScale(2), // reduced gap
   },
 
   ratingNumber: {
@@ -661,6 +698,37 @@ const styles = StyleSheet.create({
     marginLeft: scale(4),
     fontSize: scale(13),
     color: "#6B7280",
+  },
+
+
+
+
+  
+
+  /* ================= DATE & TIME ================= */
+
+  dateTimeContainer: {
+    marginTop: verticalScale(2), // reduced gap
+  },
+
+  dateRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: verticalScale(2), // tighter spacing
+  },
+
+  dateText: {
+    marginLeft: scale(6),
+    fontSize: scale(14),
+    color: "#4B5563",
+    fontWeight: "500",
+  },
+
+  timeText: {
+    marginLeft: scale(6),
+    fontSize: scale(14),
+    color: "#EC4899",
+    fontWeight: "600",
   },
 
   /* ================= PATIENT HEADER ================= */
@@ -692,7 +760,7 @@ const styles = StyleSheet.create({
     height: verticalScale(120),
     borderWidth: 1,
     borderColor: "#EC4899",
-    borderRadius: scale(12),
+    borderRadius: scale(14),
     backgroundColor: COLORS.white,
     justifyContent: "center",
     alignItems: "center",
@@ -708,15 +776,12 @@ const styles = StyleSheet.create({
 
   patientCard: {
     borderWidth: 1,
-    borderColor: "#F472B6",
-    borderRadius: scale(14),
+    borderColor: "#FBCFE8",
+    borderRadius: scale(16),
     marginTop: verticalScale(10),
     backgroundColor: "#FFF1F5",
     padding: scale(14),
-  },
-
-  patientTop: {
-    width: "100%",
+    elevation: 2,
   },
 
   patientRow: {
@@ -734,11 +799,6 @@ const styles = StyleSheet.create({
     marginRight: scale(12),
   },
 
-  patientDetails: {
-    flex: 1,
-    justifyContent: "center",
-  },
-
   patientName: {
     fontSize: scale(16),
     fontWeight: "600",
@@ -751,35 +811,14 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  /* RADIO BUTTON */
-
-  radioOuter: {
-    width: scale(22),
-    height: scale(22),
-    borderRadius: scale(11),
-    borderWidth: 2,
-    borderColor: "#EC4899",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  radioInner: {
-    width: scale(10),
-    height: scale(10),
-    borderRadius: scale(5),
-    backgroundColor: "#EC4899",
-  },
-
-  /* ================= ACTIONS ================= */
-
   patientActions: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: COLORS.white,
     borderTopWidth: 1,
     borderTopColor: "#FBCFE8",
-    marginTop: verticalScale(12),
-    paddingVertical: verticalScale(10),
+    marginTop: verticalScale(10),
+    paddingVertical: verticalScale(8),
   },
 
   actionBtn: {
@@ -804,84 +843,76 @@ const styles = StyleSheet.create({
     color: "#DC2626",
     fontWeight: "500",
   },
+
+  /* ================= DATE INPUT ================= */
+
   dateInput: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     borderWidth: 1,
     borderColor: "#E5E7EB",
-    borderRadius: scale(12),
+    borderRadius: scale(14),
     paddingVertical: verticalScale(14),
     paddingHorizontal: scale(14),
     marginBottom: verticalScale(15),
     backgroundColor: "#FFF",
   },
 
-  dateText: {
-    fontSize: scale(14),
-    color: "#111827",
-  },
+  /* ================= GENDER ================= */
 
-  genderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: verticalScale(20),
-  },
+ genderRow: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "flex-start",
+  marginBottom: verticalScale(10),
+  top:scale(3),
+  
+},
 
-  genderOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginRight: scale(30),
-  },
+genderOption: {
+  flexDirection: "row",
+  alignItems: "center",
+  marginRight: scale(25),
+ 
+},
 
-  outerCircle: {
-    height: scale(20),
-    width: scale(20),
-    borderRadius: scale(10),
-    borderWidth: 2,
-    borderColor: "#EC4899",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: scale(8),
-  },
+outerCircle: {
+  height: scale(20),
+  width: scale(20),
+  borderRadius: scale(10),
+  borderWidth: 2,
+  borderColor: "#EC4899",
+  alignItems: "center",
+  justifyContent: "center",
+  marginRight: scale(8),
+},
 
-  innerCircle: {
-    height: scale(10),
-    width: scale(10),
-    borderRadius: scale(5),
-    backgroundColor: "#EC4899",
-  },
+innerCircle: {
+  height: scale(10),
+  width: scale(10),
+  borderRadius: scale(5),
+  backgroundColor: "#EC4899",
+},
 
-  outerCircleDisabled: {
-    height: scale(20),
-    width: scale(20),
-    borderRadius: scale(10),
-    borderWidth: 2,
-    borderColor: "#D1D5DB",
-    marginRight: scale(8),
-  },
+outerCircleDisabled: {
+  height: scale(20),
+  width: scale(20),
+  borderRadius: scale(10),
+  borderWidth: 2,
+  borderColor: "#D1D5DB",
+  marginRight: scale(8),
+},
 
-  genderText: {
-    fontSize: scale(14),
-    color: "#111827",
-  },
+genderText: {
+  fontSize: scale(14),
+  color: "#111827",
+},
 
-  disabled: {
-    opacity: 0.4,
-  },
-
-  disabledText: {
-    fontSize: scale(14),
-    color: "#9CA3AF",
-  },
-
-  OtherOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginRight: scale(30),
-  },
-
-
+genderTextDisabled: {
+  fontSize: scale(14),
+  color: "#9CA3AF",
+},
 
   /* ================= FOOTER ================= */
 
@@ -899,9 +930,8 @@ const styles = StyleSheet.create({
   continueBtn: {
     width: "100%",
     paddingVertical: verticalScale(14),
-    borderRadius: scale(12),
+    borderRadius: scale(14),
     alignItems: "center",
-    backgroundColor: "#EC4899",
   },
 
   continueText: {
@@ -924,8 +954,8 @@ const styles = StyleSheet.create({
     height: "80%",
     backgroundColor: COLORS.white,
     padding: scale(16),
-    borderTopLeftRadius: scale(20),
-    borderTopRightRadius: scale(20),
+    borderTopLeftRadius: scale(24),
+    borderTopRightRadius: scale(24),
   },
 
   modalHeader: {
@@ -956,7 +986,7 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: "#E5E7EB",
-    borderRadius: scale(12),
+    borderRadius: scale(14),
     padding: scale(14),
     marginBottom: verticalScale(12),
     color: "#111827",
@@ -971,7 +1001,7 @@ const styles = StyleSheet.create({
   saveBtn: {
     backgroundColor: "#EC4899",
     padding: scale(14),
-    borderRadius: scale(12),
+    borderRadius: scale(14),
     marginTop: verticalScale(30),
   },
 
