@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   Image,
   TouchableOpacity,
   RefreshControl,
-  ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
@@ -24,6 +24,7 @@ const CategoriesScreen = () => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const toTitleCase = (text = "") => {
     return text
@@ -36,20 +37,14 @@ const CategoriesScreen = () => {
   const fetchCategories = async () => {
     try {
       const response = await api.get("/labs/categories/all", {
-        headers: {
-          "Cache-Control": "no-cache",
-        },
+        headers: { "Cache-Control": "no-cache" },
       });
 
       const apiData = response?.data?.sections || [];
 
-      // 🔥 Force re-render even if backend sends same reference
-      setSections([]);
-      setAllSections([]);
-      setTimeout(() => {
-        setSections(apiData);
-        setAllSections(apiData);
-      }, 50);
+      setSections(apiData);
+      setAllSections(apiData);
+      setRefreshKey(prev => prev + 1);
 
     } catch (error) {
       console.log("Category API Error:", error?.message);
@@ -64,14 +59,14 @@ const CategoriesScreen = () => {
   }, []);
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       fetchCategories();
     }, [])
   );
 
   const onRefresh = () => {
     setRefreshing(true);
-    setLoading(true); // ✅ Show skeleton on refresh
+    setLoading(true);
     fetchCategories();
   };
 
@@ -88,7 +83,6 @@ const CategoriesScreen = () => {
         const filteredCategories = section.categories.filter((cat) =>
           cat.name.toLowerCase().includes(text.toLowerCase())
         );
-
         return { ...section, categories: filteredCategories };
       })
       .filter((section) => section.categories.length > 0);
@@ -111,7 +105,7 @@ const CategoriesScreen = () => {
     >
       <View style={styles.imageWrapper}>
         <Image
-          key={item.imageUrl}   // ✅ Ensures image updates when backend changes
+          key={item.imageUrl + refreshKey}
           source={{ uri: item.imageUrl }}
           style={styles.image}
           resizeMode="cover"
@@ -124,17 +118,55 @@ const CategoriesScreen = () => {
   );
 
   const renderSkeleton = () => (
-    <View style={styles.skeletonContainer}>
-      <ActivityIndicator size="large" color="#056FD2" />
+    <View style={{ marginTop: verticalScale(10) }}>
+      {[1, 2, 3].map((section) => (
+        <View key={section} style={{ marginBottom: verticalScale(20) }}>
+          <View
+            style={{
+              width: scale(120),
+              height: verticalScale(16),
+              backgroundColor: "#E5E7EB",
+              borderRadius: 8,
+              marginBottom: verticalScale(12),
+            }}
+          />
+          <FlatList
+            data={[1, 2, 3, 4, 5]}
+            keyExtractor={(item) => item.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            renderItem={() => (
+              <View style={{ alignItems: "center", marginRight: scale(16) }}>
+                <View
+                  style={{
+                    width: scale(68),
+                    height: scale(68),
+                    borderRadius: scale(34),
+                    backgroundColor: "#E5E7EB",
+                  }}
+                />
+                <View
+                  style={{
+                    width: scale(60),
+                    height: verticalScale(10),
+                    backgroundColor: "#E5E7EB",
+                    borderRadius: 6,
+                    marginTop: verticalScale(8),
+                  }}
+                />
+              </View>
+            )}
+          />
+        </View>
+      ))}
     </View>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      
+
       <View style={styles.headerRow}>
         <Text style={styles.headerTitle}>Categories</Text>
-
         <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
           <Icon name="cart-outline" size={scale(22)} color="#000" />
         </TouchableOpacity>
@@ -155,13 +187,15 @@ const CategoriesScreen = () => {
       {loading ? (
         renderSkeleton()
       ) : (
-        <FlatList
-          data={sections}
-          extraData={sections}   // ✅ Forces UI update when backend changes
-          keyExtractor={(item) =>
-            item.id?.toString() || item.sectionTitle?.toString()
-          }
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{
+            paddingBottom: verticalScale(20),
+            flexGrow: 1,   
+          }}
           showsVerticalScrollIndicator={false}
+          nestedScrollEnabled={true}  
+          keyboardShouldPersistTaps="handled"
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -169,12 +203,14 @@ const CategoriesScreen = () => {
               colors={["#056FD2"]}
             />
           }
-          renderItem={({ item }) => {
+        >
+          {sections.map((item) => {
             const isBloodAnalysis =
               toTitleCase(item.sectionTitle) === "Blood Analysis";
 
             return (
               <View
+                key={item.id?.toString() || item.sectionTitle}
                 style={[
                   styles.sectionContainer,
                   isBloodAnalysis && { marginBottom: verticalScale(18) },
@@ -186,16 +222,17 @@ const CategoriesScreen = () => {
 
                 <FlatList
                   data={item.categories}
-                  extraData={item.categories}   // ✅ Refresh inner list properly
+                  extraData={refreshKey}
                   keyExtractor={(cat) => cat.id.toString()}
                   renderItem={renderCategory}
                   horizontal
                   showsHorizontalScrollIndicator={false}
+                  nestedScrollEnabled={true}
                 />
               </View>
             );
-          }}
-        />
+          })}
+        </ScrollView>
       )}
     </SafeAreaView>
   );
@@ -208,20 +245,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(16),
     paddingTop: verticalScale(6),
   },
-
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: verticalScale(6),
   },
-
   headerTitle: {
     fontSize: scale(18),
     fontWeight: "600",
     color: "#000",
   },
-
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -231,30 +265,25 @@ const styles = StyleSheet.create({
     height: verticalScale(44),
     marginBottom: verticalScale(10),
   },
-
   searchInput: {
     flex: 1,
     marginHorizontal: scale(8),
     fontSize: scale(13),
     color: "#000",
   },
-
   sectionContainer: {
     marginBottom: verticalScale(14),
   },
-
   sectionTitle: {
     fontSize: scale(15),
     fontWeight: "600",
-    marginBottom: verticalScale(6),
+    marginBottom: verticalScale(7),
     color: "#000",
   },
-
   categoryItem: {
     alignItems: "center",
     marginRight: scale(14),
   },
-
   imageWrapper: {
     width: scale(68),
     height: scale(68),
@@ -262,23 +291,16 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     backgroundColor: "#f2f2f2",
   },
-
   image: {
     width: "100%",
     height: "100%",
   },
-
   categoryText: {
     fontSize: scale(12),
     marginTop: verticalScale(4),
     textAlign: "center",
     width: scale(75),
     color: "#555",
-  },
-
-  skeletonContainer: {
-    marginTop: verticalScale(40),
-    alignItems: "center",
   },
 });
 

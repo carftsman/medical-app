@@ -136,7 +136,7 @@ const HospitalsHomeScreen = ({navigation}) => {
 
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
       <LinearGradient
@@ -262,7 +262,7 @@ const HospitalsHomeScreen = ({navigation}) => {
       </ScrollView>
       {/* SOS button */}
       <SOSButton />
-    </SafeAreaView>
+    </View>
   );
 };
  
