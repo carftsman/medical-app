@@ -141,7 +141,7 @@ const HospitalStackNavigator = () => {
         headerShown: false,
        
       }}
-            
+          initialRouteName='WomenAppointmentBooking'  
     >
       <Stack.Screen name="HospitalsTab" component={HospitalTabNavigator} />
       <Stack.Screen name="DepartmentsList" component={DepartmentsList} />
