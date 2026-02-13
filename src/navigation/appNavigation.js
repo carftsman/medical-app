@@ -13,6 +13,9 @@ import Logger from '../utils/Logger';
 import { parseAndLogRoute, setIsNavigationReady } from './Navigation';
 import LabStackNavigation from '../modules/labs/navigation/LabStackNavigation';
 import { createNavigationContainerRef } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { COLORS } from '../config/constants';
+import { StatusBar } from 'react-native';
 
 const navigationRef = createNavigationContainerRef();
 
@@ -36,6 +39,12 @@ export default function AppNavigator() {
       onReady={setIsNavigationReady}
       onStateChange={handleStateChange}
     >
+       <SafeAreaView
+         edges={["top","left","right"]}
+          style={{ backgroundColor: COLORS.primary }}
+
+        />
+        <StatusBar barStyle={"light-content"}/>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Splash" component={SplashScreen} />
         {isAuthenticated ? (

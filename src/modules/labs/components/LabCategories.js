@@ -78,7 +78,9 @@ const LabCategories = ({ labId }) => {
         }
       >
         <View style={styles.imageWrapper}>
-          {image && <Image source={image} style={styles.image} />}
+          {image && <Image source={{
+            uri:item.imageUrl
+          }} style={styles.image} />}
         </View>
 
         <Text style={styles.label} numberOfLines={2}>
