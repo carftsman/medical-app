@@ -119,8 +119,8 @@ const HospitalTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="WomenDepartmentsScreen"
-        component={WomenDepartmentsScreen}
+        name="WomenScreen"
+        component={WomenScreen}
         options={{
           tabBarLabel: 'Women',
           tabBarIcon: ({ focused, color, size }) => (
