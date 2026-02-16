@@ -204,7 +204,7 @@ const applyFilters = async (filters) => {
   return (
     <View style={styles.container}>
       <PackagesHeader
-        title={labName || 'Laboratory'}
+        title={labName }
         searchText={searchText}
         setSearchText={setSearchText}
         onFilterPress={() => setFilterVisible(true)}
