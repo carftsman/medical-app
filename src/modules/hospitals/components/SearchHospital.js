@@ -17,7 +17,6 @@ const SearchHospital = ({ mode = 'BOTH', onResults }) => {
         onResults(null); 
         return;
       }
-
       searchHospitals(trimmed);
     }, 500);
 
