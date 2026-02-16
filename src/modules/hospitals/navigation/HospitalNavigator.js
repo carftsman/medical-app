@@ -119,8 +119,8 @@ const HospitalTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="WomenScreen"
-        component={WomenScreen}
+        name="WomenDepartmentsScreen"
+        component={WomenDepartmentsScreen}
         options={{
           tabBarLabel: 'Women',
           tabBarIcon: ({ focused, color, size }) => (
@@ -140,8 +140,7 @@ const HospitalStackNavigator = () => {
       screenOptions={{
         headerShown: false,
        
-      }}
-            
+      }} 
     >
       <Stack.Screen name="HospitalsTab" component={HospitalTabNavigator} />
       <Stack.Screen name="DepartmentsList" component={DepartmentsList} />
