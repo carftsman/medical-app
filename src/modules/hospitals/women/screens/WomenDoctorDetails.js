@@ -3,7 +3,6 @@
 /* eslint-disable no-unused-vars */
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { scale, verticalScale } from '../../../../utils/styling';
 import api from '../../../../api/client'
@@ -155,10 +154,18 @@ const WomenDoctorDetails = ({ route, navigation }) => {
     }
   }, [selectedDate]);
 
-  const handleBookAppointment = () => {
-    setShowModal(true);
-    dispatch(setConsultationType('SELF'));
+ const handleBookAppointment = () => {
+
+  // ❌ If no time slot selected, do nothing
+  if (!selectedTime) {
+    return;
   }
+
+  // ✅ If time selected, allow booking
+  setShowModal(true);
+  dispatch(setConsultationType('SELF'));
+};
+
 
   if (loading) {
     return (
@@ -173,7 +180,7 @@ const WomenDoctorDetails = ({ route, navigation }) => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
 
       <View style={styles.screenHeader}>
         <TouchableOpacity
@@ -235,7 +242,15 @@ const WomenDoctorDetails = ({ route, navigation }) => {
       </ScrollView>
 
       <View style={styles.bookAppointmentButtonCard}>
-        <TouchableOpacity style={styles.bookAppointmentButton} onPress={() => handleBookAppointment()} >
+       <TouchableOpacity
+  style={[
+    styles.bookAppointmentButton,
+    !selectedTime && styles.disabledButton
+  ]}
+  disabled={!selectedTime}
+  onPress={handleBookAppointment}
+>
+
           <Text style={styles.bookAppointmentText}>Book Appointment</Text>
         </TouchableOpacity>
       </View>
@@ -246,7 +261,7 @@ const WomenDoctorDetails = ({ route, navigation }) => {
         bookAppointmentForSelf={bookAppointmentForSelf}
         doctorId={doctorId}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -291,6 +306,11 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: scale(16),
     fontWeight: '600',
-  }
+  },
+  disabledButton: {
+  backgroundColor: '#BDBDBD',
+  borderColor: '#BDBDBD',
+},
+
 });
 

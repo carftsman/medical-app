@@ -1,12 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  mode: 'all',
+  mode: 'ONLINE',
   selectedDate: null,
   selectedTime: null,
   consultationType: null,
   bookingId:null,
-  mode: "all",
   category: {
     id: null,
     name: "",
