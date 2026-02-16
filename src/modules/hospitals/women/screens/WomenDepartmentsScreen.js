@@ -13,7 +13,8 @@ import api from '../../../../api/client';
 import { COLORS } from '../../../../config/constants';
 import { scale, verticalScale } from '../../../../utils/styling';
 import Icon from 'react-native-vector-icons/Ionicons';
- 
+ import AntDesign from 'react-native-vector-icons/AntDesign';
+
 const WomenDepartmentsScreen = () => {
   const navigation = useNavigation();
  
@@ -38,7 +39,7 @@ const WomenDepartmentsScreen = () => {
       console.log('Error fetching categories', error);
     }
   };
- 
+
   const onSearch = text => {
     setSearchText(text);
  
@@ -53,13 +54,18 @@ const WomenDepartmentsScreen = () => {
   };
 const renderItem = ({ item }) => {
   return (
-    <TouchableOpacity style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() =>
+        navigation.navigate('WomenHospitalsScreen', {
+          departmentId: item.id,
+        })
+      }
+    >
       <View style={styles.imageWrapper}>
         <Image
           source={{
-            uri:
-              item.image ||
-              item.imageUrl
+            uri: item.image || item.imageUrl,
           }}
           style={styles.image}
           resizeMode="cover"
@@ -69,16 +75,18 @@ const renderItem = ({ item }) => {
     </TouchableOpacity>
   );
 };
+
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backIcon}>{'‹'}</Text>
-        </TouchableOpacity>
+       <TouchableOpacity
+  style={styles.backButton}
+  onPress={() => navigation.goBack()}
+>
+  <AntDesign name="left" size={20} color="black" />
+</TouchableOpacity>
+
         <Text style={styles.headerTitle}>Health Categories</Text>
       </View>
       {/* Search */}
@@ -122,7 +130,7 @@ const styles = StyleSheet.create({
 backButton: {
   position: 'absolute',
   left: scale(20),
-  top: verticalScale(35),        
+  top: verticalScale(45),        
 },
 backIcon: {
   fontSize: scale(28),
