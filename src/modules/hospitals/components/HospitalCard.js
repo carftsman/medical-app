@@ -120,7 +120,7 @@ const HospitalCard = ({
     </View>
   );
 };
-
+//
 export default HospitalCard;
 
 /* ======================= STYLES ======================= */

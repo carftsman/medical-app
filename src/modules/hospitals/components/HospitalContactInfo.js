@@ -17,10 +17,10 @@ const HospitalContactInfo = ({ hospital, hospitalId }) => {
       minute: '2-digit',
     });
   };
-
+//
   return (
     <View style={styles.main}>
-      <TouchableOpacity style={styles.aval} onPress={() => navigation.navigate('DoctorsList', {
+      <TouchableOpacity style={styles.aval} onPress={() => navigation.navigate('WomenDoctorsList', {
         hospitalId: hospitalId,
       })}>
         <Ionicons name="time-outline" size={scale(25)} color="#fff" />

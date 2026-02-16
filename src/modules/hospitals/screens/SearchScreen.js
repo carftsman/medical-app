@@ -1,10 +1,10 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
 
-
 import React, { useEffect, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Feather from 'react-native-vector-icons/Feather';
 import {
   View,
   Text,
@@ -39,7 +39,7 @@ const SearchScreen = ({ navigation }) => {
   const isSearching = search.trim().length > 0;
 
   /* WHILE SEARCHING (API CALLING) */
-  const fetchResults = async (query) => {
+  const fetchResults = async query => {
     try {
       setLoading(true);
       const res = await api.get('/hospital/user/modeSearch', {
@@ -82,8 +82,7 @@ const SearchScreen = ({ navigation }) => {
     fetchNearbyHospitals();
   }, []);
 
-
-  const onChangeSearch = (text) => {
+  const onChangeSearch = text => {
     setSearch(text);
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -111,28 +110,28 @@ const SearchScreen = ({ navigation }) => {
   );
 
   const renderDoctor = ({ item }) => (
-  <TouchableOpacity
-    style={styles.card}
-    onPress={() =>
-      navigation.navigate('DoctorDetails', { doctorId: item.id })
-    }
-  >
-    <View style={styles.avatarWrapper}>
-      <Image source={{ uri: item.imageUrl }} style={styles.avatar} />
-      <View style={styles.onlineDot} />
-    </View>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() =>
+        navigation.navigate('DoctorDetails', { doctorId: item.id })
+      }
+    >
+      <View style={styles.avatarWrapper}>
+        <Image source={{ uri: item.imageUrl }} style={styles.avatar} />
+        <View style={styles.onlineDot} />
+      </View>
 
-    <View style={{ flex: 1 }}>
-      <Text style={styles.title}>{item.name}</Text>
-      <Text style={styles.sub}>{item.specialization}</Text>
-      <Text style={styles.meta}>⭐ 4.5 (200+ reviews)</Text>
-    </View>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.title}>{item.name}</Text>
+        <Text style={styles.sub}>{item.specialization}</Text>
+        <Text style={styles.meta}>⭐ 4.5 (200+ reviews)</Text>
+      </View>
 
-    <TouchableOpacity style={styles.bookBtn}>
-      <Text style={styles.bookText}>Book</Text>
+      <TouchableOpacity style={styles.bookBtn}>
+        <Text style={styles.bookText}>Book</Text>
+      </TouchableOpacity>
     </TouchableOpacity>
-  </TouchableOpacity>
-);
+  );
 
   const renderHospital = ({ item }) => (
     <View style={styles.hospitalCard}>
@@ -166,7 +165,20 @@ const SearchScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.lightGray }}>
       <View style={styles.container}>
-        <Text style={styles.screenTitle}>Find Your Doctor</Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: scale(8),
+            marginBottom: verticalScale(20),
+          }}
+        >
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Feather name="arrow-left" size={28} color="#111827" />
+          </TouchableOpacity>
+
+          <Text style={styles.screenTitle}>Find Your Doctor</Text>
+        </View>
         <View style={styles.searchBox}>
           <Ionicons name="search-outline" size={20} color={COLORS.gray} />
           <TextInput
@@ -179,9 +191,7 @@ const SearchScreen = ({ navigation }) => {
           <Ionicons name="mic-outline" size={20} color={COLORS.gray} />
         </View>
 
-        {isSearching && loading && (
-          <ActivityIndicator color={COLORS.primary} />
-        )}
+        {isSearching && loading && <ActivityIndicator color={COLORS.primary} />}
 
         <FlatList
           data={[1]}
@@ -286,15 +296,14 @@ const SearchScreen = ({ navigation }) => {
 };
 
 const styles = {
-
   container: {
     flex: 1,
-    padding: scale(16),
+    paddingHorizontal: scale(16),
   },
   screenTitle: {
     fontSize: SIZES.large,
     fontFamily: FONT.bold,
-    marginBottom: verticalScale(14),
+    // marginBottom: verticalScale(14),
   },
   searchBox: {
     flexDirection: 'row',
@@ -353,7 +362,7 @@ const styles = {
     padding: scale(12),
     borderRadius: scale(14),
     marginBottom: verticalScale(12),
-    marginRight:scale(8),
+    marginRight: scale(8),
     alignItems: 'center',
   },
   avatar: {
@@ -365,12 +374,12 @@ const styles = {
   title: {
     fontSize: SIZES.medium,
     fontFamily: FONT.bold,
-    paddingBottom:scale(5),
+    paddingBottom: scale(5),
   },
   sub: {
     fontSize: SIZES.small,
     color: COLORS.gray,
-    paddingBottom:scale(5),
+    paddingBottom: scale(5),
   },
   meta: {
     fontSize: SIZES.small,
@@ -415,7 +424,7 @@ const styles = {
     backgroundColor: COLORS.Iceblue,
     borderRadius: scale(6),
     paddingHorizontal: scale(8),
-    marginBottom:scale(1)
+    marginBottom: scale(1),
   },
   openText: {
     fontSize: SIZES.small,
@@ -443,34 +452,20 @@ const styles = {
     color: COLORS.gray,
   },
   avatarWrapper: {
-  position: 'relative',
-  marginRight: scale(12),
-},
-onlineDot: {
-  position: 'absolute',
-  bottom: 2,
-  right: 2,
-  width: scale(15),
-  height: scale(15),
-  borderRadius: scale(8),
-  backgroundColor:COLORS.lightGreen, 
-  borderWidth: 2,
-  borderColor: COLORS.white,
-},
-
+    position: 'relative',
+    marginRight: scale(12),
+  },
+  onlineDot: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    width: scale(15),
+    height: scale(15),
+    borderRadius: scale(8),
+    backgroundColor: COLORS.lightGreen,
+    borderWidth: 2,
+    borderColor: COLORS.white,
+  },
 };
 
 export default SearchScreen;
-
-
-
-
-
-
-
-
-
-
-
-
-

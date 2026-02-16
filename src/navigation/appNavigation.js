@@ -57,8 +57,8 @@ export default function AppNavigator() {
               name="HospitalsMain"
               component={HospitalStackNavigator}
             />
-             <Stack.Screen name="LabsMain" component={LabStackNavigation} />
-             <Stack.Screen name="Profile" component={ProfileNavigator} />
+            <Stack.Screen name="LabsMain" component={LabStackNavigation} />
+            <Stack.Screen name="Profile" component={ProfileNavigator} />
           </>
         ) : (
           <>

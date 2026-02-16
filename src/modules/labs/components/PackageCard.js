@@ -44,7 +44,7 @@ const PackageCard = ({
 
           <Text style={styles.subText} numberOfLines={1}>
             {item.testsCount
-              ? `${item.testsCount} Tests: ${item.description || 'Diabetes screening'}`
+              ? `${item.testsCount} Tests: ${item.tests || 'Diabetes screening'}`
               : item.description}
           </Text>
 

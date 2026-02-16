@@ -57,6 +57,14 @@ const NearbyLabs = () => {
     }
   };
 
+  /* ✅ NAVIGATE TO LAB DETAILS */
+  const goToLabDetails = (lab) => {
+    navigation.navigate("LabDetails", {
+      labId: lab.id,
+    });
+  };
+
+  /* VIEW ALL NAVIGATION (UNCHANGED) */
   const goToLabsScreen = () => {
     navigation.navigate("LabsScreen");
   };
@@ -68,7 +76,7 @@ const NearbyLabs = () => {
       <TouchableOpacity
         style={styles.card}
         activeOpacity={0.9}
-        onPress={goToLabsScreen}
+        onPress={() => goToLabDetails(item)}
       >
         {image && <Image source={image} style={styles.image} />}
 
@@ -125,8 +133,10 @@ const NearbyLabs = () => {
         contentContainerStyle={styles.scrollContainer}
       >
         {loading
-          ? [1, 2].map(i => <View key={i} style={styles.skeleton} />)
-          : labs.map(item => (
+          ? [1, 2].map((i) => (
+              <View key={i} style={styles.skeleton} />
+            ))
+          : labs.map((item) => (
               <LabCard key={item.id} item={item} />
             ))}
       </ScrollView>
@@ -140,7 +150,7 @@ export default NearbyLabs;
 const styles = StyleSheet.create({
   container: {
     marginTop: verticalScale(22),
-    paddingBottom: verticalScale(8), // ✅ prevents bottom cut
+    paddingBottom: verticalScale(8),
   },
 
   headerRow: {
@@ -163,8 +173,8 @@ const styles = StyleSheet.create({
   },
 
   scrollContainer: {
-    paddingLeft: scale(8),   // ✅ left space
-    paddingRight: scale(28),  // ✅ right edge fix
+    paddingLeft: scale(8),
+    paddingRight: scale(28),
   },
 
   card: {
@@ -172,7 +182,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: scale(12),
     marginRight: scale(14),
-    marginBottom: verticalScale(6), 
+    marginBottom: verticalScale(6),
     elevation: 3,
     overflow: "hidden",
   },

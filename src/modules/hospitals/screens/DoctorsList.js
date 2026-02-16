@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
-    padding: scale(16),
+    paddingHorizontal: scale(16),
   },
   header: {
     flexDirection: 'row',
