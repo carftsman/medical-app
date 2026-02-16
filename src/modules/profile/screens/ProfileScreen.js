@@ -4,7 +4,7 @@ import React from 'react';
 import {View,ScrollView,StyleSheet, Text,Image, TouchableOpacity, StatusBar,} from 'react-native';
 import MenuSection from '../components/MenuSection';
 import { scale, verticalScale } from '../../../utils/styling';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Feathericons from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
 
 const ProfileScreen = () => {
@@ -21,10 +21,10 @@ const ProfileScreen = () => {
             navigation.goBack()
           }}
         >
-          <Ionicons name="arrow-back" size={scale(22)} color="#fff" />
+          <Feathericons name="arrow-left" size={scale(22)} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.editButton}>
-          <Ionicons name="pencil" size={scale(20)} color="#fff" />
+        <TouchableOpacity  onPress={() => navigation.navigate("EditProfile")}style={styles.editButton}>
+          <Feathericons name="edit" size={scale(20)} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Profile</Text>
         <View style={styles.profileRow}>
@@ -94,12 +94,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: scale(20),
     top: verticalScale(55),
+    zIndex:10,
   },
 
   editButton: {
     position: 'absolute',
     right: scale(20),
     top: verticalScale(55),
+    zIndex:10,
   },
 
   headerTitle: {
