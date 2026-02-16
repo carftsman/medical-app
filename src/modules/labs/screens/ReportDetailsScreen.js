@@ -19,6 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { formatDate } from '../../../utils/helpers';
+import api from '../../../api/client';
 export default function ReportDetailsScreen({ route }) {
   const id = route?.params?.id || 2;
   const navigation = useNavigation();
@@ -34,8 +35,8 @@ export default function ReportDetailsScreen({ route }) {
     try {
       setLoading(true);
 
-     const response = await axios.get(
-  `https://hospital-backend-1-9jq0.onrender.com/api/labs/reports/${id}/details`
+     const response = await api.get(
+  `/labs/reports/${id}/details`
 );
    const formatDate = (dateString) => {
   if (!dateString) return '-';
@@ -134,7 +135,9 @@ console.log("rd",report);
           </View>
 
           <ReportList reports={report.reports} />
-          <TouchableOpacity onPress={() => navigation.navigate('Feedback')}>
+          <TouchableOpacity onPress={() => navigation.navigate('Feedback',
+            {id:report.bookingId}
+          )}>
           <Text style={styles.rate}>Rate Your Experience →</Text>
           </TouchableOpacity>
         </ScrollView>

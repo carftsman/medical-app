@@ -1,0 +1,68 @@
+// components/MenuItem.js
+
+import React from 'react';
+import {View,Text,TouchableOpacity,StyleSheet,} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { scale, verticalScale } from '../../../utils/styling';
+
+const MenuItem = ({ title, icon, danger, isLast }) => {
+  return (
+    <TouchableOpacity style={styles.container}>
+      <View style={styles.left}>
+          <Ionicons
+               name={icon}
+             size={scale(20)}
+             color={danger ? '#E53935' : '#2D73B9'}
+          />
+
+        <Text
+          style={[
+            styles.title,
+            { color: danger ? '#FF3B30' : '#333' },
+          ]}>
+          {title}
+        </Text>
+      </View>
+
+      {!danger && (
+        <Ionicons
+            name="chevron-forward"
+             size={scale(18)}
+           color="#A0A4AA"
+         />
+
+      )}
+
+      {!isLast && <View style={styles.divider} />}
+    </TouchableOpacity>
+  );
+};
+
+export default MenuItem;
+
+const styles = StyleSheet.create({
+  container: {
+    height: verticalScale(56),  
+    paddingHorizontal: scale(18),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  left: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  title: {
+    marginLeft: scale(14),
+    fontSize: scale(15),
+    fontWeight: '500',
+  },
+  divider: {
+    position: 'absolute',
+    bottom: 0,
+    left: scale(54),  
+    right: scale(18),
+    height: 1,
+    backgroundColor: '#E9EDF2',
+  },
+});

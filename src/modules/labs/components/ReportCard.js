@@ -121,6 +121,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: verticalScale(6),
   },
+  reportId:{
+   color: '#125aa3',
+   fontSize:scale(14),
+   fontWeight:"bold",
+   
+   
+  },
 
   statusContainer: {
     paddingVertical: 4,
