@@ -15,6 +15,7 @@ const MenuSection = ({ items }) => {
           icon={item.icon}
           danger={item.danger}
           isLast={index === items.length - 1}
+          route={item.route}
         />
       ))}
     </View>

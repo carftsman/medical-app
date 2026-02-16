@@ -61,7 +61,6 @@ export default function ReportDetailsScreen({ route }) {
     }
   };
 
-  // Loading Screen
   if (loading) {
     return (
       <View style={styles.loader}>
@@ -69,8 +68,6 @@ export default function ReportDetailsScreen({ route }) {
       </View>
     );
   }
-
-  // No Data
   if (!report) {
     return (
       <View style={styles.loader}>
@@ -118,17 +115,12 @@ console.log("rd",report);
 
             />
           </View>
-
-          {/* Samples */}
           <Text style={styles.section}>Samples Collected</Text>
           <Text style={styles.sub}>{report.samplesCollected
 ?.join(', ')}</Text>
 
-          {/* Result */}
           <Text style={styles.section}>Test Result</Text>
           <TestResultBox summary={report.resultSummary} />
-
-          {/* Reports */}
           <View style={styles.reportHeader}>
             <Text style={styles.section}>Reports</Text>
             <Text style={styles.download}>Download All</Text>

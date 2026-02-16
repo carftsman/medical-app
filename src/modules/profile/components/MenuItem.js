@@ -1,13 +1,39 @@
 // components/MenuItem.js
 
 import React from 'react';
-import {View,Text,TouchableOpacity,StyleSheet,} from 'react-native';
+import {View,Text,TouchableOpacity,StyleSheet, Alert,} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { scale, verticalScale } from '../../../utils/styling';
+import { useNavigation } from '@react-navigation/native';
+import useAuth from '../../../hooks/useAuth';
 
-const MenuItem = ({ title, icon, danger, isLast }) => {
+const MenuItem = ({ title, icon, danger, isLast,route }) => {
+    const navigation= useNavigation();
+    const {handleLogout} = useAuth();
+
+    const handlePress = ()=>{
+      if(title==="Logout"){
+        Alert.alert("Logout",
+      "Are you sure you want to logout?",[{
+          text: "Cancel",
+          style: "cancel"
+        },
+      {
+          text: "Logout",
+          style: "destructive",
+          onPress: () => {
+           handleLogout()
+          }
+        }])
+       
+      }else{
+        navigation.navigate(route)
+      }
+    }
+
+
   return (
-    <TouchableOpacity style={styles.container}>
+    <TouchableOpacity  onPress={handlePress} style={styles.container}>
       <View style={styles.left}>
           <Ionicons
                name={icon}
