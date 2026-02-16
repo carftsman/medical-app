@@ -165,7 +165,7 @@ const fetchWomenDoctors = async () => {
 };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top"]}>
+    <View style={styles.safeArea}>
       <View style={styles.container}>
         {/* HEADER */}
 <LinearGradient
@@ -294,7 +294,7 @@ const fetchWomenDoctors = async () => {
   visible={showReminderModal}
   onClose={() => setShowReminderModal(false)}
 />
-    </SafeAreaView>
+    </View>
   );
 };
 

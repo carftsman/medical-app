@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
-import { FlatList } from "react-native";
+import { FlatList, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import api from "../../../api/client";
@@ -74,7 +74,7 @@ const DepartmentsScreen = () => {
 
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }}>
+    <View style={{ flex: 1, backgroundColor: COLORS.white }}>
       <FlatList
         data={[]}
         keyExtractor={() => "key"}
@@ -105,7 +105,7 @@ const DepartmentsScreen = () => {
         }
         ListFooterComponent={<WhyChooseUsFooter />}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
