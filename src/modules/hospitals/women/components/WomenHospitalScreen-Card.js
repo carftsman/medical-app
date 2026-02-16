@@ -1,4 +1,3 @@
-// ======================= HospitalCard.js =======================
 import React from 'react';
 import {
   View,
@@ -8,21 +7,20 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { scale } from '../../../utils/styling';
+import { scale, verticalScale } from '../../../../utils/styling';
+import {SIZES, FONT, COLORS} from '../../../../config/constants';
 
-const HospitalCard = ({
-  image,               // can be URL or require()
+const WomenHospitalCard = ({
+  image,
   hospitalName = '',
   distance,
   location = '',
   description = '',
-  isEmergency = true,
-  isOpen24Hours = true,
+  rating,
   isFavorite = false,
   onFavoritePress,
   onViewDetails,
 }) => {
-  /* ---------- IMAGE SOURCE FIX ---------- */
   const imageSource =
     typeof image === 'string'
       ? { uri: image }
@@ -30,7 +28,6 @@ const HospitalCard = ({
 
   return (
     <View style={styles.container}>
-      {/* IMAGE SECTION */}
       <View style={styles.imageWrapper}>
         {imageSource ? (
           <Image source={imageSource} style={styles.image} resizeMode="cover" />
@@ -38,39 +35,28 @@ const HospitalCard = ({
           <View style={styles.imagePlaceholder} />
         )}
 
-        {/* EMERGENCY BADGE */}
-        {isEmergency && (
-          <View style={styles.emergencyBadge}>
-            <Icon name="alert-circle" size={scale(14)} color="#FFF" />
-            <Text style={styles.emergencyText}>Emergency</Text>
-          </View>
-        )}
+        <View style={styles.ratingBadge}>
+          <Icon name="star" size={scale(14)} color="#FFD700" />
+          <Text style={styles.ratingText}>4.5</Text>
+        </View>
       </View>
 
-      {/* CONTENT */}
       <View style={styles.content}>
-        {/* NAME + OPEN */}
         <View style={styles.rowBetween}>
           <Text style={styles.hospitalName} numberOfLines={1}>
             {hospitalName}
           </Text>
 
-          {isOpen24Hours && (
-            <View style={styles.openBadge}>
-              <Text style={styles.openText}>Open 24 hrs</Text>
-            </View>
-          )}
         </View>
 
-        {/* LOCATION */}
         <View style={styles.locationRow}>
           {distance !== undefined && distance !== null && (
             <>
               <View style={styles.iconTextRow}>
-                <Icon name="navigation" size={scale(13)} color="#056FD2" />
-              <Text style={styles.distanceText}>
-  {Number(distance).toFixed(1)} km
-</Text>
+                <Icon name="navigation" size={scale(13)} color='#c84ba2' />
+                <Text style={styles.distanceText}>
+                  {Number(distance).toFixed(1)} km
+                </Text>
 
               </View>
               <View style={styles.divider} />
@@ -78,21 +64,19 @@ const HospitalCard = ({
           )}
 
           <View style={styles.iconTextRow}>
-            <Icon name="map-marker-outline" size={scale(13)} color="#777" />
+            <Icon name="map-marker-outline" size={scale(13)} color={COLORS.pink} />
             <Text style={styles.locationText} numberOfLines={1}>
               {location}
             </Text>
           </View>
         </View>
 
-        {/* DESCRIPTION */}
         {!!description && (
           <Text style={styles.description} numberOfLines={2}>
             {description}
           </Text>
         )}
 
-        {/* ACTIONS */}
         <View style={styles.bottomActions}>
           <TouchableOpacity
             style={styles.viewDetailsBtn}
@@ -121,128 +105,179 @@ const HospitalCard = ({
   );
 };
 //
-export default HospitalCard;
+export default WomenHospitalCard;
 
-/* ======================= STYLES ======================= */
 const styles = StyleSheet.create({
+
   container: {
     width: scale(340),
     borderRadius: scale(15),
     borderWidth: scale(1.2),
-    borderColor: '#E0E0E0',
-    backgroundColor: '#FFF',
+    borderColor: COLORS.lightGray,
+    backgroundColor: COLORS.white,
     overflow: 'hidden',
-    marginVertical: scale(12),
+    marginVertical: verticalScale(12),
     alignSelf: 'center',
   },
+
   imageWrapper: {
-    height: scale(180),
-    backgroundColor: '#F2F4F7',
+    height: verticalScale(180),
+    backgroundColor: COLORS.lightGray,
+    position: 'relative',
   },
+
   image: {
     width: '100%',
     height: '100%',
   },
+
   imagePlaceholder: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#EAEAEA',
+    backgroundColor: COLORS.lightGray,
   },
+
   emergencyBadge: {
     position: 'absolute',
     top: scale(10),
     left: scale(10),
-    backgroundColor: '#FB2C36',
+    backgroundColor: COLORS.danger,
     paddingHorizontal: scale(10),
-    paddingVertical: scale(4),
+    paddingVertical: verticalScale(4),
     borderRadius: scale(14),
     flexDirection: 'row',
     alignItems: 'center',
   },
+
   emergencyText: {
-    color: '#FFF',
+    color: COLORS.white,
     fontSize: scale(11),
     marginLeft: scale(4),
-    fontWeight: '600',
+    fontFamily: FONT.medium,
   },
+
+  ratingBadge: {
+    position: 'absolute',
+    top: scale(10),
+    left: scale(10),
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    paddingHorizontal: scale(12),
+    paddingVertical: verticalScale(6),
+    borderRadius: scale(24),
+    borderWidth: scale(1),
+    borderColor: COLORS.lightGray,
+    elevation: 4,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+
+  ratingText: {
+    marginLeft: scale(4),
+    fontSize: scale(SIZES.small),
+    color: COLORS.black,
+    fontFamily: FONT.medium,
+  },
+
   content: {
     padding: scale(14),
   },
+
   rowBetween: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+
   hospitalName: {
-    fontSize: scale(16),
-    fontWeight: '700',
-    color: '#000',
+    fontSize: scale(SIZES.medium),
+    fontFamily: FONT.bold,
+    color: COLORS.black,
     flex: 1,
     marginRight: scale(8),
   },
+
   openBadge: {
-    backgroundColor: '#00C950',
+    backgroundColor: COLORS.green,
     borderRadius: scale(12),
     paddingHorizontal: scale(10),
-    paddingVertical: scale(4),
+    paddingVertical: verticalScale(4),
   },
+
   openText: {
-    color: '#FFF',
+    color: COLORS.white,
     fontSize: scale(11),
-    fontWeight: '600',
+    fontFamily: FONT.medium,
   },
+
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: scale(6),
+    marginTop: verticalScale(6),
   },
+
   iconTextRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+
   distanceText: {
     marginLeft: scale(4),
-    fontSize: scale(13),
-    color: '#056FD2',
+    fontSize: scale(SIZES.small),
+    fontFamily: FONT.medium,
+    color: COLORS.pink,
   },
+
   divider: {
-    width: 1,
-    height: scale(14),
-    backgroundColor: '#DADADA',
+    width: scale(1),
+    height: verticalScale(14),
+    backgroundColor: COLORS.lightGray,
     marginHorizontal: scale(8),
   },
+
   locationText: {
     marginLeft: scale(4),
-    fontSize: scale(13),
-    color: '#777',
+    fontSize: scale(SIZES.small),
+    fontFamily: FONT.regular,
+    color: COLORS.gray,
     flexShrink: 1,
   },
+
   description: {
-    marginTop: scale(6),
-    fontSize: scale(13),
-    color: '#777',
+    marginTop: verticalScale(6),
+    fontSize: scale(SIZES.small),
+    fontFamily: FONT.regular,
+    color: COLORS.gray,
   },
+
   bottomActions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: scale(10),
+    marginTop: verticalScale(10),
   },
+
   viewDetailsBtn: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: '#056FD2',
+    borderWidth: scale(1),
+    borderColor: COLORS.pink,
     borderRadius: scale(14),
-    paddingVertical: scale(6),
+    paddingVertical: verticalScale(6),
     alignItems: 'center',
     marginRight: scale(10),
   },
+
   viewDetailsText: {
-    color: '#056FD2',
-    fontSize: scale(12),
-    fontWeight: '600',
+    color: COLORS.pink,
+    fontSize: scale(SIZES.small),
+    fontFamily: FONT.medium,
   },
+
   favBtn: {
     padding: scale(6),
   },
+
 });
