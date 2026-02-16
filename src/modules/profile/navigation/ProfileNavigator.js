@@ -14,6 +14,7 @@ import SavedAddress from '../screens/SavedAddress';
 import PaymentsHistory from '../screens/PaymentsHistory';
 import HelpAndSupport from '../screens/HelpAndSupport';
 
+
 const ProfileNavigator = () => {
     const Stack = createNativeStackNavigator();
   return (
@@ -32,6 +33,7 @@ const ProfileNavigator = () => {
     <Stack.Screen name="SavedAddress" component={SavedAddress} />
     <Stack.Screen name="PaymentsHistory" component={PaymentsHistory} />
     <Stack.Screen name="HelpAndSupport" component={HelpAndSupport} />
+  
    </Stack.Navigator>
   )
 }
