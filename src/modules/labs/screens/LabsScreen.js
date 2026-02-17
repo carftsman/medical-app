@@ -75,7 +75,7 @@ const LabsListScreen = () => {
           source={{
             uri:
               item.image ||
-              "https://via.placeholder.com/80",
+              "https://content3.jdmagicbox.com/v2/comp/hyderabad/v3/040pxx40.xx40.160331113748.z9v3/catalogue/apollo-diagnostics-hyderabad-0bhdew3qqm.jpg",
           }}
           style={styles.labImage}
         />
@@ -98,7 +98,7 @@ const LabsListScreen = () => {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={()=> navigation.navigate("LabDetails", { labId: item.id })}>
         <Text style={styles.buttonText}>View Details</Text>
       </TouchableOpacity>
     </View>

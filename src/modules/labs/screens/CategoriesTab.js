@@ -91,7 +91,7 @@ const CategoriesScreen = () => {
   };
 
   const handleCategoryPress = (item) => {
-    navigation.navigate("LabsListScreen", {
+    navigation.navigate("LabsScreen", {
       categoryId: item.id,
       categoryName: item.name,
     });
@@ -163,7 +163,7 @@ const CategoriesScreen = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
 
       <View style={styles.headerRow}>
         <Text style={styles.headerTitle}>Categories</Text>
@@ -234,7 +234,7 @@ const CategoriesScreen = () => {
           })}
         </ScrollView>
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 
