@@ -126,7 +126,7 @@ export default function WomenBookingDetails({ route }) {
 
       <TouchableOpacity
         onPress={() => navigation.navigate('Payments',{
-          totalFee:bookingData?.payment?.totalPayable,
+          totalFee:bookingData?.payment?.total,
           women: true,
         })}
         style={styles.button}
