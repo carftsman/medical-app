@@ -28,7 +28,12 @@ const WomenHospitalCard = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.imageWrapper}>
+      <TouchableOpacity
+  style={styles.imageWrapper}
+  activeOpacity={0.9}
+  onPress={onViewDetails}
+>
+
         {imageSource ? (
           <Image source={imageSource} style={styles.image} resizeMode="cover" />
         ) : (
@@ -39,9 +44,11 @@ const WomenHospitalCard = ({
           <Icon name="star" size={scale(14)} color="#FFD700" />
           <Text style={styles.ratingText}>4.5</Text>
         </View>
-      </View>
+      </TouchableOpacity>
 
-      <View style={styles.content}>
+      <TouchableOpacity
+       style={styles.content}
+       onPress={onViewDetails}>
         <View style={styles.rowBetween}>
           <Text style={styles.hospitalName} numberOfLines={1}>
             {hospitalName}
@@ -49,27 +56,35 @@ const WomenHospitalCard = ({
 
         </View>
 
-        <View style={styles.locationRow}>
+        <TouchableOpacity
+  style={styles.locationRow}
+  activeOpacity={0.8}
+  onPress={onViewDetails}   // or any function you want
+>
+
           {distance !== undefined && distance !== null && (
             <>
-              <View style={styles.iconTextRow}>
+              <TouchableOpacity style={styles.iconTextRow}
+              onPress={onViewDetails}>
                 <Icon name="navigation" size={scale(13)} color='#c84ba2' />
                 <Text style={styles.distanceText}>
                   {Number(distance).toFixed(1)} km
                 </Text>
 
-              </View>
+              </TouchableOpacity>
               <View style={styles.divider} />
             </>
           )}
 
-          <View style={styles.iconTextRow}>
+          <TouchableOpacity
+           style={styles.iconTextRow}
+           onPress={onViewDetails} />
             <Icon name="map-marker-outline" size={scale(13)} color={COLORS.pink} />
             <Text style={styles.locationText} numberOfLines={1}>
               {location}
             </Text>
-          </View>
-        </View>
+          
+        </TouchableOpacity>
 
         {!!description && (
           <Text style={styles.description} numberOfLines={2}>
@@ -94,13 +109,13 @@ const WomenHospitalCard = ({
             >
               <Icon
                 name={isFavorite ? 'heart' : 'heart-outline'}
-                size={scale(18)}
+                size={scale(26)}
                 color={isFavorite ? '#FF2727' : '#999'}
               />
             </TouchableOpacity>
           )}
         </View>
-      </View>
+      </TouchableOpacity>
     </View>
   );
 };

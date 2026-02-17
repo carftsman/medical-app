@@ -9,6 +9,8 @@ import DoctorSearchBar from '../components/DoctScreen-SearchBar';
 import DoctFilterButton from '../components/DoctScreen-FilterButton';
 import DoctModalButton from '../components/DoctScreen-FilterModal';
 import DoctList from '../components/DoctScreen-DoctorList';
+import DoctorScreenMode from '../components/DoctScreen-Mode';
+
 const DoctorsScreen = () => {
   const [search, setSearch] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('All');
@@ -26,6 +28,8 @@ const DoctorsScreen = () => {
   const [doctorsData, setDoctorsData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedType, setSelectedType] = useState("ONLINE");
+
 
   const applyFilters = () => {
     setShowFilter(false);
@@ -36,7 +40,11 @@ const DoctorsScreen = () => {
       setLoading(true);
       setError(null);
 
-      const response = await api.get('/hospital/user/doctors');
+      const response = await api.get('/hospital/user/doctors',
+        {
+          mode: selectedType,
+        }
+      );
 
       const mappedDoctors = response.data.doctors.map(item => ({
         id: item.id.toString(),
@@ -50,6 +58,7 @@ const DoctorsScreen = () => {
         availableDate: item.availableDate || 'today',
         availableTime: item.availableTime || '9AM - 5PM',
         imageUrl: item.imageUrl || 'https://via.placeholder.com/150',
+        consultationMode: item.consultationMode || 'BOTH',
       }));
 
       setDoctorsData(mappedDoctors);
@@ -63,16 +72,28 @@ const DoctorsScreen = () => {
 
   useEffect(() => {
     fetchDoctors();
-  }, []);
+  }, [selectedType]);
 
   const specializations = [
     'All',
     ...new Set(doctorsData.map(d => d.specialization)),
   ];
 
-  ///Filter Application
   const getFilteredDoctors = () => {
     let data = [...doctorsData];
+console.log("Filtering for type:", selectedType);
+
+  data = data.filter(d => {
+    if (d.consultationMode  === "BOTH") return true;
+
+    if (selectedType === "OFFLINE" && d.consultationMode  === "OFFLINE")
+      return true;
+
+    if (selectedType === "ONLINE" && d.consultationMode  === "ONLINE")
+      return true;
+
+    return false;
+  });
 
     // Search
     if (search.trim()) {
@@ -145,27 +166,19 @@ const DoctorsScreen = () => {
   const allModalProps = {
     showFilter,
     setShowFilter,
-
     sortBy,
     setSortBy,
-
     department,
     setDepartment,
-
     specializations,
-
     experience,
     setExperience,
-
     feeRange,
     setFeeRange,
-
     distance,
     setDistance,
-
     availability,
     setAvailability,
-
     clearFilters,
     applyFilters,
   };
@@ -186,6 +199,10 @@ const DoctorsScreen = () => {
 
       <DoctModalButton {...allModalProps} />
 
+      <DoctorScreenMode
+      selected={selectedType}
+      onChange={setSelectedType}
+      />
       {/* Doctor Card */}
       <DoctList
         loading={loading}
