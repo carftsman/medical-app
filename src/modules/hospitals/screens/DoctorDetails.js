@@ -75,7 +75,7 @@ const DoctorDetails = ({ route, navigation }) => {
         }
       });
       const filteredSlots = response?.data.slots.filter(slot => slot.isAvailable === true);
-      setTimeSlots(filteredSlots);
+      setTimeSlots(response?.data?.slots);
     }
     catch (error) {
       console.log("Error fetching time slots: ", error);
