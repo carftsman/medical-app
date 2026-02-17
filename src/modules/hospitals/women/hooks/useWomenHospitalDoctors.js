@@ -8,7 +8,11 @@ export const useWomenHospitalDoctors = (hospitalId) => {
     const fetchDoctors = async () => {
       try {
         const res = await api.get(
-          `/hospital/user/hospital/${hospitalId}/doctors`
+          `/hospital/user/hospital/${hospitalId}/doctors`,
+          {
+            params: {
+      women: true,
+          }}
         );
 
         console.log("DOCTORS FULL RESPONSE:", res?.data);
