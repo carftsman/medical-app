@@ -142,6 +142,7 @@ const HospitalStackNavigator = () => {
        
       }}
     >
+      
       <Stack.Screen name="HospitalsTab" component={HospitalTabNavigator} />
       <Stack.Screen name="DepartmentsList" component={DepartmentsList} />
       <Stack.Screen name="HospitalsScreen" component={HospitalsScreen} />
@@ -155,7 +156,7 @@ const HospitalStackNavigator = () => {
       <Stack.Screen name='PatientDetails' component={PatientDetails}/>
       <Stack.Screen name='BookingSuccess' component={BookingSuccess}/>
       
-      {/* <Stack.Screen name="HospitalsHomeScreen" component={HospitalsHomeScreen}/> */}
+      {/* <Stack.Screen name="HospitalsHomeScreen" component={HospitalsHomeScreen}*/}
 
       <Stack.Screen name="WomenDepartmentsScreen" component={WomenDepartmentsScreen}/>
       <Stack.Screen name='WomenHospitalsScreen' component={WomenHospitalsScreen}/>

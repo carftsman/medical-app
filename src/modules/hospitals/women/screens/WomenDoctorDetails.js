@@ -119,7 +119,7 @@ const WomenDoctorDetails = ({ route, navigation }) => {
           bookingFor: 'SELF',
         }
       );
-      console.log(response?.data);
+      console.log("DATAAAAA: ",response?.data);
       dispatch(setBookingId(response?.data?.bookingId));
     }
     catch (error) {

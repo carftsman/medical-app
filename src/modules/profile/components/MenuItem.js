@@ -38,13 +38,13 @@ const MenuItem = ({ title, icon, danger, isLast,route }) => {
           <Ionicons
                name={icon}
              size={scale(20)}
-             color={danger ? '#E53935' : '#2D73B9'}
+             color={danger ? '#e74c3c' : '#056FD2'}
           />
 
         <Text
           style={[
             styles.title,
-            { color: danger ? '#FF3B30' : '#333' },
+            { color: danger ? '#e74c3c' : '#333' },
           ]}>
           {title}
         </Text>

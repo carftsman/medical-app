@@ -125,6 +125,7 @@ export default function ReportsTab() {
               testName={item?.testName}
               labName={item?.labName}
               date={formatDate(item?.date)}
+              
             />
           ))}
 
