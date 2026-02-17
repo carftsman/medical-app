@@ -13,7 +13,6 @@ import TestResultBox from '../components/TestResultBox';
 import ReportList from '../components/ReportList';
 import PrimaryButton from '../components/PrimaryButton';
 import { scale, verticalScale } from '../../../utils/styling';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import api from '../../../api/client';
@@ -73,7 +72,7 @@ export default function ReportDetailsScreen({ route }) {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
+    <View style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <View style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
 
@@ -170,7 +169,7 @@ export default function ReportDetailsScreen({ route }) {
 
         <PrimaryButton title="Rebook Test" />
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
