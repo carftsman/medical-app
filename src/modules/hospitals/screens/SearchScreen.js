@@ -36,7 +36,7 @@ const SearchScreen = ({ navigation }) => {
   const isSearching = search.trim().length > 0;
 
   /* WHILE SEARCHING (API CALLING) */
-  const fetchResults = async (query) => {
+  const fetchResults = async query => {
     try {
       setLoading(true);
       const res = await api.get('/hospital/user/modeSearch', {
@@ -79,8 +79,7 @@ const SearchScreen = ({ navigation }) => {
     fetchNearbyHospitals();
   }, []);
 
-
-  const onChangeSearch = (text) => {
+  const onChangeSearch = text => {
     setSearch(text);
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -108,22 +107,22 @@ const SearchScreen = ({ navigation }) => {
   );
 
   const renderDoctor = ({ item }) => (
-  <TouchableOpacity
-    style={styles.card}
-    onPress={() =>
-      navigation.navigate('DoctorDetails', { doctorId: item.id })
-    }
-  >
-    <View style={styles.avatarWrapper}>
-      <Image source={{ uri: item.imageUrl }} style={styles.avatar} />
-      <View style={styles.onlineDot} />
-    </View>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() =>
+        navigation.navigate('DoctorDetails', { doctorId: item.id })
+      }
+    >
+      <View style={styles.avatarWrapper}>
+        <Image source={{ uri: item.imageUrl }} style={styles.avatar} />
+        <View style={styles.onlineDot} />
+      </View>
 
-    <View style={{ flex: 1 }}>
-      <Text style={styles.title}>{item.name}</Text>
-      <Text style={styles.sub}>{item.specialization}</Text>
-      <Text style={styles.meta}>⭐ 4.5 (200+ reviews)</Text>
-    </View>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.title}>{item.name}</Text>
+        <Text style={styles.sub}>{item.specialization}</Text>
+        <Text style={styles.meta}>⭐ 4.5 (200+ reviews)</Text>
+      </View>
 
     <TouchableOpacity
       style={styles.bookBtn}
@@ -226,9 +225,7 @@ const SearchScreen = ({ navigation }) => {
           <Ionicons name="mic-outline" size={20} color={COLORS.gray} />
         </View>
 
-        {isSearching && loading && (
-          <ActivityIndicator color={COLORS.primary} />
-        )}
+        {isSearching && loading && <ActivityIndicator color={COLORS.primary} />}
 
         <FlatList
           data={[1]}
@@ -363,17 +360,16 @@ const SearchScreen = ({ navigation }) => {
 export default SearchScreen;
 
 const styles = {
-
   container: {
     flex: 1,
-    padding: scale(16),
+    paddingHorizontal: scale(16),
   },
   screenTitle: {
     flex: 1,
     textAlign: 'center',
     fontSize: SIZES.large,
     fontFamily: FONT.bold,
-    marginBottom: verticalScale(14),
+    // marginBottom: verticalScale(14),
   },
   topHeader: {
   flexDirection: 'row',
@@ -443,7 +439,7 @@ backBtn: {
     padding: scale(12),
     borderRadius: scale(14),
     marginBottom: verticalScale(12),
-    marginRight:scale(8),
+    marginRight: scale(8),
     alignItems: 'center',
   },
   avatar: {
@@ -455,12 +451,12 @@ backBtn: {
   title: {
     fontSize: SIZES.medium,
     fontFamily: FONT.bold,
-    paddingBottom:scale(5),
+    paddingBottom: scale(5),
   },
   sub: {
     fontSize: SIZES.small,
     color: COLORS.gray,
-    paddingBottom:scale(5),
+    paddingBottom: scale(5),
   },
   meta: {
     fontSize: SIZES.small,
@@ -505,7 +501,7 @@ backBtn: {
     backgroundColor: COLORS.Iceblue,
     borderRadius: scale(6),
     paddingHorizontal: scale(8),
-    marginBottom:scale(1)
+    marginBottom: scale(1),
   },
   openText: {
     fontSize: SIZES.small,

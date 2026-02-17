@@ -17,7 +17,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { formatDate } from '../../../utils/helpers';
 
-
 export default function ReportsTab() {
   const navigation = useNavigation();
 
@@ -30,6 +29,9 @@ export default function ReportsTab() {
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
 
+  
+  const [searchQuery, setSearchQuery] = useState('');
+
   const fetchReports = async (filters = {}) => {
     try {
       setLoading(true);
@@ -39,11 +41,13 @@ export default function ReportsTab() {
         reportStatus: status = reportStatus,
         fromDate: start = fromDate,
         toDate: end = toDate,
+        search = searchQuery, 
       } = filters;
 
       const res = await api.get('/labs/reports', {
         params: {
           userId: 21,
+          ...(search && { search }), 
           ...(status && status !== '*' && {
             reportStatus: status.toUpperCase(),
           }),
@@ -81,21 +85,24 @@ export default function ReportsTab() {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-        <View style={styles.name}>
+      <View style={styles.name}>
         <Text style={styles.header}>Reports</Text>
-         
 
         <SearchBar
+          value={searchQuery}
+          onChangeText={(text) => {
+            setSearchQuery(text);
+            fetchReports({ search: text });
+          }}
           onFilterPress={() => setShowFilter(true)}
           onMicPress={() => console.log('Mic Clicked')}
         />
-        </View>
-         <ScrollView
+      </View>
+
+      <ScrollView
         style={styles.container}
         showsVerticalScrollIndicator={false}
       >
-
-
         {loading && (
           <ActivityIndicator
             size="large"
@@ -118,7 +125,6 @@ export default function ReportsTab() {
               testName={item?.testName}
               labName={item?.labName}
               date={formatDate(item?.date)}
- 
             />
           ))}
 
@@ -142,21 +148,20 @@ export default function ReportsTab() {
             </Text>
 
             <TouchableOpacity
-              onPress={() => navigation.navigate('ReportDetails')}
+              onPress={() => navigation.navigate('LabsHomeScreen')}
               style={styles.exploreBtn}
             >
               <Text style={styles.exploreText}>Explore Now</Text>
             </TouchableOpacity>
           </View>
         )}
-
-        
       </ScrollView>
-       <FilterBottomSheet
-          visible={showFilter}
-          onClose={() => setShowFilter(false)}
-          onApply={handleApplyFilter}
-        />
+
+      <FilterBottomSheet
+        visible={showFilter}
+        onClose={() => setShowFilter(false)}
+        onApply={handleApplyFilter}
+      />
     </SafeAreaView>
   );
 }
@@ -168,8 +173,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(14),
     paddingTop: verticalScale(10),
   },
-  name:{
-    paddingHorizontal:scale(14)
+  name: {
+    paddingHorizontal: scale(14),
   },
   header: {
     fontSize: scale(19),
