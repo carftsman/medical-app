@@ -84,7 +84,7 @@ export default function ReportsTab() {
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <View style={styles.container}>
       <View style={styles.name}>
         <Text style={styles.header}>Reports</Text>
 
@@ -101,6 +101,7 @@ export default function ReportsTab() {
 
       <ScrollView
         style={styles.container}
+        contentContainerStyle={{ paddingBottom: verticalScale(100) }}
         showsVerticalScrollIndicator={false}
       >
         {loading && (
@@ -163,7 +164,7 @@ export default function ReportsTab() {
         onClose={() => setShowFilter(false)}
         onApply={handleApplyFilter}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
