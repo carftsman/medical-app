@@ -1,10 +1,7 @@
-/* eslint-disable react-native/no-inline-styles */
-/* eslint-disable react/no-unstable-nested-components */
-
-
 import React, { useEffect, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import {
   View,
   Text,
@@ -128,45 +125,95 @@ const SearchScreen = ({ navigation }) => {
       <Text style={styles.meta}>⭐ 4.5 (200+ reviews)</Text>
     </View>
 
-    <TouchableOpacity style={styles.bookBtn}>
+    <TouchableOpacity
+      style={styles.bookBtn}
+      onPress={() =>
+        navigation.navigate('DoctorDetails', { doctorId: item.id })
+      }
+    >
       <Text style={styles.bookText}>Book</Text>
     </TouchableOpacity>
+
+      </TouchableOpacity>
+    );
+
+ const renderHospital = ({ item }) => (
+  <TouchableOpacity
+    style={styles.hospitalCardNew}
+    activeOpacity={0.9}
+    onPress={() =>
+      navigation.navigate('HospitalDetails', { id: item.id })
+    }
+  >
+    <View style={styles.hospitalRowNew}>
+      
+      {/* LEFT IMAGE */}
+      <Image
+        source={{ uri: item.imageUrl }}
+        style={styles.hospitalImageNew}
+      />
+
+      {/* RIGHT CONTENT */}
+      <View style={styles.hospitalContent}>
+        
+        {/* Name + Open Badge */}
+        <View style={styles.hospitalTopRow}>
+          <Text style={styles.hospitalName}>
+            {item.name}
+          </Text>
+
+          {item.isOpen && (
+            <View style={styles.openBadgeNew}>
+              <Text style={styles.openTextNew}>Open</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Distance + Place */}
+        <Text style={styles.hospitalLocation}>
+          📍 {item.distance?.toFixed(1)} kms | {item.place}
+        </Text>
+
+        {/* Speciality */}
+        <Text style={styles.hospitalSpeciality} numberOfLines={2}>
+          {item.speciality}
+        </Text>
+
+        {/* Button */}
+        <TouchableOpacity
+          style={styles.viewBtnNew}
+          onPress={(e) => {
+            e.stopPropagation();
+            navigation.navigate('HospitalDetails', { id: item.id });
+          }}
+        >
+          <Text style={styles.viewTextNew}>
+            View Details
+          </Text>
+        </TouchableOpacity>
+
+      </View>
+    </View>
   </TouchableOpacity>
 );
-
-  const renderHospital = ({ item }) => (
-    <View style={styles.hospitalCard}>
-      <View style={styles.hospitalRow}>
-        <Image source={{ uri: item.imageUrl }} style={styles.hospitalImage} />
-        <View style={{ flex: 1, marginLeft: scale(10) }}>
-          <View style={styles.hospitalTitleRow}>
-            <Text style={styles.title}>{item.name}</Text>
-            {item.isOpen && (
-              <View style={styles.openBadge}>
-                <Text style={styles.openText}>Open</Text>
-              </View>
-            )}
-          </View>
-          <Text style={styles.hospitalMeta}>
-            {item.distance ? `2.4 kms` : '2.4 kms'} | {item.place}
-          </Text>
-        </View>
-      </View>
-      <TouchableOpacity
-        style={styles.viewBtn}
-        onPress={() =>
-          navigation.navigate('HospitalDetails', { hospitalId: item.id })
-        }
-      >
-        <Text style={styles.viewText}>View Details</Text>
-      </TouchableOpacity>
-    </View>
-  );
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.lightGray }}>
       <View style={styles.container}>
-        <Text style={styles.screenTitle}>Find Your Doctor</Text>
+        <View style={styles.topHeader}>
+  <TouchableOpacity
+    onPress={() => navigation.goBack()}
+    style={styles.backBtn}
+  >
+    <AntDesign name="arrowleft" size={22} color={COLORS.black} />
+  </TouchableOpacity>
+
+  <Text style={styles.screenTitle}>
+    Find Your Doctor
+  </Text>
+  <View style={{ width: 30 }} />
+</View>
+
         <View style={styles.searchBox}>
           <Ionicons name="search-outline" size={20} color={COLORS.gray} />
           <TextInput
@@ -195,7 +242,6 @@ const SearchScreen = ({ navigation }) => {
                 <>
                   <View style={styles.header}>
                     <Text style={styles.headerText}>Recent Searches</Text>
-                    <Text style={styles.clear}>Clear All</Text>
                   </View>
 
                   <FlatList
@@ -207,9 +253,14 @@ const SearchScreen = ({ navigation }) => {
                   {topDoctors.length > 0 && (
                     <>
                       <View style={styles.sectionHeader}>
-                        <Text style={styles.section}>Top Doctors</Text>
+                      <Text style={styles.section}>Top Doctors</Text>
+                      <TouchableOpacity
+                        onPress={() => navigation.navigate('DoctorsList')}
+                      >
                         <Text style={styles.viewAll}>View All</Text>
-                      </View>
+                      </TouchableOpacity>
+                    </View>
+
 
                       <FlatList
                         horizontal
@@ -225,8 +276,13 @@ const SearchScreen = ({ navigation }) => {
                     <>
                       <View style={styles.sectionHeader}>
                         <Text style={styles.section}>Near by hospitals</Text>
-                        <Text style={styles.viewAll}>View All</Text>
+                        <TouchableOpacity
+                          onPress={() => navigation.navigate('HospitalsScreen')}
+                        >
+                          <Text style={styles.viewAll}>View All</Text>
+                        </TouchableOpacity>
                       </View>
+
 
                       {nearbyHospitals.map((item, idx) => (
                         <View key={item.id || idx}>
@@ -245,9 +301,19 @@ const SearchScreen = ({ navigation }) => {
                   {doctors.length > 0 && (
                     <>
                       <View style={styles.sectionHeader}>
-                        <Text style={styles.section}>DOCTORS</Text>
-                        <Text style={styles.viewAll}>View All</Text>
-                      </View>
+                      <Text style={styles.section}>DOCTORS</Text>
+                      <TouchableOpacity
+                      onPress={() =>
+                       navigation.navigate('DoctorsList', {
+                          search: search,
+                        })
+                   }
+                    >
+                <Text style={styles.viewAll}>View All</Text>
+                </TouchableOpacity>
+
+                    </View>
+
                       {doctors.slice(0, 5).map((item, idx) => (
                         <View key={item.id || idx}>
                           {renderDoctor({ item })}
@@ -259,9 +325,19 @@ const SearchScreen = ({ navigation }) => {
                   {hospitals.length > 0 && (
                     <>
                       <View style={styles.sectionHeader}>
-                        <Text style={styles.section}>HOSPITALS</Text>
+                      <Text style={styles.section}>Near by hospitals</Text>
+                      <TouchableOpacity
+                        onPress={() =>
+                          navigation.navigate('HospitalsScreen', {
+                            searchResults: hospitals, 
+                          })
+                        }
+                      >
                         <Text style={styles.viewAll}>View All</Text>
-                      </View>
+                      </TouchableOpacity>
+
+                    </View>
+
                       {hospitals.slice(0, 5).map((item, idx) => (
                         <View key={item.id || idx}>
                           {renderHospital({ item })}
@@ -284,6 +360,7 @@ const SearchScreen = ({ navigation }) => {
     </SafeAreaView>
   );
 };
+export default SearchScreen;
 
 const styles = {
 
@@ -292,10 +369,23 @@ const styles = {
     padding: scale(16),
   },
   screenTitle: {
+    flex: 1,
+    textAlign: 'center',
     fontSize: SIZES.large,
     fontFamily: FONT.bold,
     marginBottom: verticalScale(14),
   },
+  topHeader: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: verticalScale(14),
+},
+
+backBtn: {
+  width: 30,
+},
+
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -457,10 +547,86 @@ onlineDot: {
   borderWidth: 2,
   borderColor: COLORS.white,
 },
+hospitalCardNew: {
+  backgroundColor: COLORS.white,
+  borderRadius: scale(16),
+  padding: scale(12),
+  marginBottom: verticalScale(16),
+  shadowColor: '#000',
+  shadowOpacity: 0.05,
+  shadowRadius: 8,
+  elevation: 3,
+},
+
+hospitalRowNew: {
+  flexDirection: 'row',
+},
+
+hospitalImageNew: {
+  width: scale(95),
+  height: scale(110),
+  borderRadius: scale(16),
+},
+
+hospitalContent: {
+  flex: 1,
+  marginLeft: scale(12),
+  justifyContent: 'space-between',
+},
+
+hospitalTopRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+},
+
+hospitalName: {
+  fontSize: SIZES.medium,
+  fontFamily: FONT.bold,
+  flex: 1,
+},
+
+openBadgeNew: {
+  backgroundColor: '#E6F6EC',
+  paddingHorizontal: scale(10),
+  paddingVertical: verticalScale(4),
+  borderRadius: scale(20),
+},
+
+openTextNew: {
+  color: '#1BAE66',
+  fontSize: SIZES.small,
+  fontFamily: FONT.medium,
+},
+
+hospitalLocation: {
+  marginTop: verticalScale(6),
+  fontSize: SIZES.small,
+  color: COLORS.primary,
+},
+
+hospitalSpeciality: {
+  marginTop: verticalScale(6),
+  fontSize: SIZES.small,
+  color: COLORS.gray,
+},
+
+viewBtnNew: {
+  marginTop: verticalScale(10),
+  backgroundColor: COLORS.primary,
+  borderRadius: scale(25),
+  paddingVertical: verticalScale(8),
+  alignItems: 'center',
+},
+
+viewTextNew: {
+  color: COLORS.white,
+  fontSize: SIZES.medium,
+  fontFamily: FONT.medium,
+},
 
 };
 
-export default SearchScreen;
 
 
 

@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   View,
@@ -9,12 +10,20 @@ import {
 } from "react-native";
 
 import { useNavigation } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleFavourite } from "../../../../redux/slices/favouritesSlice";
 import { COLORS, FONT, SIZES } from "../../../../config/constants";
 import { scale, verticalScale } from "../../../../utils/styling";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 const WomenHospitals = ({ data = [], loading = false }) => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const favourites = useSelector((state) => state.favourites.items);
+
+  const isFavourite = (id) => {
+    return favourites.some((item) => item.id === id);
+  };
 
   const onViewAll = () => {
     navigation.navigate("WomenHospitalsScreen");
@@ -32,66 +41,52 @@ const WomenHospitals = ({ data = [], loading = false }) => {
       style={styles.card}
       onPress={() => onHospitalPress(item)}
     >
-      {/* IMAGE */}
-      <Image
-        source={{ uri: item.imageUrl }}
-        style={styles.image}
-      />
+      <Image source={{ uri: item.imageUrl }} style={styles.image} />
 
-      {/* Rating Badge */}
       <View style={styles.ratingBadge}>
         <Ionicons name="star" size={12} color="#FFC107" />
         <Text style={styles.ratingText}>4.5</Text>
       </View>
 
-      {/* Content */}
       <View style={styles.content}>
         <Text style={styles.name}>{item.name}</Text>
 
-        {/* Distance + Location */}
         <Text style={styles.location}>
-           {item.distance?.toFixed(1)} kms | {item.place}
+          {item.distance?.toFixed(1)} kms | {item.place}
         </Text>
 
         <Text style={styles.speciality} numberOfLines={2}>
           {item.speciality}
         </Text>
 
-        {/* Open Badge */}
         {item.isOpen && (
           <View style={styles.openBadge}>
             <Text style={styles.openText}>Opens 24 hours</Text>
           </View>
         )}
 
-        {/* View Details */}
         <View style={styles.bottomRow}>
-  <TouchableOpacity
-    style={styles.button}
-    onPress={() => onHospitalPress(item)}
-  >
-    <Text style={styles.buttonText}>View Details</Text>
-  </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => onHospitalPress(item)}
+          >
+            <Text style={styles.buttonText}>View Details</Text>
+          </TouchableOpacity>
 
-  <TouchableOpacity
-    style={styles.heartBtn}
-    onPress={() => console.log("Like pressed", item.id)}
-    activeOpacity={0.7}
-  >
-    <Ionicons
-      name="heart-outline"
-      size={22}
-      color={COLORS.pink}
-    />
-  </TouchableOpacity>
-</View>
-
+          <TouchableOpacity
+            style={styles.heartBtn}
+            onPress={() => dispatch(toggleFavourite(item))}
+            activeOpacity={0.7}
+          >
+            <Ionicons
+              name={isFavourite(item.id) ? "heart" : "heart-outline"}
+              size={22}
+              color={isFavourite(item.id) ? "red" : COLORS.pink}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
     </TouchableOpacity>
-  );
-
-  const renderSkeleton = () => (
-    <View style={[styles.card, { backgroundColor: COLORS.lightGray }]} />
   );
 
   return (
@@ -109,17 +104,18 @@ const WomenHospitals = ({ data = [], loading = false }) => {
       <FlatList
         horizontal
         showsHorizontalScrollIndicator={false}
-        data={loading ? Array.from({ length: 2 }) : data}
+        data={data || []}
         keyExtractor={(item, index) =>
           item?.id?.toString() || index.toString()
         }
-        renderItem={loading ? renderSkeleton : renderItem}
+        renderItem={renderItem}
       />
     </View>
   );
 };
 
 export default WomenHospitals;
+
 const styles = StyleSheet.create({
   container: {
     marginTop: verticalScale(10),
@@ -150,8 +146,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderRadius: scale(18),
     marginRight: scale(16),
+    marginBottom:scale(12),
     overflow: "hidden",
-    shadowColor: "#000",
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.08,
     shadowRadius: 10,

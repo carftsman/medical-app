@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useRoute } from '@react-navigation/native';
 
 import HospitalCard from '../components/HospitalCard';
 import SearchHospital from '../components/SearchHospital';
@@ -22,9 +23,12 @@ const LATITUDE = 17.385044;
 const LONGITUDE = 78.486671;
 
 const HospitalsScreen = ({ navigation }) => {
+  const route = useRoute();
+  const isFromSearch = !!route.params?.searchResults;
+
   const [mode, setMode] = useState('BOTH');
   const [hospitals, setHospitals] = useState([]);
-  const [overrideResults, setOverrideResults] = useState(null); // 🔑 KEY FIX
+  const [overrideResults, setOverrideResults] = useState(route.params?.searchResults || null);
   const [favorites, setFavorites] = useState({});
   const [loading, setLoading] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
@@ -56,9 +60,11 @@ const HospitalsScreen = ({ navigation }) => {
     }
   };
 
-  useEffect(() => {
+useEffect(() => {
+  if (!route.params?.searchResults) {
     loadHospitals('BOTH');
-  }, []);
+  }
+}, []);
 
   /* ================= DATA SOURCE ================= */
   const dataSource =
@@ -80,8 +86,13 @@ const HospitalsScreen = ({ navigation }) => {
         <View style={styles.searchRow}>
           <SearchHospital
             mode={mode}
-            onResults={setOverrideResults} // ✅ unified
+            onResults={data => {
+              if (!isFromSearch) {
+                setOverrideResults(data);
+              }
+            }}
           />
+
           <HospitalFilters onPress={() => setShowFilter(true)} />
         </View>
 
