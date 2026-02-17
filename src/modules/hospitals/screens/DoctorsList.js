@@ -27,7 +27,7 @@ const DoctorsList = () => {
   const dispatch = useDispatch();
 
   const routeCategoryName = route.params?.categoryName;
-
+  const routeSearch = route.params?.search;
   
   const reduxMode = useSelector(
     state => state.hospital?.consultation?.mode
@@ -42,10 +42,11 @@ const DoctorsList = () => {
   const [loadingCategories, setLoadingCategories] = useState(true);
   
  
-  const finalMode =
+ const routeMode = route.params?.mode;
+
+const finalMode =
   (routeMode || reduxMode || "offline").toUpperCase();
 
-  const routeMode = route.params?.mode;
   useEffect(() => {
   if (routeCategoryName) {
     setActiveCategory(routeCategoryName);
@@ -86,11 +87,15 @@ const DoctorsList = () => {
     try {
       setLoading(true);
 
-      const response = await api.get('/hospital/user/doctors', {
-        params: {
-          mode: finalMode,
-        },
-      });
+    const routeSearch = route.params?.search;
+
+const response = await api.get('/hospital/user/doctors', {
+  params: {
+    mode: finalMode,
+    q: routeSearch,   // send to backend
+  },
+});
+
 
     
       const mappedDoctors = (response.data.doctors || []).map(item => ({
@@ -115,14 +120,19 @@ const DoctorsList = () => {
       setLoading(false);
     }
   };
-  const filteredDoctors =
-  activeCategory === 'All'
-    ? doctorsData
-    : doctorsData.filter(
-        d =>
-          d.specialization?.toLowerCase() ===
-          activeCategory.toLowerCase()
-      );
+const filteredDoctors = doctorsData.filter(d => {
+  const matchesCategory =
+    activeCategory === 'All' ||
+    d.specialization?.toLowerCase() === activeCategory.toLowerCase();
+
+  const matchesSearch =
+    !routeSearch ||
+    d.doctorName?.toLowerCase().includes(routeSearch.toLowerCase()) ||
+    d.specialization?.toLowerCase().includes(routeSearch.toLowerCase());
+
+  return matchesCategory && matchesSearch;
+});
+
 
 
   const ListHeader = () => (
@@ -232,7 +242,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
-    padding: scale(16),
+    paddingHorizontal: scale(16),
   },
   header: {
     flexDirection: 'row',

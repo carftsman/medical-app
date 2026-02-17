@@ -12,22 +12,14 @@ const PackagesFilterModal = ({ visible, onClose, onApply }) => {
   const [sort, setSort] = useState('');
   const [feeRange, setFeeRange] = useState('');
   const [age, setAge] = useState('');
-
-
-  const singleSelect = (value, selected, setSelected) => {
-    if (selected === value) {
-      setSelected('');
-    } else {
-      setSelected(value);
-    }
-  };
-
+  const [gender, setGender] = useState('');
 
   const handleApply = () => {
     onApply({
       sort,
       feeRange,
       age,
+      gender,
     });
     onClose();
   };
@@ -36,13 +28,38 @@ const PackagesFilterModal = ({ visible, onClose, onApply }) => {
     setSort('');
     setFeeRange('');
     setAge('');
-
+    setGender('');
   };
 
+  
+  const RadioOption = ({ label, selected, onPress }) => (
+    <TouchableOpacity style={styles.radioRow} onPress={onPress}>
+      <View style={styles.radioOuter}>
+        {selected && <View style={styles.radioInner} />}
+      </View>
+      <Text style={styles.radioLabel}>{label}</Text>
+    </TouchableOpacity>
+  );
+
   return (
-    <Modal visible={visible} animationType="slide" transparent>
-      <View style={styles.overlay}>
-        <View style={styles.modal}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent
+      onRequestClose={onClose}
+    >
+      
+      <TouchableOpacity
+        style={styles.overlay}
+        activeOpacity={1}
+        onPress={onClose}
+      >
+        
+        <TouchableOpacity
+          activeOpacity={1}
+          style={styles.modal}
+          onPress={(e) => e.stopPropagation()}
+        >
           <View style={styles.headerRow}>
             <Text style={styles.title}>Filters</Text>
             <TouchableOpacity onPress={clearAll}>
@@ -52,50 +69,66 @@ const PackagesFilterModal = ({ visible, onClose, onApply }) => {
 
           <ScrollView>
 
-            {/* SORT */}
-
-
             {/* PRICE */}
-            <Text style={styles.section}>Fee Range</Text>
-            {['0-100', '100-300', '300-500', '500-1000', '1000-2000']
+            <Text style={styles.section}>Price Range</Text>
+            {['500-1000', '1000-2000','2000-3000','3000-4000','4000-5000']
               .map(f => (
-                <TouchableOpacity
+                <RadioOption
                   key={f}
-                  style={styles.checkboxRow}
-                  onPress={() => singleSelect(f, feeRange, setFeeRange)}
-                >
-                  <Text>{feeRange === f ? '☑' : '☐'} {f}</Text>
-                </TouchableOpacity>
+                  label={f}
+                  selected={feeRange === f}
+                  onPress={() => setFeeRange(feeRange === f ? '' : f)}
+                />
               ))}
 
-
             {/* AGE */}
-            <Text style={styles.section}>Age</Text>
-            {['<10-20', '20-40', '40-60', '>60'].map(a => (
-              <TouchableOpacity
-                key={a}
-                style={styles.checkboxRow}
-                onPress={() => singleSelect(a, age, setAge)}
-              >
-                <Text>{age === a ? '☑' : '☐'} {a}</Text>
-              </TouchableOpacity>
+            <Text style={styles.section}>Age Range</Text>
+            {['0-20', '20-40', '40-60', '60-100']
+              .map(a => (
+                <RadioOption
+                  key={a}
+                  label={a}
+                  selected={age === a}
+                  onPress={() => setAge(age === a ? '' : a)}
+                />
+              ))}
+
+            {/* GENDER */}
+            <Text style={styles.section}>Gender</Text>
+            {['MALE', 'FEMALE','OTHERS']
+              .map(g => (
+                <RadioOption
+                  key={g}
+                  label={g}
+                  selected={gender === g}
+                  onPress={() => setGender(gender === g ? '' : g)}
+                />
+              ))}
+
+            {/* SORT */}
+            <Text style={styles.section}>Sort By</Text>
+            {[
+              { label: 'Price: Low to High', value: 'price_asc' },
+              { label: 'Price: High to Low', value: 'price_desc' },
+            ].map(s => (
+              <RadioOption
+                key={s.value}
+                label={s.label}
+                selected={sort === s.value}
+                onPress={() => setSort(sort === s.value ? '' : s.value)}
+              />
             ))}
-
-
 
           </ScrollView>
 
-          {/* BUTTONS */}
           <TouchableOpacity style={styles.applyBtn} onPress={handleApply}>
             <Text style={{ color: '#fff', fontWeight: 'bold' }}>
               Apply
             </Text>
           </TouchableOpacity>
 
-
-
-        </View>
-      </View>
+        </TouchableOpacity>
+      </TouchableOpacity>
     </Modal>
   );
 };
@@ -124,30 +157,12 @@ const styles = StyleSheet.create({
     marginTop: 15,
     fontWeight: 'bold',
   },
-  chip: {
-    padding: 10,
-    backgroundColor: '#eee',
-    marginVertical: 5,
-    borderRadius: 8,
-  },
-  selectedChip: {
-    backgroundColor: '#cce5ff',
-  },
-  checkboxRow: {
-    paddingVertical: 8,
-  },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 15,
   },
-
-  clearTop: {
-    color: '#1976D2',
-    fontWeight: '600',
-  },
-
   applyBtn: {
     backgroundColor: '#1976D2',
     padding: 15,
@@ -156,13 +171,32 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   clear: {
-    textAlign: 'center',
-    marginTop: 10,
     color: 'blue',
   },
-  close: {
-    textAlign: 'center',
-    marginTop: 8,
-    color: 'red',
+
+  
+  radioRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  radioOuter: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#1976D2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  radioInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#1976D2',
+  },
+  radioLabel: {
+    fontSize: 14,
   },
 });

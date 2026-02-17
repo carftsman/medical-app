@@ -4,7 +4,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useHospital } from "../hooks/useHospital"
 import { useHospitalDoctors } from "../hooks/useHospitalDoctors"
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import HospitalDoctorCard from '../components/HospitalDoctorCard';
 import HospitalDoctorList from '../components/HospitalDoctorList';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { scale, verticalScale } from '../../../utils/styling';
@@ -87,7 +86,7 @@ const onRefresh = () => {
 };
 
 export default HospitalDetails;
-
+//
 const styles = StyleSheet.create({
   container: {
     flex: 1,
