@@ -119,6 +119,7 @@ viewAll: {
   card: {
     width: scale(150),
     marginRight: scale(16),
+    marginBottom:scale(15),
     borderRadius: scale(13),
     borderColor:COLORS.pink,
     borderWidth:2,

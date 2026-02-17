@@ -13,14 +13,17 @@ import PackageCardSkeleton from '../components/PackageCardSkeleton';
 import PackagesHeader from '../components/PackagesHeader';
 import { COLORS } from '../../../config/constants';
 import { scale } from '../../../utils/styling';
-import { useLabCart } from '../context/LabCartContext';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCart } from '../redux/labsCartSlice';
 const PackagesScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const labId = route?.params?.labId;
+  const selectedAge = route?.params?.selectedAge;
+  const categoryId = route?.params?.categoryId;
+  const dispatch = useDispatch();
+const cartItems = useSelector(state => state.labsCart.items);
 
-  const { cartItems, addToCart } = useLabCart();
 
   const [filterVisible, setFilterVisible] = useState(false);
   const [labName, setLabName] = useState('');
@@ -51,13 +54,13 @@ const PackagesScreen = () => {
 
   
   useFocusEffect(
-    useCallback(() => {
-      if (labId) {
-        fetchLabDetails();
-        fetchPackages();
-      }
-    }, [labId])
-  );
+  useCallback(() => {
+    if (labId) {
+      fetchLabDetails();
+      fetchPackagesWithParams();
+    }
+  }, [labId, selectedAge, categoryId])
+);
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
@@ -76,17 +79,37 @@ const PackagesScreen = () => {
     }
   };
 
-  const fetchPackages = async () => {
-    try {
-      setListLoading(true);
-      const res = await labApi.getLabTests(labId);
-      setData(formatPackages(res?.data?.packages));
-    } catch (error) {
-      console.log('Packages API error', error);
-    } finally {
-      setListLoading(false);
+  const fetchPackagesWithParams = async () => {
+  try {
+    setListLoading(true);
+
+    let params = {};
+
+    if (selectedAge) {
+      params.minAge = selectedAge;
+      params.maxAge = selectedAge;
     }
-  };
+
+    if (categoryId) {
+      params.categoryId = categoryId;
+    }
+
+    console.log("FILTER PARAMS:", params);
+
+    const res =
+      selectedAge || categoryId
+        ? await labApi.filterPackages(labId, params)
+        : await labApi.getLabTests(labId);
+
+    setData(formatPackages(res?.data?.packages || []));
+  } catch (error) {
+    console.log("Packages fetch error:", error);
+  } finally {
+    setListLoading(false);
+  }
+};
+
+
 
   const handleSearch = async () => {
     try {
@@ -115,7 +138,8 @@ const PackagesScreen = () => {
   const onRefresh = async () => {
     try {
       setRefreshing(true);
-      await fetchPackages();
+      await fetchPackagesWithParams();
+
     } catch (error) {
       console.log('Refresh error:', error);
     } finally {
@@ -129,19 +153,23 @@ const PackagesScreen = () => {
 
       setAddingItemIds(prev => [...prev, item.id]);
 
-      const payload = {
-        userId: item.userId || 21,
-        labId: item.labId,
-        labTestId: item.id,
-      };
+       const payload = {
+      userId: 12, 
+      labId: item.labId,
+      labTestId: item.id,
+      quantity: 1,
+      consultationType: "LAB_VISIT",
+      patientProfileId: null,
+    };
 
-      await addToCart(payload);
+     const res = await labApi.addToLabCart(payload);
+     if (res?.data?.item) {
+      dispatch(addToCart(res.data.item));
+    }
 
     } catch (error) {
       console.log('Add to cart failed:', error?.response?.data || error.message);
-    } finally {
-      setAddingItemIds(prev => prev.filter(id => id !== item.id));
-    }
+    } 
   };
 
 const applyFilters = async (filters) => {
@@ -204,7 +232,7 @@ const applyFilters = async (filters) => {
   return (
     <View style={styles.container}>
       <PackagesHeader
-        title={labName || 'Laboratory'}
+        title={route?.params?.categoryName || labName}
         searchText={searchText}
         setSearchText={setSearchText}
         onFilterPress={() => setFilterVisible(true)}
@@ -226,7 +254,10 @@ const applyFilters = async (filters) => {
           refreshing={refreshing}
           onRefresh={onRefresh}
           renderItem={({ item }) => {
-            const isAdded = cartItems.some(cart => cart.labTestId === item.id);
+const isAdded = cartItems.some(
+  cart => Number(cart.labTestId) === Number(item.id)
+);
+
 
             return (
               <PackageCard

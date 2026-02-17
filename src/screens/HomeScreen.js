@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   ScrollView,
@@ -7,38 +7,109 @@ import {
   TouchableOpacity,
   Text,
   StatusBar,
-  Alert,
+  Modal,
+  ToastAndroid,
+  Platform,
+  PermissionsAndroid,
+  Button
 } from "react-native";
 
-import { SafeAreaView } from "react-native-safe-area-context";
 import LocationHeader from "../components/LocationHeader";
 import NotificationHeader from "../components/NotificationHeader";
 import SearchBar from "../components/SearchBar";
 import ServiceBlock from "../components/ServiceBlock";
 import LinearGradient from "react-native-linear-gradient";
-import { scale, verticalScale } from '../utils/styling';
-import { Button } from "react-native";
+import { scale, verticalScale } from "../utils/styling";
 import useAuth from "../hooks/useAuth";
 import Clipboard from "@react-native-clipboard/clipboard";
-import { ToastAndroid, Platform } from "react-native";
 import SOSButton from "../components/SosButton";
-export default function HomeScreen() {
-  
+import Geolocation from "react-native-geolocation-service";
+import { useDispatch, useSelector } from "react-redux";
+import { setLocation } from "../redux/slices/locationSlice";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
-  const {handleLogout} = useAuth()
+export default function HomeScreen() {
+
+  const { handleLogout } = useAuth();
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const { address } = useSelector(state => state.location);
+
+  const [showLocationModal, setShowLocationModal] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!address) {
+        setShowLocationModal(true);
+      }
+    }, [address])
+  );
+
+  const askLocationPermission = async () => {
+    setShowLocationModal(false);
+
+    try {
+      if (Platform.OS === "android") {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+        );
+
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+          navigation.navigate("SelectLocation");
+          return;
+        }
+      }
+
+      Geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const { latitude, longitude } = position.coords;
+
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
+              {
+                headers: {
+                  "User-Agent": "hospital-app/1.0",
+                },
+              }
+            );
+
+            const data = await response.json();
+
+            dispatch(
+              setLocation({
+                address: data?.display_name || "Current Location",
+                latitude,
+                longitude,
+              })
+            );
+          } catch (err) {
+            console.log("Reverse geocode error", err);
+          }
+        },
+        (error) => {
+          navigation.navigate("SelectLocation");
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 20000,
+        }
+      );
+    } catch (err) {
+      navigation.navigate("SelectLocation");
+    }
+  };
+
+
 
   const copyCode = (text) => {
-  // text = "CODE: NEW25"
-  const code = text.replace("CODE:", "").trim();
+    const code = text.replace("CODE:", "").trim();
+    Clipboard.setString(code);
 
-  Clipboard.setString(code);
-
-  if (Platform.OS === "android") {
-    ToastAndroid.show("Coupon code copied", ToastAndroid.SHORT);
-  }
-};
-
-
+    if (Platform.OS === "android") {
+      ToastAndroid.show("Coupon code copied", ToastAndroid.SHORT);
+    }
+  };
   return (
     <View style={{ flex: 1, backgroundColor: "#FFF" }}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
@@ -138,7 +209,6 @@ export default function HomeScreen() {
           ))}
         </ScrollView>
 
-        {/* SHOP SMARTER SAVE BETTER */}
         <View style={styles.shopSection}>
           <Text style={styles.shopTitle}>Shop Smarter Save Better</Text>
 
@@ -235,9 +305,36 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
-      {/* Floating SOS button */}
+      
           <SOSButton/>
       
+      <Modal visible={showLocationModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>📍 Enable Location</Text>
+            <Text style={styles.modalText}>
+              Allow location access to show nearby labs and faster service.
+            </Text>
+
+            <TouchableOpacity
+              style={styles.allowBtn}
+              onPress={askLocationPermission}
+            >
+              <Text style={styles.allowText}>Allow Location</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.manualBtn}
+              onPress={() => {
+                setShowLocationModal(false);
+                navigation.navigate("SelectLocation");
+              }}
+            >
+              <Text style={styles.manualText}>Enter Manually</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -673,6 +770,55 @@ const styles = StyleSheet.create({
   sosLeft: { right: 78, }, 
   sosBottom: { top: 75, right:50 },
 
-  
+    modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  modalContainer: {
+    width: "85%",
+    backgroundColor: "#FFF",
+    borderRadius: 20,
+    padding: 24,
+    alignItems: "center",
+  },
+
+  modalTitle: {
+    fontSize: scale(20),
+    fontWeight: "700",
+    marginBottom: 10,
+  },
+
+  modalText: {
+    fontSize: scale(14),
+    textAlign: "center",
+    color: "#6B7280",
+    marginBottom: 20,
+  },
+
+  allowBtn: {
+    width: "100%",
+    backgroundColor: "#2563EB",
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+
+  allowText: {
+    color: "#FFF",
+    fontWeight: "700",
+  },
+
+  manualBtn: {
+    paddingVertical: 8,
+  },
+
+  manualText: {
+    color: "#2563EB",
+    fontWeight: "600",
+  },
 })
 
