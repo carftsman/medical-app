@@ -46,19 +46,11 @@ const WomenDoctorsScreen = () => {
 
 
  const routeMode = route.params?.mode;
-  const finalMode =
-    (routeMode || reduxMode || "offline").toUpperCase();
+const finalMode =
+  (routeMode || reduxMode).toUpperCase();
 
- 
-  useEffect(() => {
-    if (routeCategoryName) {
-      setActiveCategory(routeCategoryName);
-    }
 
-    if (routeMode) {
-      dispatch(setConsultationMode(routeMode));
-    }
-  }, [routeCategoryName, routeMode]);
+
 
   useEffect(() => {
     fetchCategories();
