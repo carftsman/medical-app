@@ -1,4 +1,3 @@
-/* eslint-disable react-native/no-inline-styles */
 import React, { useState } from 'react';
 import {
   View,
@@ -13,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { scale, verticalScale } from '../utils/styling';
 import { authApi } from '../api/authApi';
- 
+
 export default function LoginScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('phone');
   const [value, setValue] = useState('');
@@ -23,13 +22,13 @@ export default function LoginScreen({ navigation }) {
 
   const [showCodes, setShowCodes] = useState(false);
   const [countryCode, setCountryCode] = useState('+91');
- 
+
   const COUNTRY_CODES = ['+91', '+1', '+44', '+61'];
- 
+
   const isValidPhone = v => /^\d{10}$/.test(v);
   const isValidEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
-    const handlePhoneChange = (text) => {
+  const handlePhoneChange = (text) => {
     const cleaned = text.replace(/\D/g, '');
     if (cleaned.length > 10) return;
     setValue(cleaned);
@@ -47,22 +46,22 @@ export default function LoginScreen({ navigation }) {
   const handleSendOtp = async () => {
     if (loading) return;
     setError('');
- 
+
     if (!value.trim()) {
       setError('Please enter value');
       return;
     }
- 
+
     if (activeTab === 'phone' && !isValidPhone(value)) {
       setError('Enter valid 10 digit number');
       return;
     }
- 
+
     if (activeTab === 'email' && !isValidEmail(value)) {
       setError('Enter valid email');
       return;
     }
- 
+
     try {
       setLoading(true);
       const payload =
@@ -76,24 +75,23 @@ export default function LoginScreen({ navigation }) {
 
       navigation.navigate('OTP', { value, type: activeTab, });
     } catch (err) {
-      console.log("send otp error", err)
+      console.log("send otp error", err);
       setLoading(false);
-      setError(err?.response?.data?.message || 'Something went wrong');
-
+      setError("Unable to send OTP. Please try again.");
     }
   };
 
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <View style={styles.safe}>
       <StatusBar barStyle="dark-content" />
- 
+
       <View style={styles.container}>
         <Image
           source={require('../../assets/logo.png')}
           style={styles.logo}
         />
- 
+
         {/* TOGGLE */}
         <View style={styles.toggleWrap}>
           <TouchableOpacity
@@ -106,7 +104,7 @@ export default function LoginScreen({ navigation }) {
           >
             <Text style={styles.toggleTxt}>Phone</Text>
           </TouchableOpacity>
- 
+
           <TouchableOpacity
             style={[styles.toggleBtn, activeTab === 'email' && styles.activeToggle]}
             onPress={() => {
@@ -118,11 +116,11 @@ export default function LoginScreen({ navigation }) {
             <Text style={styles.toggleTxt}>Email</Text>
           </TouchableOpacity>
         </View>
- 
+
         <Text style={styles.label}>
           {activeTab === 'phone' ? 'Mobile Number' : 'Email Address'}
         </Text>
- 
+
         {/* INPUT BOX */}
         <View style={styles.inputBox}>
           {activeTab === 'phone' && (
@@ -134,7 +132,7 @@ export default function LoginScreen({ navigation }) {
                 <Text style={styles.countryText}>{countryCode}</Text>
                 <Ionicons name="chevron-down" size={16} />
               </TouchableOpacity>
- 
+
               {showCodes && (
                 <View style={styles.dropdown}>
                   {COUNTRY_CODES.map(code => (
@@ -163,7 +161,7 @@ export default function LoginScreen({ navigation }) {
               style={{ marginRight: scale(8) }}
             />
           )}
- 
+
           <TextInput
             style={styles.input}
             placeholder={activeTab === 'phone' ? 'Enter number' : 'Enter email'}
@@ -182,9 +180,9 @@ export default function LoginScreen({ navigation }) {
 
           />
         </View>
- 
+
         {!!error && <Text style={styles.error}>{error}</Text>}
- 
+
         {/* BUTTON */}
         <TouchableOpacity
           style={[
@@ -199,14 +197,14 @@ export default function LoginScreen({ navigation }) {
           </Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
- 
+
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#FFF' },
   container: { flex: 1, padding: scale(24) },
- 
+
   logo: {
     width: scale(150),
     height: scale(120),
@@ -214,7 +212,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: verticalScale(24),
   },
- 
+
   toggleWrap: {
     flexDirection: 'row',
     backgroundColor: '#F1F3F5',
@@ -234,13 +232,13 @@ const styles = StyleSheet.create({
     borderRadius: scale(30),
   },
   toggleTxt: { fontSize: scale(14), fontWeight: '600' },
- 
+
   label: {
     fontSize: scale(20),
     fontWeight: '700',
     marginBottom: verticalScale(8),
   },
- 
+
   inputBox: {
     position: 'relative',
     flexDirection: 'row',
@@ -251,7 +249,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(12),
     height: verticalScale(52),
   },
- 
+
   countryWrap: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -261,7 +259,7 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   countryText: { fontWeight: '700', marginRight: 4 },
- 
+
   dropdown: {
     position: 'absolute',
     top: verticalScale(52),
@@ -276,18 +274,18 @@ const styles = StyleSheet.create({
   dropItem: {
     padding: scale(8),
   },
- 
+
   input: {
     flex: 1,
     fontSize: scale(16),
     color: '#111',
   },
- 
+
   error: {
     color: '#DC2626',
     marginTop: verticalScale(8),
   },
- 
+
   btn: {
     backgroundColor: '#2563EB',
     marginTop: verticalScale(24),

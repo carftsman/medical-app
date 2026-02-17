@@ -26,7 +26,7 @@ const BookingSlice = createSlice({
     },
     setDate(state, action) {
       state.selectedDate = action.payload;
-      state.selectedTime = null; // reset time when date changes
+      state.selectedTime = null; 
     },
     setTime(state, action) {
       state.selectedTime = action.payload;

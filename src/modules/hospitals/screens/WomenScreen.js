@@ -10,7 +10,6 @@ import {
 } from "react-native";
 
 import { useNavigation } from "@react-navigation/native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { RefreshControl } from "react-native";
 import api from "../../../api/client";
 
@@ -165,11 +164,11 @@ const fetchWomenDoctors = async () => {
 };
 
   return (
-    <View style={styles.safeArea}>
+    <View style={styles.safeArea} edges={["top"]}>
       <View style={styles.container}>
         {/* HEADER */}
 <LinearGradient
-  colors={["#C084FC", COLORS.pink]}
+  colors={[COLORS.purple, COLORS.pink]}
   start={{ x: 0, y: 0 }}
   end={{ x: 1, y: 0 }}
   style={styles.header}
@@ -271,25 +270,26 @@ const fetchWomenDoctors = async () => {
 
 
           {/*MAKE IT UP  */}
-<View style={styles.makeItWrapper}>
+ <View style={styles.makeItWrapper}>
   <View style={styles.makeItLeft}>
     <Text style={styles.makeItTitle}>Make it up with Ease</Text>
     <Text style={styles.makeItSub}>Love India</Text>
   </View>
-
-  <TouchableOpacity
-    style={styles.makeItPlusBtn}
-    activeOpacity={0.85}
-    onPress={() => setShowReminderModal(true)}
-  >
-    <Text style={styles.makeItPlus}>+</Text>
-  </TouchableOpacity>
-</View>
+</View> 
 
 
           <View style={{ height: verticalScale(90) }} />
         </ScrollView>
+          {/* REMINDER BUTTON */}
+<TouchableOpacity
+  style={styles.floatingButton}
+  activeOpacity={0.85}
+  onPress={() => setShowReminderModal(true)}
+>
+  <Text style={styles.floatingPlus}>+</Text>
+</TouchableOpacity>
       </View>
+
       <AddReminderModal
   visible={showReminderModal}
   onClose={() => setShowReminderModal(false)}
@@ -387,10 +387,9 @@ searchPlaceholder: {
   },
 
 makeItWrapper: {
-  marginTop: verticalScale(105),
-  marginBottom: verticalScale(60),
+  marginTop: verticalScale(50),
+  marginBottom: verticalScale(30),
   paddingHorizontal: scale(25),
-
   flexDirection: "row",
   alignItems: "center",
   justifyContent: "space-between",
@@ -432,4 +431,26 @@ makeItPlus: {
   lineHeight: scale(42),
 },
 
+floatingButton: {
+  position: "absolute",
+  bottom: verticalScale(115), // adjust if needed
+  right: scale(20),
+  width: scale(64),
+  height: scale(64),
+  borderRadius: scale(32),
+  backgroundColor: COLORS.pink,
+  justifyContent: "center",
+  alignItems: "center",
+  elevation: 10,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.3,
+  shadowRadius: 6,
+},
+
+floatingPlus: {
+  fontSize: scale(36),
+  color: COLORS.white,
+  fontWeight: "700",
+},
 });

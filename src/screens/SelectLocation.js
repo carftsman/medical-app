@@ -42,43 +42,77 @@ const SelectLocation = () => {
   };
 
   const requestPermission = async () => {
-    if (Platform.OS === "android") {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-      );
-      return granted === PermissionsAndroid.RESULTS.GRANTED;
+  if (Platform.OS === "android") {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      {
+        title: "Location Permission",
+        message: "We need access to your location",
+        buttonNeutral: "Ask Me Later",
+        buttonNegative: "Cancel",
+        buttonPositive: "OK",
+      }
+    );
+
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      return true;
+    } else {
+      return false;
     }
-    return true;
-  };
+  }
+  return true;
+};
+
 
   const useCurrentLocation = async () => {
+  try {
     const ok = await requestPermission();
-    if (!ok) return;
+    if (!ok) {
+      alert("Location permission denied");
+      return;
+    }
 
     Geolocation.getCurrentPosition(
       async (pos) => {
-        const { latitude, longitude } = pos.coords;
+        try {
+          const { latitude, longitude } = pos.coords;
 
-        const data = await safeFetchJson(
-          `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-        );
+          const data = await safeFetchJson(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+          );
 
-        if (!data) return;
+          if (!data) {
+            alert("Unable to fetch address. Try again.");
+            return;
+          }
 
-        dispatch(
-          setLocation({
-            address: data.display_name,
-            latitude,
-            longitude,
-          })
-        );
+          dispatch(
+            setLocation({
+              address: data.display_name,
+              latitude,
+              longitude,
+            })
+          );
 
-        navigation.goBack();
+          navigation.goBack();
+        } catch (err) {
+          alert("Something went wrong while fetching address");
+        }
       },
-      () => {},
-      { enableHighAccuracy: true, timeout: 15000 }
+      (error) => {
+        console.log("Location error:", error);
+        alert("Unable to fetch location. Please enable GPS.");
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 20000,
+        maximumAge: 10000,
+      }
     );
-  };
+  } catch (err) {
+    alert("Something went wrong");
+  }
+};
 
   const searchLocation = (text) => {
     if (timer) clearTimeout(timer);

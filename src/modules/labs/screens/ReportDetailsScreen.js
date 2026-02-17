@@ -19,6 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { formatDate } from '../../../utils/helpers';
+import api from '../../../api/client';
 export default function ReportDetailsScreen({ route }) {
   const id = route?.params?.id || 2;
   const navigation = useNavigation();
@@ -34,8 +35,8 @@ export default function ReportDetailsScreen({ route }) {
     try {
       setLoading(true);
 
-     const response = await axios.get(
-  `https://hospital-backend-1-9jq0.onrender.com/api/labs/reports/${id}/details`
+     const response = await api.get(
+  `/labs/reports/${id}/details`
 );
    const formatDate = (dateString) => {
   if (!dateString) return '-';
@@ -60,7 +61,6 @@ export default function ReportDetailsScreen({ route }) {
     }
   };
 
-  // Loading Screen
   if (loading) {
     return (
       <View style={styles.loader}>
@@ -68,8 +68,6 @@ export default function ReportDetailsScreen({ route }) {
       </View>
     );
   }
-
-  // No Data
   if (!report) {
     return (
       <View style={styles.loader}>
@@ -117,24 +115,21 @@ console.log("rd",report);
 
             />
           </View>
-
-          {/* Samples */}
           <Text style={styles.section}>Samples Collected</Text>
           <Text style={styles.sub}>{report.samplesCollected
 ?.join(', ')}</Text>
 
-          {/* Result */}
           <Text style={styles.section}>Test Result</Text>
           <TestResultBox summary={report.resultSummary} />
-
-          {/* Reports */}
           <View style={styles.reportHeader}>
             <Text style={styles.section}>Reports</Text>
             <Text style={styles.download}>Download All</Text>
           </View>
 
           <ReportList reports={report.reports} />
-          <TouchableOpacity onPress={() => navigation.navigate('Feedback')}>
+          <TouchableOpacity onPress={() => navigation.navigate('Feedback',
+            {id:report.bookingId}
+          )}>
           <Text style={styles.rate}>Rate Your Experience →</Text>
           </TouchableOpacity>
         </ScrollView>
