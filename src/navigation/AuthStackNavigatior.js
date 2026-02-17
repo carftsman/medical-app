@@ -13,7 +13,6 @@ import Onboarding1 from '../screens/Onboarding1';
 
 const AuthStackNavigator = () => {
   const Stack = createNativeStackNavigator();
-
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Onboarding1" component={Onboarding1} />
