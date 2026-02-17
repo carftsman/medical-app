@@ -22,8 +22,9 @@ const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
   const [bloodGroup, setBloodGroup] = useState("");
+  const [gender, setGender] = useState("");
   const [emergencyName, setEmergencyName] = useState("");
-  const [emergencyNumber, setEmergencyNumber] = useState("");
+  const [emergencyNumber, setEmergencyNumber] = useState(""); 
   const [agree, setAgree] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -64,6 +65,8 @@ const RegisterScreen = ({ navigation }) => {
       temp.bloodGroup = "Please enter blood group";
     else if (!/^(A|B|AB|O)(\+ve|-ve)$/i.test(bloodGroup))
       temp.bloodGroup = "Invalid blood group eg., A+ve, A-ve";
+ 
+     if (!gender) temp.gender = "Please select gender";
 
     if (!emergencyName.trim())
       temp.emergencyName = "Please enter emergency contact name";
@@ -89,6 +92,7 @@ const RegisterScreen = ({ navigation }) => {
         email,
         mobileNumber,
         bloodGroup,
+        gender,
         emContactName: emergencyName,
         emContactNumber: emergencyNumber,
         fullName: fullname,
@@ -147,6 +151,34 @@ const RegisterScreen = ({ navigation }) => {
             <InputField value={bloodGroup} onChangeText={setBloodGroup} placeholder={"Ex: A+ve"} />
             {errors.bloodGroup && (
               <Text style={styles.error}>{errors.bloodGroup}</Text>
+            )}
+            <Label icon="male-female-outline" text="Gender" />
+
+            <View style={styles.radioContainer}>
+              {["male", "female", "other"].map((item) => (
+                <TouchableOpacity
+                  key={item}
+                  style={styles.radioItem}
+                  onPress={() => setGender(item)}
+                >
+                  <Ionicons
+                    name={
+                      gender === item
+                        ? "radio-button-on"
+                        : "radio-button-off"
+                    }
+                    size={20}
+                    color={gender === item ? COLORS.primary : "#9CA3AF"}
+                  />
+                  <Text style={styles.radioText}>
+                    {item.charAt(0).toUpperCase() + item.slice(1)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {errors.gender && (
+              <Text style={styles.error}>{errors.gender}</Text>
             )}
 
             <Label icon="person-add-outline" text="Emergency Contact Name" />
@@ -253,6 +285,22 @@ const styles = StyleSheet.create({
     marginLeft: scale(20),
     marginTop: verticalScale(2),
   },
+radioContainer: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  marginHorizontal: scale(20),
+  marginTop: verticalScale(8),
+},
+
+radioItem: {
+  flexDirection: "row",
+  alignItems: "center",
+},
+
+radioText: {
+  marginLeft: scale(6),
+  fontSize: scale(14),
+},
 
   termsRow: {
     flexDirection: "row",
