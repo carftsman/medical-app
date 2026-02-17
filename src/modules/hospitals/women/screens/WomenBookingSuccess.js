@@ -85,7 +85,7 @@ export default WomenBookingSuccess;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F47FBB",
+    // backgroundColor: "#F47FBB",
   },
 
   topSection: {
@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(20),
     paddingBottom: verticalScale(100),
     alignItems: "center",
+    backgroundColor: "#F47FBB",
   },
 
   cardSection: {

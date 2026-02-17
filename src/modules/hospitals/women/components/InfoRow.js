@@ -21,7 +21,7 @@ export default function InfoRow({ icon, title, value }) {
       </View>
 
       {/* Change button clickable */}
-      <TouchableOpacity onPress={() => navigation.navigate("DoctorId")}>
+      <TouchableOpacity onPress={() => navigation.navigate("WomenDoctorDetails")}>
         <Text style={styles.change}>Change</Text>
       </TouchableOpacity>
 

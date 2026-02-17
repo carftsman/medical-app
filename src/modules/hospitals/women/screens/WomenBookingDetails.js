@@ -8,6 +8,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import api from '../../../../api/client';
+import { useSelector } from 'react-redux';
 
 export default function WomenBookingDetails({ route }) { 
   const navigation = useNavigation();
@@ -15,8 +16,8 @@ export default function WomenBookingDetails({ route }) {
   const [loading, setLoading] = useState(true);
   const [bookingData, setBookingData] = useState(null);
 
-  // If coming from previous screen
-  const bookingId = route?.params?.bookingId || 2;
+  const bookingId = useSelector(state => state.hospital.consultation.bookingId);
+  console.log("IDDD", bookingId);
 
   useEffect(() => {
     fetchBookingDetails();
@@ -76,12 +77,22 @@ export default function WomenBookingDetails({ route }) {
         /> 
         
         {/* Reason */}
-        <InfoRow 
+        {/* <InfoRow 
           icon="create-outline" 
           title="Reason" 
           value={bookingData?.reason}
-        /> 
-        
+        />  */}
+        <View style={styles.row}>
+                <View style={styles.iconContainer}>
+                  <Ionicons name={"create-outline"} size={scale(18)} color="#F36" />
+                </View>
+          
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.title}>Reason</Text>
+                  <Text style={styles.value}>{bookingData?.reason}</Text>
+                </View>
+        </View>
+
         {/* Payment */}
         <View style={styles.paymentBox}> 
           <Text style={styles.paymentTitle}>Payment Summary</Text> 
@@ -119,7 +130,7 @@ export default function WomenBookingDetails({ route }) {
         onPress={() => navigation.navigate("WomenBookingSuccess")}
         style={styles.button}
       >
-        <Text style={styles.text}>Pay</Text>
+        <Text style={styles.text}>Pay {`₹${bookingData?.payment?.total}`}</Text>
       </TouchableOpacity>
 
     </SafeAreaView> 
@@ -164,5 +175,30 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: scale(16),
     fontWeight: "600",
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: scale(16),
+    marginTop: verticalScale(20),
+  },
+  iconContainer: {
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(12),
+    backgroundColor: "#FFF0F5",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: scale(12),
+  },
+  title: {
+    fontSize: scale(13),
+    color: "#999",
+  },
+  value: {
+    fontSize: scale(14),
+    color: "#333",
+    marginTop: verticalScale(4),
+    fontWeight: "500",
   },
 });

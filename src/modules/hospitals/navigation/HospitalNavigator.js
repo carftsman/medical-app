@@ -141,7 +141,6 @@ const HospitalStackNavigator = () => {
         headerShown: false,
        
       }}
-       initialRouteName='WomenBookingDetails'     
     >
       
       <Stack.Screen name="HospitalsTab" component={HospitalTabNavigator} />
@@ -157,10 +156,10 @@ const HospitalStackNavigator = () => {
       <Stack.Screen name='PatientDetails' component={PatientDetails}/>
       <Stack.Screen name='BookingSuccess' component={BookingSuccess}/>
       
-      {/* <Stack.Screen name="HospitalsHomeScreen" component={HospitalsHomeScreen}/> */}
+      {/* <Stack.Screen name="HospitalsHomeScreen" component={HospitalsHomeScreen}*/}
 
       <Stack.Screen name="WomenDepartmentsScreen" component={WomenDepartmentsScreen}/>
-      <Stack.Screen name='WomenHospitalScreen' component={WomenHospitalsScreen}/>
+      <Stack.Screen name='WomenHospitalsScreen' component={WomenHospitalsScreen}/>
       <Stack.Screen name='WomenHospitalDetails' component={WomenHospitalDetails}/>
       <Stack.Screen name='WomenDoctorsScreen' component={WomenDoctorsScreen}/>
       <Stack.Screen name='WomenDoctorDetails' component={WomenDoctorDetails}/>
