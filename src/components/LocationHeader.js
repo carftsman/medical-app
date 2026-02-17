@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
 import { useSelector } from "react-redux";
-import { scale, verticalScale } from "../utils/styling"; // 👈 your responsive utils
+import { scale, verticalScale } from "../utils/styling"; 
 
 export default function LocationHeader() {
   const navigation = useNavigation();
