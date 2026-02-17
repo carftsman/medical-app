@@ -1,23 +1,23 @@
-import React, { useEffect, useState } from "react"; 
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
-import { scale, verticalScale } from "../../../../utils/styling"; 
-import DoctorCard from "../components/DoctorCard"; 
+import { scale, verticalScale } from "../../../../utils/styling";
+import DoctorCard from "../components/DoctorCard";
 import InfoRow from "../components/InfoRow";
-import PaymentRow from "../components/PaymentRow"; 
-import { SafeAreaView } from "react-native-safe-area-context"; 
+import PaymentRow from "../components/PaymentRow";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import api from '../../../../api/client';
 import { useSelector } from 'react-redux';
 
-export default function WomenBookingDetails({ route }) { 
+export default function WomenBookingDetails({ route }) {
   const navigation = useNavigation();
 
   const [loading, setLoading] = useState(true);
   const [bookingData, setBookingData] = useState(null);
 
   const bookingId = useSelector(state => state.hospital.consultation.bookingId);
-  console.log("IDDD", bookingId);
+  console.log("Booking ID: ", bookingId);
 
   useEffect(() => {
     fetchBookingDetails();
@@ -39,16 +39,16 @@ export default function WomenBookingDetails({ route }) {
 
   if (loading) {
     return (
-      <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#F36" />
-      </SafeAreaView>
+      </View>
     );
   }
 
-  return ( 
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-      
-      <ScrollView> 
+  return (
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
+
+      <ScrollView>
 
         {/* Header */}
         <View style={{ flexDirection: "row", alignItems: "center", padding: scale(16) }}>
@@ -58,9 +58,9 @@ export default function WomenBookingDetails({ route }) {
 
           <Text style={styles.header}>Book an Appointment</Text>
         </View>
-        
+
         {/* Doctor Card */}
-        <DoctorCard 
+        <DoctorCard
           name={bookingData?.doctor?.name}
           specialization={bookingData?.doctor?.specialization}
           experience={bookingData?.doctor?.experience}
@@ -69,100 +69,101 @@ export default function WomenBookingDetails({ route }) {
         />
 
         {/* Date */}
-        <InfoRow 
-          icon="calendar-outline" 
-          title="Date" 
+        <InfoRow
+          icon="calendar-outline"
+          title="Date"
           value={`${bookingData?.appointment?.date} | ${bookingData?.appointment?.time}`}
           showChange={true}
-        /> 
-        
+        />
+
         {/* Reason */}
-        {/* <InfoRow 
-          icon="create-outline" 
-          title="Reason" 
-          value={bookingData?.reason}
-        />  */}
-        <View style={styles.row}>
-                <View style={styles.iconContainer}>
-                  <Ionicons name={"create-outline"} size={scale(18)} color="#F36" />
-                </View>
-          
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.title}>Reason</Text>
-                  <Text style={styles.value}>{bookingData?.reason}</Text>
-                </View>
-        </View>
+        {
+          bookingData?.reason &&
+          <View style={styles.row}>
+            <View style={styles.iconContainer}>
+              <Ionicons name={"create-outline"} size={scale(18)} color="#F36" />
+            </View>
+
+            <View style={{ flex: 1 }}>
+              <Text style={styles.title}>Reason</Text>
+              <Text style={styles.value}>{bookingData?.reason}</Text>
+            </View>
+          </View>
+        }
 
         {/* Payment */}
-        <View style={styles.paymentBox}> 
-          <Text style={styles.paymentTitle}>Payment Summary</Text> 
-          
+        <View style={styles.paymentBox}>
+          <Text style={styles.paymentTitle}>Payment Summary</Text>
+
           <PaymentRow
-            label="Consultation Fee" 
-            value={`₹${bookingData?.payment?.consultationFee}`} 
-          /> 
-          
-          <PaymentRow 
-            label="Service Fee" 
+            label="Consultation Fee"
+            value={`₹${bookingData?.payment?.consultationFee}`}
+          />
+
+          <PaymentRow
+            label="Service Fee"
             value={
-              bookingData?.payment?.serviceFee === 0 
-                ? "Free" 
+              bookingData?.payment?.serviceFee === 0
+                ? "Free"
                 : `₹${bookingData?.payment?.serviceFee}`
             }
-            highlight 
-          /> 
-          
-          <PaymentRow 
-            label="GST (18%)" 
-            value={`₹${bookingData?.payment?.gst}`} 
-          /> 
-          
-          <View style={styles.divider} /> 
-          
-          <PaymentRow 
-            label="Total Payable" 
-            value={`₹${bookingData?.payment?.total}`} 
-          /> 
-        </View> 
-      </ScrollView> 
+            highlight
+          />
+
+          <PaymentRow
+            label="GST (18%)"
+            value={`₹${bookingData?.payment?.gst}`}
+          />
+
+          <View style={styles.divider} />
+
+          <PaymentRow
+            label="Total Payable"
+            value={`₹${bookingData?.payment?.total}`}
+          />
+        </View>
+      </ScrollView>
 
       <TouchableOpacity
-        onPress={() => navigation.navigate("WomenBookingSuccess")}
+        onPress={() => navigation.navigate('Payments',{
+          totalFee:bookingData?.payment?.totalPayable,
+          women: true,
+        })}
         style={styles.button}
       >
         <Text style={styles.text}>Pay {`₹${bookingData?.payment?.total}`}</Text>
       </TouchableOpacity>
 
-    </SafeAreaView> 
-  ); 
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
   header: {
-    fontSize: scale(18), 
+    fontSize: scale(18),
     fontWeight: "600",
     marginLeft: scale(16),
   },
   paymentBox: {
-    margin: scale(16), 
-    padding: scale(16), 
-    backgroundColor: "#fff", 
-    borderRadius: scale(16), 
-    shadowColor: "#000", 
-    shadowOpacity: 0.05, 
+    margin: scale(16),
+    padding: scale(16),
+    backgroundColor: "#fff",
+    borderRadius: scale(16),
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
     shadowRadius: 10,
     elevation: 2,
   },
   paymentTitle: {
     fontSize: scale(16),
-    fontWeight: "600", 
-    marginBottom: verticalScale(12), 
-  }, 
-  divider: { 
+    fontWeight: "600",
+    marginBottom: verticalScale(12),
+  },
+  divider: {
     height: 1,
-    backgroundColor: "#eee", 
-    marginVertical: verticalScale(12), 
-  }, 
+    backgroundColor: "#eee",
+    marginVertical: verticalScale(12),
+  },
   button: {
     backgroundColor: "#F47FBB",
     margin: scale(16),
