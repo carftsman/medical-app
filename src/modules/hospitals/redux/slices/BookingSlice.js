@@ -1,12 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  mode: 'all',
+  mode: 'ONLINE',
   selectedDate: null,
   selectedTime: null,
   consultationType: null,
   bookingId:null,
-  mode: "all",
   category: {
     id: null,
     name: "",
@@ -27,7 +26,7 @@ const BookingSlice = createSlice({
     },
     setDate(state, action) {
       state.selectedDate = action.payload;
-      state.selectedTime = null; // reset time when date changes
+      state.selectedTime = null; 
     },
     setTime(state, action) {
       state.selectedTime = action.payload;
