@@ -19,7 +19,7 @@ import { setConsultationType, setBookingId, setDate } from '../../redux/slices/B
 
 const WomenDoctorDetails = ({ route, navigation }) => {
 
-  const doctorId =  route?.params?.doctorId || 1;
+  const doctorId = route?.params?.doctorId || 1;
 
   const { selectedDate, selectedTime } = useSelector(
     state => state.hospital.consultation
@@ -37,7 +37,7 @@ const WomenDoctorDetails = ({ route, navigation }) => {
   const [error, setError] = useState('');
 
   const hospitalId = doctorDetails?.hospital?.id;
-  console.log("ID",hospitalId);
+  console.log("ID", hospitalId);
 
   const fetchDoctorDetails = async (isRefresh = false) => {
     try {
@@ -119,8 +119,9 @@ const WomenDoctorDetails = ({ route, navigation }) => {
           bookingFor: 'SELF',
         }
       );
-      console.log("DATAAAAA: ",response?.data);
+      console.log("DATAAAAA: ", response?.data);
       dispatch(setBookingId(response?.data?.bookingId));
+      fetchTimeSlots();
     }
     catch (error) {
       console.log("Error sending Id: ", error.message);
@@ -154,17 +155,17 @@ const WomenDoctorDetails = ({ route, navigation }) => {
     }
   }, [selectedDate]);
 
- const handleBookAppointment = () => {
+  const handleBookAppointment = () => {
 
-  // ❌ If no time slot selected, do nothing
-  if (!selectedTime) {
-    return;
-  }
+    // ❌ If no time slot selected, do nothing
+    if (!selectedTime) {
+      return;
+    }
 
-  // ✅ If time selected, allow booking
-  setShowModal(true);
-  dispatch(setConsultationType('SELF'));
-};
+    // ✅ If time selected, allow booking
+    setShowModal(true);
+    dispatch(setConsultationType('SELF'));
+  };
 
 
   if (loading) {
@@ -234,7 +235,7 @@ const WomenDoctorDetails = ({ route, navigation }) => {
           days={hospitalDetails?.availability?.days}
           startTime={hospitalDetails?.availability?.startTime}
           endTime={hospitalDetails?.availability?.endTime}
-          // distancekm={hospitalDetails?.distancekm}
+        // distancekm={hospitalDetails?.distancekm}
         />
 
         <DoctorReviewsWomen />
@@ -242,14 +243,14 @@ const WomenDoctorDetails = ({ route, navigation }) => {
       </ScrollView>
 
       <View style={styles.bookAppointmentButtonCard}>
-       <TouchableOpacity
-  style={[
-    styles.bookAppointmentButton,
-    !selectedTime && styles.disabledButton
-  ]}
-  disabled={!selectedTime}
-  onPress={handleBookAppointment}
->
+        <TouchableOpacity
+          style={[
+            styles.bookAppointmentButton,
+            !selectedTime && styles.disabledButton
+          ]}
+          disabled={!selectedTime}
+          onPress={handleBookAppointment}
+        >
 
           <Text style={styles.bookAppointmentText}>Book Appointment</Text>
         </TouchableOpacity>
@@ -308,9 +309,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   disabledButton: {
-  backgroundColor: '#BDBDBD',
-  borderColor: '#BDBDBD',
-},
+    backgroundColor: '#BDBDBD',
+    borderColor: '#BDBDBD',
+  },
 
 });
 
