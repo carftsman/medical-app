@@ -95,7 +95,7 @@ const PackagesFilterModal = ({ visible, onClose, onApply }) => {
 
             {/* GENDER */}
             <Text style={styles.section}>Gender</Text>
-            {['MALE', 'FEMALE','OTHERS']
+            {['MALE', 'FEMALE']
               .map(g => (
                 <RadioOption
                   key={g}
