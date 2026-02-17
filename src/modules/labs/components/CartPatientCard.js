@@ -12,11 +12,11 @@
   import Feather from "react-native-vector-icons/Feather";
 
   const LabsCartPatientCard = ({
-    patientName = "John Doe",
-    age = "30",
-    gender = "Male",
-    testName = "Blood Test",
-    price = "₹400/-",
+    patientName,
+    age,
+    gender,
+    testName,
+    price,
     onEditPress,
     onDeletePress,
     onAddPatient,

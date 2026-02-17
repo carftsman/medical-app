@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Pressable,
 } from "react-native";
 import Modal from "react-native-modal";
 import { COLORS } from "../../../config/constants";
@@ -16,8 +15,30 @@ const AddPatientModal = ({ visible, onClose, onSubmit }) => {
   const [gender, setGender] = useState("");
   const [age, setAge] = useState("");
   const [mobile, setMobile] = useState("");
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    let err = {};
+
+    if (name.trim().length < 3)
+      err.name = "Enter valid full name";
+
+    if (!gender)
+      err.gender = "Select gender";
+
+    if (!/^\d{1,3}$/.test(age) || Number(age) < 1 || Number(age) > 120)
+      err.age = "Enter valid age";
+
+    if (!/^\d{10}$/.test(mobile))
+      err.mobile = "Enter valid 10 digit mobile number";
+
+    setErrors(err);
+    return Object.keys(err).length === 0;
+  };
 
   const handleAddPatient = () => {
+    if (!validate()) return;
+
     const patient = {
       id: Date.now().toString(),
       name,
@@ -28,6 +49,13 @@ const AddPatientModal = ({ visible, onClose, onSubmit }) => {
 
     onSubmit(patient);
     onClose();
+
+    // reset form
+    setName("");
+    setGender("");
+    setAge("");
+    setMobile("");
+    setErrors({});
   };
 
   return (
@@ -41,17 +69,64 @@ const AddPatientModal = ({ visible, onClose, onSubmit }) => {
       <View style={styles.container}>
         <Text style={styles.title}>Add New Patient</Text>
 
+        {/* NAME */}
         <Text style={styles.label}>Full Name</Text>
-        <TextInput style={styles.input} onChangeText={setName} />
+        <TextInput
+          style={styles.input}
+          value={name}
+          onChangeText={setName}
+          placeholder="Enter patient name"
+        />
+        {errors.name && <Text style={styles.error}>{errors.name}</Text>}
 
+        {/* GENDER SELECTOR */}
         <Text style={styles.label}>Gender</Text>
-        <TextInput style={styles.input} onChangeText={setGender} />
+        <View style={styles.genderRow}>
+          {["Male", "Female"].map(g => (
+            <TouchableOpacity
+              key={g}
+              style={[
+                styles.genderBtn,
+                gender === g && styles.genderSelected,
+              ]}
+              onPress={() => setGender(g)}
+            >
+              <Text
+                style={[
+                  styles.genderText,
+                  gender === g && { color: COLORS.white },
+                ]}
+              >
+                {g}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        {errors.gender && <Text style={styles.error}>{errors.gender}</Text>}
 
+        {/* AGE */}
         <Text style={styles.label}>Age</Text>
-        <TextInput style={styles.input} keyboardType="number-pad" onChangeText={setAge} />
+        <TextInput
+          style={styles.input}
+          value={age}
+          keyboardType="number-pad"
+          onChangeText={setAge}
+          placeholder="Enter age"
+          maxLength={3}
+        />
+        {errors.age && <Text style={styles.error}>{errors.age}</Text>}
 
+        {/* MOBILE */}
         <Text style={styles.label}>Mobile</Text>
-        <TextInput style={styles.input} keyboardType="number-pad" onChangeText={setMobile} />
+        <TextInput
+          style={styles.input}
+          value={mobile}
+          keyboardType="number-pad"
+          onChangeText={setMobile}
+          placeholder="Enter mobile number"
+          maxLength={10}
+        />
+        {errors.mobile && <Text style={styles.error}>{errors.mobile}</Text>}
 
         <TouchableOpacity style={styles.button} onPress={handleAddPatient}>
           <Text style={styles.buttonText}>Add Patient</Text>
@@ -62,6 +137,7 @@ const AddPatientModal = ({ visible, onClose, onSubmit }) => {
 };
 
 export default AddPatientModal;
+
 
 
 const styles = StyleSheet.create({
@@ -109,4 +185,36 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     textAlign: "center",
   },
+
+  error: {
+    color: "red",
+    fontSize: scale(11),
+    marginBottom: verticalScale(8),
+  },
+
+  genderRow: {
+    flexDirection: "row",
+    gap: scale(10),
+    marginBottom: verticalScale(10),
+  },
+
+  genderBtn: {
+    flex: 1,
+    paddingVertical: verticalScale(10),
+    borderRadius: scale(8),
+    borderWidth: 1,
+    borderColor: COLORS.blue,
+    alignItems: "center",
+  },
+
+  genderSelected: {
+    backgroundColor: COLORS.blue,
+  },
+
+  genderText: {
+    fontSize: scale(14),
+    color: COLORS.blue,
+    fontWeight: "600",
+  },
+
 });

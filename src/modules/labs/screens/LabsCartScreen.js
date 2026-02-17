@@ -14,7 +14,7 @@ import CartCouponBanner from "../components/CartCouponBanner";
 import CartFooter from "../components/CartFooter";
 import AddPatientModal from "../components/AddPatientModal";
 
-const USER_ID = 21; // 🔥 Replace later with dynamic user
+const USER_ID = 12; // Replace later with dynamic user
 
 const LabsCartScreen = () => {
   const navigation = useNavigation();
@@ -24,7 +24,7 @@ const LabsCartScreen = () => {
   const discountAmount = 60;
 
   const [showAddPatient, setShowAddPatient] = useState(false);
-  const [selectedTestId, setSelectedTestId] = useState(null);
+  const [selectedCartItemId, setSelectedCartItemId] = useState(null);
 
   const [cartItems, setCartItems] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
@@ -77,15 +77,26 @@ const LabsCartScreen = () => {
   };
 
 
-  const handlePatientSubmit = (patient) => {
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.labTestId === selectedTestId
-          ? { ...item, patient }
-          : item
-      )
-    );
-  };
+  const handlePatientSubmit = async (patient) => {
+  try {
+    await labApi.addPatientToCart(selectedCartItemId, {
+      userId: USER_ID,
+      fullName: patient.name,
+      age: Number(patient.age),
+      gender: patient.gender,
+      mobile: patient.mobile,
+      consultationType: "LAB_VISIT",
+    });
+
+    fetchCart(); // refresh cart
+  } catch (error) {
+    console.log("Add patient error:", error.response?.data || error.message);
+  }
+};
+
+
+
+
 
   const handleApplyCoupon = () => {
     setCouponApplied(true);
@@ -126,7 +137,7 @@ const LabsCartScreen = () => {
                 price={`₹${item.test?.price * item.quantity}`}
                 onDeletePress={() => handleRemove(item.id)}
                 onAddPatient={() => {
-                  setSelectedTestId(item.labTestId);
+                  setSelectedCartItemId(item.id);
                   setShowAddPatient(true);
                 }}
               />

@@ -16,7 +16,9 @@ import ReportsTab from '../screens/ReportsTab';
 import ReportDetailsSreen from '../screens/ReportDetailsSreen';
 import LabFeedbackScreen from '../screens/LabFeedback';
 import CategoriesTab from '../screens/CategoriesTab';
+import SelectSlotScreen from '../screens/SelectSlotScreen';
 import { LabCartProvider } from '../context/LabCartContext';
+
 const LabStackNavigation = () => {
     const Stack = createNativeStackNavigator();
     return (
@@ -24,7 +26,7 @@ const LabStackNavigation = () => {
         <Stack.Navigator screenOptions={{
             headerShown: false
         }}
-            initialRouteName='PackagesDetails '
+            initialRouteName='CartScreen'
         >
             <Stack.Screen name="LabTabNavigation" component={LabTabNavigation} />
             <Stack.Screen name='SearchScreen' component={LabsSearchScreen} />

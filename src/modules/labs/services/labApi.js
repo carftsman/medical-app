@@ -11,7 +11,7 @@ export const labApi = {
   },
 
   addToLabCart: payload =>
-    api.post('/labs/cart/add', payload),
+    api.post('/labs/cart', payload),
 
   getLabDetails: labId => {
     return api.get(`/labs/${labId}/details`);
@@ -35,15 +35,20 @@ export const labApi = {
     return api.delete(`/labs/cart/${cartItemId}`);
   },
 
-
-
-  getLabSlots: (labId, date) => {
-    return api.get(`/labs/${labId}/slots`, {
-      params: {
-        date,
-        labId
-      }
+  addPatientToCart: (cartItemId, patientData) => {
+    return api.post(`/labs/cart/add-patient`, {
+      cartItemId,
+      ...patientData,
     });
   },
 
+  getLabAvailability: (labId) => {
+    return api.get(`/labs/${labId}/availability`);
+  },
+
+  getLabSlots: (labId, date) => {
+    return api.get(`/labs/${labId}/slots`, {
+      params: { date }
+    });
+  },
 };

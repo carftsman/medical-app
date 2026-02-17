@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   },
 
   slotButton: {
-    backgroundColor: COLORS.blue,
+    backgroundColor: COLORS.primary,
     paddingVertical: verticalScale(10),
     paddingHorizontal: scale(18),
     borderRadius: scale(10),

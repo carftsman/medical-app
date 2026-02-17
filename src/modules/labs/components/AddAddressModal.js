@@ -133,7 +133,6 @@ const AddAddressModal = ({ visible, onClose, onSubmit }) => {
             />
             {errors.house && <Text style={styles.error}>{errors.house}</Text>}
 
-            {/* Street */}
             <TextInput
               style={styles.input}
               placeholder="Street / Area"
@@ -142,7 +141,6 @@ const AddAddressModal = ({ visible, onClose, onSubmit }) => {
             />
             {errors.street && <Text style={styles.error}>{errors.street}</Text>}
 
-            {/* Landmark */}
             <TextInput
               style={styles.input}
               placeholder="Landmark (optional)"
@@ -150,7 +148,6 @@ const AddAddressModal = ({ visible, onClose, onSubmit }) => {
               onChangeText={(v) => handleChange("landmark", v)}
             />
 
-            {/* City */}
             <TextInput
               style={styles.input}
               placeholder="City"
@@ -159,7 +156,6 @@ const AddAddressModal = ({ visible, onClose, onSubmit }) => {
             />
             {errors.city && <Text style={styles.error}>{errors.city}</Text>}
 
-            {/* State Dropdown */}
             <View style={styles.pickerWrapper}>
               <TouchableOpacity
                 style={styles.input}
