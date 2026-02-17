@@ -25,9 +25,10 @@ const styles = StyleSheet.create({
     marginBottom: 25,
   },
   label: {
-    fontSize: 14,
+    fontSize: 20,
     color: '#444',
-    marginBottom: 8,
+    marginBottom: 18,
+    fontWeight: "bold"
   },
   input: {
     height: 120,
