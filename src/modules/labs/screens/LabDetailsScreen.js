@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,10 @@ import {
   TouchableOpacity,
   Linking,
   Share,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { labApi } from '../services/labApi';
 import { COLORS, SIZES } from '../../../config/constants';
@@ -19,19 +21,15 @@ const LabDetailsScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
 
-  const [showTimings, setShowTimings] = useState(false);
-
-  const labId = route?.params?.labId ?? 1;
+  const labId = route?.params?.labId ?? 3;
+  const categoryId = route?.params?.categoryId;
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [showTimings, setShowTimings] = useState(false);
   const [openPackageId, setOpenPackageId] = useState(null);
 
-  useEffect(() => {
-    if (labId) {
-      fetchLabDetails();
-    }
-  }, [labId]);
 
   const fetchLabDetails = async () => {
     try {
@@ -41,13 +39,26 @@ const LabDetailsScreen = () => {
       console.log('Lab details API error:', error?.response?.data || error.message);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
+
+
+  useEffect(() => {
+    if (labId) {
+      fetchLabDetails();
+    }
+  }, [labId]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchLabDetails();
+  }, [labId]);
 
   if (loading) {
     return (
       <View style={styles.center}>
-        <Text>Loading lab details...</Text>
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }
@@ -59,6 +70,7 @@ const LabDetailsScreen = () => {
       </View>
     );
   }
+
   const handleShare = async () => {
     try {
       const locationText =
@@ -70,51 +82,31 @@ const LabDetailsScreen = () => {
 
       await Share.share({
         message: `🏥 ${data.name}
-      ⭐ Rating: ${data.rating}
-      📍 Location: ${locationText}
-      🗺️ Google Maps:
-      ${mapsUrl}`,
-      });
+          ⭐ Rating: ${data.rating || 0}
+          📍 Location: ${locationText}
+          🗺️ Google Maps:
+          ${mapsUrl}`,
+        });
     } catch (error) {
       console.log('Share error:', error);
     }
   };
-  const renderStars = rating => {
+
+  
+  const renderStars = (rating = 0) => {
     const stars = [];
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating - fullStars >= 0.5;
 
     for (let i = 1; i <= 5; i++) {
       if (i <= fullStars) {
-        stars.push(
-          <Icon
-            key={i}
-            name="star"
-            size={scale(16)}
-            color="#F5A623"
-          />,
-        );
+        stars.push(<Icon key={i} name="star" size={scale(16)} color="#F5A623" />);
       } else if (i === fullStars + 1 && hasHalfStar) {
-        stars.push(
-          <Icon
-            key={i}
-            name="star-half-full"
-            size={scale(16)}
-            color="#F5A623"
-          />,
-        );
+        stars.push(<Icon key={i} name="star-half-full" size={scale(16)} color="#F5A623" />);
       } else {
-        stars.push(
-          <Icon
-            key={i}
-            name="star-outline"
-            size={scale(16)}
-            color="#F5A623"
-          />,
-        );
+        stars.push(<Icon key={i} name="star-outline" size={scale(16)} color="#F5A623" />);
       }
     }
-
     return stars;
   };
 
@@ -135,7 +127,16 @@ const LabDetailsScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[COLORS.primary]}
+          />
+        }
+      >
         {/* IMAGE */}
         <Image
           source={{
@@ -148,7 +149,6 @@ const LabDetailsScreen = () => {
 
         {/* BASIC INFO */}
         <View style={styles.section}>
-          {/* TITLE + CALL */}
           <View style={styles.topRow}>
             <Text style={styles.labName}>{data.name}</Text>
 
@@ -160,35 +160,26 @@ const LabDetailsScreen = () => {
             </TouchableOpacity>
           </View>
 
-          {/* RATING */}
           <View style={styles.ratingRow}>
             <View style={styles.starsRow}>
               {renderStars(data.rating)}
             </View>
-
             <Text style={styles.ratingText}>
-              {data.rating}
-            </Text>
-
-            <Text style={styles.reviewLink}>
-              View all reviews
+              {data.rating || 0}
             </Text>
           </View>
 
-
-          {/* ADDRESS CARD */}
+         
           <View style={styles.infoCard}>
-            {/* LEFT CONTENT */}
             <View style={styles.infoLeft}>
+             
               <View style={styles.row}>
                 <Icon name="map-marker-outline" size={scale(18)} />
                 <Text style={styles.addressText}>
                   {data.address || `${data.name}, ${data.city}`}
                 </Text>
-
               </View>
 
-              {/* OPEN + DROPDOWN */}
               <TouchableOpacity
                 style={styles.openRow}
                 onPress={() => setShowTimings(!showTimings)}
@@ -200,7 +191,7 @@ const LabDetailsScreen = () => {
                     color={COLORS.green}
                   />
                   <Text style={styles.openText}>
-                    Open <Text style={styles.closeText}>Closes 8pm</Text>
+                    Open <Text style={styles.closeText}>Closes 8 PM</Text>
                   </Text>
                 </View>
 
@@ -210,7 +201,6 @@ const LabDetailsScreen = () => {
                 />
               </TouchableOpacity>
 
-              {/* TIMINGS */}
               {showTimings && (
                 <View style={styles.timingBox}>
                   <View style={styles.timingRow}>
@@ -230,10 +220,8 @@ const LabDetailsScreen = () => {
                   </View>
                 </View>
               )}
-
             </View>
 
-            {/* FIXED LOCATION ICON */}
             <TouchableOpacity
               style={styles.navIcon}
               onPress={() =>
@@ -247,18 +235,17 @@ const LabDetailsScreen = () => {
               <Icon name="navigation-variant" size={scale(20)} />
             </TouchableOpacity>
           </View>
+
         </View>
 
-        {/* PACKAGES */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            Packages Included ({data.packagesIncluded?.length})
+            Packages Included ({data.packagesIncluded?.length || 0})
           </Text>
 
           {data.packagesIncluded?.map(pkg => {
             const packageId = pkg.id ?? pkg.packageId;
             const packageName = pkg.name ?? pkg.packageName;
-
             const isOpen = openPackageId === packageId;
 
             return (
@@ -274,11 +261,10 @@ const LabDetailsScreen = () => {
                 {isOpen && (
                   <View style={styles.accordionBody}>
                     {pkg.tests?.map((test, index) => (
-                      <Text key={`${packageId}-${test}-${index}`} style={styles.bulletText}>
+                      <Text key={`${packageId}-${index}`} style={styles.bulletText}>
                         • {test}
                       </Text>
                     ))}
-
                   </View>
                 )}
               </View>
@@ -287,12 +273,14 @@ const LabDetailsScreen = () => {
         </View>
       </ScrollView>
 
-      {/* BOTTOM CTA */}
       <View style={styles.bottom}>
         <TouchableOpacity
           style={styles.bookBtn}
           onPress={() =>
-            navigation.navigate('PackagesScreen', { labId: data.id })
+            navigation.navigate('PackagesScreen', {
+              labId: data.id,
+              categoryId: categoryId,
+            })
           }
         >
           <Text style={styles.bookText}>Book Test</Text>
@@ -303,6 +291,7 @@ const LabDetailsScreen = () => {
 };
 
 export default LabDetailsScreen;
+
 
 const styles = StyleSheet.create({
   container: {
@@ -444,24 +433,24 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(8),
   },
   timingRow: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-},
-timingLabel: {
-  fontSize: SIZES.medium,
-  color: COLORS.darkgray,
-  marginBottom: verticalScale(4),
-},
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  timingLabel: {
+    fontSize: SIZES.medium,
+    color: COLORS.darkgray,
+    marginBottom: verticalScale(4),
+  },
 
-timingValue: {
-  fontSize: SIZES.medium,
-  fontWeight: '700',
-  color: COLORS.black,
-},
+  timingValue: {
+    fontSize: SIZES.medium,
+    fontWeight: '700',
+    color: COLORS.black,
+  },
 
-timingColumn: {
-  flex: 1,
-},
+  timingColumn: {
+    flex: 1,
+  },
   timingText: {
     fontSize: SIZES.medium,
     color: COLORS.darkgray,

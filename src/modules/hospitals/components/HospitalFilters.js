@@ -9,6 +9,7 @@ const HospitalFilters = ({ onPress }) => (
   </TouchableOpacity>
 );
 
+
 export default HospitalFilters;
 
 const styles = StyleSheet.create({

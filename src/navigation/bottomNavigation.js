@@ -3,6 +3,10 @@ import React from "react";
 import { Platform } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import Fontisto from "react-native-vector-icons/Fontisto"
+import Feather from "react-native-vector-icons/Feather"
+
+
 
 import HomeScreen from "../screens/HomeScreen";
 import HospitalsScreen from "../screens/HospitalsScreen";
@@ -50,10 +54,10 @@ export default function BottomNavigation() {
         options={{
           tabBarLabel: "Home",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons
-              name="home-outline"
+            <Feather
+              name="home"
               color={color}
-              size={26}
+              size={size}
             />
           ),
         }}
@@ -65,11 +69,11 @@ export default function BottomNavigation() {
         component={HospitalsScreen}
         options={{
           tabBarLabel: "Hospitals",
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: ({ color,size }) => (
             <MaterialCommunityIcons
               name="hospital-building"
               color={color}
-              size={26}
+              size={size}
             />
           ),
         }}
@@ -81,11 +85,11 @@ export default function BottomNavigation() {
         component={PharmacyScreen}
         options={{
           tabBarLabel: "Pharmacy",
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: ({ color,size }) => (
             <MaterialCommunityIcons
               name="pill"
               color={color}
-              size={26}
+              size={size}
             />
           ),
         }}
@@ -97,12 +101,8 @@ export default function BottomNavigation() {
         component={LabTestsScreen}
         options={{
           tabBarLabel: "Lab Tests",
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons
-              name="file-document-outline"
-              color={color}
-              size={26}
-            />
+          tabBarIcon: ({ color ,size}) => (
+            <Fontisto name="laboratory" size={size} color={color} />
           ),
         }}
       />

@@ -10,7 +10,7 @@ export const labApi = {
     return api.get(`/labs/packages/${packageId}`);
   },
 
-  addToLabCart: payload =>
+addToLabCart: payload =>
     api.post('/labs/cart', payload),
 
   getLabDetails: labId => {
@@ -25,11 +25,16 @@ export const labApi = {
     return api.post(`/labs/${labId}/packages/filter`, filters);
   },
 
-  getLabCart: (userId) => {
-    return api.get("/labs/cart", {
-      params: { userId }
-    });
-  },
+getLabDetails: labId => {
+  return api.get(`/labs/${labId}/details`);
+},
+searchLabTests: (labId, text) => {
+  return api.get(`/labs/${labId}/tests/search`, {
+    params: { query: text },
+  });
+},
+filterPackages: (labId, params) =>
+  api.get(`/labs/${labId}/packages/filter`, { params }),
 
   deleteCartItem: (cartItemId) => {
     return api.delete(`/labs/cart/${cartItemId}`);

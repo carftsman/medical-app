@@ -14,6 +14,9 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
+import Fontisto from "react-native-vector-icons/Fontisto"
+
+
 
 
 const LabTabNavigator = () => {
@@ -67,7 +70,7 @@ const LabTabNavigator = () => {
         options={{
           tabBarLabel: 'Labs',
           tabBarIcon: ({ focused, color, size }) => (
-            <FontAwesomeIcon name="hospital-o" size={size} color={color} />
+            <Fontisto name="laboratory" size={size} color={color} />
           ),
         }}
       />
