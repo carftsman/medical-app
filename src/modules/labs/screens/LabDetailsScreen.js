@@ -22,6 +22,7 @@ const LabDetailsScreen = () => {
   const navigation = useNavigation();
 
   const labId = route?.params?.labId ?? 3;
+  const categoryId = route?.params?.categoryId;
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -278,6 +279,7 @@ const LabDetailsScreen = () => {
           onPress={() =>
             navigation.navigate('PackagesScreen', {
               labId: data.id,
+              categoryId: categoryId,
             })
           }
         >

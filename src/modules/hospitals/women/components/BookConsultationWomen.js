@@ -27,6 +27,7 @@ const BookConsultationWomen = ({ visible, onClose, bookAppointmentForSelf, docto
         if (selectedType === 'SELF') {
             await bookAppointmentForSelf();
             navigation.navigate('WomenBookingDetails');
+            
         } else {
             navigation.navigate('WomenAppointmentBooking', {
                 doctorId: doctorId,

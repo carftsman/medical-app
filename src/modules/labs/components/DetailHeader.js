@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     padding: scale(14),
     backgroundColor: '#fff',
     borderRadius: scale(12),
-    marginBottom: verticalScale(12),
+    marginBottom: verticalScale(20),
   },
   iconBox: {
     backgroundColor: '#E3F2FD',

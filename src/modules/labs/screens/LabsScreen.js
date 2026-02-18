@@ -13,9 +13,12 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import api from "../../../api/client"; 
+import { useRoute } from "@react-navigation/native";
 
 const LabsListScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+const categoryId = route?.params?.categoryId;
 
   const [labs, setLabs] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -34,6 +37,7 @@ const LabsListScreen = () => {
           maxRating: 5,
           page: 1,
           limit: 10,
+          categoryId: categoryId,
         },
       });
 
@@ -98,7 +102,7 @@ const LabsListScreen = () => {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={()=> navigation.navigate("LabDetails", { labId: item.id })}>
+      <TouchableOpacity style={styles.button} onPress={()=> navigation.navigate("LabDetails", { labId: item.id,categoryId: route?.params?.categoryId })}>
         <Text style={styles.buttonText}>View Details</Text>
       </TouchableOpacity>
     </View>

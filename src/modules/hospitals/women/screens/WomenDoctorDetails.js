@@ -3,7 +3,6 @@
 /* eslint-disable no-unused-vars */
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { scale, verticalScale } from '../../../../utils/styling';
 import api from '../../../../api/client'
@@ -20,7 +19,7 @@ import { setConsultationType, setBookingId, setDate } from '../../redux/slices/B
 
 const WomenDoctorDetails = ({ route, navigation }) => {
 
-  const doctorId =  route?.params?.doctorId || 1;
+  const doctorId = route?.params?.doctorId || 1;
 
   const { selectedDate, selectedTime } = useSelector(
     state => state.hospital.consultation
@@ -38,7 +37,7 @@ const WomenDoctorDetails = ({ route, navigation }) => {
   const [error, setError] = useState('');
 
   const hospitalId = doctorDetails?.hospital?.id;
-  console.log("ID",hospitalId);
+  console.log("ID", hospitalId);
 
   const fetchDoctorDetails = async (isRefresh = false) => {
     try {
@@ -120,8 +119,9 @@ const WomenDoctorDetails = ({ route, navigation }) => {
           bookingFor: 'SELF',
         }
       );
-      console.log(response?.data);
+      console.log("DATAAAAA: ", response?.data);
       dispatch(setBookingId(response?.data?.bookingId));
+      fetchTimeSlots();
     }
     catch (error) {
       console.log("Error sending Id: ", error.message);
@@ -156,9 +156,17 @@ const WomenDoctorDetails = ({ route, navigation }) => {
   }, [selectedDate]);
 
   const handleBookAppointment = () => {
+
+    // ❌ If no time slot selected, do nothing
+    if (!selectedTime) {
+      return;
+    }
+
+    // ✅ If time selected, allow booking
     setShowModal(true);
     dispatch(setConsultationType('SELF'));
-  }
+  };
+
 
   if (loading) {
     return (
@@ -173,7 +181,7 @@ const WomenDoctorDetails = ({ route, navigation }) => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
 
       <View style={styles.screenHeader}>
         <TouchableOpacity
@@ -227,7 +235,7 @@ const WomenDoctorDetails = ({ route, navigation }) => {
           days={hospitalDetails?.availability?.days}
           startTime={hospitalDetails?.availability?.startTime}
           endTime={hospitalDetails?.availability?.endTime}
-          // distancekm={hospitalDetails?.distancekm}
+        // distancekm={hospitalDetails?.distancekm}
         />
 
         <DoctorReviewsWomen />
@@ -235,7 +243,15 @@ const WomenDoctorDetails = ({ route, navigation }) => {
       </ScrollView>
 
       <View style={styles.bookAppointmentButtonCard}>
-        <TouchableOpacity style={styles.bookAppointmentButton} onPress={() => handleBookAppointment()} >
+        <TouchableOpacity
+          style={[
+            styles.bookAppointmentButton,
+            !selectedTime && styles.disabledButton
+          ]}
+          disabled={!selectedTime}
+          onPress={handleBookAppointment}
+        >
+
           <Text style={styles.bookAppointmentText}>Book Appointment</Text>
         </TouchableOpacity>
       </View>
@@ -246,7 +262,7 @@ const WomenDoctorDetails = ({ route, navigation }) => {
         bookAppointmentForSelf={bookAppointmentForSelf}
         doctorId={doctorId}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -291,6 +307,11 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: scale(16),
     fontWeight: '600',
-  }
+  },
+  disabledButton: {
+    backgroundColor: '#BDBDBD',
+    borderColor: '#BDBDBD',
+  },
+
 });
 
