@@ -178,7 +178,14 @@ const DoctorDetails = ({ route, navigation }) => {
       </ScrollView>
 
       <View style={styles.bookAppointmentButtonCard}>
-        <TouchableOpacity style={styles.bookAppointmentButton} onPress={() => handleBookAppointment()} >
+        <TouchableOpacity
+        style={[
+          styles.bookAppointmentButton,
+          !selectedTime && styles.disabledBtn,
+        ]}
+        disabled={!selectedTime}
+        onPress={() => handleBookAppointment()}
+        >
           <Text style={styles.bookAppointmentText}>Book Appointment</Text>
         </TouchableOpacity>
       </View>
@@ -234,5 +241,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: scale(16),
     fontWeight: '600',
-  }
+  },
+  disabledBtn: {
+    backgroundColor: '#BDBDBD',
+    borderColor: '#BDBDBD',
+  },
 });

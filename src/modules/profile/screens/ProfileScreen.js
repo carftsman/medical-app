@@ -75,15 +75,15 @@ const ProfileScreen = () => {
 
           <View style={styles.info}>
             <Text style={styles.name}>
-              {profile?.fullName || 'Sravani'}
+              {profile?.fullName || ''}
             </Text>
 
             <Text style={styles.phone}>
-              {profile?.phone || '+91 84749 87488'}
+              {profile?.phone || ''}
             </Text>
 
             <Text style={styles.email}>
-              {profile?.email || 'Sravani.k@gmail.com'}
+              {profile?.email || ''}
             </Text>
           </View>
         </View>
@@ -95,6 +95,8 @@ const ProfileScreen = () => {
             items={[
               { title: 'Family Members', icon: 'people-outline', route: 'FamilyMembers' },
               { title: 'My Appointments', icon: 'calendar-outline', route: 'MyAppointments' },
+               { title: 'My Remainders', icon: 'calendar-outline', route: 'MyRemainders' },
+              
               { title: 'Medicines Orders', icon: 'medical-outline', route: 'MedicinesOrdered' },
               { title: 'Lab Tests & Reports', icon: 'document-text-outline', route: 'LabReports' },
             ]}

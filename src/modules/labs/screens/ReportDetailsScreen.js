@@ -71,6 +71,8 @@ export default function ReportDetailsScreen({ route }) {
     );
   }
 
+  console.log(report)
+
   return (
     <View style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <View style={styles.container}>

@@ -5,14 +5,10 @@ import { scale, verticalScale } from '../../../utils/styling';
 import { useNavigation } from '@react-navigation/native';
 
 export default function ReportCard({
-  reportId,
-  status,
-  testName,
-  labName,
-  date,
+  item,
 }) {
   const navigation = useNavigation();
-  console.log('status', status);
+
 
   const getStatusStyle = (status) => {
     switch (status?.toUpperCase()) {
@@ -40,13 +36,13 @@ export default function ReportCard({
     }
   };
 
-  const statusStyle = getStatusStyle(status);
+  const statusStyle = getStatusStyle(item.status);
 
   return (
     <TouchableOpacity
       onPress={() =>
         navigation.navigate('ReportDetails', {
-          id: reportId,
+          id: item.reportId,
         })
       }
     >
@@ -60,7 +56,7 @@ export default function ReportCard({
                 // { color: reportIdStyle.textColor },
               ]}
             >
-              {reportId}
+              {item.reportId}
             </Text>
       
           <View
@@ -76,19 +72,19 @@ export default function ReportCard({
                 { color: statusStyle.textColor },
               ]}
             >
-              {status}
+              {item.status}
             </Text>
           </View>
         </View>
 
         <View style={styles.row}>
           <Ionicons name="flask-outline" size={scale(16)} color="#555" />
-          <Text style={styles.title}>{testName}</Text>
+          <Text style={styles.title}>{item.testName}</Text>
         </View>
 
         <View style={styles.row}>
           <Ionicons name="calendar-outline" size={scale(14)} color="#777" />
-          <Text style={styles.subText}>{date}</Text>
+          <Text style={styles.subText}>{item.date}</Text>
 
           <Ionicons
             name="document-text-outline"
@@ -96,12 +92,12 @@ export default function ReportCard({
             color="#777"
             style={{ marginLeft: scale(10) }}
           />
-          <Text style={styles.subText}>12 Tests</Text>
+          <Text style={styles.subText}>{item.tests.length}</Text>
         </View>
 
         <View style={styles.row}>
           <Ionicons name="business-outline" size={scale(14)} color="#777" />
-          <Text style={styles.subText}>{labName}</Text>
+          <Text style={styles.subText}>{item.labName}</Text>
         </View>
       </View>
     </TouchableOpacity>

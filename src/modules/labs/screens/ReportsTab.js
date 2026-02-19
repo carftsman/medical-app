@@ -120,11 +120,7 @@ export default function ReportsTab() {
           reports.map((item, index) => (
             <ReportCard
               key={index}
-              reportId={item?.reportId}
-              status={item?.status}
-              testName={item?.testName}
-              labName={item?.labName}
-              date={formatDate(item?.date)}
+              item = {item}
               
             />
           ))}
