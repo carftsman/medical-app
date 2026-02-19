@@ -1,41 +1,96 @@
 // screens/ProfileScreen.js
 
-import React from 'react';
-import {View,ScrollView,StyleSheet, Text,Image, TouchableOpacity, StatusBar,} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  Image,
+  TouchableOpacity,
+  StatusBar,
+} from 'react-native';
 import MenuSection from '../components/MenuSection';
 import { scale, verticalScale } from '../../../utils/styling';
 import Feathericons from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
+import api from '../../../api/client';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await api.get('/hospital/user/profile');
+        console.log('Profile API Response:', response.data);
+
+        // Fix: set only the user object
+        setProfile(response.data.user);
+      } catch (error) {
+        console.log(
+          'Profile API Error:',
+          error.response?.data || error.message,
+        );
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#2D73B9" />
+      {/* <StatusBar barStyle="light-content" backgroundColor="#2D73B9" /> */}
 
       <View style={styles.headerCard}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => {
-            console.log("go")
-            navigation.goBack()
+            console.log('go');
+            navigation.goBack();
           }}
         >
           <Feathericons name="arrow-left" size={scale(22)} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity  onPress={() => navigation.navigate("EditProfile")}style={styles.editButton}>
+           <Text style={styles.headerTitle}>Profile</Text>
+
+             <TouchableOpacity
+          onPress={() => navigation.navigate('EditProfile')}
+          style={styles.editButton}
+        >
           <Feathericons name="edit" size={scale(20)} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profile</Text>
+        </View>
+
+      
+
+     
+
         <View style={styles.profileRow}>
-          <Image
-            source={require("../../../../assets/Sravani.jpg")}
+          <View  style={styles.avatar}>
+             <Feathericons name="user" size={scale(28)} color="#fff" />
+             
+          </View>
+          {/* <Image
+            source={require('../../../../assets/Sravani.jpg')}
             style={styles.avatar}
-          />
+          /> */}
+
           <View style={styles.info}>
-            <Text style={styles.name}>Sravani</Text>
-            <Text style={styles.phone}>+91 84749 87488</Text>
-            <Text style={styles.email}>Sravani.k@gmail.com</Text>
+            <Text style={styles.name}>
+              {profile?.fullName || 'Sravani'}
+            </Text>
+
+            <Text style={styles.phone}>
+              {profile?.phone || '+91 84749 87488'}
+            </Text>
+
+            <Text style={styles.email}>
+              {profile?.email || 'Sravani.k@gmail.com'}
+            </Text>
           </View>
         </View>
       </View>
@@ -44,19 +99,19 @@ const ProfileScreen = () => {
         <View style={styles.content}>
           <MenuSection
             items={[
-              { title: 'Family Members', icon: 'people-outline',route:"FamilyMembers" },
-              { title: 'My Appointments', icon: 'calendar-outline', route:"MyAppointments" },
-              { title: 'Medicines Orders', icon: 'medical-outline', route:"MedicinesOrdered" },
-              { title: 'Lab Tests & Reports', icon: 'document-text-outline',route:"LabReports" },
+              { title: 'Family Members', icon: 'people-outline', route: 'FamilyMembers' },
+              { title: 'My Appointments', icon: 'calendar-outline', route: 'MyAppointments' },
+              { title: 'Medicines Orders', icon: 'medical-outline', route: 'MedicinesOrdered' },
+              { title: 'Lab Tests & Reports', icon: 'document-text-outline', route: 'LabReports' },
             ]}
           />
 
           <MenuSection
             items={[
-              { title: 'Saved Address', icon: 'location-outline',route:"SavedAddress" },
-              { title: 'Payments', icon: 'card-outline',route:"PaymentsHistory" },
-              { title: 'Help & Support', icon: 'help-circle-outline',route:"HelpAndSupport" },
-              { title: 'Terms & Conditions', icon: 'book-outline',route:"TermsAndConditions" },
+              { title: 'Saved Address', icon: 'location-outline', route: 'SavedAddress' },
+              { title: 'Payments', icon: 'card-outline', route: 'PaymentsHistory' },
+              { title: 'Help & Support', icon: 'help-circle-outline', route: 'HelpAndSupport' },
+              { title: 'Terms & Conditions', icon: 'book-outline', route: 'TermsAndConditions' },
             ]}
           />
 
@@ -70,6 +125,7 @@ const ProfileScreen = () => {
 };
 
 export default ProfileScreen;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -77,31 +133,31 @@ const styles = StyleSheet.create({
   },
 
   headerCard: {
-    backgroundColor: '#2D73B9',
-    paddingTop: verticalScale(55),
+    backgroundColor: '#056FD2',
+    // paddingTop: verticalScale(55),
     paddingBottom: verticalScale(25),
     paddingHorizontal: scale(20),
     borderBottomLeftRadius: scale(30),
     borderBottomRightRadius: scale(30),
-    elevation: 4, 
-    shadowColor: '#000', 
+    elevation: 4,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
 
   backButton: {
-    position: 'absolute',
-    left: scale(20),
-    top: verticalScale(55),
-    zIndex:10,
+    // position: 'absolute',
+    // left: scale(20),
+    // top: verticalScale(55),
+    // zIndex: 10,
   },
 
   editButton: {
-    position: 'absolute',
-    right: scale(20),
-    top: verticalScale(55),
-    zIndex:10,
+    // position: 'absolute',
+    // right: scale(20),
+    // top: verticalScale(55),
+    // zIndex: 10,
   },
 
   headerTitle: {
@@ -109,27 +165,28 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
     textAlign: 'center',
-    margintop: scale(50),
+    // margintop: scale(50), 
   },
 
   profileRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: verticalScale(40),
+    marginTop: verticalScale(25),
   },
 
   avatar: {
-    width: scale(85),
-    height: scale(85),
-    borderRadius: scale(43),
+    width: scale(70),
+    height: scale(70),
+    borderRadius: scale(35),
     borderWidth: 2,
     borderColor: '#fff',
     marginLeft: scale(10),
+    justifyContent:"center",
+    alignItems:"center"
   },
 
   info: {
     marginLeft: scale(30),
-    // fontSize: scale(20),
   },
 
   name: {

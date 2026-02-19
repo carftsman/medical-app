@@ -71,7 +71,7 @@ useEffect(() => {
     overrideResults !== null ? overrideResults : hospitals;
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <View style={styles.container}>
         {/* HEADER */}
         <View style={styles.header}>
@@ -96,7 +96,7 @@ useEffect(() => {
           <HospitalFilters onPress={() => setShowFilter(true)} />
         </View>
 
-        {/* MODE SWITCH */}
+        {/* MODE SWITCH
         <View style={styles.modeRow}>
           {['ONLINE', 'OFFLINE', 'BOTH'].map(item => (
             <ModeButton
@@ -106,7 +106,7 @@ useEffect(() => {
               onPress={() => loadHospitals(item)}
             />
           ))}
-        </View>
+        </View> */}
 
         {/* LIST */}
         {loading ? (
@@ -161,7 +161,7 @@ useEffect(() => {
           onApply={data => setOverrideResults(data)} // ✅ unified
         />
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 

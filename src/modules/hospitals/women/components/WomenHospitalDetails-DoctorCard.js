@@ -13,7 +13,7 @@ const WomenHospitalDoctorCard = ({ doctor, HOSPITAL_ID, }) => {
   return (
     <TouchableOpacity style={styles.docCard}
       onPress={() =>
-        navigation.navigate('WomenDoctorsScreen', {
+        navigation.navigate('WomenDoctorDetails', {
           hospitalId: HOSPITAL_ID,
           doctorId: doctor?.id,
         })

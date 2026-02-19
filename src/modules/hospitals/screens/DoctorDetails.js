@@ -32,6 +32,9 @@ const DoctorDetails = ({ route, navigation }) => {
   const [doctorDetails, setDoctorDetails] = useState({});
   const [dateSlots, setDateSlots] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
+  const [hospitalDetails, setHospitalDetails] = useState({});
+
+  const hospitalId = doctorDetails?.hospital?.id;
 
   const fetchDoctorDetails = async () => {
     try {
@@ -44,6 +47,18 @@ const DoctorDetails = ({ route, navigation }) => {
     }
     finally {
       setLoading(false);
+    }
+  };
+
+  const fetchHospitalDetails = async (id) => {
+    try {
+      const response = await api.get(`/hospital/user/hospitals/${id}/info`);
+      console.log("hospital", response?.data);
+      console.log("Days:", hospitalDetails?.availability?.days);
+      setHospitalDetails(response?.data);
+    }
+    catch (error) {
+      console.log("Error sending Id: ", error.message);
     }
   };
 
@@ -75,7 +90,7 @@ const DoctorDetails = ({ route, navigation }) => {
         }
       });
       const filteredSlots = response?.data.slots.filter(slot => slot.isAvailable === true);
-      setTimeSlots(filteredSlots);
+      setTimeSlots(response?.data?.slots);
     }
     catch (error) {
       console.log("Error fetching time slots: ", error);
@@ -95,6 +110,7 @@ const DoctorDetails = ({ route, navigation }) => {
       );
       console.log(response?.data);
       dispatch(setBookingId(response?.data?.bookingId));
+      fetchTimeSlots();
     }
     catch (error) {
       console.log("Error sending Id: ", error.message);
@@ -111,6 +127,12 @@ const DoctorDetails = ({ route, navigation }) => {
       fetchTimeSlots();
     }
   }, [selectedDate]);
+
+  useEffect(() => {
+    if (hospitalId) {
+      fetchHospitalDetails(hospitalId);
+    }
+  }, [hospitalId]);
 
   const handleBookAppointment = () => {
     setShowModal(true);
@@ -130,7 +152,7 @@ const DoctorDetails = ({ route, navigation }) => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
 
       <View style={styles.screenHeader}>
         <TouchableOpacity
@@ -171,6 +193,10 @@ const DoctorDetails = ({ route, navigation }) => {
           place={doctorDetails?.hospital?.place}
           latitude={doctorDetails?.hospital?.latitude}
           longitude={doctorDetails?.hospital?.longitude}
+          days={hospitalDetails?.availability?.days}
+          startTime={hospitalDetails?.availability?.startTime}
+          endTime={hospitalDetails?.availability?.endTime}
+        // distancekm={hospitalDetails?.distancekm}
         />
 
         <DoctorReviews />
@@ -178,7 +204,14 @@ const DoctorDetails = ({ route, navigation }) => {
       </ScrollView>
 
       <View style={styles.bookAppointmentButtonCard}>
-        <TouchableOpacity style={styles.bookAppointmentButton} onPress={() => handleBookAppointment()} >
+        <TouchableOpacity
+        style={[
+          styles.bookAppointmentButton,
+          !selectedTime && styles.disabledBtn,
+        ]}
+        disabled={!selectedTime}
+        onPress={() => handleBookAppointment()}
+        >
           <Text style={styles.bookAppointmentText}>Book Appointment</Text>
         </TouchableOpacity>
       </View>
@@ -189,7 +222,7 @@ const DoctorDetails = ({ route, navigation }) => {
         bookAppointmentForSelf={bookAppointmentForSelf}
         doctorId={doctorId}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -234,5 +267,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: scale(16),
     fontWeight: '600',
-  }
+  },
+  disabledBtn: {
+    backgroundColor: '#BDBDBD',
+    borderColor: '#BDBDBD',
+  },
 });
