@@ -18,6 +18,10 @@ import ReportDetailsScreen from '../screens/ReportDetailsScreen';
 import LabFeedbackScreen from '../screens/LabFeedback';
 import LabFeedbackSuccessScreen from '../screens/LabFeedbackSuccessScreen';
 import { LabCartProvider } from '../context/LabCartContext';
+import ReviewPrescriptionScreen from "../screens/ReviewPrescriptionScreen";
+import PrescriptionSuccessScreen from "../screens/PrescriptionSuccessScreen";
+import PrescriptionTrackingScreen from "../screens/PrescriptionTrackingScreen";
+import PrescriptionListScreen from '../screens/PrescriptionListScreen';
 
 const LabStackNavigation = () => {
   const Stack = createNativeStackNavigator();
@@ -39,6 +43,24 @@ const LabStackNavigation = () => {
           name="PrescriptionPreview"
           component={PrescriptionPreviewScreen}
         />
+        <Stack.Screen
+        name="ReviewPrescription"
+        component={ReviewPrescriptionScreen}
+       />
+
+    <Stack.Screen
+     name="PrescriptionSuccess"
+     component={PrescriptionSuccessScreen}
+    />
+
+   <Stack.Screen
+    name="PrescriptionTracking"
+    component={PrescriptionTrackingScreen}
+  />
+   <Stack.Screen
+        name="PrescriptionList"
+        component={PrescriptionListScreen}
+    />
         <Stack.Screen name="LabsScreen" component={LabsScreen} />
         <Stack.Screen name="LabDetails" component={LabDetailsScreen} />
         <Stack.Screen name="PackagesScreen" component={PackagesScreen} />

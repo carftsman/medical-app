@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import LinearGradient from "react-native-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { scale, verticalScale } from "../../../utils/styling";
 
 import LocationHeader from "../../../components/LocationHeader";
@@ -26,14 +26,23 @@ import CertifiedLabs from "../components/CertifiedLabs";
 
 export default function LabsHomeScreen() {
   const navigation = useNavigation();
+  const route = useRoute();
 
-  /* ================= REFRESH STATE ================= */
   const [refreshing, setRefreshing] = useState(false);
+  const [uploadedList, setUploadedList] = useState([]);
+
+  /* ================= RECEIVE NEW UPLOAD ================= */
+  useEffect(() => {
+    if (route?.params?.newUpload) {
+      setUploadedList((prev) => [
+        route.params.newUpload,
+        ...prev,
+      ]);
+    }
+  }, [route?.params?.newUpload]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-
-    
     setTimeout(() => {
       setRefreshing(false);
     }, 1500);
@@ -42,7 +51,8 @@ export default function LabsHomeScreen() {
   return (
     <View style={styles.safeArea}>
       <View style={styles.container}>
-        {/* HEADER */}
+
+        {/* ================= HEADER ================= */}
         <LinearGradient
           colors={["#1E63F2", "#16C7B7"]}
           start={{ x: 0, y: 0 }}
@@ -71,7 +81,7 @@ export default function LabsHomeScreen() {
             </View>
           </View>
 
-          {/* SEARCH  */}
+          {/* SEARCH */}
           <View style={styles.searchRow}>
             <TouchableOpacity
               activeOpacity={0.8}
@@ -88,7 +98,6 @@ export default function LabsHomeScreen() {
               </Text>
             </TouchableOpacity>
 
-            {/* CART  */}
             <TouchableOpacity
               style={styles.cartRight}
               onPress={() => navigation.navigate("CartScreen")}
@@ -102,7 +111,7 @@ export default function LabsHomeScreen() {
           </View>
         </LinearGradient>
 
-        {/* BODY */}
+        {/* ================= BODY ================= */}
         <ScrollView
           contentContainerStyle={styles.body}
           showsVerticalScrollIndicator={false}
@@ -115,7 +124,8 @@ export default function LabsHomeScreen() {
             />
           }
         >
-          {/* ACTION CARDS */}
+
+          {/* ================= ACTION CARDS ================= */}
           <View style={styles.sideBySideRow}>
             <CallToBookCard phoneNumber="108" />
 
@@ -146,6 +156,60 @@ export default function LabsHomeScreen() {
             </TouchableOpacity>
           </View>
 
+          {/* ================= RECENT UPLOAD SECTION ================= */}
+          {uploadedList.length > 0 && (
+            <View style={{ marginTop: verticalScale(20) }}>
+              <View style={styles.recentHeader}>
+                <Text style={styles.recentTitle}>
+                  Recent Appointments
+                </Text>
+
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate("PrescriptionList", {
+                      uploads: uploadedList,
+                    })
+                  }
+                >
+                  <Text style={styles.viewAll}>View All</Text>
+                </TouchableOpacity>
+              </View>
+
+              {uploadedList.map((item, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.recentCard}
+                  onPress={() =>
+                    navigation.navigate("PrescriptionTracking", {
+                      uploadId: item.id,
+                      fileCount: item.fileCount,
+                      labName: item.labName,
+                      files: item.files,
+                    })
+                  }
+                >
+                  <View style={styles.recentIcon}>
+                    <Ionicons
+                      name="document-text-outline"
+                      size={scale(18)}
+                      color="#056FD2"
+                    />
+                  </View>
+
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.refText}>
+                      #{item.id}
+                    </Text>
+                    <Text style={styles.statusText}>
+                      {item.status}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
+          {/* ================= BANNER ================= */}
           <View style={styles.bannerWrapper}>
             <TouchableOpacity activeOpacity={0.9}>
               <ImageBackground
@@ -154,8 +218,12 @@ export default function LabsHomeScreen() {
                 imageStyle={styles.bannerImageRadius}
               >
                 <View style={styles.bannerContent}>
-                  <Text style={styles.bannerTitle}>Stay informed about</Text>
-                  <Text style={styles.bannerTitleBold}>the new variant</Text>
+                  <Text style={styles.bannerTitle}>
+                    Stay informed about
+                  </Text>
+                  <Text style={styles.bannerTitleBold}>
+                    the new variant
+                  </Text>
 
                   <Text style={styles.bannerDesc}>
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit,
@@ -172,16 +240,18 @@ export default function LabsHomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* SECTIONS */}
+          {/* ================= SECTIONS ================= */}
           <LabTestByAge labId={1} />
           <LabCategories labId={1} />
           <NearbyLabs />
           <RecentlyBookingTests />
           <CertifiedLabs />
+
         </ScrollView>
 
-        {/* SOS  */}
+        {/* SOS */}
         <SosButton />
+
       </View>
     </View>
   );
@@ -222,9 +292,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  cartRight: {
-    marginLeft: scale(12),
-  },
+  cartRight: { marginLeft: scale(12) },
 
   searchPlaceholder: {
     marginLeft: scale(10),
@@ -265,6 +333,58 @@ const styles = StyleSheet.create({
 
   cardTitle: { fontSize: scale(13), fontWeight: "600", color: "#222" },
   cardSub: { fontSize: scale(11), color: "#666" },
+
+  /* Recent Section */
+  recentHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: verticalScale(10),
+  },
+
+  recentTitle: {
+    fontSize: scale(16),
+    fontWeight: "700",
+    color: "#222",
+  },
+
+  viewAll: {
+    color: "#056FD2",
+    fontWeight: "600",
+    fontSize: scale(13),
+  },
+
+  recentCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F0F6FF",
+    paddingVertical: verticalScale(14),
+    paddingHorizontal: scale(14),
+    borderRadius: scale(14),
+    marginBottom: verticalScale(10),
+  },
+
+  recentIcon: {
+    width: scale(38),
+    height: scale(38),
+    borderRadius: scale(10),
+    backgroundColor: "#DCE9FF",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: scale(12),
+  },
+
+  refText: {
+    fontWeight: "700",
+    fontSize: scale(14),
+    color: "#222",
+  },
+
+  statusText: {
+    fontSize: scale(12),
+    color: "#0E9F6E",
+    marginTop: verticalScale(2),
+  },
 
   bannerWrapper: { marginTop: verticalScale(14) },
 

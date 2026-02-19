@@ -11,11 +11,12 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
-import api from "../../../api/client"; 
+import { useNavigation, useRoute } from "@react-navigation/native";
+import api from "../../../api/client";
 
 const LabsListScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
 
   const [labs, setLabs] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -73,9 +74,7 @@ const LabsListScreen = () => {
       <View style={styles.topRow}>
         <Image
           source={{
-            uri:
-              item.image ||
-              "https://via.placeholder.com/80",
+            uri: item.image || "https://via.placeholder.com/80",
           }}
           style={styles.labImage}
         />
@@ -98,18 +97,29 @@ const LabsListScreen = () => {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() =>
+          navigation.navigate("LabDetails", {
+            labId: item.id,
+            files: route?.params?.files,
+          })
+        }
+      >
         <Text style={styles.buttonText}>View Details</Text>
       </TouchableOpacity>
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("UploadPrescription")
+          }
+        >
           <Icon name="arrow-back" size={24} />
         </TouchableOpacity>
 
@@ -146,7 +156,7 @@ const LabsListScreen = () => {
           showsVerticalScrollIndicator={false}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 
