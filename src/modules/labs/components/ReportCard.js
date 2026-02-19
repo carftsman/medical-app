@@ -3,14 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { scale, verticalScale } from '../../../utils/styling';
 import { useNavigation } from '@react-navigation/native';
+import { formatDate } from '../../../utils/helpers';
 
-export default function ReportCard({
-  item,
-}) {
+export default function ReportCard({ item }) {
   const navigation = useNavigation();
 
-
-  const getStatusStyle = (status) => {
+  const getStatusStyle = status => {
     switch (status?.toUpperCase()) {
       case 'NORMAL':
         return {
@@ -22,7 +20,7 @@ export default function ReportCard({
           textColor: '#C62828',
           bgColor: '#FFEBEE',
         };
-      
+
       case 'BorderLine':
         return {
           textColor: '#ED6C02',
@@ -46,32 +44,24 @@ export default function ReportCard({
         })
       }
     >
-    
       <View style={styles.card}>
-  
         <View style={styles.topRow}>
-           <Text
-              style={[
-                styles.reportId,
-                // { color: reportIdStyle.textColor },
-              ]}
-            >
-              {item.reportId}
-            </Text>
-      
+          <Text
+            style={[
+              styles.reportId,
+              // { color: reportIdStyle.textColor },
+            ]}
+          >
+            {item.reportId}
+          </Text>
+
           <View
             style={[
               styles.statusContainer,
               { backgroundColor: statusStyle.bgColor },
             ]}
           >
-            
-            <Text
-              style={[
-                styles.statusText,
-                { color: statusStyle.textColor },
-              ]}
-            >
+            <Text style={[styles.statusText, { color: statusStyle.textColor }]}>
               {item.status}
             </Text>
           </View>
@@ -84,7 +74,7 @@ export default function ReportCard({
 
         <View style={styles.row}>
           <Ionicons name="calendar-outline" size={scale(14)} color="#777" />
-          <Text style={styles.subText}>{item.date}</Text>
+          <Text style={styles.subText}>{formatDate(item.date)}</Text>
 
           <Ionicons
             name="document-text-outline"
@@ -117,12 +107,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: verticalScale(6),
   },
-  reportId:{
-   color: '#125aa3',
-   fontSize:scale(14),
-   fontWeight:"bold",
-   
-   
+  reportId: {
+    color: '#125aa3',
+    fontSize: scale(14),
+    fontWeight: 'bold',
   },
 
   statusContainer: {

@@ -109,7 +109,7 @@ const categoryId = route?.params?.categoryId;
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       
       {/* Header */}
       <View style={styles.header}>
@@ -150,7 +150,7 @@ const categoryId = route?.params?.categoryId;
           showsVerticalScrollIndicator={false}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 

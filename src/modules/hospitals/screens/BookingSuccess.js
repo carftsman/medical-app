@@ -66,7 +66,7 @@ const BookingSuccess = ({ route }) => {
   if (!successData) return null;
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <View style={styles.container}>
 
         {/* TOP BLUE */}
@@ -158,7 +158,7 @@ const BookingSuccess = ({ route }) => {
 
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 

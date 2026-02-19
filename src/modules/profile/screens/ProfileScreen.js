@@ -41,9 +41,11 @@ const ProfileScreen = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#2D73B9" />
+      {/* <StatusBar barStyle="light-content" backgroundColor="#2D73B9" /> */}
 
       <View style={styles.headerCard}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => {
@@ -53,15 +55,19 @@ const ProfileScreen = () => {
         >
           <Feathericons name="arrow-left" size={scale(22)} color="#fff" />
         </TouchableOpacity>
+           <Text style={styles.headerTitle}>Profile</Text>
 
-        <TouchableOpacity
+             <TouchableOpacity
           onPress={() => navigation.navigate('EditProfile')}
           style={styles.editButton}
         >
           <Feathericons name="edit" size={scale(20)} color="#fff" />
         </TouchableOpacity>
+        </View>
 
-        <Text style={styles.headerTitle}>Profile</Text>
+      
+
+     
 
         <View style={styles.profileRow}>
           <View  style={styles.avatar}>
@@ -130,7 +136,7 @@ const styles = StyleSheet.create({
 
   headerCard: {
     backgroundColor: '#056FD2',
-    paddingTop: verticalScale(55),
+    // paddingTop: verticalScale(55),
     paddingBottom: verticalScale(25),
     paddingHorizontal: scale(20),
     borderBottomLeftRadius: scale(30),
@@ -143,17 +149,17 @@ const styles = StyleSheet.create({
   },
 
   backButton: {
-    position: 'absolute',
-    left: scale(20),
-    top: verticalScale(55),
-    zIndex: 10,
+    // position: 'absolute',
+    // left: scale(20),
+    // top: verticalScale(55),
+    // zIndex: 10,
   },
 
   editButton: {
-    position: 'absolute',
-    right: scale(20),
-    top: verticalScale(55),
-    zIndex: 10,
+    // position: 'absolute',
+    // right: scale(20),
+    // top: verticalScale(55),
+    // zIndex: 10,
   },
 
   headerTitle: {
@@ -161,19 +167,19 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
     textAlign: 'center',
-    margintop: scale(50), 
+    // margintop: scale(50), 
   },
 
   profileRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: verticalScale(40),
+    marginTop: verticalScale(25),
   },
 
   avatar: {
-    width: scale(85),
-    height: scale(85),
-    borderRadius: scale(43),
+    width: scale(70),
+    height: scale(70),
+    borderRadius: scale(35),
     borderWidth: 2,
     borderColor: '#fff',
     marginLeft: scale(10),

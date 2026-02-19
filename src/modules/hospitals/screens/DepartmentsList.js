@@ -120,7 +120,7 @@ export default function FindDoctorsScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <View style={styles.container}>
         <View style={{
         flexDirection:"row",
@@ -167,7 +167,7 @@ export default function FindDoctorsScreen() {
           />
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
