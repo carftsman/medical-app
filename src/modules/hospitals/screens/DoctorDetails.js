@@ -130,7 +130,7 @@ const DoctorDetails = ({ route, navigation }) => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
 
       <View style={styles.screenHeader}>
         <TouchableOpacity
@@ -196,7 +196,7 @@ const DoctorDetails = ({ route, navigation }) => {
         bookAppointmentForSelf={bookAppointmentForSelf}
         doctorId={doctorId}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 

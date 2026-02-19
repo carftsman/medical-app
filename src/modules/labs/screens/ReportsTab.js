@@ -16,9 +16,11 @@ import api from '../../../api/client';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { formatDate } from '../../../utils/helpers';
+import useAuth from '../../../hooks/useAuth';
 
 export default function ReportsTab() {
   const navigation = useNavigation();
+  const { user } = useAuth();
 
   const [showFilter, setShowFilter] = useState(false);
   const [reports, setReports] = useState([]);
@@ -29,7 +31,6 @@ export default function ReportsTab() {
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
 
-  
   const [searchQuery, setSearchQuery] = useState('');
 
   const fetchReports = async (filters = {}) => {
@@ -41,16 +42,17 @@ export default function ReportsTab() {
         reportStatus: status = reportStatus,
         fromDate: start = fromDate,
         toDate: end = toDate,
-        search = searchQuery, 
+        search = searchQuery,
       } = filters;
 
       const res = await api.get('/labs/reports', {
         params: {
           userId: 21,
-          ...(search && { search }), 
-          ...(status && status !== '*' && {
-            reportStatus: status.toUpperCase(),
-          }),
+          ...(search && { search }),
+          ...(status &&
+            status !== '*' && {
+              reportStatus: status.toUpperCase(),
+            }),
           ...(start && { fromDate: start }),
           ...(end && { toDate: end }),
         },
@@ -71,7 +73,7 @@ export default function ReportsTab() {
     }
   };
 
-  const handleApplyFilter = (filters) => {
+  const handleApplyFilter = filters => {
     setReportStatus(filters.reportStatus);
     setFromDate(filters.fromDate);
     setToDate(filters.toDate);
@@ -90,7 +92,7 @@ export default function ReportsTab() {
 
         <SearchBar
           value={searchQuery}
-          onChangeText={(text) => {
+          onChangeText={text => {
             setSearchQuery(text);
             fetchReports({ search: text });
           }}
@@ -112,23 +114,11 @@ export default function ReportsTab() {
           />
         )}
 
-        {error && (
-          <Text style={{ color: 'red', marginTop: 10 }}>{error}</Text>
-        )}
+        {error && <Text style={{ color: 'red', marginTop: 10 }}>{error}</Text>}
 
         {!loading &&
           !error &&
-          reports.map((item, index) => (
-            <ReportCard
-              key={index}
-              reportId={item?.reportId}
-              status={item?.status}
-              testName={item?.testName}
-              labName={item?.labName}
-              date={formatDate(item?.date)}
-              
-            />
-          ))}
+          reports.map((item, index) => <ReportCard key={index} item={item} />)}
 
         {!loading && !error && reports.length === 0 && (
           <View style={styles.emptyContainer}>
@@ -140,9 +130,7 @@ export default function ReportsTab() {
               />
             </View>
 
-            <Text style={styles.emptyTitle}>
-              No lab reports available
-            </Text>
+            <Text style={styles.emptyTitle}>No lab reports available</Text>
 
             <Text style={styles.emptySub}>
               You don’t have any lab reports yet. Start exploring tests and book

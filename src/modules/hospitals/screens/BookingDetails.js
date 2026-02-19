@@ -83,7 +83,7 @@ const BookingDetails = () => {
   console.log("bookingData",bookingData)
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <View style={styles.safe}>
       <Header />
 
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -182,7 +182,7 @@ const BookingDetails = () => {
 </Text>
 
       </TouchableOpacity>
-    </SafeAreaView>
+    </View>
   );
 };
 

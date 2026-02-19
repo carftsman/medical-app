@@ -197,7 +197,7 @@ const SearchScreen = ({ navigation }) => {
 );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.lightGray }}>
+    <View style={{ flex: 1, backgroundColor: COLORS.lightGray }}>
       <View style={styles.container}>
         <View style={styles.topHeader}>
   <TouchableOpacity
@@ -354,7 +354,7 @@ const SearchScreen = ({ navigation }) => {
           )}
         />
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 export default SearchScreen;
