@@ -156,7 +156,7 @@ const SelectSlotScreen = ({ navigation, route }) => {
 
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={{ flex: 1 }}>
 
         <View style={styles.header}>
@@ -211,9 +211,8 @@ const SelectSlotScreen = ({ navigation, route }) => {
         >
           <Text style={styles.confirmText}>Confirm</Text>
         </TouchableOpacity>
-
       </View>
-    </SafeAreaView>
+    </View>
 
   );
 };

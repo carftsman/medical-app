@@ -83,7 +83,7 @@ const CartFooter = ({
 
       <View style={styles.wrapper}>
         <View>
-          <Text style={styles.amount}>₹{totalAmount.toFixed(2)}</Text>
+          <Text style={styles.amount}>₹{Number(totalAmount || 0).toFixed(2)}</Text>
 
           <TouchableOpacity
             style={styles.viewDetails}

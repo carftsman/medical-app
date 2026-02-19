@@ -35,7 +35,7 @@ const PackageDetails = () => {
   const [openIncludes, setOpenIncludes] = useState(false);
 
   const isAdded = cartItems.some(
-    item => Number(item.labTestId) === Number(packageId)
+    item => Number(item.packageId) === Number(packageId)
   );
 
   const fetchDetails = async () => {
@@ -91,12 +91,9 @@ const PackageDetails = () => {
       setAdding(true);
 
       const payload = {
-        userId: 12,
+        userId: 21,
         labId: data.labId,
-        labTestId: data.id,
-        quantity: 1,
-        consultationType: "LAB_VISIT",
-        patientProfileId: null,
+        packageId: data.id,
       };
 
       const res = await labApi.addToLabCart(payload);
@@ -205,6 +202,7 @@ const PackageDetails = () => {
                 size={scale(20)}
               />
             </View>
+
             {openIncludes && (
               <View style={styles.accordionBody}>
                 {testsBlock?.tests?.map((test, index) => (
@@ -218,6 +216,7 @@ const PackageDetails = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
       <View style={styles.bottom}>
         <View>
           <Text style={styles.originalPrice}>
@@ -227,6 +226,7 @@ const PackageDetails = () => {
             ₹{data.pricing?.finalPrice}
           </Text>
         </View>
+
         {!isAdded ? (
           <TouchableOpacity
             style={styles.btn}
@@ -283,6 +283,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: COLORS.lightGray,
   },
+
   headerTitle: {
     flex: 1,
     marginHorizontal: scale(12),

@@ -2,11 +2,12 @@ import React, { useState, useCallback } from "react";
 import { View, FlatList, ActivityIndicator, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+import { setCartItems, removeFromCart } from "../redux/labsCartSlice";
 
 import { COLORS } from "../../../config/constants";
 import { scale, verticalScale } from "../../../utils/styling";
 
-import { api } from "../../../api/client";
 import { labApi } from "../services/labApi";
 import CartHeader from "../components/CartHeader";
 import CartPatientCard from "../components/CartPatientCard";
@@ -14,24 +15,24 @@ import CartCouponBanner from "../components/CartCouponBanner";
 import CartFooter from "../components/CartFooter";
 import AddPatientModal from "../components/AddPatientModal";
 
-const USER_ID = 12; // Replace later with dynamic user
-
 const LabsCartScreen = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   const [user, setUser] = useState(null);
   const [couponApplied, setCouponApplied] = useState(false);
   const discountAmount = 60;
+  const cartItems = useSelector(state => state.labsCart.items);
 
   const [showAddPatient, setShowAddPatient] = useState(false);
   const [selectedCartItemId, setSelectedCartItemId] = useState(null);
 
-  const [cartItems, setCartItems] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [billSummary, setBillSummary] = useState(null);
+  const [updatingCart, setUpdatingCart] = useState(false);
 
-  const USER_ID = 21;
+  const USER_ID = 4;
 
   useFocusEffect(
     useCallback(() => {
@@ -41,68 +42,67 @@ const LabsCartScreen = () => {
 
   const fetchCart = async () => {
     try {
-      setLoading(true);
+      setUpdatingCart(true);
 
-      const response = await labApi.getLabCart(USER_ID);
+      const res = await labApi.getLabCart(USER_ID);
+      const data = res.data;
 
-      setCartItems(response.data.items || []);
-      setTotalAmount(response.data.billSummary?.totalAmount || 0);
-      setUser(response.data.user);
-      setBillSummary(response.data.billSummary);
+      dispatch(setCartItems(data.items || []));
+      setTotalAmount(data.billSummary?.totalAmount || 0);
+      setUser(data.user);
+      setBillSummary(data.billSummary);
+
     } catch (error) {
-      console.log(
-        "Cart error:",
-        error.response?.data || error.message
-      );
+      console.log("Cart error:", error.response?.data || error.message);
     } finally {
       setLoading(false);
+      setUpdatingCart(false);
     }
   };
 
-
-  const handleRemove = async (cartItemId) => {
+  const handleRemove = async (cartItemId, packageId) => {
     try {
-      console.log("Deleting item:", cartItemId);
-
       await labApi.deleteCartItem(cartItemId);
+
+      dispatch(removeFromCart(packageId));
 
       fetchCart();
 
     } catch (error) {
+      console.log("Delete error:", error.response?.data || error.message);
+    }
+  };
+
+  const handlePatientSubmit = async (patient) => {
+
+    try {
+
+      const payload = {
+        userId: USER_ID,
+        fullName: patient.fullName,
+        age: Number(patient.age),
+        gender: patient.gender,
+        phone: patient.phone,
+        consultationType: "LAB_VISIT",
+      };
+
+      await labApi.addPatientToCart(payload);
+      setShowAddPatient(false);
+      fetchCart();
+    } catch (error) {
       console.log(
-        "Delete error:",
+        "Add patient error:",
         error.response?.data || error.message
       );
     }
   };
-
-
-  const handlePatientSubmit = async (patient) => {
-  try {
-    await labApi.addPatientToCart(selectedCartItemId, {
-      userId: USER_ID,
-      fullName: patient.name,
-      age: Number(patient.age),
-      gender: patient.gender,
-      mobile: patient.mobile,
-      consultationType: "LAB_VISIT",
-    });
-
-    fetchCart(); // refresh cart
-  } catch (error) {
-    console.log("Add patient error:", error.response?.data || error.message);
-  }
-};
-
-
-
 
 
   const handleApplyCoupon = () => {
     setCouponApplied(true);
   };
 
-  if (loading) {
+  if (loading && !updatingCart) {
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color={COLORS.blue} />
@@ -110,7 +110,7 @@ const LabsCartScreen = () => {
     );
   }
 
-  if (!cartItems.length) {
+  if (!loading && !updatingCart && cartItems.length === 0) {
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text>Your cart is empty</Text>
@@ -120,7 +120,7 @@ const LabsCartScreen = () => {
 
   return (
     <>
-      <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }}>
+      <View style={{ flex: 1, backgroundColor: COLORS.white }}>
         <View style={{ marginHorizontal: scale(15), flex: 1 }}>
           <FlatList
             data={cartItems}
@@ -130,12 +130,13 @@ const LabsCartScreen = () => {
             ListHeaderComponent={<CartHeader />}
             renderItem={({ item }) => (
               <CartPatientCard
-                patientName={item.patient?.fullName || user?.fullName || "Not Selected"}
-                age={item.patient?.age || user?.age || ""}
-                gender={item.patient?.gender || user?.gender || ""}
-                testName={item.test?.name}
-                price={`₹${item.test?.price * item.quantity}`}
-                onDeletePress={() => handleRemove(item.id)}
+                patientName={user?.fullName || "Myself"}
+                age={user?.age || ""}
+                gender={user?.gender || ""}
+                packageName={item.name}
+                tests={item.tests || []}
+                price={`₹${item.price * item.quantity}`}
+                onDeletePress={() => handleRemove(item.id, item.packageId)}
                 onAddPatient={() => {
                   setSelectedCartItemId(item.id);
                   setShowAddPatient(true);
@@ -155,14 +156,11 @@ const LabsCartScreen = () => {
         <CartFooter
           totalAmount={totalAmount}
           billSummary={billSummary}
-          // discount={couponApplied ? discountAmount : 0}
           onSelectSlots={() =>
-            navigation.navigate("SelectSlot", {
-              labId: 1,
-            })
+            navigation.navigate("SelectSlot", { labId: 1 })
           }
         />
-      </SafeAreaView>
+      </View>
 
       <AddPatientModal
         visible={showAddPatient}

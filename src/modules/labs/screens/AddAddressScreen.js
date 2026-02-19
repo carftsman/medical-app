@@ -14,49 +14,106 @@ import { COLORS } from "../../../config/constants";
 import { scale, verticalScale } from "../../../utils/styling";
 import AddAddressModal from "../components/AddAddressModal";
 
-const ADDRESSES = [
-  {
-    id: "1",
-    name: "Vicky",
-    address:
-      "Madhapur Metro Station, Road Number 23, Aditya Enclave, Madhapur, Hyderabad, Telangana, India",
-    phone: "+91 83839 38338",
-  },
-  {
-    id: "2",
-    name: "Vignesh",
-    address:
-      "Madhapur (near PNB), NH 215 By Pass, Keonjhar, Odisha, India",
-    phone: "+91 83839 38338",
-  },
-  {
-    id: "3",
-    name: "Laddu",
-    address:
-      "Madhapur Metro Station, CBI Colony, Jubilee Hills, Hyderabad, Telangana, India",
-    phone: "+91 83839 38338",
-  },
-];
+import { useFocusEffect } from "@react-navigation/native";
+import { labApi } from "../services/labApi";
 
 const AddAddressScreen = ({ navigation, route }) => {
-  const [selectedAddressId, setSelectedAddressId] = useState("1");
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [showAddAddress, setShowAddAddress] = useState(false);
-  const [addresses, setAddresses] = useState([])
+  const [addresses, setAddresses] = useState([]);
+  const [loading, setLoading] = useState(false);
 
 
-  const handleAddAddress = (newAddress) => {
-  setAddresses(prev => [
-    {
-      id: Date.now().toString(),
-      ...newAddress,
-    },
-    ...prev,
-  ]);
-};
+  const fetchAddresses = async () => {
+    try {
+      setLoading(true);
+      const res = await labApi.getAddresses(USER_ID);
+
+      console.log("ADDRESS RESPONSE", JSON.stringify(res.data, null, 2));
+
+      const apiData = res.data || {};
+
+      // combine default + saved into single array
+      const list = [
+        ...(apiData.defaultAddress ? [apiData.defaultAddress] : []),
+        ...(apiData.savedAddresses || []),
+      ];
+
+      setAddresses(list);
+
+      if (list.length > 0) {
+        setSelectedAddressId(list[0].id);
+      }
+
+    } catch (e) {
+      console.log("Address fetch error", e?.response?.data || e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchAddresses();
+    }, [])
+  );
+
+  const USER_ID = 4; // later take from redux/auth
+
+  const handleAddAddress = async (newAddress) => {
+    try {
+      const res = await labApi.createAddress({
+        userId: USER_ID,
+        fullName: newAddress.name,
+        mobile: newAddress.mobile,
+        house: newAddress.house,
+        street: newAddress.street,
+        landmark: newAddress.landmark,
+        city: newAddress.city,
+        state: newAddress.state,
+        pinCode: newAddress.pincode,
+      });
+
+      await fetchAddresses();
+
+      // select last inserted (usually newest)
+      if (res?.data?.data?.id) {
+        setSelectedAddressId(res.data.data.id);
+      }
+
+      return true;
+    } catch (e) {
+      console.log("Add address error", e?.response?.data || e);
+      return false;
+    }
+  };
+
+
+
+
+  const handleDelete = async (id) => {
+    try {
+      await labApi.deleteAddress(id);
+      fetchAddresses(); // refresh
+    } catch (e) {
+      console.log("Delete failed", e);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Loading addresses...</Text>
+      </View>
+    );
+  }
+
+  const selectedAddress = addresses.find?.(a => a.id === selectedAddressId);
 
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={22} />
@@ -70,10 +127,10 @@ const AddAddressScreen = ({ navigation, route }) => {
       </View>
 
       <FlatList
-        data={ADDRESSES}
-        keyExtractor={(item) => item.id}
+        data={addresses}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => {
-          const isSelected = item.id === selectedAddressId;
+          const isSelected = Number(item.id) === Number(selectedAddressId);
 
           return (
             <TouchableOpacity
@@ -81,44 +138,43 @@ const AddAddressScreen = ({ navigation, route }) => {
                 styles.card,
                 isSelected && styles.cardActive,
               ]}
-              onPress={() => setSelectedAddressId(item.id)}
+              onPress={() => setSelectedAddressId(Number(item.id))}
             >
               <View style={styles.cardHeader}>
-                <Text style={styles.name}>{item.name}</Text>
-                <Feather
-                  name="edit-2"
-                  size={16}
-                  color={COLORS.blue}
-                />
+                <Text style={styles.name}>{item.fullName}</Text>
+                <TouchableOpacity
+                  onPress={() => handleDelete(item.id)}
+                >
+                  <Feather name="trash-2" size={18} color="red" />
+                </TouchableOpacity>
+
               </View>
 
-              <Text style={styles.address}>{item.address}</Text>
-              <Text style={styles.phone}>{item.phone}</Text>
+              <Text style={styles.address}>
+                {item.house}, {item.street}, {item.landmark ? item.landmark + ", " : ""}
+                {item.city}, {item.state} - {item.pinCode}
+              </Text>
+              <Text style={styles.phone}>{item.mobile}</Text>
             </TouchableOpacity>
           );
         }}
       />
 
-      <TouchableOpacity style={styles.confirmButton}>
+      <TouchableOpacity style={styles.confirmButton}
+        onPress={() => {
+          if (!selectedAddress) return;
+          navigation.navigate("LabCheckout", { address: selectedAddress });
+        }}
+      >
         <Text style={styles.confirmText}>Confirm Address</Text>
       </TouchableOpacity>
 
       <AddAddressModal
         visible={showAddAddress}
         onClose={() => setShowAddAddress(false)}
-        onSubmit={(address) => {
-          console.log("New address:", address);
-        }}
-      />
-
-      <AddAddressModal
-        visible={showAddAddress}
-        onClose={() => setShowAddAddress(false)}
         onSubmit={handleAddAddress}
       />
-
-
-    </SafeAreaView>
+    </View>
   );
 };
 

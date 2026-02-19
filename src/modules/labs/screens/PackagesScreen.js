@@ -23,8 +23,8 @@ const PackagesScreen = () => {
   const categoryId = route?.params?.categoryId;
   const dispatch = useDispatch();
 const cartItems = useSelector(state => state.labsCart.items);
-
-
+ 
+ 
   const [filterVisible, setFilterVisible] = useState(false);
   const [labName, setLabName] = useState('');
   const [data, setData] = useState([]);
@@ -32,8 +32,8 @@ const cartItems = useSelector(state => state.labsCart.items);
   const [refreshing, setRefreshing] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [addingItemIds, setAddingItemIds] = useState([]);
-
-  
+ 
+ 
   const formatPackages = (packages) => {
     return packages?.map(item => ({
       id: item.packageId,
@@ -51,8 +51,8 @@ const cartItems = useSelector(state => state.labsCart.items);
         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTxEscPwXOmagb4I6akEBtLthHxH2gFrB_xg&s',
     })) || [];
   };
-
-  
+ 
+ 
   useFocusEffect(
   useCallback(() => {
     if (labId) {
@@ -61,15 +61,15 @@ const cartItems = useSelector(state => state.labsCart.items);
     }
   }, [labId, selectedAge, categoryId])
 );
-
+ 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       handleSearch();
     }, 400);
-
+ 
     return () => clearTimeout(delayDebounce);
   }, [searchText]);
-
+ 
   const fetchLabDetails = async () => {
     try {
       const res = await labApi.getLabDetails(labId);
@@ -78,29 +78,29 @@ const cartItems = useSelector(state => state.labsCart.items);
       console.log('Lab details fetch error:', error?.response?.data || error.message);
     }
   };
-
+ 
   const fetchPackagesWithParams = async () => {
   try {
     setListLoading(true);
-
+ 
     let params = {};
-
+ 
     if (selectedAge) {
       params.minAge = selectedAge;
       params.maxAge = selectedAge;
     }
-
+ 
     if (categoryId) {
       params.categoryId = categoryId;
     }
-
+ 
     console.log("FILTER PARAMS:", params);
-
+ 
     const res =
       selectedAge || categoryId
         ? await labApi.filterPackages(labId, params)
         : await labApi.getLabTests(labId);
-
+ 
     setData(formatPackages(res?.data?.packages || []));
   } catch (error) {
     console.log("Packages fetch error:", error);
@@ -108,16 +108,16 @@ const cartItems = useSelector(state => state.labsCart.items);
     setListLoading(false);
   }
 };
-
-
-
+ 
+ 
+ 
   const handleSearch = async () => {
     try {
       setListLoading(true);
-
+ 
       const res = await labApi.getLabTests(labId);
       const allPackages = res?.data?.packages || [];
-
+ 
       const filtered =
         searchText.trim().length === 0
           ? allPackages
@@ -126,7 +126,7 @@ const cartItems = useSelector(state => state.labsCart.items);
                 ?.toLowerCase()
                 .includes(searchText.toLowerCase())
             );
-
+ 
       setData(formatPackages(filtered));
     } catch (error) {
       console.log('Search error:', error);
@@ -134,101 +134,100 @@ const cartItems = useSelector(state => state.labsCart.items);
       setListLoading(false);
     }
   };
-
+ 
   const onRefresh = async () => {
     try {
       setRefreshing(true);
       await fetchPackagesWithParams();
-
+ 
     } catch (error) {
       console.log('Refresh error:', error);
     } finally {
       setRefreshing(false);
     }
   };
-
+ 
   const handleAddToCart = async (item) => {
     try {
       if (addingItemIds.includes(item.id)) return;
-
+ 
       setAddingItemIds(prev => [...prev, item.id]);
-
+ 
        const payload = {
-      userId: 12, 
+      userId: 21,
       labId: item.labId,
-      labTestId: item.id,
+      packageId: item.id,
       quantity: 1,
-      consultationType: "LAB_VISIT",
-      patientProfileId: null,
+     
     };
-
+ 
      const res = await labApi.addToLabCart(payload);
      if (res?.data?.item) {
       dispatch(addToCart(res.data.item));
     }
-
+ 
     } catch (error) {
       console.log('Add to cart failed:', error?.response?.data || error.message);
-    } 
+    }
   };
-
+ 
 const applyFilters = async (filters) => {
   try {
     setListLoading(true);
-
+ 
     let params = {};
-
-    
+ 
+   
     if (filters.feeRange) {
       const [min, max] = filters.feeRange.split('-');
       params.minPrice = Number(min);
       params.maxPrice = Number(max);
     }
-
+ 
     // AGE
     if (filters.age) {
       const [min, max] = filters.age.split('-');
       params.minAge = Number(min);
       params.maxAge = Number(max);
     }
-
+ 
     // GENDER
     if (filters.gender) {
       params.gender = filters.gender;
     }
-
-    // SORT 
+ 
+    // SORT
     if (filters.sort) {
       params.sortBy = filters.sort;
     }
-
+ 
     console.log("FILTER PARAMS:", params);
-
+ 
     const res = await labApi.filterPackages(labId, params);
-
+ 
     let packages = formatPackages(res?.data?.packages || []);
-
-    
+ 
+   
     if (filters.sort === 'price_asc') {
       packages.sort((a, b) => a.price - b.price);
     }
-
+ 
     if (filters.sort === 'price_desc') {
       packages.sort((a, b) => b.price - a.price);
     }
-
-    setData([...packages]); 
-
+ 
+    setData([...packages]);
+ 
   } catch (error) {
     console.log('Filter error:', error?.response?.data || error.message);
   } finally {
     setListLoading(false);
   }
 };
-
-
-
-
+ 
+ 
+ 
+ 
   return (
     <View style={styles.container}>
       <PackagesHeader
@@ -237,7 +236,7 @@ const applyFilters = async (filters) => {
         setSearchText={setSearchText}
         onFilterPress={() => setFilterVisible(true)}
       />
-
+ 
       {listLoading ? (
         Array.from({ length: 4 }).map((_, index) => (
           <PackageCardSkeleton key={index} />
@@ -255,10 +254,10 @@ const applyFilters = async (filters) => {
           onRefresh={onRefresh}
           renderItem={({ item }) => {
 const isAdded = cartItems.some(
-  cart => Number(cart.labTestId) === Number(item.id)
+  cart => Number(cart.packageId) === Number(item.id)
 );
-
-
+ 
+ 
             return (
               <PackageCard
                 item={item}
@@ -275,7 +274,7 @@ const isAdded = cartItems.some(
           }}
         />
       )}
-
+ 
       <PackagesFilterModal
         visible={filterVisible}
         onClose={() => setFilterVisible(false)}
@@ -284,9 +283,9 @@ const isAdded = cartItems.some(
     </View>
   );
 };
-
+ 
 export default PackagesScreen;
-
+ 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -303,4 +302,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#999',
   },
-});
+}); 

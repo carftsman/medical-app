@@ -93,10 +93,10 @@ const AddAddressModal = ({ visible, onClose, onSubmit }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleAddAddress = () => {
+  const handleAddAddress = async () => {
     if (!validate()) return;
 
-    onSubmit(form);
+    await onSubmit(form);
     onClose();
   };
 

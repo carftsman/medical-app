@@ -1,155 +1,163 @@
-  import React from "react";
-  import {
-    View,
-    Text,
-    StyleSheet,
-    Image,
-    TouchableOpacity,
-  } from "react-native";
-  import { COLORS } from "../../../config/constants";
-  import { scale, verticalScale } from "../../../utils/styling";
-  import Ionicons from "react-native-vector-icons/Ionicons";
-  import Feather from "react-native-vector-icons/Feather";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { COLORS } from "../../../config/constants";
+import { scale, verticalScale } from "../../../utils/styling";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
-  const LabsCartPatientCard = ({
-    patientName,
-    age,
-    gender,
-    testName,
-    price,
-    onEditPress,
-    onDeletePress,
-    onAddPatient,
-    onAddTests,
-  }) => {
-    return (
-      <View style={styles.card}>
-        <View style={styles.headerRow}>
-          <Image
-            source={{
-              uri: "https://via.placeholder.com/100",
-            }}
-            style={styles.avatar}
-          />
+const CartPatientCard = ({
+  patientName,
+  age,
+  gender,
+  packageName,
+  tests = [],
+  testsCount,
+  quantity,
+  price,
+  onDeletePress,
+  onAddPatient,
+}) => {
 
-          <View style={styles.nameContainer}>
-            <Text style={styles.name}>{patientName}</Text>
-            <Text style={styles.subText}>
-              {gender}, {age}
-            </Text>
-          </View>
+  const [expanded, setExpanded] = useState(false);
+  const visibleTests = expanded ? tests : tests.slice(0, 2);
 
-          <TouchableOpacity onPress={onEditPress} style={styles.iconButton}>
-            <Feather name="edit-2" size={18} color={COLORS.blue} />
-          </TouchableOpacity>
+  return (
+    <View style={styles.card}>
 
-          <TouchableOpacity onPress={onDeletePress} style={styles.iconButton}>
-            <Ionicons name="close-circle-outline" size={20} color="red" />
-          </TouchableOpacity>
+      {/* Header */}
+      <View style={styles.headerRow}>
+        <Image
+          source={{ uri: "https://via.placeholder.com/100" }}
+          style={styles.avatar}
+        />
+
+        <View style={styles.nameContainer}>
+          <Text style={styles.name}>{patientName}</Text>
+          <Text style={styles.subText}>{gender}, {age}</Text>
         </View>
 
-        <View style={styles.testRow}>
-          <View style={styles.testLeft}>
-            <Ionicons name="water-outline" size={18} color={COLORS.blue} />
-            <Text style={styles.testName}>{testName}</Text>
-          </View>
-
-          <Text style={styles.price}>{price}</Text>
-        </View>
-
-        <View style={styles.actionRow}>
-          <TouchableOpacity onPress={onAddPatient}>
-            <Text style={styles.actionText}>Add Patient</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={onAddTests}>
-            <Text style={styles.actionText}>Add Tests</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity onPress={onDeletePress}>
+          <Ionicons name="close-circle-outline" size={22} color="red" />
+        </TouchableOpacity>
       </View>
-    );
-  };
 
-  export default LabsCartPatientCard;
+      {/* Package Title */}
+      <Text style={styles.packageTitle}>{packageName}</Text>
+      <Text style={styles.testCount}>{testsCount} Tests Included</Text>
 
-  const styles = StyleSheet.create({
-    card: {
-      borderWidth: 1,
-      borderColor: COLORS.blue,
-      borderRadius: scale(12),
-      padding: scale(12),
-      backgroundColor: COLORS.white,
-      marginBottom: verticalScale(16),
-    },
+      {/* Tests */}
+      <View style={{ marginTop: 6 }}>
+        {visibleTests.map((test, index) => (
+          <Text key={index} style={styles.testItem}>• {test}</Text>
+        ))}
 
-    headerRow: {
-      flexDirection: "row",
-      alignItems: "center",
-    },
+        {tests.length > 2 && (
+          <TouchableOpacity onPress={() => setExpanded(!expanded)}>
+            <Text style={styles.viewMore}>
+              {expanded ? "Show Less" : `View All ${tests.length} Tests`}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
 
-    avatar: {
-      width: scale(36),
-      height: scale(36),
-      borderRadius: scale(18),
-      marginRight: scale(10),
-    },
+      {/* Footer */}
+      <View style={styles.footerRow}>
+        <TouchableOpacity onPress={onAddPatient}>
+          <Text style={styles.actionText}>Add Patient</Text>
+        </TouchableOpacity>
 
-    nameContainer: {
-      flex: 1,
-    },
+        {/* <Text style={styles.quantity}>Qty: {quantity}</Text> */}
+        <Text style={styles.price}>{price}</Text>
+      </View>
 
-    name: {
-      fontSize: scale(16),
-      fontWeight: "600",
-      color: COLORS.black,
-    },
+    </View>
+  );
+};
 
-    subText: {
-      fontSize: scale(12),
-      color: COLORS.gray,
-      marginTop: 2,
-    },
+export default CartPatientCard;
 
-    iconButton: {
-      padding: scale(6),
-    },
+const styles = StyleSheet.create({
+  card: {
+    borderWidth: 1,
+    borderColor: COLORS.blue,
+    borderRadius: scale(12),
+    padding: scale(12),
+    backgroundColor: COLORS.white,
+    marginBottom: verticalScale(16),
+  },
 
-    testRow: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginTop: verticalScale(12),
-      paddingTop: verticalScale(12),
-      borderTopWidth: 1,
-      borderTopColor: "#E5E7EB",
-    },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
 
-    testLeft: {
-      flexDirection: "row",
-      alignItems: "center",
-    },
+  avatar: {
+    width: scale(36),
+    height: scale(36),
+    borderRadius: scale(18),
+    marginRight: scale(10),
+  },
 
-    testName: {
-      marginLeft: scale(6),
-      fontSize: scale(13),
-      color: COLORS.black,
-    },
+  nameContainer: {
+    flex: 1,
+  },
 
-    price: {
-      fontSize: scale(14),
-      fontWeight: "600",
-      color: COLORS.green,
-    },
+  name: {
+    fontSize: scale(16),
+    fontWeight: "600",
+    color: COLORS.black,
+  },
 
-    actionRow: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      marginTop: verticalScale(12),
-    },
+  subText: {
+    fontSize: scale(12),
+    color: COLORS.gray,
+  },
 
-    actionText: {
-      fontSize: scale(13),
-      fontWeight: "500",
-      color: COLORS.blue,
-    },
-  });
+  packageTitle: {
+    fontSize: scale(15),
+    fontWeight: "600",
+    marginTop: verticalScale(10),
+    color: COLORS.black,
+  },
+
+  testCount: {
+    fontSize: scale(12),
+    color: COLORS.gray,
+  },
+
+  testItem: {
+    fontSize: scale(13),
+    color: "#374151",
+    marginVertical: 2,
+  },
+
+  viewMore: {
+    color: COLORS.blue,
+    marginTop: 4,
+    fontSize: scale(13),
+  },
+
+  footerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: verticalScale(12),
+    borderTopWidth: 1,
+    borderTopColor: "#E5E7EB",
+    paddingTop: verticalScale(10),
+  },
+
+  actionText: {
+    color: COLORS.blue,
+    fontWeight: "500",
+  },
+
+  quantity: {
+    color: COLORS.gray,
+  },
+
+  price: {
+    fontSize: scale(14),
+    fontWeight: "600",
+    color: COLORS.green,
+  },
+});
