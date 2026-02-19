@@ -67,7 +67,7 @@ const LabFeedback = ({route}) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#000" />
@@ -86,7 +86,7 @@ const LabFeedback = ({route}) => {
         onPress={handleSubmit}
         disabled={loading}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 

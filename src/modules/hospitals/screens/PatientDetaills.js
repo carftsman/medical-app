@@ -61,7 +61,7 @@ const PatientDetails = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView
+    <View
       style={{ flex: 1, backgroundColor: COLORS.white }}
       edges={['top']}
     >
@@ -234,7 +234,7 @@ const PatientDetails = ({ navigation }) => {
         />
         {/* </KeyboardAvoidingView> */}
       </KeyboardAwareScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
