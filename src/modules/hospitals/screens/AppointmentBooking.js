@@ -260,7 +260,10 @@ const AppointmentBooking = ({ route }) => {
                   },
                 ]}
               >
-                <View style={styles.patientRow}>
+                <TouchableOpacity
+                style={styles.patientRow}
+                onPress={() => setSelectedIndex(index)}
+                >
                   <View style={styles.avatar}>
                     <Ionicons name="person-outline" size={22} color="#fff" />
                   </View>
@@ -283,7 +286,7 @@ const AppointmentBooking = ({ route }) => {
                       color={COLORS.primary}
                     />
                   </TouchableOpacity>
-                </View>
+                </TouchableOpacity>
               </View>
 
               <View style={styles.patientActions}>
