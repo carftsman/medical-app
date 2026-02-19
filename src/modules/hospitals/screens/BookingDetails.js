@@ -24,7 +24,7 @@ import api from '../../../api/client';
 const BookingDetails = () => {
   const navigation = useNavigation();
   const bookingId = useSelector(state => state.hospital.consultation.bookingId);
-
+  console.log("Booking ID: ", bookingId);
   const [bookingData, setBookingData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -51,7 +51,7 @@ const BookingDetails = () => {
       );
 
       console.log('Booking Details Response:', response.data);
-      
+
       setBookingData(response.data);
     } catch (err) {
       console.log('Error fetching booking details:', err.response || err.message);
@@ -80,7 +80,7 @@ const BookingDetails = () => {
   if (!bookingData) {
     return <Text>no bookingId</Text>
   }
-  console.log("bookingData",bookingData)
+  console.log("bookingData", bookingData)
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -89,8 +89,8 @@ const BookingDetails = () => {
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* Doctor Card */}
         <BookingDoctorCard
-        doctorImage={bookingData.doctor.image}
-         doctor={bookingData.doctor}
+          doctorImage={bookingData.doctor.image}
+          doctor={bookingData.doctor}
           doctorName={bookingData.doctor.name}
           hospitalName={bookingData.hospital}
           status={bookingData.status}
@@ -106,80 +106,86 @@ const BookingDetails = () => {
             value={bookingData.patient}
           />
 
-         <DetailRow
-           icon="calendar-outline"
-           label="Slot Date"
-           value={bookingData.slot?.date}
+          <DetailRow
+            icon="calendar-outline"
+            label="Slot Date"
+            value={bookingData.appointment?.date}
           />
           <DetailRow
-           icon="time-outline"
-           label="Slot Time"
-          value={bookingData.slot?.time}
-           />
+            icon="time-outline"
+            label="Slot Time"
+            value={bookingData.appointment?.time}
+          />
+          {
+            bookingData?.reason &&
             <View style={styles.reasonHeader}>
-            <Text style={styles.reasonTitle}>Reason</Text>
-            <TouchableOpacity>
-              {/* <Text style={styles.reasonChange}>Change</Text> */}
-            </TouchableOpacity>
-          </View>
+              <Text style={styles.reasonTitle}>Reason</Text>
+              <TouchableOpacity>
+                {/* <Text style={styles.reasonChange}>Change</Text> */}
+              </TouchableOpacity>
+            </View>
+          }
 
-         <View style={styles.reasonRow}>
-       <Ionicons
-         name="document-text-outline"
-         size={23}
-         color="#4f76c4ff"
-      />
-      <Text>
-       {bookingData.reason || 'Not specified'}
-      </Text>
-       </View>
+          {
+            bookingData?.reason &&
+            <View style={styles.reasonRow}>
+              <Ionicons
+                name="document-text-outline"
+                size={23}
+                color="#4f76c4ff"
+              />
+              <Text>
+                {bookingData.reason}
+              </Text>
+            </View>
+          }
         </View>
 
         {/* Payment Summary */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Payment Summary</Text>
           <PaymentRow
-               label="Consultation Fee"
-               value={`₹${bookingData.payment?.consultationFee}`}
-               valueStyle={styles.amountValue}
-           />
+            label="Consultation Fee"
+            value={`₹${bookingData.payment?.consultationFee}`}
+            valueStyle={styles.amountValue}
+          />
 
           <PaymentRow
-              label="Service Fee"
-  value={
-    bookingData.payment?.serviceFee === 0
-      ? 'Free'
-      : `₹${bookingData.payment?.serviceFee}`
-  }
-  valueStyle={styles.freeText}
-/>
+            label="Service Fee"
+            value={
+              bookingData.payment?.serviceFee === 0
+                ? 'Free'
+                : `₹${bookingData.payment?.serviceFee}`
+            }
+            valueStyle={styles.freeText}
+          />
 
-<PaymentRow
-  label="GST (18%)"
-  value={`₹${bookingData.payment?.gst}`}
-  valueStyle={styles.amountValue}
-/>
+          <PaymentRow
+            label="GST (18%)"
+            value={`₹${bookingData.payment?.gst}`}
+            valueStyle={styles.amountValue}
+          />
 
-<View style={styles.divider} />
+          <View style={styles.divider} />
 
-<PaymentRow
-  label="Total Payable"
-  value={`₹${bookingData.payment?.totalPayable}`}
-  valueStyle={styles.totalValue}
-/>
- </View>
+          <PaymentRow
+            label="Total Payable"
+            value={`₹${bookingData.payment?.total}`}
+            valueStyle={styles.totalValue}
+          />
+        </View>
       </ScrollView>
 
       {/* Pay Button */}
       <TouchableOpacity
         style={styles.payButton}
-        onPress={() => navigation.navigate('Payments',{
-          totalFee:bookingData?.payment?.totalPayable
+        onPress={() => navigation.navigate('Payments', {
+          totalFee: bookingData?.payment?.total
         })}
-        >
-       <Text style={styles.payText}>
-       Pay ₹{bookingData.payment?.totalPayable}
-</Text>
+      >
+        <Text style={styles.payText}>
+          Pay ₹{bookingData.payment?.total}
+        </Text>
 
       </TouchableOpacity>
     </SafeAreaView>
