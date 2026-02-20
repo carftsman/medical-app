@@ -14,7 +14,8 @@ import PackagesHeader from '../components/PackagesHeader';
 import { COLORS } from '../../../config/constants';
 import { scale } from '../../../utils/styling';
 import { useDispatch, useSelector } from 'react-redux';
-import { addToCart } from '../redux/labsCartSlice';
+import useAuth from '../../../hooks/useAuth';
+
 const PackagesScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -22,7 +23,9 @@ const PackagesScreen = () => {
   const selectedAge = route?.params?.selectedAge;
   const categoryId = route?.params?.categoryId;
   const dispatch = useDispatch();
-const cartItems = useSelector(state => state.labsCart.items);
+  const cartItems = useSelector(state => state.labsCart.items);
+  const { user } = useAuth();
+  const userId = user?.id;
 
 
   const [filterVisible, setFilterVisible] = useState(false);
@@ -33,7 +36,7 @@ const cartItems = useSelector(state => state.labsCart.items);
   const [searchText, setSearchText] = useState('');
   const [addingItemIds, setAddingItemIds] = useState([]);
 
-  
+
   const formatPackages = (packages) => {
     return packages?.map(item => ({
       id: item.packageId,
@@ -52,15 +55,15 @@ const cartItems = useSelector(state => state.labsCart.items);
     })) || [];
   };
 
-  
+
   useFocusEffect(
-  useCallback(() => {
-    if (labId) {
-      fetchLabDetails();
-      fetchPackagesWithParams();
-    }
-  }, [labId, selectedAge, categoryId])
-);
+    useCallback(() => {
+      if (labId) {
+        fetchLabDetails();
+        fetchPackagesWithParams();
+      }
+    }, [labId, selectedAge, categoryId])
+  );
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
@@ -80,34 +83,34 @@ const cartItems = useSelector(state => state.labsCart.items);
   };
 
   const fetchPackagesWithParams = async () => {
-  try {
-    setListLoading(true);
+    try {
+      setListLoading(true);
 
-    let params = {};
+      let params = {};
 
-    if (selectedAge) {
-      params.minAge = selectedAge;
-      params.maxAge = selectedAge;
+      if (selectedAge) {
+        params.minAge = selectedAge;
+        params.maxAge = selectedAge;
+      }
+
+      if (categoryId) {
+        params.categoryId = categoryId;
+      }
+
+      console.log("FILTER PARAMS:", params);
+
+      const res =
+        selectedAge || categoryId
+          ? await labApi.filterPackages(labId, params)
+          : await labApi.getLabTests(labId);
+
+      setData(formatPackages(res?.data?.packages || []));
+    } catch (error) {
+      console.log("Packages fetch error:", error);
+    } finally {
+      setListLoading(false);
     }
-
-    if (categoryId) {
-      params.categoryId = categoryId;
-    }
-
-    console.log("FILTER PARAMS:", params);
-
-    const res =
-      selectedAge || categoryId
-        ? await labApi.filterPackages(labId, params)
-        : await labApi.getLabTests(labId);
-
-    setData(formatPackages(res?.data?.packages || []));
-  } catch (error) {
-    console.log("Packages fetch error:", error);
-  } finally {
-    setListLoading(false);
-  }
-};
+  };
 
 
 
@@ -122,10 +125,10 @@ const cartItems = useSelector(state => state.labsCart.items);
         searchText.trim().length === 0
           ? allPackages
           : allPackages.filter(item =>
-              item.packageName
-                ?.toLowerCase()
-                .includes(searchText.toLowerCase())
-            );
+            item.packageName
+              ?.toLowerCase()
+              .includes(searchText.toLowerCase())
+          );
 
       setData(formatPackages(filtered));
     } catch (error) {
@@ -153,78 +156,77 @@ const cartItems = useSelector(state => state.labsCart.items);
 
       setAddingItemIds(prev => [...prev, item.id]);
 
-       const payload = {
-      userId: 12, 
-      labId: item.labId,
-      labTestId: item.id,
-      quantity: 1,
-      consultationType: "LAB_VISIT",
-      patientProfileId: null,
-    };
+      const payload = {
+        userId: userId,
+        labId: item.labId,
+        packageId: item.id,
+        quantity: 1,
 
-     const res = await labApi.addToLabCart(payload);
-     if (res?.data?.item) {
-      dispatch(addToCart(res.data.item));
-    }
+      };
+
+      const res = await labApi.addToLabCart(payload);
+      if (res?.data?.item) {
+        dispatch(addToCart(res.data.item));
+      }
 
     } catch (error) {
       console.log('Add to cart failed:', error?.response?.data || error.message);
-    } 
+    }
   };
 
-const applyFilters = async (filters) => {
-  try {
-    setListLoading(true);
+  const applyFilters = async (filters) => {
+    try {
+      setListLoading(true);
 
-    let params = {};
+      let params = {};
 
-    
-    if (filters.feeRange) {
-      const [min, max] = filters.feeRange.split('-');
-      params.minPrice = Number(min);
-      params.maxPrice = Number(max);
+
+      if (filters.feeRange) {
+        const [min, max] = filters.feeRange.split('-');
+        params.minPrice = Number(min);
+        params.maxPrice = Number(max);
+      }
+
+      // AGE
+      if (filters.age) {
+        const [min, max] = filters.age.split('-');
+        params.minAge = Number(min);
+        params.maxAge = Number(max);
+      }
+
+      // GENDER
+      if (filters.gender) {
+        params.gender = filters.gender;
+      }
+
+      // SORT
+      if (filters.sort) {
+        params.sortBy = filters.sort;
+      }
+
+      console.log("FILTER PARAMS:", params);
+
+      const res = await labApi.filterPackages(labId, params);
+
+      let packages = formatPackages(res?.data?.packages || []);
+
+
+      if (filters.sort === 'price_asc') {
+        packages.sort((a, b) => a.price - b.price);
+      }
+
+      if (filters.sort === 'price_desc') {
+        packages.sort((a, b) => b.price - a.price);
+      }
+
+      setData([...packages]);
+
+    } catch (error) {
+      console.log('Filter error:', error?.response?.data || error.message);
+    } finally {
+      setListLoading(false);
     }
-
-    // AGE
-    if (filters.age) {
-      const [min, max] = filters.age.split('-');
-      params.minAge = Number(min);
-      params.maxAge = Number(max);
-    }
-
-    // GENDER
-    if (filters.gender) {
-      params.gender = filters.gender;
-    }
-
-    // SORT 
-    if (filters.sort) {
-      params.sortBy = filters.sort;
-    }
-
-    console.log("FILTER PARAMS:", params);
-
-    const res = await labApi.filterPackages(labId, params);
-
-    let packages = formatPackages(res?.data?.packages || []);
-
-    
-    if (filters.sort === 'price_asc') {
-      packages.sort((a, b) => a.price - b.price);
-    }
-
-    if (filters.sort === 'price_desc') {
-      packages.sort((a, b) => b.price - a.price);
-    }
-
-    setData([...packages]); 
-
-  } catch (error) {
-    console.log('Filter error:', error?.response?.data || error.message);
-  } finally {
-    setListLoading(false);
-  }
-};
+  };
 
 
 
@@ -254,9 +256,9 @@ const applyFilters = async (filters) => {
           refreshing={refreshing}
           onRefresh={onRefresh}
           renderItem={({ item }) => {
-const isAdded = cartItems.some(
-  cart => Number(cart.labTestId) === Number(item.id)
-);
+            const isAdded = cartItems.some(
+              cart => Number(cart.packageId) === Number(item.id)
+            );
 
 
             return (
@@ -303,4 +305,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#999',
   },
-});
+}); 
