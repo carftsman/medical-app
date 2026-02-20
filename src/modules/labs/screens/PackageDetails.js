@@ -18,11 +18,14 @@ import { addToCart } from '../redux/labsCartSlice';
 import { COLORS, SIZES } from '../../../config/constants';
 import { scale, verticalScale } from '../../../utils/styling';
 import PackageDetailsSkeleton from '../components/PackageDetailsSkeleton';
+import useAuth from '../../../hooks/useAuth';
 
 const PackageDetails = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { user } = useAuth();
+  const userId = user?.id;
 
   const packageId = route?.params?.packageId ?? 1;
 
@@ -91,7 +94,7 @@ const PackageDetails = () => {
       setAdding(true);
 
       const payload = {
-        userId: 21,
+        userId: userId,
         labId: data.labId,
         packageId: data.id,
       };

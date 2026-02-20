@@ -9,6 +9,9 @@ import { COLORS } from "../../../config/constants";
 import { scale, verticalScale } from "../../../utils/styling";
 
 import { labApi } from "../services/labApi";
+import useAuth from "../../../hooks/useAuth";
+import { useEffect } from "react";
+
 import CartHeader from "../components/CartHeader";
 import CartPatientCard from "../components/CartPatientCard";
 import CartCouponBanner from "../components/CartCouponBanner";
@@ -18,6 +21,22 @@ import AddPatientModal from "../components/AddPatientModal";
 const LabsCartScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+
+  const { user: authUser } = useAuth();
+  const USER_ID = authUser?.id;
+
+  useEffect(() => {
+    if (authUser === null || authUser === undefined) return;
+    setLoading(false);
+  }, [authUser]);
+
+  useEffect(() => {
+    if (!USER_ID) {
+      dispatch(setCartItems([]));
+    }
+  }, [USER_ID]);
+
+
 
   const [user, setUser] = useState(null);
   const [couponApplied, setCouponApplied] = useState(false);
@@ -32,15 +51,18 @@ const LabsCartScreen = () => {
   const [billSummary, setBillSummary] = useState(null);
   const [updatingCart, setUpdatingCart] = useState(false);
 
-  const USER_ID = 4;
+
 
   useFocusEffect(
     useCallback(() => {
-      fetchCart();
-    }, [])
+      if (USER_ID) fetchCart();
+    }, [USER_ID, fetchCart])
   );
 
-  const fetchCart = async () => {
+
+  const fetchCart = useCallback(async () => {
+    if (!USER_ID) return;
+
     try {
       setUpdatingCart(true);
 
@@ -58,7 +80,8 @@ const LabsCartScreen = () => {
       setLoading(false);
       setUpdatingCart(false);
     }
-  };
+  }, [USER_ID]);
+
 
   const handleRemove = async (cartItemId, packageId) => {
     try {
