@@ -47,7 +47,7 @@ export default function ReportsTab() {
 
       const res = await api.get('/labs/reports', {
         params: {
-          userId: 21,
+          userId: user.id || 4,
           ...(search && { search }),
           ...(status &&
             status !== '*' && {
@@ -58,7 +58,7 @@ export default function ReportsTab() {
         },
       });
 
-      console.log('LAB REPORTS', res.data);
+      console.log('LAB REPORTS', res.data, user.id);
 
       if (res.status === 200) {
         setReports(res.data?.reports || []);
