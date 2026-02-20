@@ -32,6 +32,9 @@ const DoctorDetails = ({ route, navigation }) => {
   const [doctorDetails, setDoctorDetails] = useState({});
   const [dateSlots, setDateSlots] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
+  const [hospitalDetails, setHospitalDetails] = useState({});
+
+  const hospitalId = doctorDetails?.hospital?.id;
 
   const fetchDoctorDetails = async () => {
     try {
@@ -44,6 +47,18 @@ const DoctorDetails = ({ route, navigation }) => {
     }
     finally {
       setLoading(false);
+    }
+  };
+
+  const fetchHospitalDetails = async (id) => {
+    try {
+      const response = await api.get(`/hospital/user/hospitals/${id}/info`);
+      console.log("hospital", response?.data);
+      console.log("Days:", hospitalDetails?.availability?.days);
+      setHospitalDetails(response?.data);
+    }
+    catch (error) {
+      console.log("Error sending Id: ", error.message);
     }
   };
 
@@ -95,6 +110,7 @@ const DoctorDetails = ({ route, navigation }) => {
       );
       console.log(response?.data);
       dispatch(setBookingId(response?.data?.bookingId));
+      fetchTimeSlots();
     }
     catch (error) {
       console.log("Error sending Id: ", error.message);
@@ -111,6 +127,12 @@ const DoctorDetails = ({ route, navigation }) => {
       fetchTimeSlots();
     }
   }, [selectedDate]);
+
+  useEffect(() => {
+    if (hospitalId) {
+      fetchHospitalDetails(hospitalId);
+    }
+  }, [hospitalId]);
 
   const handleBookAppointment = () => {
     setShowModal(true);
@@ -171,6 +193,10 @@ const DoctorDetails = ({ route, navigation }) => {
           place={doctorDetails?.hospital?.place}
           latitude={doctorDetails?.hospital?.latitude}
           longitude={doctorDetails?.hospital?.longitude}
+          days={hospitalDetails?.availability?.days}
+          startTime={hospitalDetails?.availability?.startTime}
+          endTime={hospitalDetails?.availability?.endTime}
+        // distancekm={hospitalDetails?.distancekm}
         />
 
         <DoctorReviews />
