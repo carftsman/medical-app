@@ -1,10 +1,4 @@
 import api from './client';
-
-const mergeUniqueById = (offline = [], online = []) => [
-  ...offline,
-  ...online.filter(o => !offline.some(f => f.id === o.id)),
-];
-
 const cleanParams = obj =>
   Object.fromEntries(
     Object.entries(obj).filter(
@@ -12,73 +6,59 @@ const cleanParams = obj =>
     )
   );
 
-/* ===================== API ===================== */
+/* API */
+
 export const hospitalApi = {
-  /* ---------- OFFLINE ---------- */
-  getOfflineHospitals: ({ latitude, longitude, radius = 15 }) => {
-    return api.get('/hospital/user/hospitals/nearby', {
-      params: {
-        latitude,
-        longitude,
-        radius,
-        mode: 'OFFLINE',
-      },
-    });
-  },
 
-  /* ---------- ONLINE ---------- */
-  getOnlineHospitals: ({ latitude, longitude, radius = 15 }) => {
-    return api.get('/hospital/user/hospitals/nearby', {
-      params: {
-        latitude,
-        longitude,
-        radius,
-        mode: 'ONLINE',
-      },
-    });
-  },
-
-  /* ---------- BOTH ---------- */
-  getHospitalsByMode: async ({
-    mode = 'BOTH',
+  /* NEARBY HOSPITALS */
+  getNearbyHospitals: ({
     latitude,
     longitude,
     radius = 15,
+    page = 1,
+    limit = 20,
   }) => {
-    const m = mode.toUpperCase();
-
-    if (m === 'OFFLINE') {
-      return hospitalApi.getOfflineHospitals({
+    return api.get('/hospital/user/hospitals/nearby', {
+      params: cleanParams({
         latitude,
         longitude,
         radius,
-      });
-    }
+        page,
+        limit,
+      }),
+    });
+  },
 
-    if (m === 'ONLINE') {
-      return hospitalApi.getOnlineHospitals({
-        latitude,
-        longitude,
-        radius,
-      });
-    }
+  /*  GET HOSPITALS  */
+  getHospitalsByMode: async ({
+    latitude,
+    longitude,
+    radius = 15,
+    page = 1,
+    limit = 20,
+  }) => {
+    const res = await hospitalApi.getNearbyHospitals({
+      latitude,
+      longitude,
+      radius,
+      page,
+      limit,
+    });
 
-    const [offlineRes, onlineRes] = await Promise.all([
-      hospitalApi.getOfflineHospitals({ latitude, longitude, radius }),
-      hospitalApi.getOnlineHospitals({ latitude, longitude, radius }),
-    ]);
-
-    const offline = offlineRes?.data?.data || [];
-    const online = onlineRes?.data?.data || [];
+    const hospitals =
+      res?.data?.data ||
+      res?.data?.hospitals ||
+      res?.data?.results ||
+      [];
 
     return {
       data: {
-        data: mergeUniqueById(offline, online),
+        data: Array.isArray(hospitals) ? hospitals : [],
       },
     };
   },
 
-  /* ---------- FILTER ---------- */
+  /* FILTER  */
   getFilteredNearbyHospitals: params => {
     const cleanedParams = cleanParams({
       latitude: params.latitude,
@@ -88,7 +68,6 @@ export const hospitalApi = {
         params.categoryIds?.length > 0
           ? params.categoryIds.join(',')
           : undefined,
-      mode: (params.mode || 'BOTH').toUpperCase(),
       openNow: params.openNow,
       open24x7: params.open24x7,
       page: params.page || 1,
@@ -100,9 +79,9 @@ export const hospitalApi = {
     });
   },
 
+  /* SEARCH  */
   searchHospitals: async ({
     query,
-    mode = 'BOTH',
     page = 1,
     limit = 20,
   }) => {
@@ -114,7 +93,6 @@ export const hospitalApi = {
       params: cleanParams({
         q: query,
         type: 'hospital',
-        mode: mode.toUpperCase(),
         page,
         limit,
       }),
@@ -133,11 +111,10 @@ export const hospitalApi = {
     };
   },
 
-  /* ---------- CATEGORIES ---------- */
-  getCategories: ({ mode }) => {
+  /* CATEGORIES */
+  getCategories: () => {
     return api.get('/hospital/user/categories', {
       params: {
-        mode: (mode || 'BOTH').toUpperCase(),
         limit: 50,
       },
     });
