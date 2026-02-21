@@ -19,6 +19,7 @@ import api from '../../../api/client';
 
 export default function ReportDetailsScreen({ route }) {
   const id = route?.params?.id || 2;
+  const item = route?.params?.report;
   const navigation = useNavigation();
 
   const [loading, setLoading] = useState(true);
@@ -72,6 +73,7 @@ export default function ReportDetailsScreen({ route }) {
   }
 
   console.log(report)
+  console.log(item)
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
@@ -89,7 +91,9 @@ export default function ReportDetailsScreen({ route }) {
           </View>
 
           <DetailHeader
-            testName={report.packageName}
+            testName={report.testName 
+            
+            }
             labName={report.labName}
           />
 

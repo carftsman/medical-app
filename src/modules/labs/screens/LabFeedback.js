@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -16,15 +16,37 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { scale, verticalScale } from '../../../utils/styling';
 import api from '../../../api/client';
 
-
 const LabFeedback = ({route}) => {
   const navigation = useNavigation();
-   const id = route?.params?.id || 2;
+  const id = route?.params?.id || 2;
+
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [loading, setLoading] = useState(false);
+  const [hasFeedback, setHasFeedback] = useState(false); 
 
   console.log("id",id);
+
+  
+  useEffect(() => {
+    const checkFeedbackStatus = async () => {
+      try {
+        const response = await api.get(`/labs/feedback/${id}`);
+
+        console.log('Feedback Status:', response.data);
+
+        if (response.data?.hasFeedback) {
+          setHasFeedback(true);
+          Alert.alert('You have already submitted feedback for this booking.');
+        }
+
+      } catch (error) {
+        console.log('Get Feedback Error:', error?.response || error);
+      }
+    };
+
+    checkFeedbackStatus();
+  }, [id]);
 
   const handleSubmit = async () => {
     if (rating === 0) {
@@ -42,25 +64,19 @@ const LabFeedback = ({route}) => {
           rating: rating,
           comment: feedback,
         },
-       
-        
       );
 
-    console.log(response.data);
+      console.log(response.data);
 
       if (response.status === 200 || response.status === 201) {
-        navigation.navigate(
-          'LabFeedbackSuccess',
-        
-        );
+        navigation.navigate('LabFeedbackSuccess');
 
         setRating(0);
         setFeedback('');
-        
       }
     } catch (error) {
       console.log('Feedback Error:', error?.response || error);
-      Alert.alert('Error', error.response.data.message||'Something went wrong. Please try again.');
+      Alert.alert('Error', error.response?.data?.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -100,7 +116,6 @@ const styles = StyleSheet.create({
   },
   topBar: {
     flexDirection: 'row',
-    // alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: verticalScale(10),
   },
@@ -111,3 +126,12 @@ const styles = StyleSheet.create({
     color: '#222',
   },
 });
+
+
+
+
+
+
+
+
+

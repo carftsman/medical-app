@@ -46,7 +46,7 @@ export default function ReportsTab() {
 
       const res = await api.get('/labs/reports', {
         params: {
-          userId: 21,
+          userId: 1,
           ...(search && { search }),
           ...(status &&
             status !== '*' && {
