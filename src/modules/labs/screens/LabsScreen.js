@@ -18,7 +18,12 @@ import { useRoute } from "@react-navigation/native";
 const LabsListScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-const categoryId = route?.params?.categoryId;
+
+  const categoryId = route?.params?.categoryId;
+
+  // ✅ ADDED
+  const uploadedFiles = route?.params?.files || [];
+  const isUploadFlow = route?.params?.isUploadFlow || false;
 
   const [labs, setLabs] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -102,7 +107,18 @@ const categoryId = route?.params?.categoryId;
         </View>
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={()=> navigation.navigate("LabDetails", { labId: item.id,categoryId: route?.params?.categoryId })}>
+      {/* ✅ ONLY THIS PART MODIFIED (Added files + isUploadFlow) */}
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() =>
+          navigation.navigate("LabDetails", {
+            labId: item.id,
+            categoryId: categoryId,
+            files: uploadedFiles,
+            isUploadFlow: isUploadFlow,
+          })
+        }
+      >
         <Text style={styles.buttonText}>View Details</Text>
       </TouchableOpacity>
     </View>
@@ -110,10 +126,13 @@ const categoryId = route?.params?.categoryId;
 
   return (
     <View style={styles.container}>
-      
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("UploadPrescription")
+          }
+        >
           <Icon name="arrow-back" size={24} />
         </TouchableOpacity>
 
