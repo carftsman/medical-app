@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Alert } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform } from "react-native";
 
 import {
   StyleSheet,
@@ -261,8 +261,8 @@ const AppointmentBooking = ({ route }) => {
                 ]}
               >
                 <TouchableOpacity
-                style={styles.patientRow}
-                onPress={() => setSelectedIndex(index)}
+                  style={styles.patientRow}
+                  onPress={() => setSelectedIndex(index)}
                 >
                   <View style={styles.avatar}>
                     <Ionicons name="person-outline" size={22} color="#fff" />
@@ -342,165 +342,174 @@ const AppointmentBooking = ({ route }) => {
 
       {/* MODAL */}
       <Modal transparent animationType="slide" visible={showModal}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Add New Patient</Text>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 40 : 0}
+        >
+          <View style={styles.modalOverlay}>
+            <ScrollView
+              contentContainerStyle={styles.modalContent}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Add New Patient</Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    setShowDatePicker(false);
+                    setShowModal(false);
+                  }}
+                >
+                  <Text style={styles.closeText}>✕</Text>
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.inputLabel}>Patient Name</Text>
+              <Controller
+                control={control}
+                name="name"
+                render={({ field: { value, onChange } }) => (
+                  <TextInput
+                    value={value}
+                    style={styles.input}
+                    placeholder="Enter Patient Name"
+                    placeholderTextColor="#9CA3AF"
+                    onChangeText={onChange}
+                  />
+                )}
+              />
+              {errors.name && (
+                <Text style={styles.error}>{errors.name.message}</Text>
+              )}
+
+              <Text style={styles.inputLabel}>Gender</Text>
+
+              <Controller
+                control={control}
+                name="gender"
+                render={({ field: { value, onChange } }) => (
+                  <View style={styles.genderRow}>
+
+                    {/* WOMEN */}
+                    <TouchableOpacity
+                      style={styles.genderOption}
+                      onPress={() => onChange("FEMALE")}
+                    >
+                      <View style={styles.outerCircle}>
+                        {value === "FEMALE" && <View style={styles.innerCircle} />}
+                      </View>
+                      <Text style={styles.genderText}>Women</Text>
+                    </TouchableOpacity>
+
+                    {/* MEN (Disabled but same layout) */}
+                    <TouchableOpacity
+                      style={styles.genderOption}
+                      onPress={() => onChange("MALE")}
+                    >
+                      <View style={styles.outerCircle}>
+                        {value === "MALE" && <View style={styles.innerCircle} />}
+                      </View>
+                      <Text style={styles.genderText}>Men</Text>
+                    </TouchableOpacity>
+
+                    {/* OTHERS (Disabled but same layout) */}
+                    <TouchableOpacity
+                      style={styles.genderOption}
+                      onPress={() => onChange("OTHERS")}
+                    >
+                      <View style={styles.outerCircle}>
+                        {value === "OTHERS" && <View style={styles.innerCircle} />}
+                      </View>
+                      <Text style={styles.genderText}>Others</Text>
+                    </TouchableOpacity>
+
+                  </View>
+
+
+                )}
+              />
+
+              {errors.gender && (
+                <Text style={styles.error}>{errors.gender.message}</Text>
+              )}
+
+
+              <Text style={styles.inputLabel}>Mobile Number</Text>
+              <Controller
+                control={control}
+                name="mobile"
+                render={({ field: { value, onChange } }) => (
+                  <TextInput
+                    value={value}
+                    keyboardType="number-pad"
+                    style={styles.input}
+                    placeholder="Enter Mobile Number"
+                    placeholderTextColor="#9CA3AF"
+                    onChangeText={onChange}
+                  />
+                )}
+              />
+              {errors.mobile && (
+                <Text style={styles.error}>{errors.mobile.message}</Text>
+              )}
+
+              <Text style={styles.inputLabel}>Email ID</Text>
+              <Controller
+                control={control}
+                name="email"
+                render={({ field: { value, onChange } }) => (
+                  <TextInput
+                    value={value}
+                    style={styles.input}
+                    placeholder="Enter Email ID"
+                    placeholderTextColor="#9CA3AF"
+                    onChangeText={onChange}
+                  />
+                )}
+              />
+              {errors.email && (
+                <Text style={styles.error}>{errors.email.message}</Text>
+              )}
+
+              <Text style={styles.inputLabel}>Reason</Text>
+              <Controller
+                control={control}
+                name="reason"
+                render={({ field: { value, onChange } }) => (
+                  <TextInput
+                    value={value}
+                    style={styles.input}
+                    placeholder="Enter Reason"
+                    placeholderTextColor="#9CA3AF"
+                    onChangeText={onChange}
+                  />
+                )}
+              />
+              {errors.reason && (
+                <Text style={styles.error}>{errors.reason.message}</Text>
+              )}
+
+              <Text style={styles.inputLabel}>Date of Birth</Text>
               <TouchableOpacity
-                onPress={() => {
-                  setShowDatePicker(false);
-                  setShowModal(false);
-                }}
+                style={styles.dateInput}
+                onPress={() => setShowDatePicker(true)}
               >
-                <Text style={styles.closeText}>✕</Text>
+                <Text>{watch("dob") || "DD/MM/YYYY"}</Text>
+                <Ionicons name="calendar-outline" size={20} />
               </TouchableOpacity>
-            </View>
-
-            <Text style={styles.inputLabel}>Patient Name</Text>
-            <Controller
-              control={control}
-              name="name"
-              render={({ field: { value, onChange } }) => (
-                <TextInput
-                  value={value}
-                  style={styles.input}
-                  placeholder="Enter Patient Name"
-                  placeholderTextColor="#9CA3AF"
-                  onChangeText={onChange}
-                />
+              {errors.dob && (
+                <Text style={styles.error}>{errors.dob.message}</Text>
               )}
-            />
-            {errors.name && (
-              <Text style={styles.error}>{errors.name.message}</Text>
-            )}
 
-            <Text style={styles.inputLabel}>Gender</Text>
-
-            <Controller
-              control={control}
-              name="gender"
-              render={({ field: { value, onChange } }) => (
-                <View style={styles.genderRow}>
-
-                  {/* WOMEN */}
-                  <TouchableOpacity
-                    style={styles.genderOption}
-                    onPress={() => onChange("FEMALE")}
-                  >
-                    <View style={styles.outerCircle}>
-                      {value === "FEMALE" && <View style={styles.innerCircle} />}
-                    </View>
-                    <Text style={styles.genderText}>Women</Text>
-                  </TouchableOpacity>
-
-                  {/* MEN (Disabled but same layout) */}
-                  <TouchableOpacity
-                    style={styles.genderOption}
-                    onPress={() => onChange("MALE")}
-                  >
-                    <View style={styles.outerCircle}>
-                      {value === "MALE" && <View style={styles.innerCircle} />}
-                    </View>
-                    <Text style={styles.genderTextDisabled}>Men</Text>
-                  </TouchableOpacity>
-
-                  {/* OTHERS (Disabled but same layout) */}
-                  <TouchableOpacity
-                    style={styles.genderOption}
-                    onPress={() => onChange("OTHERS")}
-                  >
-                    <View style={styles.outerCircle}>
-                      {value === "OTHERS" && <View style={styles.innerCircle} />}
-                    </View>
-                    <Text style={styles.genderTextDisabled}>Others</Text>
-                  </TouchableOpacity>
-
-                </View>
-
-
-              )}
-            />
-
-            {errors.gender && (
-              <Text style={styles.error}>{errors.gender.message}</Text>
-            )}
-
-
-            <Text style={styles.inputLabel}>Mobile Number</Text>
-            <Controller
-              control={control}
-              name="mobile"
-              render={({ field: { value, onChange } }) => (
-                <TextInput
-                  value={value}
-                  keyboardType="number-pad"
-                  style={styles.input}
-                  placeholder="Enter Mobile Number"
-                  placeholderTextColor="#9CA3AF"
-                  onChangeText={onChange}
-                />
-              )}
-            />
-            {errors.mobile && (
-              <Text style={styles.error}>{errors.mobile.message}</Text>
-            )}
-
-            <Text style={styles.inputLabel}>Email ID</Text>
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { value, onChange } }) => (
-                <TextInput
-                  value={value}
-                  style={styles.input}
-                  placeholder="Enter Email ID"
-                  placeholderTextColor="#9CA3AF"
-                  onChangeText={onChange}
-                />
-              )}
-            />
-            {errors.email && (
-              <Text style={styles.error}>{errors.email.message}</Text>
-            )}
-
-            <Text style={styles.inputLabel}>Reason</Text>
-            <Controller
-              control={control}
-              name="reason"
-              render={({ field: { value, onChange } }) => (
-                <TextInput
-                  value={value}
-                  style={styles.input}
-                  placeholder="Enter Reason"
-                  placeholderTextColor="#9CA3AF"
-                  onChangeText={onChange}
-                />
-              )}
-            />
-            {errors.reason && (
-              <Text style={styles.error}>{errors.reason.message}</Text>
-            )}
-
-            <Text style={styles.inputLabel}>Date of Birth</Text>
-            <TouchableOpacity
-              style={styles.dateInput}
-              onPress={() => setShowDatePicker(true)}
-            >
-              <Text>{watch("dob") || "DD/MM/YYYY"}</Text>
-              <Ionicons name="calendar-outline" size={20} />
-            </TouchableOpacity>
-            {errors.dob && (
-              <Text style={styles.error}>{errors.dob.message}</Text>
-            )}
-
-            <TouchableOpacity
-              style={styles.saveBtn}
-              onPress={handleSubmit(onSubmit)}
-            >
-              <Text style={styles.saveText}>Save</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.saveBtn}
+                onPress={handleSubmit(onSubmit)}
+              >
+                <Text style={styles.saveText}>Save</Text>
+              </TouchableOpacity>
+            </ScrollView>
           </View>
-        </View>
+        </KeyboardAvoidingView>
 
         {showDatePicker && (
           <DateTimePicker
@@ -592,7 +601,7 @@ const styles = StyleSheet.create({
   /*  Modal  */
   modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "flex-end" },
 
-  modalContent: { width: "100%", height: "80%", backgroundColor: COLORS.white, padding: scale(16), borderTopLeftRadius: scale(20), borderTopRightRadius: scale(20) },
+  modalContent: { width: "100%", backgroundColor: COLORS.white, padding: scale(16), borderTopLeftRadius: scale(20), borderTopRightRadius: scale(20) },
 
   modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: SIZES.medium },
 
