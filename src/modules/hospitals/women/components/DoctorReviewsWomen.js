@@ -31,10 +31,6 @@ const DoctorReviewsWomen = () => {
                     <DoctorReviewCardWomen key={index} item={item} />
                 ))}
             </View>
-
-            <TouchableOpacity style={styles.writeReviewButton} >
-                <Text style={styles.writeReviewText}>Write a Review</Text>
-            </TouchableOpacity>
         </View>
     );
 }
@@ -44,25 +40,11 @@ export default DoctorReviewsWomen;
 const styles = StyleSheet.create({
     reviewsContainer: {
         marginTop: verticalScale(20),
+        marginBottom: verticalScale(140),
     },
     reviewsHeaderText: {
         fontSize: scale(20),
         fontWeight: '600',
         paddingBottom: verticalScale(15),
-    },
-    writeReviewButton: {
-        marginTop: verticalScale(60),
-        flex: 1,
-        borderWidth: 1,
-        borderRadius: 18,
-        borderColor: '#F47FBB',
-        alignItems: 'center',
-        paddingVertical: verticalScale(10),
-        marginBottom: verticalScale(100),
-    },
-    writeReviewText: {
-        fontSize: scale(16),
-        fontWeight: '600',
-        color: '#F47FBB',
     },
 });

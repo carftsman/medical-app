@@ -24,8 +24,6 @@ const HospitalFilterPopup = ({
 }) => {
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
-
-  /* UI-only states (Figma match) */
   const [sortBy, setSortBy] = useState('distance');
   const [stateName, setStateName] = useState('');
   const [cityName, setCityName] = useState('');
@@ -37,7 +35,7 @@ const HospitalFilterPopup = ({
   const [loading, setLoading] = useState(false);
   const [catLoading, setCatLoading] = useState(false);
 
-  /* ================= FETCH CATEGORIES ================= */
+  /*  CATEGORIES  */
   useEffect(() => {
     if (!visible) return;
 
@@ -56,7 +54,7 @@ const HospitalFilterPopup = ({
     fetchCategories();
   }, [visible, mode]);
 
-  /* ================= TOGGLE CATEGORY ================= */
+  /*  TOGGLE CATEGORY  */
   const toggleCategory = id => {
     setSelectedCategories(prev =>
       prev.includes(id)
@@ -65,20 +63,18 @@ const HospitalFilterPopup = ({
     );
   };
 
-  /* ================= CLEAR ALL ================= */
+  /*  CLEAR ALL  */
   const handleClearAll = () => {
     setSelectedCategories([]);
     setDistance(8);
     setOpenNow(false);
     setOpen24x7(false);
-
-    // UI-only reset
     setSortBy('distance');
     setStateName('');
     setCityName('');
   };
 
-  /* ================= APPLY ================= */
+  /*  APPLY  */
   const handleApply = async () => {
     try {
       setLoading(true);
@@ -215,8 +211,6 @@ const HospitalFilterPopup = ({
 
 export default HospitalFilterPopup;
 
-/* ================= UI COMPONENTS ================= */
-
 const Chip = ({ text, active, onPress }) => (
   <TouchableOpacity
     style={[styles.chip, active && styles.chipActive]}
@@ -237,7 +231,7 @@ const CheckBox = ({ label, checked, onPress }) => (
   </TouchableOpacity>
 );
 
-/* ================= STYLES ================= */
+/* STYLES  */
 
 const styles = StyleSheet.create({
   overlay: {
@@ -300,11 +294,12 @@ const styles = StyleSheet.create({
   chipTextActive: {
     color: '#FFF',
   },
-  checkboxRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 20,
-  },
+ checkboxRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 20,
+  marginBottom: 12,
+},
   checkbox: {
     width: 22,
     height: 22,
