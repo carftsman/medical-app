@@ -71,7 +71,7 @@ export default function LabsHomeScreen() {
                 />
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.iconBtn} onPress={()=> navigation.navigate("Profile")}>
+              <TouchableOpacity style={styles.iconBtn}>
                 <Ionicons
                   name="person-circle-outline"
                   size={scale(32)}
@@ -240,7 +240,7 @@ export default function LabsHomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* ================= SECTIONS ================= */}
+          
           <LabTestByAge labId={1} />
           <LabCategories labId={1} />
           <NearbyLabs />
