@@ -32,7 +32,6 @@ const PrescriptionTimeline = ({ files = [] }) => {
     },
   ];
 
-  /* ================= AUTO PROGRESS ================= */
   useEffect(() => {
     if (currentStep > steps.length) return;
 

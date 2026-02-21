@@ -13,19 +13,25 @@ import PreviewFileList from "../components/prescription/PreviewFileList";
 const PrescriptionPreviewScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const [files, setFiles] = useState(route.params?.files || []);
+
+  const initialFiles = route?.params?.files || [];
+  const [files, setFiles] = useState(initialFiles);
 
   const removeFile = (index) => {
-    setFiles(files.filter((_, i) => i !== index));
+    setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const goToLabs = () => {
-    if (files.length === 0) {
+    if (!files || files.length === 0) {
       Alert.alert("Please upload at least one prescription");
       return;
     }
 
-    navigation.navigate("LabsScreen", { files });
+  
+    navigation.navigate("LabsScreen", {
+      files: files,
+      isUploadFlow: true, 
+    });
   };
 
   return (
@@ -51,7 +57,10 @@ const PrescriptionPreviewScreen = () => {
 export default PrescriptionPreviewScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
 
   scrollContainer: {
     padding: 20,

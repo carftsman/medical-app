@@ -11,14 +11,16 @@ import { scale, verticalScale } from "../../../../utils/styling";
 
 const MAX_FILES = 5;
 
+/* ================= FILE SIZE FORMATTER ================= */
 const formatFileSize = (bytes) => {
   if (!bytes) return "";
-  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024)
-    return (bytes / 1024).toFixed(1) + " KB";
-  return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+    return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
+/* ================= COMPONENT ================= */
 const PreviewFileList = ({
   files = [],
   onRemove,
@@ -27,13 +29,24 @@ const PreviewFileList = ({
 }) => {
   return (
     <View>
-      {files?.map((file, index) => {
+      {files.map((file, index) => {
+        const fileName =
+          file?.name ||
+          file?.fileName ||
+          `file_${index}`;
+
+        const fileType = file?.type || "";
+
         const isPDF =
-          file?.type?.includes("pdf") ||
-          file?.name?.toLowerCase()?.endsWith(".pdf");
+          fileType.includes("pdf") ||
+          fileName.toLowerCase().endsWith(".pdf");
 
         return (
-          <View key={`${file?.uri}-${index}`} style={styles.container}>
+          <View
+            key={`${file?.uri || fileName}-${index}`}
+            style={styles.container}
+          >
+            {/* PDF */}
             {isPDF ? (
               <View style={styles.pdfCard}>
                 <Ionicons
@@ -41,14 +54,20 @@ const PreviewFileList = ({
                   size={scale(50)}
                   color="#056FD2"
                 />
-                <Text style={styles.fileName} numberOfLines={1}>
-                  {file?.name}
+                <Text
+                  style={styles.fileName}
+                  numberOfLines={1}
+                >
+                  {fileName}
                 </Text>
-                <Text style={styles.fileSize}>
-                  {formatFileSize(file?.fileSize)}
-                </Text>
+                {file?.fileSize && (
+                  <Text style={styles.fileSize}>
+                    {formatFileSize(file.fileSize)}
+                  </Text>
+                )}
               </View>
             ) : (
+              /* IMAGE */
               <Image
                 source={{ uri: file?.uri }}
                 style={styles.image}
@@ -56,41 +75,53 @@ const PreviewFileList = ({
               />
             )}
 
-            <TouchableOpacity
-              style={styles.removeBtn}
-              onPress={() => onRemove && onRemove(index)}
-            >
-              <Ionicons name="close" size={16} color="#fff" />
-            </TouchableOpacity>
+            {/* REMOVE BUTTON */}
+            {onRemove && (
+              <TouchableOpacity
+                style={styles.removeBtn}
+                onPress={() => onRemove(index)}
+                activeOpacity={0.8}
+              >
+                <Ionicons
+                  name="close"
+                  size={16}
+                  color="#fff"
+                />
+              </TouchableOpacity>
+            )}
           </View>
         );
       })}
 
-      {showUploadMore && files.length < MAX_FILES && (
-        <TouchableOpacity
-          style={styles.uploadBox}
-          activeOpacity={0.8}
-          onPress={onUploadMore}
-        >
-          <Ionicons
-            name="cloud-upload-outline"
-            size={scale(40)}
-            color="#056FD2"
-          />
-          <Text style={styles.uploadTitle}>
-            Upload More Prescription
-          </Text>
-          <Text style={styles.uploadSubtitle}>
-            JPG, PNG, PDF • Max {MAX_FILES} files
-          </Text>
-        </TouchableOpacity>
-      )}
+      {/* UPLOAD MORE */}
+      {showUploadMore &&
+        files.length < MAX_FILES &&
+        onUploadMore && (
+          <TouchableOpacity
+            style={styles.uploadBox}
+            activeOpacity={0.8}
+            onPress={onUploadMore}
+          >
+            <Ionicons
+              name="cloud-upload-outline"
+              size={scale(40)}
+              color="#056FD2"
+            />
+            <Text style={styles.uploadTitle}>
+              Upload More Prescription
+            </Text>
+            <Text style={styles.uploadSubtitle}>
+              JPG, PNG, PDF • Max {MAX_FILES} files
+            </Text>
+          </TouchableOpacity>
+        )}
     </View>
   );
 };
 
 export default PreviewFileList;
 
+/* ================= STYLES ================= */
 const styles = StyleSheet.create({
   container: {
     marginBottom: verticalScale(28),
@@ -133,6 +164,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#e74c3c",
     justifyContent: "center",
     alignItems: "center",
+    elevation: 5,
   },
 
   uploadBox: {

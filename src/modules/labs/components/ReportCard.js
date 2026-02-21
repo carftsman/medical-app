@@ -3,18 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { scale, verticalScale } from '../../../utils/styling';
 import { useNavigation } from '@react-navigation/native';
+import { formatDate } from '../../../utils/helpers';
 
-export default function ReportCard({
-  reportId,
-  status,
-  testName,
-  labName,
-  date,
-}) {
+export default function ReportCard({ item }) {
   const navigation = useNavigation();
-  console.log('status', status);
 
-  const getStatusStyle = (status) => {
+  const getStatusStyle = status => {
     switch (status?.toUpperCase()) {
       case 'NORMAL':
         return {
@@ -26,7 +20,7 @@ export default function ReportCard({
           textColor: '#C62828',
           bgColor: '#FFEBEE',
         };
-      
+
       case 'BorderLine':
         return {
           textColor: '#ED6C02',
@@ -40,55 +34,47 @@ export default function ReportCard({
     }
   };
 
-  const statusStyle = getStatusStyle(status);
+  const statusStyle = getStatusStyle(item.status);
 
   return (
     <TouchableOpacity
       onPress={() =>
         navigation.navigate('ReportDetails', {
-          id: reportId,
+          id: item.reportId,
         })
       }
     >
-    
       <View style={styles.card}>
-  
         <View style={styles.topRow}>
-           <Text
-              style={[
-                styles.reportId,
-                // { color: reportIdStyle.textColor },
-              ]}
-            >
-              {reportId}
-            </Text>
-      
+          <Text
+            style={[
+              styles.reportId,
+              // { color: reportIdStyle.textColor },
+            ]}
+          >
+            {item.reportId}
+          </Text>
+
           <View
             style={[
               styles.statusContainer,
               { backgroundColor: statusStyle.bgColor },
             ]}
           >
-            
-            <Text
-              style={[
-                styles.statusText,
-                { color: statusStyle.textColor },
-              ]}
-            >
-              {status}
+            <Text style={[styles.statusText, { color: statusStyle.textColor }]}>
+              {item.status}
             </Text>
           </View>
         </View>
 
         <View style={styles.row}>
           <Ionicons name="flask-outline" size={scale(16)} color="#555" />
-          <Text style={styles.title}>{testName}</Text>
+          <Text style={styles.title}>{item.testName}</Text>
         </View>
 
         <View style={styles.row}>
           <Ionicons name="calendar-outline" size={scale(14)} color="#777" />
-          <Text style={styles.subText}>{date}</Text>
+          <Text style={styles.subText}>{formatDate(item.date)}</Text>
 
           <Ionicons
             name="document-text-outline"
@@ -96,12 +82,12 @@ export default function ReportCard({
             color="#777"
             style={{ marginLeft: scale(10) }}
           />
-          <Text style={styles.subText}>12 Tests</Text>
+          <Text style={styles.subText}>{item.tests.length}</Text>
         </View>
 
         <View style={styles.row}>
           <Ionicons name="business-outline" size={scale(14)} color="#777" />
-          <Text style={styles.subText}>{labName}</Text>
+          <Text style={styles.subText}>{item.labName}</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -120,6 +106,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: verticalScale(6),
+  },
+  reportId: {
+    color: '#125aa3',
+    fontSize: scale(14),
+    fontWeight: 'bold',
   },
 
   statusContainer: {

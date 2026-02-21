@@ -11,7 +11,7 @@ export const labApi = {
 },
 
 addToLabCart: payload =>
-    api.post('/labs/cart/add', payload),
+    api.post('/labs/cart', payload),
 
   getLabCart: () =>
     api.get('/labs/cart'),

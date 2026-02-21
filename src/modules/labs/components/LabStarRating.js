@@ -10,7 +10,7 @@ const LabStarRating = ({ rating, onChange }) => {
         <TouchableOpacity key={item} onPress={() => onChange(item)}>
           <Ionicons
             name={item <= rating ? 'star' : 'star-outline'}
-            size={32}
+            size={36}
             color={item <= rating ? '#FFC107' : '#C7C7C7'}
             style={styles.star}
           />
@@ -28,6 +28,6 @@ const styles = StyleSheet.create({
     marginBottom: 25,
   },
   star: {
-    marginRight: 8,
+    marginRight: 12,
   },
 });

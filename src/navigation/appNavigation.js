@@ -16,6 +16,7 @@ import { createNavigationContainerRef } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '../config/constants';
 import { StatusBar } from 'react-native';
+import ProfileNavigator from '../modules/profile/navigation/ProfileNavigator';
 
 const navigationRef = createNavigationContainerRef();
 
@@ -57,6 +58,7 @@ export default function AppNavigator() {
               component={HospitalStackNavigator}
             />
             <Stack.Screen name="LabsMain" component={LabStackNavigation} />
+            <Stack.Screen name="Profile" component={ProfileNavigator} />
           </>
         ) : (
           <>

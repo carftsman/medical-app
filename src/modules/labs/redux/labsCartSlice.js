@@ -10,15 +10,14 @@ const labsCartSlice = createSlice({
   reducers: {
     addToCart: (state, action) => {
       const exists = state.items.find(
-        item => item.labTestId === action.payload.labTestId
-      );
+        item => Number(item.labTestId) === Number(action.payload.labTestId)      );
       if (!exists) {
         state.items.push(action.payload);
       }
     },
     removeFromCart: (state, action) => {
       state.items = state.items.filter(
-        item => item.labTestId !== action.payload
+        item => Number(item.labTestId) !== Number(action.payload)
       );
     },
     clearCart: state => {

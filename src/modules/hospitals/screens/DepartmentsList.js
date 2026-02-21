@@ -10,10 +10,12 @@ import {
   ActivityIndicator,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import Feather from "react-native-vector-icons/Feather";
 import { SafeAreaView } from "react-native-safe-area-context";
 import api from "../../../api/client";
 import { useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
+import { scale } from "../../../utils/styling";
 
 export default function FindDoctorsScreen() {
   const [searchText, setSearchText] = useState("");
@@ -118,9 +120,19 @@ export default function FindDoctorsScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <View style={styles.container}>
+        <View style={{
+        flexDirection:"row",
+        alignItems:"center",
+        gap:scale(8),
+        }}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Feather name="arrow-left" size={28} color="#111827" />
+          </TouchableOpacity>
+
         <Text style={styles.header}>Find Doctors</Text>
+        </View>
 
         <View style={styles.searchBox}>
           <Icon name="search-outline" size={18} color="#9CA3AF" />
@@ -155,7 +167,7 @@ export default function FindDoctorsScreen() {
           />
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 

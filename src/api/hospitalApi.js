@@ -1,7 +1,4 @@
 import api from './client';
-
-/* ===================== HELPERS ===================== */
-
 const cleanParams = obj =>
   Object.fromEntries(
     Object.entries(obj).filter(
@@ -9,11 +6,11 @@ const cleanParams = obj =>
     )
   );
 
-/* ===================== API ===================== */
+/* API */
 
 export const hospitalApi = {
 
-  /* ---------- NEARBY HOSPITALS (ONLY ONE API) ---------- */
+  /* NEARBY HOSPITALS */
   getNearbyHospitals: ({
     latitude,
     longitude,
@@ -32,7 +29,7 @@ export const hospitalApi = {
     });
   },
 
-  /* ---------- GET HOSPITALS (DEFAULT CALL) ---------- */
+  /*  GET HOSPITALS  */
   getHospitalsByMode: async ({
     latitude,
     longitude,
@@ -61,7 +58,7 @@ export const hospitalApi = {
     };
   },
 
-  /* ---------- FILTER ---------- */
+  /* FILTER  */
   getFilteredNearbyHospitals: params => {
     const cleanedParams = cleanParams({
       latitude: params.latitude,
@@ -82,7 +79,7 @@ export const hospitalApi = {
     });
   },
 
-  /* ---------- SEARCH ---------- */
+  /* SEARCH  */
   searchHospitals: async ({
     query,
     page = 1,
@@ -114,7 +111,7 @@ export const hospitalApi = {
     };
   },
 
-  /* ---------- CATEGORIES ---------- */
+  /* CATEGORIES */
   getCategories: () => {
     return api.get('/hospital/user/categories', {
       params: {

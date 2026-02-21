@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -7,36 +7,79 @@ import {
   ScrollView,
   Modal,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import PrescriptionTimeline from "../components/prescription/PrescriptionTimeline";
+import { getUserPrescriptions } from "../services/prescriptionApi";
 
 const PrescriptionTrackingScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-
   const uploadId = route?.params?.uploadId;
-  const fileCount = route?.params?.fileCount;
-  const labName = route?.params?.labName || "Selected Lab";
-  const files = route?.params?.files || [];
 
   const [previewImage, setPreviewImage] = useState(null);
+  const [uploadData, setUploadData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const uploadData = {
-    id: uploadId,
-    labName,
-    files,
-    fileCount,
-    status: "Prescription Sent",
+  useEffect(() => {
+    fetchUpload();
+  }, []);
+
+  const fetchUpload = async () => {
+    try {
+      const response = await getUserPrescriptions();
+      const uploads = response?.data || [];
+
+      const selected = uploads.find(
+        (item) => item.id === uploadId
+      );
+
+      if (selected) {
+        setUploadData({
+          id: selected.id,
+          labName: selected.lab?.name || "Selected Lab",
+          files: selected.files || [],
+          fileCount: selected.files?.length || 0,
+          status: selected.status || "Prescription Sent",
+        });
+      }
+    } catch (error) {
+      console.log("Tracking Error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator
+          size="large"
+          color="#056FD2"
+          style={{ marginTop: 100 }}
+        />
+      </View>
+    );
+  }
+
+  if (!uploadData) {
+    return (
+      <View style={styles.container}>
+        <Text style={{ textAlign: "center", marginTop: 100 }}>
+          No Prescription Found
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
 
         {/* TIMELINE */}
-        <PrescriptionTimeline />
+        <PrescriptionTimeline status={uploadData.status} />
 
         {/* DETAILS CARD */}
         <View style={styles.card}>
@@ -44,45 +87,40 @@ const PrescriptionTrackingScreen = () => {
 
           <View style={styles.row}>
             <Ionicons name="business-outline" size={16} color="#056FD2" />
-            <Text style={styles.rowText}>{labName}</Text>
+            <Text style={styles.rowText}>{uploadData.labName}</Text>
           </View>
 
           <View style={styles.row}>
             <Ionicons name="document-text-outline" size={16} color="#056FD2" />
             <Text style={styles.rowText}>
-              {fileCount} file(s) uploaded
+              {uploadData.fileCount} file(s) uploaded
             </Text>
           </View>
 
           <View style={styles.row}>
             <Ionicons name="information-circle-outline" size={16} color="#056FD2" />
             <Text style={styles.rowText}>
-              Status: Prescription Sent
+              Status: {uploadData.status}
             </Text>
           </View>
 
           {/* VIEW ALL BUTTON */}
           <TouchableOpacity
             style={styles.viewAllBtn}
-            onPress={() =>
-              navigation.navigate("PrescriptionList", {
-                uploads: [uploadData],
-              })
-            }
+            onPress={() => navigation.navigate("PrescriptionList")}
           >
             <Text style={styles.viewAllText}>View All</Text>
           </TouchableOpacity>
         </View>
 
         {/* FILE PREVIEW */}
-        {files.length > 0 && (
+        {uploadData.files.length > 0 && (
           <View style={styles.previewSection}>
             <Text style={styles.previewTitle}>Uploaded Files</Text>
 
-            {files.map((file, index) => {
+            {uploadData.files.map((file, index) => {
               const isPDF =
-                file?.type?.includes("pdf") ||
-                file?.name?.toLowerCase()?.endsWith(".pdf");
+                file?.url?.includes(".pdf");
 
               return (
                 <View key={index} style={styles.fileCard}>
@@ -94,15 +132,15 @@ const PrescriptionTrackingScreen = () => {
                         color="#056FD2"
                       />
                       <Text style={styles.pdfName}>
-                        {file.name}
+                        {file.name || "PDF Document"}
                       </Text>
                     </View>
                   ) : (
                     <TouchableOpacity
-                      onPress={() => setPreviewImage(file.uri)}
+                      onPress={() => setPreviewImage(file.url)}
                     >
                       <Image
-                        source={{ uri: file.uri }}
+                        source={{ uri: file.url }}
                         style={styles.image}
                       />
                     </TouchableOpacity>
@@ -119,12 +157,7 @@ const PrescriptionTrackingScreen = () => {
       <TouchableOpacity
         style={styles.btn}
         onPress={() =>
-          navigation.navigate("LabTabNavigation", {
-            screen: "LabsHomeScreen",
-            params: {
-              newUpload: uploadData,
-            },
-          })
+          navigation.navigate("LabTabNavigation")
         }
       >
         <Text style={styles.btnText}>Back to Home</Text>

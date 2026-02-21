@@ -20,13 +20,15 @@ import GuidelinesCard from "../components/prescription/GuidelinesCard";
 import PreviewFileList from "../components/prescription/PreviewFileList";
 
 const MAX_FILES = 5;
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-const MAX_PDF_SIZE = 10 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; 
+const MAX_PDF_SIZE = 10 * 1024 * 1024;  
 
 const UploadPrescriptionScreen = () => {
   const navigation = useNavigation();
   const [files, setFiles] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+
+  /*  CAMERA PERMISSION */
 
   const requestCameraPermission = async () => {
     if (Platform.OS === "android") {
@@ -38,7 +40,11 @@ const UploadPrescriptionScreen = () => {
     return true;
   };
 
+  /* ADD FILE  */
+
   const addFile = (file) => {
+    if (!file?.uri) return;
+
     if (files.length >= MAX_FILES) {
       Alert.alert("Maximum 5 files allowed");
       return;
@@ -46,27 +52,34 @@ const UploadPrescriptionScreen = () => {
 
     const isPDF =
       file.type?.includes("pdf") ||
-      file.name?.toLowerCase().endsWith(".pdf");
+      file.name?.toLowerCase()?.endsWith(".pdf");
 
-    if (!isPDF && file.fileSize > MAX_IMAGE_SIZE) {
+    const size = file.fileSize || file.size || 0;
+
+    if (!isPDF && size > MAX_IMAGE_SIZE) {
       Alert.alert("Image must be below 5MB");
       return;
     }
 
-    if (isPDF && file.fileSize > MAX_PDF_SIZE) {
+    if (isPDF && size > MAX_PDF_SIZE) {
       Alert.alert("PDF must be below 10MB");
       return;
     }
 
     const formatted = {
       uri: file.uri,
-      name: file.fileName || file.name || `file_${Date.now()}`,
-      type: file.type || "image/jpeg",
-      fileSize: file.fileSize,
+      name:
+        file.fileName ||
+        file.name ||
+        `file_${Date.now()}`,
+      type: file.type || (isPDF ? "application/pdf" : "image/jpeg"),
+      fileSize: size,
     };
 
     setFiles((prev) => [...prev, formatted]);
   };
+
+  /* CAMERA  */
 
   const openCamera = async () => {
     setModalVisible(false);
@@ -77,24 +90,40 @@ const UploadPrescriptionScreen = () => {
       return;
     }
 
-    const result = await launchCamera({ mediaType: "photo" });
+    const result = await launchCamera({
+      mediaType: "photo",
+      quality: 0.8,
+    });
+
     if (result?.assets?.length) {
       addFile(result.assets[0]);
     }
   };
+
+  /*  GALLERY  */
 
   const openGallery = async () => {
     setModalVisible(false);
-    const result = await launchImageLibrary({ mediaType: "photo" });
+
+    const result = await launchImageLibrary({
+      mediaType: "photo",
+    });
+
     if (result?.assets?.length) {
       addFile(result.assets[0]);
     }
   };
 
+  /* PDF*/
+
   const openPDF = async () => {
     setModalVisible(false);
+
     try {
-      const result = await pick({ type: ["application/pdf"] });
+      const result = await pick({
+        type: ["application/pdf"],
+      });
+
       const file = result[0];
 
       addFile({
@@ -103,6 +132,7 @@ const UploadPrescriptionScreen = () => {
         type: "application/pdf",
         fileSize: file.size,
       });
+
     } catch (err) {
       if (!err?.message?.includes("cancel")) {
         Alert.alert("PDF selection failed");
@@ -110,9 +140,15 @@ const UploadPrescriptionScreen = () => {
     }
   };
 
+  /*REMOVE FILE */
+
   const removeFile = (index) => {
-    setFiles(files.filter((_, i) => i !== index));
+    setFiles((prev) =>
+      prev.filter((_, i) => i !== index)
+    );
   };
+
+  /* CONTINUE  */
 
   const goToPreview = () => {
     if (files.length === 0) {
@@ -120,13 +156,15 @@ const UploadPrescriptionScreen = () => {
       return;
     }
 
-    navigation.navigate("PrescriptionPreview", { files });
+    navigation.navigate("PrescriptionPreview", {
+      files,
+    });
   };
 
   return (
     <View style={styles.container}>
+      {/* HEADER */}
       <View style={styles.header}>
-        {/* ✅ ONLY THIS LINE CHANGED */}
         <TouchableOpacity
           onPress={() =>
             navigation.navigate("LabTabNavigation")
@@ -135,14 +173,19 @@ const UploadPrescriptionScreen = () => {
           <Ionicons name="arrow-back" size={24} />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>Upload Prescription</Text>
+        <Text style={styles.headerTitle}>
+          Upload Prescription
+        </Text>
+
         <View style={{ width: 24 }} />
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 20 }}>
         {files.length === 0 ? (
           <>
-            <UploadBox onPress={() => setModalVisible(true)} />
+            <UploadBox
+              onPress={() => setModalVisible(true)}
+            />
             <GuidelinesCard />
           </>
         ) : (
@@ -150,7 +193,9 @@ const UploadPrescriptionScreen = () => {
             <PreviewFileList
               files={files}
               onRemove={removeFile}
-              onUploadMore={() => setModalVisible(true)}
+              onUploadMore={() =>
+                setModalVisible(true)
+              }
               showUploadMore={true}
             />
 
@@ -158,12 +203,15 @@ const UploadPrescriptionScreen = () => {
               style={styles.continueBtn}
               onPress={goToPreview}
             >
-              <Text style={styles.continueText}>Continue</Text>
+              <Text style={styles.continueText}>
+                Continue
+              </Text>
             </TouchableOpacity>
           </>
         )}
       </ScrollView>
 
+      {/* MODAL */}
       <UploadOptionsModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
@@ -177,8 +225,13 @@ const UploadPrescriptionScreen = () => {
 
 export default UploadPrescriptionScreen;
 
+/* STYLES  */
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
 
   header: {
     flexDirection: "row",

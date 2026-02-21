@@ -233,7 +233,7 @@ ${mapsUrl}`,
       <View style={styles.bottom}>
         {uploadedFiles ? (
           <TouchableOpacity
-            style={[styles.bookBtn, { backgroundColor: "#0E9F6E" }]}
+            style={[styles.bookBtn, { backgroundColor: "#4368ed" }]}
             onPress={() =>
               navigation.navigate("ReviewPrescription", {
                 lab: data,

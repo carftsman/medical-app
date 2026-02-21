@@ -35,6 +35,7 @@ const PAYMENT_MODES = [
 const PaymentScreen = ({ navigation, route }) => {
   const bookingId = useSelector(state => state.hospital?.consultation?.bookingId);
   const totalAmount = route?.params?.totalFee ?? 0;
+  const women = route?.params?.women;
 
   const [selectedMethod, setSelectedMethod] = useState(null);
 
@@ -73,11 +74,20 @@ const PaymentScreen = ({ navigation, route }) => {
         {}
       );
 
-      navigation.replace('BookingSuccess', {
-        bookingId,
-        status: res.data.status,
-        message: res.data.message,
-      });
+      if (!women) {
+        navigation.replace('BookingSuccess', {
+          bookingId,
+          status: res.data.status,
+          message: res.data.message,
+        });
+      }
+      else {
+        navigation.replace('WomenBookingSuccess', {
+          bookingId,
+          status: res.data.status,
+          message: res.data.message,
+        });
+      }
 
     } catch (error) {
       if (error.response) {
@@ -91,121 +101,121 @@ const PaymentScreen = ({ navigation, route }) => {
   /* DEBIT FORM */
 
   const renderDebitForm = () => (
-  <View style={styles.formContainer}>
-    {/* Card Number */}
-    <Text style={styles.fieldLabel}>Card Number</Text>
-    <Controller
-      control={debitForm.control}
-      name="cardNumber"
-      render={({ field }) => (
-        <TextInput
-          style={styles.input}
-          placeholder="XXXX XXXX XXXX XXXX"
-          keyboardType="number-pad"
-          value={field.value}
-          maxLength={19}
-          onChangeText={text => {
-            const digits = text.replace(/\D/g, '').slice(0, 16);
-            const formatted = digits.replace(/(.{4})/g, '$1 ').trim();
-            field.onChange(formatted);
-          }}
-        />
-      )}
-    />
-    {debitForm.formState.errors.cardNumber && (
-      <Text style={styles.errorText}>
-        {debitForm.formState.errors.cardNumber.message}
-      </Text>
-    )}
-
-    <Text style={styles.fieldLabel}>Card Holder Name</Text>
-    <Controller
-      control={debitForm.control}
-      name="cardHolderName"
-      render={({ field }) => (
-        <TextInput
-          style={styles.input}
-          placeholder="John Doe"
-          value={field.value}
-          onChangeText={field.onChange}
-        />
-      )}
-    />
-    {debitForm.formState.errors.cardHolderName && (
-      <Text style={styles.errorText}>
-        {debitForm.formState.errors.cardHolderName.message}
-      </Text>
-    )}
-
-    <View style={styles.row}>
-      <View style={{ flex: 1 }}>
-        <Text style={styles.fieldLabel}>Valid Upto</Text>
-        <Controller
-          control={debitForm.control}
-          name="expiry"
-          render={({ field }) => (
-            <TextInput
-              style={styles.input}
-              placeholder="MM/YY"
-              keyboardType="number-pad"
-              maxLength={5}
-              value={field.value}
-              onChangeText={text => {
-                let digits = text.replace(/\D/g, '').slice(0, 4);
-                if (digits.length >= 3) {
-                  digits = `${digits.slice(0, 2)}/${digits.slice(2)}`;
-                }
-                field.onChange(digits);
-              }}
-            />
-          )}
-        />
-        {debitForm.formState.errors.expiry && (
-          <Text style={styles.errorText}>
-            {debitForm.formState.errors.expiry.message}
-          </Text>
+    <View style={styles.formContainer}>
+      {/* Card Number */}
+      <Text style={styles.fieldLabel}>Card Number</Text>
+      <Controller
+        control={debitForm.control}
+        name="cardNumber"
+        render={({ field }) => (
+          <TextInput
+            style={styles.input}
+            placeholder="XXXX XXXX XXXX XXXX"
+            keyboardType="number-pad"
+            value={field.value}
+            maxLength={19}
+            onChangeText={text => {
+              const digits = text.replace(/\D/g, '').slice(0, 16);
+              const formatted = digits.replace(/(.{4})/g, '$1 ').trim();
+              field.onChange(formatted);
+            }}
+          />
         )}
-      </View>
-      <View style={{ flex: 1, marginLeft: scale(10) }}>
-        <Text style={styles.fieldLabel}>CVV</Text>
-        <Controller
-          control={debitForm.control}
-          name="cvv"
-          render={({ field }) => (
-            <TextInput
-              style={styles.input}
-              placeholder="CVV"
-              keyboardType="number-pad"
-              secureTextEntry
-              maxLength={3}
-              value={field.value}
-              onChangeText={text => {
-                field.onChange(text.replace(/\D/g, '').slice(0, 3));
-              }}
-            />
-          )}
-        />
-        {debitForm.formState.errors.cvv && (
-          <Text style={styles.errorText}>
-            {debitForm.formState.errors.cvv.message}
-          </Text>
+      />
+      {debitForm.formState.errors.cardNumber && (
+        <Text style={styles.errorText}>
+          {debitForm.formState.errors.cardNumber.message}
+        </Text>
+      )}
+
+      <Text style={styles.fieldLabel}>Card Holder Name</Text>
+      <Controller
+        control={debitForm.control}
+        name="cardHolderName"
+        render={({ field }) => (
+          <TextInput
+            style={styles.input}
+            placeholder="John Doe"
+            value={field.value}
+            onChangeText={field.onChange}
+          />
         )}
+      />
+      {debitForm.formState.errors.cardHolderName && (
+        <Text style={styles.errorText}>
+          {debitForm.formState.errors.cardHolderName.message}
+        </Text>
+      )}
+
+      <View style={styles.row}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.fieldLabel}>Valid Upto</Text>
+          <Controller
+            control={debitForm.control}
+            name="expiry"
+            render={({ field }) => (
+              <TextInput
+                style={styles.input}
+                placeholder="MM/YY"
+                keyboardType="number-pad"
+                maxLength={5}
+                value={field.value}
+                onChangeText={text => {
+                  let digits = text.replace(/\D/g, '').slice(0, 4);
+                  if (digits.length >= 3) {
+                    digits = `${digits.slice(0, 2)}/${digits.slice(2)}`;
+                  }
+                  field.onChange(digits);
+                }}
+              />
+            )}
+          />
+          {debitForm.formState.errors.expiry && (
+            <Text style={styles.errorText}>
+              {debitForm.formState.errors.expiry.message}
+            </Text>
+          )}
+        </View>
+        <View style={{ flex: 1, marginLeft: scale(10) }}>
+          <Text style={styles.fieldLabel}>CVV</Text>
+          <Controller
+            control={debitForm.control}
+            name="cvv"
+            render={({ field }) => (
+              <TextInput
+                style={styles.input}
+                placeholder="CVV"
+                keyboardType="number-pad"
+                secureTextEntry
+                maxLength={3}
+                value={field.value}
+                onChangeText={text => {
+                  field.onChange(text.replace(/\D/g, '').slice(0, 3));
+                }}
+              />
+            )}
+          />
+          {debitForm.formState.errors.cvv && (
+            <Text style={styles.errorText}>
+              {debitForm.formState.errors.cvv.message}
+            </Text>
+          )}
+        </View>
       </View>
+      <TouchableOpacity
+        disabled={!debitForm.formState.isValid}
+        style={[
+          styles.payBtn,
+          !debitForm.formState.isValid && styles.disabledBtn,
+        ]}
+        onPress={confirmBooking}
+      >
+        <Text style={styles.payText}>
+          Pay ₹{totalAmount.toFixed(2)}
+        </Text>
+      </TouchableOpacity>
     </View>
-    <TouchableOpacity
-      disabled={!debitForm.formState.isValid}
-      style={[
-        styles.payBtn,
-        !debitForm.formState.isValid && styles.disabledBtn,
-      ]}
-      onPress={confirmBooking}
-    >
-      <Text style={styles.payText}>
-        Pay ₹{totalAmount.toFixed(2)}
-      </Text>
-    </TouchableOpacity>
-  </View>
-);
+  );
 
   /* UPI FORM */
 
@@ -298,7 +308,7 @@ const PaymentScreen = ({ navigation, route }) => {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <View style={styles.header}>
         <Backbtn onPress={() => navigation.goBack()} />
         <Text style={styles.headerTitle}>Payment</Text>
@@ -323,7 +333,7 @@ const PaymentScreen = ({ navigation, route }) => {
           </Text>
         </TouchableOpacity>
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 
