@@ -27,7 +27,7 @@ const PackageDetails = () => {
   const { user } = useAuth();
   const userId = user?.id;
 
-  const packageId = route?.params?.packageId ?? 1;
+  const packageId = route?.params?.packageId;
 
   const cartItems = useSelector(state => state.labsCart.items);
 
@@ -38,7 +38,7 @@ const PackageDetails = () => {
   const [openIncludes, setOpenIncludes] = useState(false);
 
   const isAdded = cartItems.some(
-    item => Number(item.packageId) === Number(packageId)
+    item => Number(item.packageId) === Number(packageId),
   );
 
   const fetchDetails = async () => {
@@ -46,6 +46,7 @@ const PackageDetails = () => {
       const res = await labApi.getPackageDetails(packageId);
       const apiData = res?.data;
 
+      console.log('package details', apiData);
       if (!apiData) return;
 
       const formattedData = {
@@ -58,7 +59,7 @@ const PackageDetails = () => {
         },
         testsIncluded: [
           {
-            category: "Tests Included",
+            category: 'Tests Included',
             tests: apiData.tests || [],
           },
         ],
@@ -99,16 +100,18 @@ const PackageDetails = () => {
         packageId: data.id,
       };
 
+      console.log(payload);
+
       const res = await labApi.addToLabCart(payload);
+      console.log(res);
 
       if (res?.data?.item) {
         dispatch(addToCart(res.data.item));
       }
-
     } catch (error) {
       console.log(
         'Add to cart failed:',
-        error?.response?.data || error.message
+        error?.response?.data || error.message,
       );
     } finally {
       setAdding(false);
@@ -140,13 +143,15 @@ const PackageDetails = () => {
           {data.name}
         </Text>
 
-        <TouchableOpacity onPress={() =>
-          Share.share({
-            message: `🧪 ${data.name}
+        <TouchableOpacity
+          onPress={() =>
+            Share.share({
+              message: `🧪 ${data.name}
 📊 Tests: ${data.summary?.testsCount}
 ⏱ Report Time: ${data.summary?.reportTime}`,
-          })
-        }>
+            })
+          }
+        >
           <Icon name="share-variant" size={scale(20)} />
         </TouchableOpacity>
       </View>
@@ -175,16 +180,12 @@ const PackageDetails = () => {
 
         <View style={styles.infoRow}>
           <Text style={styles.info}>🧪 Tests</Text>
-          <Text style={styles.infoValue}>
-            {data.summary?.testsCount}
-          </Text>
+          <Text style={styles.infoValue}>{data.summary?.testsCount}</Text>
         </View>
 
         <View style={styles.infoRow}>
           <Text style={styles.info}>⏱ Reports</Text>
-          <Text style={styles.infoValue}>
-            {data.summary?.reportTime}
-          </Text>
+          <Text style={styles.infoValue}>{data.summary?.reportTime}</Text>
         </View>
 
         <View style={styles.section}>
@@ -197,9 +198,7 @@ const PackageDetails = () => {
             onPress={() => setOpenIncludes(!openIncludes)}
           >
             <View style={styles.accordionHeader}>
-              <Text style={styles.accordionTitle}>
-                {testsBlock?.category}
-              </Text>
+              <Text style={styles.accordionTitle}>{testsBlock?.category}</Text>
               <Icon
                 name={openIncludes ? 'chevron-up' : 'chevron-down'}
                 size={scale(20)}
@@ -225,9 +224,7 @@ const PackageDetails = () => {
           <Text style={styles.originalPrice}>
             ₹{data.pricing?.originalPrice}
           </Text>
-          <Text style={styles.price}>
-            ₹{data.pricing?.finalPrice}
-          </Text>
+          <Text style={styles.price}>₹{data.pricing?.finalPrice}</Text>
         </View>
 
         {!isAdded ? (
@@ -256,9 +253,6 @@ const PackageDetails = () => {
 };
 
 export default PackageDetails;
-
-
-
 
 const styles = StyleSheet.create({
   container: {
@@ -297,7 +291,7 @@ const styles = StyleSheet.create({
   banner: {
     width: '100%',
     height: verticalScale(300),
-    marginTop: verticalScale(80)
+    marginTop: verticalScale(80),
   },
   title: {
     fontSize: SIZES.large,

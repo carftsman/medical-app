@@ -1,7 +1,15 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable no-unused-vars */
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -15,13 +23,17 @@ import DoctorReviews from '../components/DoctorReviews';
 import SlotBooking from '../components/SlotBooking';
 import BookConsultationModal from '../components/BookConsultationModal';
 import { useSelector, useDispatch } from 'react-redux';
-import { setConsultationType, setBookingId, setDate } from '../redux/slices/BookingSlice';
+import {
+  setConsultationType,
+  setBookingId,
+  setDate,
+} from '../redux/slices/BookingSlice';
+import Backbtn from '../components/Backbtn';
 
 const DoctorDetails = ({ route, navigation }) => {
-
   const doctorId = route?.params?.doctorId || 1;
   const { selectedDate, selectedTime } = useSelector(
-    state => state.hospital.consultation
+    state => state.hospital.consultation,
   );
 
   const dispatch = useDispatch();
@@ -41,24 +53,21 @@ const DoctorDetails = ({ route, navigation }) => {
       setLoading(true);
       const response = await api.get(`/hospital/user/doctors/${doctorId}`);
       setDoctorDetails(response?.data);
-    }
-    catch (err) {
-      console.log("Error fetching Doctor Details: ", err);
-    }
-    finally {
+    } catch (err) {
+      console.log('Error fetching Doctor Details: ', err);
+    } finally {
       setLoading(false);
     }
   };
 
-  const fetchHospitalDetails = async (id) => {
+  const fetchHospitalDetails = async id => {
     try {
       const response = await api.get(`/hospital/user/hospitals/${id}/info`);
-      console.log("hospital", response?.data);
-      console.log("Days:", hospitalDetails?.availability?.days);
+      console.log('hospital', response?.data);
+      console.log('Days:', hospitalDetails?.availability?.days);
       setHospitalDetails(response?.data);
-    }
-    catch (error) {
-      console.log("Error sending Id: ", error.message);
+    } catch (error) {
+      console.log('Error sending Id: ', error.message);
     }
   };
 
@@ -68,17 +77,16 @@ const DoctorDetails = ({ route, navigation }) => {
       const response = await api.get(`/appointments/availability`, {
         params: {
           doctorId,
-        }
+        },
       });
       setDateSlots(response?.data.days);
       dispatch(setDate(response?.data.days[0].date));
     } catch (error) {
-      console.log("Error fetching date slots: ", error);
-    }
-    finally {
+      console.log('Error fetching date slots: ', error);
+    } finally {
       setLoading(false);
     }
-  }
+  };
 
   const fetchTimeSlots = async () => {
     try {
@@ -87,35 +95,35 @@ const DoctorDetails = ({ route, navigation }) => {
         params: {
           doctorId,
           date: selectedDate,
-        }
+        },
       });
-      const filteredSlots = response?.data.slots.filter(slot => slot.isAvailable === true);
+      const filteredSlots = response?.data.slots.filter(
+        slot => slot.isAvailable === true,
+      );
       setTimeSlots(response?.data?.slots);
-    }
-    catch (error) {
-      console.log("Error fetching time slots: ", error);
-    }
-    finally {
+    } catch (error) {
+      console.log('Error fetching time slots: ', error);
+    } finally {
       setTimeSlotsLoading(false);
     }
-  }
+  };
 
   const bookAppointmentForSelf = async () => {
     try {
-      const response = await api.post(`/appointments/hold`,
-        {
-          slotId: selectedTime.slotId,
-          bookingFor: 'SELF',
-        }
-      );
-      console.log(response?.data);
+      const response = await api.post(`/appointments/hold`, {
+        slotId: selectedTime.slotId,
+        bookingFor: 'SELF',
+      });
+      console.log('appointment booking for self', response?.data);
       dispatch(setBookingId(response?.data?.bookingId));
       fetchTimeSlots();
+      navigation.navigate('BookingDetails');
+    } catch (error) {
+      Alert.alert('Error', error.response.data.message || error.message);
+      console.log('appointment booking for self error: ', error.response);
+      console.log('Error sending Id: ', error.message);
     }
-    catch (error) {
-      console.log("Error sending Id: ", error.message);
-    }
-  }
+  };
 
   useEffect(() => {
     fetchDoctorDetails();
@@ -137,35 +145,31 @@ const DoctorDetails = ({ route, navigation }) => {
   const handleBookAppointment = () => {
     setShowModal(true);
     dispatch(setConsultationType('SELF'));
-  }
+  };
 
   if (loading) {
     return (
-      <View style={{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         <ActivityIndicator size={'large'} color={'#056FD2'} />
       </View>
-    )
+    );
   }
 
   return (
     <View style={styles.container}>
-
       <View style={styles.screenHeader}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-        >
-          <AntDesign name="left" size={24} color="black" />
-        </TouchableOpacity>
+        <Backbtn />
         <Text style={styles.screenHeaderText}>Doctor Info</Text>
         <View style={{ width: scale(26) }}></View>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-
         <DoctorInfo
           image={doctorDetails?.imageUrl}
           name={doctorDetails?.name}
@@ -196,21 +200,20 @@ const DoctorDetails = ({ route, navigation }) => {
           days={hospitalDetails?.availability?.days}
           startTime={hospitalDetails?.availability?.startTime}
           endTime={hospitalDetails?.availability?.endTime}
-        // distancekm={hospitalDetails?.distancekm}
+          // distancekm={hospitalDetails?.distancekm}
         />
 
         <DoctorReviews />
-
       </ScrollView>
 
       <View style={styles.bookAppointmentButtonCard}>
         <TouchableOpacity
-        style={[
-          styles.bookAppointmentButton,
-          !selectedTime && styles.disabledBtn,
-        ]}
-        disabled={!selectedTime}
-        onPress={() => handleBookAppointment()}
+          style={[
+            styles.bookAppointmentButton,
+            !selectedTime && styles.disabledBtn,
+          ]}
+          disabled={!selectedTime}
+          onPress={() => handleBookAppointment()}
         >
           <Text style={styles.bookAppointmentText}>Book Appointment</Text>
         </TouchableOpacity>
@@ -242,7 +245,7 @@ const styles = StyleSheet.create({
   screenHeaderText: {
     flex: 1,
     textAlign: 'center',
-    fontSize: scale(22),
+    fontSize: scale(18),
     fontWeight: '600',
   },
   bookAppointmentButtonCard: {

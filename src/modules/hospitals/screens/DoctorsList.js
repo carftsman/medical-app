@@ -20,6 +20,7 @@ import { hospitalApi } from '../services/hospital.api';
 import { setConsultationMode } from '../redux/slices/BookingSlice';
 import { scale, verticalScale } from '../../../utils/styling';
 import { COLORS, FONT, SIZES } from '../../../config/constants';
+import Feather from 'react-native-vector-icons/Feather';
 
 const DoctorsList = () => {
   const navigation = useNavigation();
@@ -28,34 +29,29 @@ const DoctorsList = () => {
 
   const routeCategoryName = route.params?.categoryName;
   const routeSearch = route.params?.search;
-  
-  const reduxMode = useSelector(
-    state => state.hospital?.consultation?.mode
-  );
 
-  
+  const reduxMode = useSelector(state => state.hospital?.consultation?.mode);
+
   const [search, setSearch] = useState('');
   const [doctorsData, setDoctorsData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
   const [loadingCategories, setLoadingCategories] = useState(true);
-  
- 
- const routeMode = route.params?.mode;
 
-const finalMode =
-  (routeMode || reduxMode || "offline").toUpperCase();
+  const routeMode = route.params?.mode;
+
+  const finalMode = (routeMode || reduxMode || 'offline').toUpperCase();
 
   useEffect(() => {
-  if (routeCategoryName) {
-    setActiveCategory(routeCategoryName);
-  }
+    if (routeCategoryName) {
+      setActiveCategory(routeCategoryName);
+    }
 
-  if (routeMode) {
-    dispatch(setConsultationMode(routeMode)); 
-  }
-}, [routeCategoryName, routeMode]);
+    if (routeMode) {
+      dispatch(setConsultationMode(routeMode));
+    }
+  }, [routeCategoryName, routeMode]);
 
   useEffect(() => {
     fetchCategories();
@@ -75,8 +71,8 @@ const finalMode =
     } catch (e) {
       console.log('Category API error', e);
     } finally {
-    setLoadingCategories(false); 
-  }
+      setLoadingCategories(false);
+    }
   };
 
   useEffect(() => {
@@ -87,17 +83,15 @@ const finalMode =
     try {
       setLoading(true);
 
-    const routeSearch = route.params?.search;
+      const routeSearch = route.params?.search;
 
-const response = await api.get('/hospital/user/doctors', {
-  params: {
-    mode: finalMode,
-    q: routeSearch,   // send to backend
-  },
-});
+      const response = await api.get('/hospital/user/doctors', {
+        params: {
+          mode: finalMode,
+          q: routeSearch, // send to backend
+        },
+      });
 
-
-    
       const mappedDoctors = (response.data.doctors || []).map(item => ({
         id: item.id.toString(),
         doctorName: item.name || '',
@@ -120,20 +114,20 @@ const response = await api.get('/hospital/user/doctors', {
       setLoading(false);
     }
   };
-const filteredDoctors = doctorsData.filter(d => {
-  const matchesCategory =
-    activeCategory === 'All' ||
-    d.specialization?.toLowerCase() === activeCategory.toLowerCase();
+  const filteredDoctors = doctorsData.filter(d => {
+    const matchesCategory =
+      activeCategory === 'All' ||
+      d.specialization?.toLowerCase() === activeCategory.toLowerCase();
 
-  const matchesSearch =
-    !routeSearch ||
-    d.doctorName?.toLowerCase().includes(routeSearch.toLowerCase()) ||
-    d.specialization?.toLowerCase().includes(routeSearch.toLowerCase());
+    const matchesSearch =
+      !routeSearch ||
+      d.doctorName?.toLowerCase().includes(routeSearch.toLowerCase()) ||
+      d.specialization?.toLowerCase().includes(routeSearch.toLowerCase());
 
-  return matchesCategory && matchesSearch;
-});
+    return matchesCategory && matchesSearch;
+  });
 
-
+  console.log(route);
 
   const ListHeader = () => (
     <View style={styles.headerWrapper}>
@@ -147,33 +141,29 @@ const filteredDoctors = doctorsData.filter(d => {
         />
       </View>
 
-<ScrollView horizontal showsHorizontalScrollIndicator={false}>
-  {loadingCategories
-    ? [1, 2, 3, 4].map(i => (
-        <View key={i} style={styles.skeletonChip} />
-      ))
-    : categories.map(cat => (
-        <TouchableOpacity
-          key={cat.name}
-          style={[
-            styles.filterButton,
-            activeCategory === cat.name && styles.activeFilter,
-          ]}
-          onPress={() => setActiveCategory(cat.name)}
-        >
-          <Text
-            style={[
-              styles.filterText,
-              activeCategory === cat.name &&
-                styles.activeFilterText,
-            ]}
-          >
-            {cat.name}
-          </Text>
-        </TouchableOpacity>
-      ))}
-</ScrollView>
-
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        {loadingCategories
+          ? [1, 2, 3, 4].map(i => <View key={i} style={styles.skeletonChip} />)
+          : categories.map(cat => (
+              <TouchableOpacity
+                key={cat.name}
+                style={[
+                  styles.filterButton,
+                  activeCategory === cat.name && styles.activeFilter,
+                ]}
+                onPress={() => setActiveCategory(cat.name)}
+              >
+                <Text
+                  style={[
+                    styles.filterText,
+                    activeCategory === cat.name && styles.activeFilterText,
+                  ]}
+                >
+                  {cat.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+      </ScrollView>
 
       {/* MODE FILTER */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -216,18 +206,14 @@ const filteredDoctors = doctorsData.filter(d => {
 
       <FlatList
         data={loading ? [1, 2, 3, 4] : filteredDoctors}
-        keyExtractor={(item, index) =>
-          loading ? index.toString() : item.id
-        }
+        keyExtractor={(item, index) => (loading ? index.toString() : item.id)}
         renderItem={({ item }) =>
           loading ? <DoctorSkeleton /> : <DoctorCard doctor={item} />
         }
         ListHeaderComponent={ListHeader}
         ListEmptyComponent={
           !loading && (
-            <Text style={styles.noResultText}>
-              No Doctors available
-            </Text>
+            <Text style={styles.noResultText}>No Doctors available</Text>
           )
         }
       />
@@ -252,17 +238,17 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     textAlign: 'center',
-    fontSize: scale(16),
+    fontSize: scale(18),
     fontFamily: FONT.medium,
   },
-  
-skeletonChip: {
-  height: verticalScale(36),
-  width: scale(90),
-  borderRadius: 20,
-  backgroundColor: '#E5E7EB',
-  marginRight: 10,
-},
+
+  skeletonChip: {
+    height: verticalScale(36),
+    width: scale(90),
+    borderRadius: 20,
+    backgroundColor: '#E5E7EB',
+    marginRight: 10,
+  },
 
   headerWrapper: {
     minHeight: verticalScale(170),
@@ -287,7 +273,7 @@ skeletonChip: {
     borderColor: COLORS.lightGray,
     borderRadius: 20,
     paddingHorizontal: 16,
-    justifyContent:"center",
+    justifyContent: 'center',
     marginRight: 10,
     marginBottom: 10,
   },
@@ -296,8 +282,8 @@ skeletonChip: {
     borderColor: COLORS.lightGray,
     borderRadius: 15,
     paddingHorizontal: 45,
-    alignItems:"center",
-    justifyContent:"center",
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 6,
     marginBottom: 12,
   },
