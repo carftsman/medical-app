@@ -6,9 +6,7 @@ const Backbtn = ({ onPress }) => {
   const navigation = useNavigation();
   return (
     <TouchableOpacity
-      onPress={() => {
-        navigation.goBack();
-      }}
+      onPress={onPress}
       style={styles.container}
       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
     >

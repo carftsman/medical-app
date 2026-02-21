@@ -9,6 +9,7 @@ import {
   Share,
   RefreshControl,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -70,6 +71,7 @@ const PackageDetails = () => {
 
       setData(formattedData);
     } catch (error) {
+      Alert.alert(error.response.data.message || error.message);
       console.log(error?.response?.data || error.message);
     } finally {
       setLoading(false);
@@ -113,6 +115,7 @@ const PackageDetails = () => {
         'Add to cart failed:',
         error?.response?.data || error.message,
       );
+      Alert.alert(error.response.data.message || error.message);
     } finally {
       setAdding(false);
     }

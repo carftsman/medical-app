@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, FlatList, Text, StyleSheet } from 'react-native';
+import { View, FlatList, Text, StyleSheet, Alert } from 'react-native';
 import {
   useNavigation,
   useRoute,
@@ -165,10 +165,20 @@ const PackagesScreen = () => {
       };
 
       const res = await labApi.addToLabCart(payload);
+      console.log('packages screen', res.data);
       if (res?.data?.item) {
         dispatch(addToCart(res.data.item));
       }
     } catch (error) {
+      Alert.alert('', error.response.data.message || error.message, [
+        {
+          text: 'ok',
+        },
+        {
+          text: 'view cart',
+          onPress: () => navigation.navigate('CartScreen'),
+        },
+      ]);
       console.log(
         'Add to cart failed:',
         error?.response?.data || error.message,

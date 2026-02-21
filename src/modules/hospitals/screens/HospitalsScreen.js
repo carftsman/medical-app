@@ -47,10 +47,7 @@ const HospitalsScreen = ({ navigation }) => {
       });
 
       const hospitalList =
-        res?.data?.data ||
-        res?.data?.hospitals ||
-        res?.data?.results ||
-        [];
+        res?.data?.data || res?.data?.hospitals || res?.data?.results || [];
 
       setHospitals(Array.isArray(hospitalList) ? hospitalList : []);
     } catch (error) {
@@ -71,8 +68,7 @@ const HospitalsScreen = ({ navigation }) => {
   };
 
   /*  DATA SOURCE  */
-  const dataSource =
-    overrideResults !== null ? overrideResults : hospitals;
+  const dataSource = overrideResults !== null ? overrideResults : hospitals;
 
   /*  SKELETON CARD  */
   const SkeletonCard = () => (
@@ -87,9 +83,8 @@ const HospitalsScreen = ({ navigation }) => {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <View style={styles.container}>
-
         {/*  HEADER = */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -103,13 +98,9 @@ const HospitalsScreen = ({ navigation }) => {
 
         {/* SEARCH AND FILTER */}
         <View style={styles.searchRow}>
-          <SearchHospital
-            onResults={setOverrideResults}
-          />
+          <SearchHospital onResults={setOverrideResults} />
 
-          <HospitalFilters
-            onPress={() => setShowFilter(true)}
-          />
+          <HospitalFilters onPress={() => setShowFilter(true)} />
         </View>
 
         {/*LIST  */}
@@ -139,19 +130,14 @@ const HospitalsScreen = ({ navigation }) => {
                 distance={item?.distance}
                 location={item?.place || item?.location || ''}
                 description={item?.speciality || item?.department || ''}
-                isOpen24Hours={
-                  item?.isOpen24x7 || item?.isOpen || false
-                }
-
+                isOpen24Hours={item?.isOpen24x7 || item?.isOpen || false}
                 isFavorite={!!favorites[item?.id]}
-
                 onFavoritePress={() =>
                   setFavorites(prev => ({
                     ...prev,
                     [item?.id]: !prev[item?.id],
                   }))
                 }
-
                 onViewDetails={() =>
                   navigation.navigate('HospitalDetails', {
                     data: item,
@@ -161,9 +147,7 @@ const HospitalsScreen = ({ navigation }) => {
               />
             )}
             ListEmptyComponent={
-              <Text style={styles.emptyText}>
-                No hospitals found
-              </Text>
+              <Text style={styles.emptyText}>No hospitals found</Text>
             }
             showsVerticalScrollIndicator={false}
           />
@@ -175,13 +159,10 @@ const HospitalsScreen = ({ navigation }) => {
           latitude={LATITUDE}
           longitude={LONGITUDE}
           onClose={() => setShowFilter(false)}
-          onApply={(filteredData) =>
-            setOverrideResults(filteredData)
-          }
+          onApply={filteredData => setOverrideResults(filteredData)}
         />
-
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 

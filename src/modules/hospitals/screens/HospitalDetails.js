@@ -57,6 +57,8 @@ const HospitalDetails = ({ route, navigation }) => {
     );
   }
 
+  console.log(hospital);
+
   return (
     <View style={styles.container}>
       <View style={styles.screenHeader}>
@@ -83,6 +85,7 @@ const HospitalDetails = ({ route, navigation }) => {
         onPress={() =>
           navigation.navigate('DoctorsList', {
             hospitalId: HOSPITAL_ID,
+            hospitalName: hospital.name,
           })
         }
       >

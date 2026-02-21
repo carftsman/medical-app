@@ -24,6 +24,8 @@ const LabDetailsScreen = () => {
   const labId = route?.params?.labId ?? 3;
   const uploadedFiles = route?.params?.files || null;
 
+  console.log('uploadFiles', uploadedFiles);
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -35,7 +37,10 @@ const LabDetailsScreen = () => {
       const res = await labApi.getLabDetails(labId);
       setData(res?.data);
     } catch (error) {
-      console.log('Lab details API error:', error?.response?.data || error.message);
+      console.log(
+        'Lab details API error:',
+        error?.response?.data || error.message,
+      );
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -71,8 +76,7 @@ const LabDetailsScreen = () => {
 
   const handleShare = async () => {
     try {
-      const locationText =
-        data.address || `${data.name}, ${data.city}`;
+      const locationText = data.address || `${data.name}, ${data.city}`;
 
       const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
         locationText,
@@ -97,11 +101,22 @@ ${mapsUrl}`,
 
     for (let i = 1; i <= 5; i++) {
       if (i <= fullStars) {
-        stars.push(<Icon key={i} name="star" size={scale(16)} color="#F5A623" />);
+        stars.push(
+          <Icon key={i} name="star" size={scale(16)} color="#F5A623" />,
+        );
       } else if (i === fullStars + 1 && hasHalfStar) {
-        stars.push(<Icon key={i} name="star-half-full" size={scale(16)} color="#F5A623" />);
+        stars.push(
+          <Icon
+            key={i}
+            name="star-half-full"
+            size={scale(16)}
+            color="#F5A623"
+          />,
+        );
       } else {
-        stars.push(<Icon key={i} name="star-outline" size={scale(16)} color="#F5A623" />);
+        stars.push(
+          <Icon key={i} name="star-outline" size={scale(16)} color="#F5A623" />,
+        );
       }
     }
     return stars;
@@ -109,7 +124,6 @@ ${mapsUrl}`,
 
   return (
     <View style={styles.container}>
-
       {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -135,7 +149,6 @@ ${mapsUrl}`,
           />
         }
       >
-
         {/* IMAGE */}
         <Image
           source={{
@@ -160,12 +173,8 @@ ${mapsUrl}`,
           </View>
 
           <View style={styles.ratingRow}>
-            <View style={styles.starsRow}>
-              {renderStars(data.rating)}
-            </View>
-            <Text style={styles.ratingText}>
-              {data.rating || 0}
-            </Text>
+            <View style={styles.starsRow}>{renderStars(data.rating)}</View>
+            <Text style={styles.ratingText}>{data.rating || 0}</Text>
           </View>
 
           <View style={styles.infoCard}>
@@ -211,13 +220,19 @@ ${mapsUrl}`,
                   onPress={() => setOpenPackageId(isOpen ? null : packageId)}
                 >
                   <Text style={styles.accordionTitle}>{packageName}</Text>
-                  <Icon name={isOpen ? 'chevron-up' : 'chevron-down'} size={scale(20)} />
+                  <Icon
+                    name={isOpen ? 'chevron-up' : 'chevron-down'}
+                    size={scale(20)}
+                  />
                 </TouchableOpacity>
 
                 {isOpen && (
                   <View style={styles.accordionBody}>
                     {pkg.tests?.map((test, index) => (
-                      <Text key={`${packageId}-${index}`} style={styles.bulletText}>
+                      <Text
+                        key={`${packageId}-${index}`}
+                        style={styles.bulletText}
+                      >
                         • {test}
                       </Text>
                     ))}
@@ -231,11 +246,11 @@ ${mapsUrl}`,
 
       {/* BOTTOM BUTTON */}
       <View style={styles.bottom}>
-        {uploadedFiles ? (
+        {uploadedFiles.length > 0 ? (
           <TouchableOpacity
-            style={[styles.bookBtn, { backgroundColor: "#4368ed" }]}
+            style={[styles.bookBtn, { backgroundColor: '#4368ed' }]}
             onPress={() =>
-              navigation.navigate("ReviewPrescription", {
+              navigation.navigate('ReviewPrescription', {
                 lab: data,
                 files: uploadedFiles,
               })
@@ -247,7 +262,7 @@ ${mapsUrl}`,
           <TouchableOpacity
             style={styles.bookBtn}
             onPress={() =>
-              navigation.navigate("PackagesScreen", {
+              navigation.navigate('PackagesScreen', {
                 labId: data.id,
               })
             }
@@ -256,7 +271,6 @@ ${mapsUrl}`,
           </TouchableOpacity>
         )}
       </View>
-
     </View>
   );
 };
@@ -270,19 +284,19 @@ const styles = StyleSheet.create({
 
   center: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   header: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     zIndex: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: COLORS.white,
     paddingHorizontal: scale(16),
     paddingTop: verticalScale(40),
@@ -295,11 +309,11 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: scale(12),
     fontSize: SIZES.large,
-    fontWeight: "700",
+    fontWeight: '700',
   },
 
   banner: {
-    width: "100%",
+    width: '100%',
     height: verticalScale(260),
     marginTop: verticalScale(80),
   },
@@ -310,13 +324,13 @@ const styles = StyleSheet.create({
 
   labName: {
     fontSize: SIZES.large,
-    fontWeight: "700",
+    fontWeight: '700',
   },
 
   topRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
 
   callBtn: {
@@ -324,30 +338,30 @@ const styles = StyleSheet.create({
     height: scale(36),
     borderRadius: scale(18),
     backgroundColor: COLORS.primary,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   row: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: verticalScale(6),
   },
 
   ratingRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: verticalScale(8),
   },
 
   starsRow: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginRight: scale(6),
   },
 
   ratingText: {
     fontSize: SIZES.medium,
-    fontWeight: "600",
+    fontWeight: '600',
     color: COLORS.black,
     marginRight: scale(8),
   },
@@ -359,9 +373,9 @@ const styles = StyleSheet.create({
   },
 
   infoCard: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    backgroundColor: "#F6F9FC",
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: '#F6F9FC',
     borderRadius: scale(12),
     padding: scale(12),
     marginTop: verticalScale(12),
@@ -379,9 +393,9 @@ const styles = StyleSheet.create({
   },
 
   openRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginTop: verticalScale(10),
   },
 
@@ -389,12 +403,12 @@ const styles = StyleSheet.create({
     marginLeft: scale(6),
     fontSize: SIZES.medium,
     color: COLORS.green,
-    fontWeight: "600",
+    fontWeight: '600',
   },
 
   closeText: {
     color: COLORS.darkgray,
-    fontWeight: "400",
+    fontWeight: '400',
   },
 
   timingBox: {
@@ -402,8 +416,8 @@ const styles = StyleSheet.create({
   },
 
   timingRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 
   timingLabel: {
@@ -414,7 +428,7 @@ const styles = StyleSheet.create({
 
   timingValue: {
     fontSize: SIZES.medium,
-    fontWeight: "700",
+    fontWeight: '700',
     color: COLORS.black,
   },
 
@@ -432,14 +446,14 @@ const styles = StyleSheet.create({
     height: scale(36),
     borderRadius: scale(18),
     backgroundColor: COLORS.white,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     elevation: 2,
   },
 
   sectionTitle: {
     fontSize: SIZES.large,
-    fontWeight: "700",
+    fontWeight: '700',
     marginBottom: verticalScale(10),
   },
 
@@ -451,14 +465,14 @@ const styles = StyleSheet.create({
   },
 
   accordionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     padding: scale(12),
   },
 
   accordionTitle: {
     fontSize: SIZES.medium,
-    fontWeight: "600",
+    fontWeight: '600',
   },
 
   accordionBody: {
@@ -481,12 +495,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     paddingVertical: verticalScale(14),
     borderRadius: scale(10),
-    alignItems: "center",
+    alignItems: 'center',
   },
 
   bookText: {
     color: COLORS.white,
     fontSize: SIZES.large,
-    fontWeight: "600",
+    fontWeight: '600',
   },
 });

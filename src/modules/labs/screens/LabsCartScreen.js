@@ -16,6 +16,7 @@ import CartPatientCard from '../components/CartPatientCard';
 import CartCouponBanner from '../components/CartCouponBanner';
 import CartFooter from '../components/CartFooter';
 import AddPatientModal from '../components/AddPatientModal';
+import useLabDetails from '../hooks/useLabDetails';
 
 const LabsCartScreen = () => {
   const navigation = useNavigation();
@@ -50,6 +51,8 @@ const LabsCartScreen = () => {
 
   const [labId, setLabId] = useState(null);
 
+  const { data } = useLabDetails(labId);
+
   useFocusEffect(
     useCallback(() => {
       if (USER_ID) fetchCart();
@@ -64,7 +67,7 @@ const LabsCartScreen = () => {
 
       const res = await labApi.getLabCart(USER_ID);
       const data = res.data;
-      console.log('cart items', data.lab);
+      console.log('cart items', data);
 
       dispatch(setCartItems(data.items || []));
       setTotalAmount(data.billSummary?.totalAmount || 0);
@@ -144,13 +147,16 @@ const LabsCartScreen = () => {
   return (
     <>
       <View style={{ flex: 1, backgroundColor: COLORS.white }}>
-        <View style={{ marginHorizontal: scale(15), flex: 1 }}>
+        <CartHeader labName={data?.name} />
+        <View
+          style={{ marginHorizontal: scale(15), flex: 1, paddingVertical: 10 }}
+        >
           <FlatList
             data={cartItems}
             keyExtractor={item => item.id.toString()}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: verticalScale(120) }}
-            ListHeaderComponent={<CartHeader />}
+            // ListHeaderComponent={<CartHeader />}
             renderItem={({ item }) => (
               <CartPatientCard
                 patientName={item?.patient?.fullName || 'Myself'}
@@ -158,7 +164,7 @@ const LabsCartScreen = () => {
                 gender={item?.patient?.gender || ''}
                 packageName={item.name}
                 tests={item.tests || []}
-                price={`₹${item.price * item.quantity}`}
+                price={`₹${item.price}`}
                 onDeletePress={() => handleRemove(item.id, item.packageId)}
                 onAddPatient={() => {
                   setSelectedCartItemId(item.id);

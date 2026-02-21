@@ -29,6 +29,8 @@ const DoctorsList = () => {
 
   const routeCategoryName = route.params?.categoryName;
   const routeSearch = route.params?.search;
+  const hospitalId = route.params?.hospitalId;
+  const hospitalName = route.params?.hospitalName;
 
   const reduxMode = useSelector(state => state.hospital?.consultation?.mode);
 
@@ -83,6 +85,37 @@ const DoctorsList = () => {
     try {
       setLoading(true);
 
+      if (hospitalId) {
+        const response = await api.get(
+          `/hospital/user/hospital/${hospitalId}/doctors`,
+          {
+            params: {
+              mode: finalMode,
+            },
+          },
+        );
+
+        console.log('hospitalId', response.data.data);
+
+        const mappedDoctors = (response.data.data || []).map(item => ({
+          id: item.id.toString(),
+          doctorName: item.name || '',
+          specialization: item.specialization || '',
+          experience: Number(item.experience) || 0,
+          rating: Number(item.rating) || 0,
+          fee: Number(item.consultationFee) || 0,
+          hospitalName: item.hospital?.name || '',
+          distance: Number(item.distance) || 0,
+          availableDate: item.availableDate || 'today',
+          availableTime: item.availableTime || '9AM - 5PM',
+          imageUrl: item.imageUrl || 'https://via.placeholder.com/150',
+          categoryName: item.category?.name || '',
+        }));
+
+        setDoctorsData(mappedDoctors);
+        return;
+      }
+
       const routeSearch = route.params?.search;
 
       const response = await api.get('/hospital/user/doctors', {
@@ -127,7 +160,7 @@ const DoctorsList = () => {
     return matchesCategory && matchesSearch;
   });
 
-  console.log(route);
+  console.log('doctors list', route.params);
 
   const ListHeader = () => (
     <View style={styles.headerWrapper}>
@@ -144,9 +177,9 @@ const DoctorsList = () => {
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {loadingCategories
           ? [1, 2, 3, 4].map(i => <View key={i} style={styles.skeletonChip} />)
-          : categories.map(cat => (
+          : categories.map((cat, index) => (
               <TouchableOpacity
-                key={cat.name}
+                key={`${cat.name}${index}`}
                 style={[
                   styles.filterButton,
                   activeCategory === cat.name && styles.activeFilter,
@@ -200,13 +233,15 @@ const DoctorsList = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Backbtn onPress={() => navigation.goBack()} />
-        <Text style={styles.headerTitle}>Doctors</Text>
+        <Text style={styles.headerTitle}>{hospitalName} Doctors</Text>
         <View style={{ width: 25 }} />
       </View>
 
       <FlatList
         data={loading ? [1, 2, 3, 4] : filteredDoctors}
-        keyExtractor={(item, index) => (loading ? index.toString() : item.id)}
+        keyExtractor={(item, index) =>
+          loading ? index.toString() : `${item.id}-${index}`
+        }
         renderItem={({ item }) =>
           loading ? <DoctorSkeleton /> : <DoctorCard doctor={item} />
         }

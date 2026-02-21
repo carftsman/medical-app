@@ -82,7 +82,7 @@ export default function ReportCard({ item }) {
             color="#777"
             style={{ marginLeft: scale(10) }}
           />
-          <Text style={styles.subText}>{item.tests.length}</Text>
+          <Text style={styles.subText}>{item.testsCount}</Text>
         </View>
 
         <View style={styles.row}>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -8,12 +8,12 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
-} from "react-native";
-import Icon from "react-native-vector-icons/Ionicons";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
-import api from "../../../api/client"; 
-import { useRoute } from "@react-navigation/native";
+} from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import api from '../../../api/client';
+import { useRoute } from '@react-navigation/native';
 
 const LabsListScreen = () => {
   const navigation = useNavigation();
@@ -32,12 +32,12 @@ const LabsListScreen = () => {
     try {
       setLoading(true);
 
-      const response = await api.get("/labs/nearby", {
+      const response = await api.get('/labs/nearby', {
         params: {
           latitude: 17.4401,
           longitude: 78.3489,
           radius: 8,
-          sortBy: "distance",
+          sortBy: 'distance',
           minRating: 3,
           maxRating: 5,
           page: 1,
@@ -48,7 +48,7 @@ const LabsListScreen = () => {
 
       setLabs(response?.data?.labs || []);
     } catch (error) {
-      console.log("API ERROR:", error?.response?.data || error.message);
+      console.log('API ERROR:', error?.response?.data || error.message);
     } finally {
       setLoading(false);
     }
@@ -60,17 +60,17 @@ const LabsListScreen = () => {
 
   const renderStars = (rating = 0) => {
     return (
-      <View style={{ flexDirection: "row", alignItems: "center" }}>
-        {[1, 2, 3, 4, 5].map((star) => (
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        {[1, 2, 3, 4, 5].map(star => (
           <Icon
             key={star}
-            name={star <= rating ? "star" : "star-outline"}
+            name={star <= rating ? 'star' : 'star-outline'}
             size={16}
             color="#FFA500"
           />
         ))}
         <Text style={styles.reviewText}>
-          {" "}
+          {' '}
           ({rating ? rating.toFixed(1) : 0})
         </Text>
       </View>
@@ -84,7 +84,7 @@ const LabsListScreen = () => {
           source={{
             uri:
               item.image ||
-              "https://content3.jdmagicbox.com/v2/comp/hyderabad/v3/040pxx40.xx40.160331113748.z9v3/catalogue/apollo-diagnostics-hyderabad-0bhdew3qqm.jpg",
+              'https://content3.jdmagicbox.com/v2/comp/hyderabad/v3/040pxx40.xx40.160331113748.z9v3/catalogue/apollo-diagnostics-hyderabad-0bhdew3qqm.jpg',
           }}
           style={styles.labImage}
         />
@@ -96,12 +96,9 @@ const LabsListScreen = () => {
 
           <View style={styles.locationRow}>
             <Icon name="location-outline" size={14} color="gray" />
-            <Text style={styles.city}>
-              {" "}
-              {item.city || "Unknown City"}
-            </Text>
+            <Text style={styles.city}> {item.city || 'Unknown City'}</Text>
             <Text style={styles.openStatus}>
-              {"  "}• {item.isOpen ? "Open Now" : "Closed"}
+              {'  '}• {item.isOpen ? 'Open Now' : 'Closed'}
             </Text>
           </View>
         </View>
@@ -111,7 +108,7 @@ const LabsListScreen = () => {
       <TouchableOpacity
         style={styles.button}
         onPress={() =>
-          navigation.navigate("LabDetails", {
+          navigation.navigate('LabDetails', {
             labId: item.id,
             categoryId: categoryId,
             files: uploadedFiles,
@@ -128,11 +125,7 @@ const LabsListScreen = () => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() =>
-            navigation.navigate("UploadPrescription")
-          }
-        >
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-back" size={24} />
         </TouchableOpacity>
 
@@ -178,33 +171,33 @@ export default LabsListScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: '#F5F5F5',
     paddingHorizontal: 15,
   },
 
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginVertical: 15,
   },
 
   headerTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: '600',
   },
 
   searchRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 15,
   },
 
   searchContainer: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
     borderRadius: 12,
     paddingHorizontal: 10,
     height: 45,
@@ -217,13 +210,13 @@ const styles = StyleSheet.create({
   },
 
   filterBtn: {
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     padding: 12,
     borderRadius: 12,
   },
 
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderRadius: 15,
     padding: 12,
     marginBottom: 15,
@@ -231,7 +224,7 @@ const styles = StyleSheet.create({
   },
 
   topRow: {
-    flexDirection: "row",
+    flexDirection: 'row',
   },
 
   labImage: {
@@ -247,41 +240,41 @@ const styles = StyleSheet.create({
 
   labName: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
     marginBottom: 4,
   },
 
   reviewText: {
     fontSize: 13,
-    color: "gray",
+    color: 'gray',
   },
 
   locationRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 4,
   },
 
   city: {
     fontSize: 13,
-    color: "gray",
+    color: 'gray',
   },
 
   openStatus: {
     fontSize: 13,
-    color: "green",
+    color: 'green',
   },
 
   button: {
-    backgroundColor: "#1E88E5",
+    backgroundColor: '#1E88E5',
     marginTop: 12,
     paddingVertical: 10,
     borderRadius: 10,
-    alignItems: "center",
+    alignItems: 'center',
   },
 
   buttonText: {
-    color: "#fff",
-    fontWeight: "600",
+    color: '#fff',
+    fontWeight: '600',
   },
 });
