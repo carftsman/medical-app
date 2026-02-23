@@ -659,11 +659,11 @@ const styles = StyleSheet.create({
     color: "#9CA3AF",
   },
 
-  saveBtn: { backgroundColor: COLORS.primary, padding: SIZES.medium, borderRadius: 12, marginTop: 50 },
+  saveBtn: { backgroundColor: COLORS.primary, padding: SIZES.medium, borderRadius: 12, marginTop: 30 },
 
   saveText: { color: COLORS.white, textAlign: "center", fontSize: SIZES.medium, fontFamily: FONT.bold },
 
-  dateInput: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderWidth: 1, borderColor: COLORS.lightGray, borderRadius: scale(12), paddingVertical: verticalScale(14), paddingHorizontal: scale(14), marginBottom: verticalScale(12) },
+  dateInput: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderWidth: 1, borderColor: COLORS.lightGray, borderRadius: scale(12), paddingVertical: verticalScale(14), paddingHorizontal: scale(14) },
 
   error: { color: "red", fontSize: 12, marginBottom: 6 },
 

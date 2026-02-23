@@ -57,7 +57,7 @@ const DoctorInfoWomen = ({ image, name, specialization, experience, rating, cons
                         <Text style={styles.statText}>consultation Fee </Text>
                         <Text>
                             <FontAwesome name="rupee" size={15} color= "#F47FBB" />
-                            <Text style={{ fontWeight: '600', fontSize: 15,color: '#F47FBB' }}> {consultationFee || 200}/-</Text>
+                            <Text style={{ fontWeight: '600', fontSize: 15,color: '#F47FBB' }}> {consultationFee}/-</Text>
                         </Text>
                     </View>
                 </View>
