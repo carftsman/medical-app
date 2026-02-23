@@ -8,7 +8,6 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation, useRoute } from "@react-navigation/native";
-
 const PrescriptionSuccessScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -18,7 +17,7 @@ const PrescriptionSuccessScreen = () => {
   const labName = route?.params?.labName ?? "Selected Lab";
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
 
       {/* TOP BLUE SECTION */}
       <View style={styles.blueSection}>
@@ -77,7 +76,7 @@ const PrescriptionSuccessScreen = () => {
 
       </View>
 
-    </SafeAreaView>
+    </View>
   );
 };
 
