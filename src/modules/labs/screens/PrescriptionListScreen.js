@@ -1,210 +1,164 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  Image,
+  ActivityIndicator,
+  RefreshControl,
   Modal,
-  ScrollView,
-  Alert,
+  Image,
 } from "react-native";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import MaterialIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { useRoute, useNavigation } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { getUserPrescriptions } from "../services/prescriptionApi";
+import Pdf from "react-native-pdf";
 
 const PrescriptionListScreen = () => {
-  const route = useRoute();
   const navigation = useNavigation();
 
-  const [uploads, setUploads] = useState(
-    route?.params?.uploads || []
+  const [uploads, setUploads] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [previewPDF, setPreviewPDF] = useState(null);
+
+  /* ================= FETCH ================= */
+  const fetchPrescriptions = async () => {
+    try {
+      const response = await getUserPrescriptions();
+      let data = response?.data?.data || [];
+
+      if (!Array.isArray(data)) data = [data];
+
+      const sorted = data.sort(
+        (a, b) =>
+          new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      setUploads(sorted);
+    } catch (error) {
+      console.log("Prescription List Error:", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchPrescriptions();
+    }, [])
   );
 
-  const [previewImage, setPreviewImage] = useState(null);
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchPrescriptions();
+  };
 
-  /* ================= DELETE FULL UPLOAD ================= */
+  /* ================= OPEN FILE ================= */
+  const openFile = (file) => {
+    const url = file?.fileUrl;
+    if (!url) return;
 
-  const deleteUpload = (index) => {
-    Alert.alert(
-      "Delete Prescription",
-      "Are you sure you want to delete this upload?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            const updated = [...uploads];
-            updated.splice(index, 1);
-            setUploads(updated);
-          },
-        },
-      ]
+    const type = file?.fileType || "";
+
+    if (type.includes("image")) {
+      setPreviewImage(url);
+      return;
+    }
+
+    if (type.includes("pdf")) {
+      setPreviewPDF(url);
+      return;
+    }
+  };
+
+  /* ================= RENDER ITEM ================= */
+  const renderItem = ({ item }) => {
+    const firstFile = item.files?.[0];
+
+    return (
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() =>
+          navigation.navigate("PrescriptionTracking", {
+            groupId: item.groupId,
+            selectedLab: item.lab,
+          })
+        }
+      >
+        <View style={styles.iconWrapper}>
+          <Icon
+            name={
+              firstFile?.fileType?.includes("pdf")
+                ? "file-pdf-box"
+                : "file-image"
+            }
+            size={28}
+            color="#056FD2"
+          />
+        </View>
+
+        <View style={styles.content}>
+          <Text style={styles.labName}>
+            {item?.lab?.name || "Selected Lab"}
+          </Text>
+
+          <Text style={styles.dateText}>
+            {new Date(item.createdAt).toLocaleDateString()}
+          </Text>
+
+          <Text style={styles.fileCount}>
+            {item.files?.length || 0} file(s)
+          </Text>
+        </View>
+      </TouchableOpacity>
     );
   };
 
-  /* ================= DELETE SINGLE FILE ================= */
-
-  const deleteFile = (uploadIndex, fileIndex) => {
-    const updated = [...uploads];
-    updated[uploadIndex].files.splice(fileIndex, 1);
-    setUploads(updated);
-  };
-
-  /* ================= FORMAT DATE ================= */
-
-  const formatDate = (date) => {
-    const d = new Date(date);
-    return d.toLocaleDateString() + " • " +
-      d.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-  };
-
-  /* ================= RENDER EACH UPLOAD ================= */
-
-  const renderItem = ({ item, index }) => (
-    <View style={styles.card}>
-
-      {/* LAB NAME + DELETE */}
-      <View style={styles.topRow}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.labName}>{item.labName}</Text>
-
-          <View style={styles.locationRow}>
-            <MaterialIcons
-              name="map-marker-outline"
-              size={18}
-              color="#056FD2"
-            />
-            <Text style={styles.locationText}>
-              {item.location || "Location not available"}
-            </Text>
-          </View>
-
-          <Text style={styles.dateText}>
-            {item.uploadedAt
-              ? formatDate(item.uploadedAt)
-              : ""}
-          </Text>
-        </View>
-
-        <TouchableOpacity onPress={() => deleteUpload(index)}>
-          <MaterialIcons
-            name="delete-outline"
-            size={22}
-            color="red"
-          />
-        </TouchableOpacity>
-      </View>
-
-      {/* STATUS */}
-      <Text style={styles.status}>
-        {item.files?.length || 0} file(s) •{" "}
-        {item.status || "Prescription Sent"}
-      </Text>
-
-      {/* FILES */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {item.files?.map((file, fileIndex) => {
-          const isPDF =
-            file?.type?.includes("pdf") ||
-            file?.name?.toLowerCase()?.endsWith(".pdf");
-
-          return (
-            <View key={fileIndex} style={styles.fileWrapper}>
-              {isPDF ? (
-                <View style={styles.pdfBox}>
-                  <MaterialIcons
-                    name="file-pdf-box"
-                    size={40}
-                    color="#E53935"
-                  />
-                  <Text
-                    numberOfLines={1}
-                    style={styles.pdfName}
-                  >
-                    {file.name}
-                  </Text>
-                </View>
-              ) : (
-                <TouchableOpacity
-                  onPress={() =>
-                    setPreviewImage(file.uri)
-                  }
-                >
-                  <Image
-                    source={{ uri: file.uri }}
-                    style={styles.image}
-                  />
-                </TouchableOpacity>
-              )}
-
-              {/* DELETE SINGLE FILE */}
-              <TouchableOpacity
-                style={styles.removeFile}
-                onPress={() =>
-                  deleteFile(index, fileIndex)
-                }
-              >
-                <Ionicons
-                  name="close-circle"
-                  size={18}
-                  color="red"
-                />
-              </TouchableOpacity>
-            </View>
-          );
-        })}
-      </ScrollView>
-    </View>
-  );
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#056FD2" />
+      </SafeAreaView>
+    );
+  }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
 
       {/* HEADER */}
-      <View style={styles.header}>
+      <View style={styles.headerRow}>
+        <Text style={styles.headerTitle}>My Prescriptions</Text>
+
         <TouchableOpacity
-          onPress={() => navigation.goBack()}
+          onPress={() => navigation.navigate("LabTabNavigation")}
         >
-          <Ionicons
-            name="arrow-back"
-            size={22}
-          />
+          <Icon name="home-outline" size={24} color="#056FD2" />
         </TouchableOpacity>
-
-        <Text style={styles.headerTitle}>
-          Prescription History
-        </Text>
-
-        <View style={{ width: 22 }} />
       </View>
 
+      {/* LIST */}
       <FlatList
         data={uploads}
-        keyExtractor={(item, index) =>
-          index.toString()
+        keyExtractor={(item) =>
+          item.groupId?.toString()
         }
         renderItem={renderItem}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <MaterialIcons
-              name="file-document-outline"
-              size={60}
-              color="#ccc"
-            />
-            <Text style={styles.emptyText}>
-              No prescriptions uploaded yet
-            </Text>
-          </View>
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["#056FD2"]}
+          />
         }
+        contentContainerStyle={{ padding: 20 }}
       />
 
-      {/* IMAGE PREVIEW MODAL */}
+      {/* IMAGE MODAL */}
       <Modal visible={!!previewImage} transparent>
         <TouchableOpacity
           style={styles.modalContainer}
@@ -218,121 +172,103 @@ const PrescriptionListScreen = () => {
         </TouchableOpacity>
       </Modal>
 
-    </View>
+      {/* PDF MODAL */}
+      <Modal visible={!!previewPDF} animationType="slide">
+        <View style={styles.pdfModalContainer}>
+          <TouchableOpacity
+            style={styles.closeBtn}
+            onPress={() => setPreviewPDF(null)}
+          >
+            <Icon name="close" size={26} color="#111827" />
+          </TouchableOpacity>
+
+          <Pdf
+            source={{ uri: previewPDF }}
+            style={styles.pdf}
+            trustAllCerts={false}
+          />
+        </View>
+      </Modal>
+
+    </SafeAreaView>
   );
 };
 
 export default PrescriptionListScreen;
 
+/* ================= STYLES ================= */
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F7F9FC",
-    padding: 20,
   },
 
-  header: {
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
+    paddingHorizontal: 20,
+    paddingTop: 15,
   },
 
   headerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "700",
+    color: "#111827",
   },
 
   card: {
-    backgroundColor: "#fff",
-    padding: 15,
-    borderRadius: 16,
-    marginBottom: 20,
+    flexDirection: "row",
+    backgroundColor: "#FFFFFF",
+    padding: 16,
+    borderRadius: 18,
+    marginBottom: 16,
+    elevation: 4,
   },
 
-  topRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  iconWrapper: {
+    width: 54,
+    height: 54,
+    borderRadius: 16,
+    backgroundColor: "#EAF4FF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  content: {
+    flex: 1,
+    marginLeft: 14,
   },
 
   labName: {
     fontSize: 16,
     fontWeight: "700",
-  },
-
-  locationRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 4,
-  },
-
-  locationText: {
-    marginLeft: 6,
-    fontSize: 13,
-    color: "#666",
+    color: "#111827",
   },
 
   dateText: {
-    marginTop: 4,
     fontSize: 12,
-    color: "#888",
+    color: "#9CA3AF",
+    marginTop: 6,
   },
 
-  status: {
-    marginVertical: 8,
-    color: "#0E9F6E",
+  fileCount: {
+    fontSize: 13,
     fontWeight: "600",
-  },
-
-  fileWrapper: {
-    marginRight: 12,
-    position: "relative",
-  },
-
-  image: {
-    width: 90,
-    height: 90,
-    borderRadius: 12,
-  },
-
-  pdfBox: {
-    width: 90,
-    height: 90,
-    borderRadius: 12,
-    backgroundColor: "#FDECEA",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 6,
-  },
-
-  pdfName: {
-    fontSize: 10,
-    marginTop: 4,
-    textAlign: "center",
-  },
-
-  removeFile: {
-    position: "absolute",
-    top: -6,
-    right: -6,
-    backgroundColor: "#fff",
-    borderRadius: 10,
-  },
-
-  emptyContainer: {
-    marginTop: 80,
-    alignItems: "center",
-  },
-
-  emptyText: {
-    marginTop: 10,
-    fontSize: 14,
-    color: "#999",
+    color: "#056FD2",
+    marginTop: 6,
   },
 
   modalContainer: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.9)",
+    backgroundColor: "rgba(0,0,0,0.92)",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -340,5 +276,20 @@ const styles = StyleSheet.create({
   fullImage: {
     width: "95%",
     height: "80%",
+  },
+
+  pdfModalContainer: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+  },
+
+  pdf: {
+    flex: 1,
+    width: "100%",
+  },
+
+  closeBtn: {
+    padding: 16,
+    alignSelf: "flex-end",
   },
 });
