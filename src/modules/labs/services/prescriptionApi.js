@@ -1,6 +1,6 @@
 import api from "../../../api/client";
 
-/* UPLOAD PRESCRIPTION */
+/* ================= UPLOAD PRESCRIPTION ================= */
 
 export const uploadPrescription = async (formData) => {
   return await api.post(
@@ -14,13 +14,13 @@ export const uploadPrescription = async (formData) => {
   );
 };
 
-/* GET USER PRESCRIPTIONS  */
+/* ================= GET USER PRESCRIPTIONS ================= */
 
 export const getUserPrescriptions = async () => {
   return await api.get("/lab-prescriptions/user");
 };
 
-/* ATTACH BOOKING  */
+/* ================= ATTACH BOOKING ================= */
 
 export const attachBooking = async (data) => {
   return await api.patch(

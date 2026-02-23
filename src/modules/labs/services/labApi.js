@@ -53,6 +53,11 @@ export const labApi = {
   getLabAvailability: (labId) => {
     return api.get(`/labs/${labId}/availability`);
   },
+  
+  getLabCartSummary: (userId) =>
+  api.get('/labs/cart/summary', {
+    params: { userId },
+  }),
 
   getLabSlots: (labId, date) => {
     return api.get(`/labs/${labId}/slots`, {

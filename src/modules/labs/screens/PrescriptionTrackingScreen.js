@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   StyleSheet,
@@ -9,42 +9,42 @@ import {
   Image,
   ActivityIndicator,
 } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import {
+  useRoute,
+  useFocusEffect,
+  useNavigation,
+} from "@react-navigation/native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import Pdf from "react-native-pdf";
 import PrescriptionTimeline from "../components/prescription/PrescriptionTimeline";
 import { getUserPrescriptions } from "../services/prescriptionApi";
 
 const PrescriptionTrackingScreen = () => {
-  const navigation = useNavigation();
   const route = useRoute();
-  const uploadId = route?.params?.uploadId;
+  const navigation = useNavigation(); // ✅ added only this
 
-  const [previewImage, setPreviewImage] = useState(null);
-  const [uploadData, setUploadData] = useState(null);
+  const groupId = route?.params?.groupId;
+  const selectedLab = route?.params?.selectedLab;
+
+  const [uploads, setUploads] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [previewPDF, setPreviewPDF] = useState(null);
 
-  useEffect(() => {
-    fetchUpload();
-  }, []);
-
-  const fetchUpload = async () => {
+  /* FETCH  */
+  const fetchData = async () => {
     try {
+      setLoading(true);
       const response = await getUserPrescriptions();
-      const uploads = response?.data || [];
+      let data = response?.data?.data || [];
 
-      const selected = uploads.find(
-        (item) => item.id === uploadId
-      );
+      if (!Array.isArray(data)) data = [data];
 
-      if (selected) {
-        setUploadData({
-          id: selected.id,
-          labName: selected.lab?.name || "Selected Lab",
-          files: selected.files || [],
-          fileCount: selected.files?.length || 0,
-          status: selected.status || "Prescription Sent",
-        });
-      }
+      const filtered = groupId
+        ? data.filter((item) => item.groupId === groupId)
+        : data;
+
+      setUploads(filtered);
     } catch (error) {
       console.log("Tracking Error:", error);
     } finally {
@@ -52,116 +52,108 @@ const PrescriptionTrackingScreen = () => {
     }
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [])
+  );
+
+  /*  OPEN FILE  */
+  const openFile = (file) => {
+    const url = file?.fileUrl;
+    if (!url) return;
+
+    const type = file?.fileType || "";
+
+    if (type.includes("image")) {
+      setPreviewImage(url);
+      return;
+    }
+
+    if (type.includes("pdf")) {
+      setPreviewPDF(url);
+      return;
+    }
+  };
+
   if (loading) {
     return (
-      <View style={styles.container}>
-        <ActivityIndicator
-          size="large"
-          color="#056FD2"
-          style={{ marginTop: 100 }}
-        />
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#056FD2" />
       </View>
     );
   }
 
-  if (!uploadData) {
+  if (!uploads.length) {
     return (
-      <View style={styles.container}>
-        <Text style={{ textAlign: "center", marginTop: 100 }}>
-          No Prescription Found
-        </Text>
+      <View style={styles.loaderContainer}>
+        <Text>No Prescription Found</Text>
       </View>
     );
   }
+
+  const labName =
+    uploads[0]?.lab?.name ||
+    selectedLab?.name ||
+    "Selected Lab";
+
+  const labLocation =
+    uploads[0]?.lab?.city ||
+    selectedLab?.city ||
+    "Location not available";
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView>
 
-        {/* TIMELINE */}
-        <PrescriptionTimeline status={uploadData.status} />
+        <Text style={styles.labName}>{labName}</Text>
+        <Text style={styles.labLocation}>{labLocation}</Text>
 
-        {/* DETAILS CARD */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Uploaded Prescription</Text>
+        <PrescriptionTimeline files={uploads[0].files} />
 
-          <View style={styles.row}>
-            <Ionicons name="business-outline" size={16} color="#056FD2" />
-            <Text style={styles.rowText}>{uploadData.labName}</Text>
-          </View>
+        <Text style={styles.sectionTitle}>Uploaded Files</Text>
 
-          <View style={styles.row}>
-            <Ionicons name="document-text-outline" size={16} color="#056FD2" />
-            <Text style={styles.rowText}>
-              {uploadData.fileCount} file(s) uploaded
-            </Text>
-          </View>
+        {uploads.map((upload, index) =>
+          upload.files?.map((file, i) => (
+            <View key={`${index}-${i}`} style={styles.fileCard}>
 
-          <View style={styles.row}>
-            <Ionicons name="information-circle-outline" size={16} color="#056FD2" />
-            <Text style={styles.rowText}>
-              Status: {uploadData.status}
-            </Text>
-          </View>
+              <TouchableOpacity onPress={() => openFile(file)}>
+                {file.fileType?.includes("image") ? (
+                  <Image
+                    source={{ uri: file.fileUrl }}
+                    style={styles.image}
+                  />
+                ) : (
+                  <View style={styles.pdfBox}>
+                    <Ionicons
+                      name="document-text"
+                      size={40}
+                      color="#056FD2"
+                    />
+                  </View>
+                )}
+              </TouchableOpacity>
 
-          {/* VIEW ALL BUTTON */}
-          <TouchableOpacity
-            style={styles.viewAllBtn}
-            onPress={() => navigation.navigate("PrescriptionList")}
-          >
-            <Text style={styles.viewAllText}>View All</Text>
-          </TouchableOpacity>
-        </View>
+              <Text style={styles.fileName}>
+                {file.fileUrl.split("/").pop()}
+              </Text>
 
-        {/* FILE PREVIEW */}
-        {uploadData.files.length > 0 && (
-          <View style={styles.previewSection}>
-            <Text style={styles.previewTitle}>Uploaded Files</Text>
-
-            {uploadData.files.map((file, index) => {
-              const isPDF =
-                file?.url?.includes(".pdf");
-
-              return (
-                <View key={index} style={styles.fileCard}>
-                  {isPDF ? (
-                    <View style={styles.pdfBox}>
-                      <Ionicons
-                        name="document-text"
-                        size={40}
-                        color="#056FD2"
-                      />
-                      <Text style={styles.pdfName}>
-                        {file.name || "PDF Document"}
-                      </Text>
-                    </View>
-                  ) : (
-                    <TouchableOpacity
-                      onPress={() => setPreviewImage(file.url)}
-                    >
-                      <Image
-                        source={{ uri: file.url }}
-                        style={styles.image}
-                      />
-                    </TouchableOpacity>
-                  )}
-                </View>
-              );
-            })}
-          </View>
+            </View>
+          ))
         )}
 
       </ScrollView>
 
-      {/* BACK TO HOME */}
-      <TouchableOpacity
-        style={styles.btn}
-        onPress={() =>
-          navigation.navigate("LabTabNavigation")
-        }
-      >
-        <Text style={styles.btnText}>Back to Home</Text>
-      </TouchableOpacity>
+      {/* ✅ BACK TO HOME BUTTON (ONLY ADDED PART) */}
+      <View style={styles.bottomContainer}>
+        <TouchableOpacity
+          style={styles.homeButton}
+          onPress={() => navigation.navigate("LabTabNavigation")}
+        >
+          <Ionicons name="home-outline" size={20} color="#FFFFFF" />
+          <Text style={styles.homeButtonText}>Back to Home</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* IMAGE MODAL */}
       <Modal visible={!!previewImage} transparent>
@@ -176,6 +168,25 @@ const PrescriptionTrackingScreen = () => {
           />
         </TouchableOpacity>
       </Modal>
+
+      {/* PDF MODAL */}
+      <Modal visible={!!previewPDF} animationType="slide">
+        <View style={styles.pdfModalContainer}>
+          <TouchableOpacity
+            style={styles.closeBtn}
+            onPress={() => setPreviewPDF(null)}
+          >
+            <Ionicons name="close" size={26} color="#111827" />
+          </TouchableOpacity>
+
+          <Pdf
+            source={{ uri: previewPDF }}
+            style={styles.pdf}
+            trustAllCerts={false}
+          />
+        </View>
+      </Modal>
+
     </View>
   );
 };
@@ -186,56 +197,47 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F7F9FC",
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
 
-  card: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 16,
-    marginTop: 20,
-  },
-
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    marginBottom: 12,
-  },
-
-  row: {
-    flexDirection: "row",
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 8,
+    backgroundColor: "#F7F9FC",
   },
 
-  rowText: {
-    marginLeft: 8,
-    fontSize: 14,
-    color: "#333",
-  },
-
-  viewAllBtn: {
-    marginTop: 10,
-    alignSelf: "flex-start",
-  },
-
-  viewAllText: {
-    color: "#056FD2",
-    fontWeight: "600",
-  },
-
-  previewSection: {
-    marginTop: 25,
-  },
-
-  previewTitle: {
-    fontSize: 16,
+  labName: {
+    fontSize: 20,
     fontWeight: "700",
-    marginBottom: 12,
+    color: "#111827",
+    marginBottom: 4,
+  },
+
+  labLocation: {
+    fontSize: 14,
+    color: "#6B7280",
+    marginBottom: 16,
+  },
+
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111827",
+    marginVertical: 15,
   },
 
   fileCard: {
-    marginBottom: 15,
+    backgroundColor: "#FFFFFF",
+    padding: 14,
+    borderRadius: 18,
+    marginBottom: 16,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
   },
 
   image: {
@@ -245,34 +247,45 @@ const styles = StyleSheet.create({
   },
 
   pdfBox: {
-    height: 150,
-    borderRadius: 16,
+    height: 170,
     backgroundColor: "#EAF4FF",
     justifyContent: "center",
     alignItems: "center",
-  },
-
-  pdfName: {
-    marginTop: 10,
-    fontWeight: "600",
-  },
-
-  btn: {
-    marginTop: 20,
-    backgroundColor: "#056FD2",
-    padding: 16,
     borderRadius: 16,
-    alignItems: "center",
   },
 
-  btnText: {
-    color: "#fff",
+  fileName: {
+    marginTop: 10,
+    fontSize: 13,
     fontWeight: "600",
+    color: "#374151",
+  },
+
+  /* ✅ ADDED BUTTON STYLES */
+  bottomContainer: {
+    padding: 20,
+    backgroundColor: "#F7F9FC",
+  },
+
+  homeButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#056FD2",
+    paddingVertical: 14,
+    borderRadius: 14,
+  },
+
+  homeButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 8,
   },
 
   modalContainer: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.9)",
+    backgroundColor: "rgba(0,0,0,0.95)",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -280,5 +293,21 @@ const styles = StyleSheet.create({
   fullImage: {
     width: "95%",
     height: "80%",
+    borderRadius: 14,
+  },
+
+  pdfModalContainer: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+  },
+
+  pdf: {
+    flex: 1,
+    width: "100%",
+  },
+
+  closeBtn: {
+    padding: 16,
+    alignSelf: "flex-end",
   },
 });
