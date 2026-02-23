@@ -16,16 +16,18 @@ const CartHeader = ({ labName }) => {
       </TouchableOpacity>
 
       <View style={{ alignItems: 'flex-start' }}>
-        <Text style={styles.title}>Your Cart</Text>
-        <Text
-          style={{
-            fontSize: scale(12),
-            color: COLORS.primary,
-            fontWeight: '500',
-          }}
-        >
-          Selected Lab {labName}
-        </Text>
+        <Text style={styles.title}>Cart</Text>
+        {labName && (
+          <Text
+            style={{
+              fontSize: scale(12),
+              color: COLORS.primary,
+              fontWeight: '500',
+            }}
+          >
+            Selected Lab {labName}
+          </Text>
+        )}
       </View>
     </View>
   );

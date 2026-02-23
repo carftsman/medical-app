@@ -17,6 +17,7 @@ import CartCouponBanner from '../components/CartCouponBanner';
 import CartFooter from '../components/CartFooter';
 import AddPatientModal from '../components/AddPatientModal';
 import useLabDetails from '../hooks/useLabDetails';
+import EmptyCart from '../components/EmptyCart';
 
 const LabsCartScreen = () => {
   const navigation = useNavigation();
@@ -132,22 +133,21 @@ const LabsCartScreen = () => {
     );
   }
 
-  if (!loading && !updatingCart && cartItems.length === 0) {
-    return (
-      <SafeAreaView
-        style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-      >
-        <Text>Your cart is empty</Text>
-      </SafeAreaView>
-    );
-  }
+  // if (!loading && !updatingCart && cartItems.length === 0) {
+  //   return (
+  //     <View style={{ flex: 1 }}>
+  //       <CartHeader />
+  //       <EmptyCart />
+  //     </View>
+  //   );
+  // }
 
   console.log('labId', labId);
 
   return (
     <>
       <View style={{ flex: 1, backgroundColor: COLORS.white }}>
-        <CartHeader labName={data?.name} />
+        <CartHeader labName={cartItems.length > 0 && data?.name} />
         <View
           style={{ marginHorizontal: scale(15), flex: 1, paddingVertical: 10 }}
         >
@@ -155,7 +155,10 @@ const LabsCartScreen = () => {
             data={cartItems}
             keyExtractor={item => item.id.toString()}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: verticalScale(120) }}
+            contentContainerStyle={{
+              flex: 1,
+              paddingBottom: verticalScale(120),
+            }}
             // ListHeaderComponent={<CartHeader />}
             renderItem={({ item }) => (
               <CartPatientCard
@@ -172,21 +175,26 @@ const LabsCartScreen = () => {
                 }}
               />
             )}
+            ListEmptyComponent={<EmptyCart />}
             ListFooterComponent={
-              <CartCouponBanner
-                discountAmount={discountAmount}
-                isApplied={couponApplied}
-                onApply={handleApplyCoupon}
-              />
+              cartItems.length > 0 ? (
+                <CartCouponBanner
+                  discountAmount={discountAmount}
+                  isApplied={couponApplied}
+                  onApply={handleApplyCoupon}
+                />
+              ) : null
             }
           />
         </View>
 
-        <CartFooter
-          totalAmount={totalAmount}
-          billSummary={billSummary}
-          onSelectSlots={() => navigation.navigate('AddAddress', { labId })}
-        />
+        {cartItems.length > 0 && (
+          <CartFooter
+            totalAmount={totalAmount}
+            billSummary={billSummary}
+            onSelectSlots={() => navigation.navigate('AddAddress', { labId })}
+          />
+        )}
       </View>
 
       <AddPatientModal

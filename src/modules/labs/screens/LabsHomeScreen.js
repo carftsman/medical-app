@@ -70,7 +70,10 @@ export default function LabsHomeScreen() {
                 />
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.iconBtn}>
+              <TouchableOpacity
+                style={styles.iconBtn}
+                onPress={() => navigation.navigate('Profile')}
+              >
                 <Ionicons
                   name="person-circle-outline"
                   size={scale(32)}
