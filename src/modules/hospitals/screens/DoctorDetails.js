@@ -11,9 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import Octicons from 'react-native-vector-icons/Octicons';
 import { scale, verticalScale } from '../../../utils/styling';
 import api from '../../../api/client';
 import DoctorsHospitalDetails from '../components/DoctorsHospitalDetails';
@@ -23,6 +21,7 @@ import DoctorReviews from '../components/DoctorReviews';
 import SlotBooking from '../components/SlotBooking';
 import BookConsultationModal from '../components/BookConsultationModal';
 import { useSelector, useDispatch } from 'react-redux';
+import { RefreshControl } from 'react-native';
 import {
   setConsultationType,
   setBookingId,
@@ -31,7 +30,8 @@ import {
 import Backbtn from '../components/Backbtn';
 
 const DoctorDetails = ({ route, navigation }) => {
-  const doctorId = route?.params?.doctorId || 1;
+  const doctorId = route?.params?.doctorId;
+
   const { selectedDate, selectedTime } = useSelector(
     state => state.hospital.consultation,
   );
@@ -43,20 +43,26 @@ const DoctorDetails = ({ route, navigation }) => {
   const [showModal, setShowModal] = useState(false);
   const [doctorDetails, setDoctorDetails] = useState({});
   const [dateSlots, setDateSlots] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
   const [timeSlots, setTimeSlots] = useState([]);
   const [hospitalDetails, setHospitalDetails] = useState({});
+  const [error, setError] = useState('');
 
   const hospitalId = doctorDetails?.hospital?.id;
+  console.log('ID', hospitalId);
 
-  const fetchDoctorDetails = async () => {
+  const fetchDoctorDetails = async (isRefresh = false) => {
     try {
-      setLoading(true);
+      isRefresh ? setRefreshing(true) : setLoading(true);
+
       const response = await api.get(`/hospital/user/doctors/${doctorId}`);
       setDoctorDetails(response?.data);
+      setError('');
     } catch (err) {
       console.log('Error fetching Doctor Details: ', err);
+      setError('Failed to refresh doctor details');
     } finally {
-      setLoading(false);
+      isRefresh ? setRefreshing(false) : setLoading(false);
     }
   };
 
@@ -71,9 +77,10 @@ const DoctorDetails = ({ route, navigation }) => {
     }
   };
 
-  const fetchDateSlots = async () => {
+  const fetchDateSlots = async (isRefresh = false) => {
     try {
-      setLoading(true);
+      isRefresh ? setRefreshing(true) : setLoading(true);
+
       const response = await api.get(`/appointments/availability`, {
         params: {
           doctorId,
@@ -81,10 +88,12 @@ const DoctorDetails = ({ route, navigation }) => {
       });
       setDateSlots(response?.data.days);
       dispatch(setDate(response?.data.days[0].date));
+      setError('');
     } catch (error) {
       console.log('Error fetching date slots: ', error);
+      setError('Failed to refresh slots');
     } finally {
-      setLoading(false);
+      isRefresh ? setRefreshing(false) : setLoading(false);
     }
   };
 
@@ -125,6 +134,12 @@ const DoctorDetails = ({ route, navigation }) => {
     }
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await Promise.all([fetchDoctorDetails(true), fetchDateSlots(true)]);
+    setRefreshing(false);
+  };
+
   useEffect(() => {
     fetchDoctorDetails();
     fetchDateSlots();
@@ -143,11 +158,17 @@ const DoctorDetails = ({ route, navigation }) => {
   }, [hospitalId]);
 
   const handleBookAppointment = () => {
+    // ❌ If no time slot selected, do nothing
+    if (!selectedTime) {
+      return;
+    }
+
+    // ✅ If time selected, allow booking
     setShowModal(true);
     dispatch(setConsultationType('SELF'));
   };
 
-  if (loading) {
+  if (loading || refreshing) {
     return (
       <View
         style={{
@@ -169,7 +190,16 @@ const DoctorDetails = ({ route, navigation }) => {
         <View style={{ width: scale(26) }}></View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#056FD2']}
+          />
+        }
+      >
         <DoctorInfo
           image={doctorDetails?.imageUrl}
           name={doctorDetails?.name}
@@ -235,6 +265,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: scale(20),
+    paddingTop: scale(10),
     backgroundColor: 'white',
   },
   screenHeader: {
