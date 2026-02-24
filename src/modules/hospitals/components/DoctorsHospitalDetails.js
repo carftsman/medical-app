@@ -5,9 +5,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { scale, verticalScale } from '../../../utils/styling';
 
-const DoctorsHospitalDetails = ({ image, name, place, latitude, longitude, days, startTime, endTime }) => {
+const DoctorsHospitalDetails = ({ image, name, place, latitude, longitude, distanceKm, rating, timings, days, startTime, endTime }) => {
 
-    const rating = 4.3;
     const hospitalRatingStars = Math.round(rating);
 
     const openGoogleMaps = () => {
@@ -40,7 +39,7 @@ const DoctorsHospitalDetails = ({ image, name, place, latitude, longitude, days,
                     <View style={styles.hospitalDetails}>
                         <Text style={styles.hospitalName}>{name}</Text>
                         <Text style={styles.hospitalLocation}>
-                            <Text><FontAwesome name="location-arrow" size={15} color="#056FD2" /> 2.4 kms </Text>
+                            <Text><FontAwesome name="location-arrow" size={15} color="#056FD2" /> {distanceKm || 2.4} kms </Text>
                             |
                             <Ionicons name="location-outline" size={15} color="#FF0000" /><Text> {place}</Text>
                         </Text>

@@ -39,6 +39,7 @@ const ProfileScreen = () => {
     fetchProfile();
   }, []);
 
+
   return (
     <View style={styles.container}>
       {/* <StatusBar barStyle="light-content" backgroundColor="#2D73B9" /> */}
