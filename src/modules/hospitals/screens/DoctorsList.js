@@ -168,6 +168,7 @@ const DoctorsList = () => {
         <Icon name="magnify" size={18} color="#999" />
         <TextInput
           placeholder="Search for Doctors"
+          placeholderTextColor={COLORS.gray}
           value={search}
           onChangeText={setSearch}
           style={styles.searchInput}

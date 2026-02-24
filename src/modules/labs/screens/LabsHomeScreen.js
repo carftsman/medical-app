@@ -36,6 +36,8 @@ export default function LabsHomeScreen() {
   const [uploadedList, setUploadedList] = useState([]);
   const [loadingUploads, setLoadingUploads] = useState(true);
 
+  const cartItems = useSelector(state => state.labsCart.items);
+
   /* ================= FETCH UPLOADS FROM API ================= */
 
   const fetchUploads = async () => {
