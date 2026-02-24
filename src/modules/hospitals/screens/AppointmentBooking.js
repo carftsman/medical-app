@@ -343,11 +343,11 @@ const AppointmentBooking = ({ route }) => {
       {/* MODAL */}
       <Modal transparent animationType="slide" visible={showModal}>
         <KeyboardAvoidingView
-          style={{ flex: 1 }}
+           style={styles.modalOverlay}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           keyboardVerticalOffset={Platform.OS === "ios" ? 40 : 0}
         >
-          <View style={styles.modalOverlay}>
+          <View>
             <ScrollView
               contentContainerStyle={styles.modalContent}
               keyboardShouldPersistTaps="handled"
