@@ -12,7 +12,7 @@ import {
   TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import api from '../../../api/client';
@@ -24,6 +24,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { debitCardSchema, upiSchema } from '../utils/PayValidation';
 import useAuth from '../../../hooks/useAuth';
+import { clearCart } from '../../labs/redux/labsCartSlice';
 
 const PAYMENT_MODES = [
   {
@@ -49,6 +50,7 @@ const PaymentScreen = ({ navigation, route }) => {
   const bookingId = useSelector(
     state => state.hospital?.consultation?.bookingId,
   );
+  const dispatch = useDispatch();
   const { user } = useAuth();
   const totalAmount = route?.params?.totalFee ?? 0;
   const women = route?.params?.women;
@@ -96,8 +98,11 @@ const PaymentScreen = ({ navigation, route }) => {
             screen: 'LabBookingSuccess',
             params: {
               booking: res.data.booking,
+              bookingIds: res.data.booking.bookingIds,
             },
           });
+
+          dispatch(clearCart());
         }
 
         return;

@@ -30,7 +30,7 @@ import {
 import Backbtn from '../components/Backbtn';
 
 const DoctorDetails = ({ route, navigation }) => {
-  const doctorId = route?.params?.doctorId;
+  const doctorId = route?.params?.doctorId || 1;
 
   const { selectedDate, selectedTime } = useSelector(
     state => state.hospital.consultation,
@@ -40,12 +40,14 @@ const DoctorDetails = ({ route, navigation }) => {
 
   const [loading, setLoading] = useState(true);
   const [timeSlotsLoading, setTimeSlotsLoading] = useState(false);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [doctorDetails, setDoctorDetails] = useState({});
   const [dateSlots, setDateSlots] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [timeSlots, setTimeSlots] = useState([]);
   const [hospitalDetails, setHospitalDetails] = useState({});
+  const [reviews, setReviews] = useState([]);
   const [error, setError] = useState('');
 
   const hospitalId = doctorDetails?.hospital?.id;
@@ -117,6 +119,26 @@ const DoctorDetails = ({ route, navigation }) => {
     }
   };
 
+  const fetchDoctorReviews = async () => {
+    try {
+      setReviewsLoading(true);
+      const response = await api.get(
+        `/hospital/user/doctors/${doctorId}/reviews`,
+        {
+          params: {
+            doctorId,
+          },
+        },
+      );
+
+      setReviews(response?.data?.reviews);
+    } catch (error) {
+      console.log('Reviews error: ', error);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
   const bookAppointmentForSelf = async () => {
     try {
       const response = await api.post(`/appointments/hold`, {
@@ -143,6 +165,9 @@ const DoctorDetails = ({ route, navigation }) => {
   useEffect(() => {
     fetchDoctorDetails();
     fetchDateSlots();
+    if (doctorId) {
+      fetchDoctorReviews();
+    }
   }, []);
 
   useEffect(() => {
@@ -185,7 +210,9 @@ const DoctorDetails = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.screenHeader}>
-        <Backbtn />
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <AntDesign name="left" size={22} color="black" />
+        </TouchableOpacity>
         <Text style={styles.screenHeaderText}>Doctor Info</Text>
         <View style={{ width: scale(26) }}></View>
       </View>
@@ -206,6 +233,8 @@ const DoctorDetails = ({ route, navigation }) => {
           specialization={doctorDetails?.specialization}
           experience={doctorDetails?.experience}
           rating={doctorDetails?.rating}
+          reviewCount={doctorDetails?.reviewCount}
+          patientsTreated={doctorDetails?.patientsTreated}
           consultationFee={doctorDetails?.consultationFee}
         />
 
@@ -227,13 +256,16 @@ const DoctorDetails = ({ route, navigation }) => {
           place={doctorDetails?.hospital?.place}
           latitude={doctorDetails?.hospital?.latitude}
           longitude={doctorDetails?.hospital?.longitude}
+          distanceKm={doctorDetails?.hospital?.distanceKm}
+          rating={doctorDetails?.hospital?.rating}
+          timings={doctorDetails?.hospital?.timings}
           days={hospitalDetails?.availability?.days}
           startTime={hospitalDetails?.availability?.startTime}
           endTime={hospitalDetails?.availability?.endTime}
           // distancekm={hospitalDetails?.distancekm}
         />
 
-        <DoctorReviews />
+        <DoctorReviews data={reviews} reviewsLoading={reviewsLoading} />
       </ScrollView>
 
       <View style={styles.bookAppointmentButtonCard}>
@@ -276,7 +308,7 @@ const styles = StyleSheet.create({
   screenHeaderText: {
     flex: 1,
     textAlign: 'center',
-    fontSize: scale(18),
+    fontSize: scale(20),
     fontWeight: '600',
   },
   bookAppointmentButtonCard: {

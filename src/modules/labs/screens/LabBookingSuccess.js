@@ -13,19 +13,25 @@ import { scale, verticalScale } from '../../../utils/styling';
 import { COLORS } from '../../../config/constants';
 import api from '../../../api/client';
 import { formatDate } from '../../../utils/helpers';
+import useAuth from '../../../hooks/useAuth';
 
 const LabBookingSuccess = () => {
   const navigation = useNavigation();
   const route = useRoute();
+  const { user } = useAuth();
 
   //   const { bookingId } = route.params || {};
 
   const bookingIds = route.params?.bookingIds || [21, 22];
+  const bookingDetails = route.params?.booking;
+
+  console.log('Booking Details', bookingDetails);
 
   const bookingId = bookingIds[0];
 
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [address, setAddress] = useState({});
 
   const PHONE_NUMBER = '9876543210';
   const handleCallPress = () => {
@@ -35,6 +41,7 @@ const LabBookingSuccess = () => {
   useEffect(() => {
     if (bookingId) {
       fetchBookingDetails();
+      fetchDefaultAddress();
     } else {
       setLoading(false);
     }
@@ -53,6 +60,21 @@ const LabBookingSuccess = () => {
     }
   };
 
+  const fetchDefaultAddress = async () => {
+    try {
+      const response = await api.get(`/labs/address`, {
+        params: {
+          userId: user.id,
+        },
+      });
+      if (response.status) {
+        setAddress(response.data.defaultAddress);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
@@ -61,6 +83,9 @@ const LabBookingSuccess = () => {
     );
   }
 
+  console.log('bookingIds', bookingIds);
+  console.log('booking details', booking);
+  console.log(address);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -84,18 +109,24 @@ const LabBookingSuccess = () => {
 
       <View style={styles.card}>
         <Text style={styles.sectionLabel}>SELECTED LAB</Text>
-        <Text style={styles.labName}>{booking.labName}</Text>
+        <Text style={styles.labName}>{bookingDetails.labName}</Text>
 
         <View style={styles.divider} />
 
+        <Text style={styles.sectionLabel}>APPOINTMENT AT</Text>
         {booking.date && (
-          <Text style={styles.infoText}>{formatDate(booking.date)}</Text>
+          <Text style={styles.infoText}>{formatDate(bookingDetails.date)}</Text>
         )}
+
+        <Text style={styles.infoText}>{bookingDetails.time}</Text>
 
         <View style={{ height: 16 }} />
 
         <Text style={styles.infoText}>Home sample collection</Text>
-        <Text style={styles.subInfo}>{booking.address}</Text>
+        <Text style={styles.subInfo}>
+          {address.house}, {address.street}, {address.landmark}, {address.city},{' '}
+          {address.state}, {address.pinCode}
+        </Text>
       </View>
 
       <TouchableOpacity
@@ -145,9 +176,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   successCircle: {
-    width: 90,
+    width: scale(90),
     height: verticalScale(90),
-    borderRadius: 45,
+    borderRadius: 50,
     backgroundColor: COLORS.primary,
     alignSelf: 'center',
     justifyContent: 'center',
