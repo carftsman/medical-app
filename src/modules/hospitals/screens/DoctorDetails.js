@@ -18,7 +18,7 @@ import { setConsultationType, setBookingId, setDate } from '../redux/slices/Book
 
 const DoctorDetails = ({ route, navigation }) => {
 
-  const doctorId = route?.params?.doctorId;
+  const doctorId = route?.params?.doctorId || 1;
 
   const { selectedDate, selectedTime } = useSelector(
     state => state.hospital.consultation
