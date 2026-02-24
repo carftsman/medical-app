@@ -23,15 +23,16 @@ import PrescriptionSuccessScreen from "../screens/PrescriptionSuccessScreen";
 import PrescriptionTrackingScreen from "../screens/PrescriptionTrackingScreen";
 import PrescriptionListScreen from '../screens/PrescriptionListScreen';
 import SelectSlotScreen from "../screens/SelectSlotScreen";
+import InvoiceScreen from '../screens/InvoiceScreen';
 
 const LabStackNavigation = () => {
   const Stack = createNativeStackNavigator();
   return (
-    <LabCartProvider>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
         }}
+        // initialRouteName='InvoiceScreen'
       >
         <Stack.Screen name="LabTabNavigation" component={LabTabNavigation} />
         <Stack.Screen name="SearchScreen" component={LabsSearchScreen} />
@@ -61,6 +62,7 @@ const LabStackNavigation = () => {
         name="PrescriptionList"
         component={PrescriptionListScreen}
     />
+        <Stack.Screen name="InvoiceScreen" component={InvoiceScreen} />
         <Stack.Screen name="LabsScreen" component={LabsScreen} />
         <Stack.Screen name="LabDetails" component={LabDetailsScreen} />
         <Stack.Screen name="PackagesScreen" component={PackagesScreen} />
@@ -77,7 +79,7 @@ const LabStackNavigation = () => {
           component={LabFeedbackSuccessScreen}
         />
       </Stack.Navigator>
-    </LabCartProvider>
+   
   );
 };
 
