@@ -17,12 +17,13 @@ import ReportsTab from '../screens/ReportsTab';
 import ReportDetailsScreen from '../screens/ReportDetailsScreen';
 import LabFeedbackScreen from '../screens/LabFeedback';
 import LabFeedbackSuccessScreen from '../screens/LabFeedbackSuccessScreen';
-import  {LabCartProvider} from '../context/LabCartContext';
+import { LabCartProvider } from '../context/LabCartContext';
 import ReviewPrescriptionScreen from "../screens/ReviewPrescriptionScreen";
 import PrescriptionSuccessScreen from "../screens/PrescriptionSuccessScreen";
 import PrescriptionTrackingScreen from "../screens/PrescriptionTrackingScreen";
 import PrescriptionListScreen from '../screens/PrescriptionListScreen';
 import SelectSlotScreen from "../screens/SelectSlotScreen";
+import LabBookingSuccess from "../screens/LabBookingSuccess";
 import InvoiceScreen from '../screens/InvoiceScreen';
 
 const LabStackNavigation = () => {
@@ -33,6 +34,7 @@ const LabStackNavigation = () => {
           headerShown: false,
         }}
         // initialRouteName='InvoiceScreen'
+        initialRouteName='LabBookingSuccess'
       >
         <Stack.Screen name="LabTabNavigation" component={LabTabNavigation} />
         <Stack.Screen name="SearchScreen" component={LabsSearchScreen} />
@@ -45,24 +47,23 @@ const LabStackNavigation = () => {
           component={PrescriptionPreviewScreen}
         />
         <Stack.Screen
-        name="ReviewPrescription"
-        component={ReviewPrescriptionScreen}
-       />
+          name="ReviewPrescription"
+          component={ReviewPrescriptionScreen}
+        />
 
-    <Stack.Screen
-     name="PrescriptionSuccess"
-     component={PrescriptionSuccessScreen}
-    />
+        <Stack.Screen
+          name="PrescriptionSuccess"
+          component={PrescriptionSuccessScreen}
+        />
 
-   <Stack.Screen
-    name="PrescriptionTracking"
-    component={PrescriptionTrackingScreen}
-  />
-   <Stack.Screen
-        name="PrescriptionList"
-        component={PrescriptionListScreen}
-    />
-        <Stack.Screen name="InvoiceScreen" component={InvoiceScreen} />
+        <Stack.Screen
+          name="PrescriptionTracking"
+          component={PrescriptionTrackingScreen}
+        />
+        <Stack.Screen
+          name="PrescriptionList"
+          component={PrescriptionListScreen}
+        />
         <Stack.Screen name="LabsScreen" component={LabsScreen} />
         <Stack.Screen name="LabDetails" component={LabDetailsScreen} />
         <Stack.Screen name="PackagesScreen" component={PackagesScreen} />
@@ -74,10 +75,9 @@ const LabStackNavigation = () => {
         <Stack.Screen name="ReportsTab" component={ReportsTab} />
         <Stack.Screen name="ReportDetails" component={ReportDetailsScreen} />
         <Stack.Screen name="Feedback" component={LabFeedbackScreen} />
-        <Stack.Screen
-          name="LabFeedbackSuccess"
-          component={LabFeedbackSuccessScreen}
-        />
+        <Stack.Screen name="LabFeedbackSuccess" component={LabFeedbackSuccessScreen} />
+        <Stack.Screen name="LabBookingSuccess" component={LabBookingSuccess} />
+        <Stack.Screen name='InvoiceScreen' component={InvoiceScreen} />
       </Stack.Navigator>
    
   );

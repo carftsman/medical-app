@@ -107,7 +107,7 @@ const LabsListScreen = () => {
         </View>
       </View>
 
-      {/* ✅ ONLY THIS PART MODIFIED (Added files + isUploadFlow) */}
+ {/* ✅ PASS SELECTED LAB PROPERLY */}
       <TouchableOpacity
         style={styles.button}
         onPress={() =>
@@ -116,6 +116,13 @@ const LabsListScreen = () => {
             categoryId: categoryId,
             files: uploadedFiles,
             isUploadFlow: isUploadFlow,
+            selectedLab: {
+              id: item.id,
+              name: item.name,
+              city: item.city,
+              address: item.address,
+              location: item.location,
+            },
           })
         }
       >
