@@ -23,23 +23,36 @@ const RecentlyViewedTests = () => {
     try {
       setLoading(true);
 
-      const response = await api.get(
-        "/labs/tests/recent?userId=21&limit=5"
-      );
+      const response = await api.get("/labs/tests/recent", {
+        params: {
+          limit: 5,
+        },
+      });
 
-      const tests = response?.data?.tests || [];
+      console.log(
+        "Recent Tests API Response:",
+        JSON.stringify(response?.data, null, 2)
+      );
+      const tests =
+        response?.data?.data?.tests ||
+        response?.data?.tests ||
+        [];
 
       const formattedData = tests.map((item) => ({
-        id: item.testId.toString(),
-        name: item.testName,
-        type: item.labName,
-        price: `₹${item.price}`,
-        icon: item.imageUrl, // ✅ from backend
+        id: item?.testId?.toString(),
+        name: item?.testName || "Test Name",
+        type: item?.labName || "Lab Name",
+        price: `₹${item?.price || 0}`,
+        icon: null,
       }));
 
       setRecentTests(formattedData);
     } catch (error) {
-      console.log("Recent Tests API Error:", error);
+      console.log(
+        "Recent Tests API Error:",
+        error?.response?.data || error.message
+      );
+      setRecentTests([]);
     } finally {
       setLoading(false);
     }
@@ -56,7 +69,10 @@ const RecentlyViewedTests = () => {
       >
         {loading
           ? Array.from({ length: SKELETON_COUNT }).map((_, index) => (
-              <View style={[styles.card, styles.skeletonCard]} key={index}>
+              <View
+                style={[styles.card, styles.skeletonCard]}
+                key={index}
+              >
                 <View style={styles.skeletonIcon} />
                 <View style={styles.skeletonTextContainer}>
                   <View style={styles.skeletonLineShort} />
@@ -65,6 +81,12 @@ const RecentlyViewedTests = () => {
                 <View style={styles.skeletonPrice} />
               </View>
             ))
+          : recentTests.length === 0
+          ? (
+            <Text style={styles.noDataText}>
+              No recent bookings found
+            </Text>
+          )
           : recentTests.map((item) => (
               <View style={styles.card} key={item.id}>
                 <View style={styles.iconBox}>
@@ -80,10 +102,14 @@ const RecentlyViewedTests = () => {
                   <Text style={styles.name} numberOfLines={1}>
                     {item.name}
                   </Text>
-                  <Text style={styles.type}>{item.type}</Text>
+                  <Text style={styles.type}>
+                    {item.type}
+                  </Text>
                 </View>
 
-                <Text style={styles.price}>{item.price}</Text>
+                <Text style={styles.price}>
+                  {item.price}
+                </Text>
               </View>
             ))}
       </ScrollView>
@@ -93,7 +119,8 @@ const RecentlyViewedTests = () => {
 
 export default RecentlyViewedTests;
 
-/* STYLES */
+/*STYLES */
+
 const styles = StyleSheet.create({
   container: {
     marginTop: verticalScale(22),
@@ -167,7 +194,13 @@ const styles = StyleSheet.create({
     color: "#056FD2",
   },
 
-  /* Skeleton styles */
+  noDataText: {
+    fontSize: scale(12),
+    color: "#777",
+    paddingHorizontal: scale(16),
+  },
+
+  /* Skeleton */
 
   skeletonCard: {
     backgroundColor: "#F2F4F7",

@@ -187,7 +187,7 @@ export default function LabsHomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* ================= RECENT UPLOAD SECTION ================= */}
+          {/* RECENT UPLOAD SECTION  */}
           {loadingUploads ? (
             <ActivityIndicator
               size="small"
@@ -243,7 +243,7 @@ export default function LabsHomeScreen() {
             </View>
           ) : null}
 
-          {/* ================= REST UI ================= */}
+          {/*  REST UI  */}
 
           <View style={styles.bannerWrapper}>
             <TouchableOpacity activeOpacity={0.9}>
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5FAFF",
   },
 
-  /* ================= HEADER ================= */
+  /*  HEADER  */
 
   header: {
     paddingHorizontal: scale(16),
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
     color: "#9AA5B1",
   },
 
-  /* ================= BODY ================= */
+  /* BODY  */
 
   body: {
     paddingHorizontal: scale(18),
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
     paddingBottom: verticalScale(30),
   },
 
-  /* ================= ACTION CARDS ================= */
+  /*ACTION CARDS */
 
   sideBySideRow: {
     flexDirection: "row",
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
     color: "#666",
   },
 
-  /* ================= RECENT UPLOAD ================= */
+  /*RECENT UPLOAD  */
 
   recentHeader: {
     flexDirection: "row",
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(2),
   },
 
-  /* ================= BANNER ================= */
+  /* BANNER*/
 
   bannerWrapper: {
     marginTop: verticalScale(14),
