@@ -7,11 +7,12 @@ import {
   ScrollView,
   ImageBackground,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { scale, verticalScale } from '../../../utils/styling';
 
 import LocationHeader from '../../../components/LocationHeader';
@@ -26,26 +27,58 @@ import CertifiedLabs from '../components/CertifiedLabs';
 import { useSelector } from 'react-redux';
 import { COLORS } from '../../../config/constants';
 
+import { getUserPrescriptions } from '../services/prescriptionApi';
+
 export default function LabsHomeScreen() {
+  const navigation = useNavigation();
+
   const [refreshing, setRefreshing] = useState(false);
   const [uploadedList, setUploadedList] = useState([]);
+  const [loadingUploads, setLoadingUploads] = useState(true);
 
-  const navigation = useNavigation();
-  const route = useRoute();
-  const cartItems = useSelector(state => state.labsCart.items);
+  /* ================= FETCH UPLOADS FROM API ================= */
 
-  /* ================= RECEIVE NEW UPLOAD ================= */
-  useEffect(() => {
-    if (route?.params?.newUpload) {
-      setUploadedList(prev => [route.params.newUpload, ...prev]);
+  const fetchUploads = async () => {
+    try {
+      const response = await getUserPrescriptions();
+      let data = response?.data?.data;
+
+      let formatted = [];
+
+      // ✅ Handle single object or array
+      if (Array.isArray(data)) {
+        formatted = data;
+      } else if (data?.groupId) {
+        formatted = [data];
+      }
+
+      // Sort latest first
+      const sorted = formatted.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+      );
+
+      setUploadedList(sorted);
+    } catch (error) {
+      console.log('Home Upload Fetch Error:', error);
+    } finally {
+      setLoadingUploads(false);
+      setRefreshing(false);
     }
-  }, [route?.params?.newUpload]);
+  };
+
+  useEffect(() => {
+    fetchUploads();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchUploads();
+    }, []),
+  );
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1500);
+    fetchUploads();
   }, []);
 
   return (
@@ -83,7 +116,6 @@ export default function LabsHomeScreen() {
             </View>
           </View>
 
-          {/* SEARCH */}
           <View style={styles.searchRow}>
             <TouchableOpacity
               activeOpacity={0.8}
@@ -178,32 +210,31 @@ export default function LabsHomeScreen() {
           </View>
 
           {/* ================= RECENT UPLOAD SECTION ================= */}
-          {uploadedList.length > 0 && (
+          {loadingUploads ? (
+            <ActivityIndicator
+              size="small"
+              color="#056FD2"
+              style={{ marginTop: 20 }}
+            />
+          ) : uploadedList.length > 0 ? (
             <View style={{ marginTop: verticalScale(20) }}>
               <View style={styles.recentHeader}>
                 <Text style={styles.recentTitle}>Recent Appointments</Text>
 
                 <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate('PrescriptionList', {
-                      uploads: uploadedList,
-                    })
-                  }
+                  onPress={() => navigation.navigate('PrescriptionList')}
                 >
                   <Text style={styles.viewAll}>View All</Text>
                 </TouchableOpacity>
               </View>
 
-              {uploadedList.map((item, index) => (
+              {uploadedList.slice(0, 3).map(item => (
                 <TouchableOpacity
-                  key={index}
+                  key={item.groupId}
                   style={styles.recentCard}
                   onPress={() =>
                     navigation.navigate('PrescriptionTracking', {
-                      uploadId: item.id,
-                      fileCount: item.fileCount,
-                      labName: item.labName,
-                      files: item.files,
+                      groupId: item.groupId,
                     })
                   }
                 >
@@ -216,15 +247,21 @@ export default function LabsHomeScreen() {
                   </View>
 
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.refText}>#{item.id}</Text>
-                    <Text style={styles.statusText}>{item.status}</Text>
+                    <Text style={styles.refText}>
+                      #{item.groupId.slice(0, 8)}
+                    </Text>
+
+                    <Text style={styles.statusText}>
+                      {item.files?.length || 0} file(s) uploaded
+                    </Text>
                   </View>
                 </TouchableOpacity>
               ))}
             </View>
-          )}
+          ) : null}
 
-          {/* ================= BANNER ================= */}
+          {/* ================= REST UI ================= */}
+
           <View style={styles.bannerWrapper}>
             <TouchableOpacity activeOpacity={0.9}>
               <ImageBackground
@@ -237,8 +274,7 @@ export default function LabsHomeScreen() {
                   <Text style={styles.bannerTitleBold}>the new variant</Text>
 
                   <Text style={styles.bannerDesc}>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    diam nonummy nibh euismod tincidunt.
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                   </Text>
 
                   <View style={styles.infoChip}>
@@ -256,16 +292,23 @@ export default function LabsHomeScreen() {
           <CertifiedLabs />
         </ScrollView>
 
-        {/* SOS */}
         <SosButton />
       </View>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#1E63F2' },
-  container: { flex: 1, backgroundColor: '#F5FAFF' },
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#1E63F2',
+  },
+
+  container: {
+    flex: 1,
+    backgroundColor: '#F5FAFF',
+  },
+
+  /* ================= HEADER ================= */
 
   header: {
     paddingHorizontal: scale(16),
@@ -279,8 +322,13 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(16),
   },
 
-  rightIcons: { flexDirection: 'row' },
-  iconBtn: { marginLeft: scale(14) },
+  rightIcons: {
+    flexDirection: 'row',
+  },
+
+  iconBtn: {
+    marginLeft: scale(14),
+  },
 
   searchRow: {
     flexDirection: 'row',
@@ -298,7 +346,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  cartRight: { marginLeft: scale(12) },
+  cartRight: {
+    marginLeft: scale(12),
+  },
 
   searchPlaceholder: {
     marginLeft: scale(10),
@@ -306,41 +356,62 @@ const styles = StyleSheet.create({
     color: '#9AA5B1',
   },
 
+  /* ================= BODY ================= */
+
   body: {
     paddingHorizontal: scale(18),
     paddingTop: verticalScale(18),
+    paddingBottom: verticalScale(30),
   },
 
-  sideBySideRow: { flexDirection: 'row' },
+  /* ================= ACTION CARDS ================= */
+
+  sideBySideRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
 
   sideCard: {
     flex: 1,
-    backgroundColor: '#dce5f7',
-    borderRadius: scale(12),
+    backgroundColor: '#DCE5F7',
+    borderRadius: scale(14),
     paddingVertical: verticalScale(22),
     paddingHorizontal: scale(12),
     minHeight: verticalScale(72),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginLeft: scale(10),
   },
 
-  sideLeft: { flexDirection: 'row', alignItems: 'center' },
+  sideLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 
   docIconBox: {
     width: scale(36),
     height: scale(36),
-    borderRadius: scale(8),
-    backgroundColor: '#b1cef8',
+    borderRadius: scale(10),
+    backgroundColor: '#B1CEF8',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: scale(8),
   },
 
-  cardTitle: { fontSize: scale(13), fontWeight: '600', color: '#222' },
-  cardSub: { fontSize: scale(11), color: '#666' },
+  cardTitle: {
+    fontSize: scale(13),
+    fontWeight: '600',
+    color: '#222',
+  },
 
-  /* Recent Section */
+  cardSub: {
+    fontSize: scale(11),
+    color: '#666',
+  },
+
+  /* ================= RECENT UPLOAD ================= */
+
   recentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -366,14 +437,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F6FF',
     paddingVertical: verticalScale(14),
     paddingHorizontal: scale(14),
-    borderRadius: scale(14),
+    borderRadius: scale(16),
     marginBottom: verticalScale(10),
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 2,
   },
 
   recentIcon: {
     width: scale(38),
     height: scale(38),
-    borderRadius: scale(10),
+    borderRadius: scale(12),
     backgroundColor: '#DCE9FF',
     justifyContent: 'center',
     alignItems: 'center',
@@ -392,7 +467,11 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(2),
   },
 
-  bannerWrapper: { marginTop: verticalScale(14) },
+  /* ================= BANNER ================= */
+
+  bannerWrapper: {
+    marginTop: verticalScale(14),
+  },
 
   bannerImage: {
     width: '100%',
@@ -402,11 +481,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  bannerImageRadius: { borderRadius: scale(16) },
-  bannerContent: { width: '65%', paddingLeft: scale(8) },
+  bannerImageRadius: {
+    borderRadius: scale(16),
+  },
 
-  bannerTitle: { fontSize: scale(16), fontWeight: '800', color: '#7A8799' },
-  bannerTitleBold: { fontSize: scale(16), fontWeight: '800', color: '#5F6F85' },
+  bannerContent: {
+    width: '65%',
+    paddingLeft: scale(8),
+  },
+
+  bannerTitle: {
+    fontSize: scale(16),
+    fontWeight: '800',
+    color: '#7A8799',
+  },
+
+  bannerTitleBold: {
+    fontSize: scale(16),
+    fontWeight: '800',
+    color: '#5F6F85',
+  },
 
   bannerDesc: {
     fontSize: scale(11),
@@ -424,5 +518,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(242,109,109,0.08)',
   },
 
-  infoText: { fontSize: scale(11), fontWeight: '700', color: '#F26D6D' },
+  infoText: {
+    fontSize: scale(11),
+    fontWeight: '700',
+    color: '#F26D6D',
+  },
 });
