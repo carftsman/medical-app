@@ -39,6 +39,7 @@ const ProfileScreen = () => {
     fetchProfile();
   }, []);
 
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#2D73B9" />
@@ -75,15 +76,15 @@ const ProfileScreen = () => {
 
           <View style={styles.info}>
             <Text style={styles.name}>
-              {profile?.fullName || 'Sravani'}
+              {profile?.fullName || ''}
             </Text>
 
             <Text style={styles.phone}>
-              {profile?.phone || '+91 84749 87488'}
+              {profile?.phone || ''}
             </Text>
 
             <Text style={styles.email}>
-              {profile?.email || 'Sravani.k@gmail.com'}
+              {profile?.email || ''}
             </Text>
           </View>
         </View>
