@@ -4,7 +4,7 @@ import React from 'react'
 const InvoiceScreen = () => {
   return (
     <View>
-      <Text>ReviewCart</Text>
+      <Text>InvoiceScreen</Text>
     </View>
   )
 }
