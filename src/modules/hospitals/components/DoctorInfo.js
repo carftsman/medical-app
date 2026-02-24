@@ -5,7 +5,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import { scale, verticalScale } from '../../../utils/styling';
 
-const DoctorInfo = ({ image, name, specialization, experience, rating, consultationFee }) => {
+const DoctorInfo = ({ image, name, specialization, experience, rating, reviewCount, patientsTreated, consultationFee }) => {
     return (
         <View>
             <View style={styles.doctorDetailsCard} >
@@ -30,7 +30,7 @@ const DoctorInfo = ({ image, name, specialization, experience, rating, consultat
                         ))}
                         <Text>
                             <Text style={{ fontWeight: 'bold' }}> {rating}</Text>
-                            <Text> (100 reviews)</Text>
+                            <Text> ({reviewCount} reviews)</Text>
                         </Text>
                     </View>
                 </View>
@@ -43,7 +43,7 @@ const DoctorInfo = ({ image, name, specialization, experience, rating, consultat
                     <View>
                         <Text style={styles.statText} >Treated
                             <Text style={{ color: '#056FD2', fontWeight: '600' }}
-                            > 2800
+                            > {patientsTreated}
                             </Text>
                         </Text>
                         <Text style={styles.statText} >Patients</Text>
