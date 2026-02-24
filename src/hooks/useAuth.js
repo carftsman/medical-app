@@ -3,6 +3,7 @@ import {
   logOut,
   setIsAuthenticated,
   setToken,
+  setUser,
 } from '../redux/slices/authSlice';
 
 const useAuth = () => {
@@ -18,6 +19,10 @@ const useAuth = () => {
     dispatch(setIsAuthenticated(payload));
   };
 
+  const handleSetUser = user => {
+    dispatch(setUser(user));
+  };
+
   const handleLogout = () => {
     dispatch(logOut());
   };
@@ -27,6 +32,7 @@ const useAuth = () => {
     handleLogout,
     handleSaveToken,
     handleAuthState,
+    handleSetUser,
   };
 };
 

@@ -24,7 +24,7 @@ const SlotBookingWomen = ({ dates, times, timeSlotsLoading }) => {
                     justifyContent: 'center',
                     height: scale(200),
                 }}>
-                    <ActivityIndicator size={'large'} color={'#056FD2'} />
+                    <ActivityIndicator size={'large'} color={'#F47FBB'} />
                 </View>
             );
         }
@@ -92,14 +92,12 @@ const SlotBookingWomen = ({ dates, times, timeSlotsLoading }) => {
                     return (
                         <TouchableOpacity
                             key={item.date}
-                            disabled={isDisabled}
                             onPress={() => {
                                 dispatch(setDate(item.date));
                             }}
                             style={[
                                 styles.slotsCard,
-                                selectedDate === item.date && !isDisabled && styles.selectedCard,
-                                isDisabled && styles.disabledCard,
+                                selectedDate === item.date && styles.selectedCard,
                             ]}
                         >
                             <Text style={[

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Alert } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform } from "react-native";
 
 import {
   StyleSheet,
@@ -13,6 +13,7 @@ import {
 } from "react-native";
 
 import Ionicons from "react-native-vector-icons/Ionicons";
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation } from "@react-navigation/native";
 
@@ -60,6 +61,7 @@ const AppointmentBooking = ({ route }) => {
     resolver: zodResolver(patientSchema),
     defaultValues: {
       name: "",
+      gender: "",
       mobile: "",
       email: "",
       reason: "",
@@ -70,25 +72,26 @@ const AppointmentBooking = ({ route }) => {
 
   /*  FETCH DOCTOR */
   useEffect(() => {
-  const fetchDoctor = async () => {
-    try {
-      if (!doctorId) return;
+    const fetchDoctor = async () => {
+      try {
+        if (!doctorId) return;
 
-      const res = await api.get(
-        `/hospital/user/doctors/${doctorId}`
-      );
+        const res = await api.get(
+          `/hospital/user/doctors/${doctorId}`
+        );
 
-      setDoctor(res?.data);
-    } catch (error) {
-      console.log("Doctor fetch error", error);
-    }
-  };
+        setDoctor(res?.data);
+      } catch (error) {
+        console.log("Doctor fetch error", error);
+      }
+    };
 
-  fetchDoctor();
-}, [doctorId]);
+    fetchDoctor();
+  }, [doctorId]);
 
   /*  SAVE PATIENT  */
   const onSubmit = data => {
+    console.log("Patient DATAAA: ", data);
     if (editingIndex !== null) {
       const updated = [...patients];
       updated[editingIndex] = data;
@@ -125,6 +128,7 @@ const AppointmentBooking = ({ route }) => {
         reason: patient.reason,
         patient: {
           fullName: patient.name,
+          gender: patient.gender,
           phone: patient.mobile,
           email: patient.email,
           dob: formattedDob,
@@ -142,45 +146,46 @@ const AppointmentBooking = ({ route }) => {
       navigation.navigate("BookingDetails", { bookingId });
 
       console.log("Hold appointment success:", res.data);
-    }catch (error) {
-  if (error?.response?.status === 409) {
-    Alert.alert(
+    } catch (error) {
+      if (error?.response?.status === 409) {
+        Alert.alert(
 
-      "Slot Unavailable",
-      "This slot is no longer available. Please select another time."
-    );
-  } else {
-    Alert.alert(
-      "Error",
-      "Something went wrong. Please try again."
-    );
-  }
+          "Slot Unavailable",
+          "This slot is no longer available. Please select another time."
+        );
+      } else {
+        Alert.alert(
+          "Error",
+          "Something went wrong. Please try again."
+        );
+        console.log("ERRORR: ", error);
+      }
     }
- };
+  };
   return (
     <View style={styles.container}>
       {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity
-  style={styles.backBtn}
-  onPress={() => navigation.goBack()}
->
-  <Text style={styles.backIcon}>‹</Text>
-</TouchableOpacity>
+          style={styles.backBtn}
+          onPress={() => navigation.goBack()}
+        >
+          <AntDesign name="left" size={24} color="black" />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Book an Appointment</Text>
         <View style={{ width: 20 }} />
       </View>
 
       {/* DOCTOR CARD */}
       <View style={styles.doctorCard}>
-       <Image
-  source={
-    doctor?.imageUrl
-      ? { uri: doctor.imageUrl }
-      : require("../../../../assets/Doctor.jpg") 
-  }
-  style={styles.doctorImg}
-/>
+        <Image
+          source={
+            doctor?.imageUrl
+              ? { uri: doctor.imageUrl }
+              : require("../../../../assets/Doctor.jpg")
+          }
+          style={styles.doctorImg}
+        />
         <View style={{ flex: 1 }}>
           <Text style={styles.doctorName}>{doctor?.name}</Text>
           <Text style={styles.specialization}>
@@ -255,13 +260,17 @@ const AppointmentBooking = ({ route }) => {
                   },
                 ]}
               >
-                <View style={styles.patientRow}>
+                <TouchableOpacity
+                  style={styles.patientRow}
+                  onPress={() => setSelectedIndex(index)}
+                >
                   <View style={styles.avatar}>
                     <Ionicons name="person-outline" size={22} color="#fff" />
                   </View>
 
                   <View style={{ flex: 1 }}>
                     <Text style={styles.patientName}>{item.name}</Text>
+                    <Text style={styles.patientInfo}>{item.gender}</Text>
                     <Text style={styles.patientInfo}>+91 {item.mobile}</Text>
                     <Text style={styles.patientInfo}>{item.email}</Text>
                   </View>
@@ -277,7 +286,7 @@ const AppointmentBooking = ({ route }) => {
                       color={COLORS.primary}
                     />
                   </TouchableOpacity>
-                </View>
+                </TouchableOpacity>
               </View>
 
               <View style={styles.patientActions}>
@@ -333,113 +342,174 @@ const AppointmentBooking = ({ route }) => {
 
       {/* MODAL */}
       <Modal transparent animationType="slide" visible={showModal}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Add New Patient</Text>
+        <KeyboardAvoidingView
+           style={styles.modalOverlay}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 40 : 0}
+        >
+          <View>
+            <ScrollView
+              contentContainerStyle={styles.modalContent}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Add New Patient</Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    setShowDatePicker(false);
+                    setShowModal(false);
+                  }}
+                >
+                  <Text style={styles.closeText}>✕</Text>
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.inputLabel}>Patient Name</Text>
+              <Controller
+                control={control}
+                name="name"
+                render={({ field: { value, onChange } }) => (
+                  <TextInput
+                    value={value}
+                    style={styles.input}
+                    placeholder="Enter Patient Name"
+                    placeholderTextColor="#9CA3AF"
+                    onChangeText={onChange}
+                  />
+                )}
+              />
+              {errors.name && (
+                <Text style={styles.error}>{errors.name.message}</Text>
+              )}
+
+              <Text style={styles.inputLabel}>Gender</Text>
+
+              <Controller
+                control={control}
+                name="gender"
+                render={({ field: { value, onChange } }) => (
+                  <View style={styles.genderRow}>
+
+                    {/* WOMEN */}
+                    <TouchableOpacity
+                      style={styles.genderOption}
+                      onPress={() => onChange("FEMALE")}
+                    >
+                      <View style={styles.outerCircle}>
+                        {value === "FEMALE" && <View style={styles.innerCircle} />}
+                      </View>
+                      <Text style={styles.genderText}>Women</Text>
+                    </TouchableOpacity>
+
+                    {/* MEN (Disabled but same layout) */}
+                    <TouchableOpacity
+                      style={styles.genderOption}
+                      onPress={() => onChange("MALE")}
+                    >
+                      <View style={styles.outerCircle}>
+                        {value === "MALE" && <View style={styles.innerCircle} />}
+                      </View>
+                      <Text style={styles.genderText}>Men</Text>
+                    </TouchableOpacity>
+
+                    {/* OTHERS (Disabled but same layout) */}
+                    <TouchableOpacity
+                      style={styles.genderOption}
+                      onPress={() => onChange("OTHERS")}
+                    >
+                      <View style={styles.outerCircle}>
+                        {value === "OTHERS" && <View style={styles.innerCircle} />}
+                      </View>
+                      <Text style={styles.genderText}>Others</Text>
+                    </TouchableOpacity>
+
+                  </View>
+
+
+                )}
+              />
+
+              {errors.gender && (
+                <Text style={styles.error}>{errors.gender.message}</Text>
+              )}
+
+
+              <Text style={styles.inputLabel}>Mobile Number</Text>
+              <Controller
+                control={control}
+                name="mobile"
+                render={({ field: { value, onChange } }) => (
+                  <TextInput
+                    value={value}
+                    keyboardType="number-pad"
+                    style={styles.input}
+                    placeholder="Enter Mobile Number"
+                    placeholderTextColor="#9CA3AF"
+                    onChangeText={onChange}
+                  />
+                )}
+              />
+              {errors.mobile && (
+                <Text style={styles.error}>{errors.mobile.message}</Text>
+              )}
+
+              <Text style={styles.inputLabel}>Email ID</Text>
+              <Controller
+                control={control}
+                name="email"
+                render={({ field: { value, onChange } }) => (
+                  <TextInput
+                    value={value}
+                    style={styles.input}
+                    placeholder="Enter Email ID"
+                    placeholderTextColor="#9CA3AF"
+                    onChangeText={onChange}
+                  />
+                )}
+              />
+              {errors.email && (
+                <Text style={styles.error}>{errors.email.message}</Text>
+              )}
+
+              <Text style={styles.inputLabel}>Reason</Text>
+              <Controller
+                control={control}
+                name="reason"
+                render={({ field: { value, onChange } }) => (
+                  <TextInput
+                    value={value}
+                    style={styles.input}
+                    placeholder="Enter Reason"
+                    placeholderTextColor="#9CA3AF"
+                    onChangeText={onChange}
+                  />
+                )}
+              />
+              {errors.reason && (
+                <Text style={styles.error}>{errors.reason.message}</Text>
+              )}
+
+              <Text style={styles.inputLabel}>Date of Birth</Text>
               <TouchableOpacity
-                onPress={() => {
-                  setShowDatePicker(false);
-                  setShowModal(false);
-                }}
+                style={styles.dateInput}
+                onPress={() => setShowDatePicker(true)}
               >
-                <Text style={styles.closeText}>✕</Text>
+                <Text>{watch("dob") || "DD/MM/YYYY"}</Text>
+                <Ionicons name="calendar-outline" size={20} />
               </TouchableOpacity>
-            </View>
-
-            <Text style={styles.inputLabel}>Patient Name</Text>
-            <Controller
-              control={control}
-              name="name"
-              render={({ field: { value, onChange } }) => (
-                <TextInput
-                  value={value}
-                  style={styles.input}
-                  placeholder="Enter Patient Name"
-                  placeholderTextColor="#9CA3AF"
-                  onChangeText={onChange}
-                />
+              {errors.dob && (
+                <Text style={styles.error}>{errors.dob.message}</Text>
               )}
-            />
-            {errors.name && (
-              <Text style={styles.error}>{errors.name.message}</Text>
-            )}
 
-            <Text style={styles.inputLabel}>Mobile Number</Text>
-            <Controller
-              control={control}
-              name="mobile"
-              render={({ field: { value, onChange } }) => (
-                <TextInput
-                  value={value}
-                  keyboardType="number-pad"
-                  style={styles.input}
-                  placeholder="Enter Mobile Number"
-                  placeholderTextColor="#9CA3AF"
-                  onChangeText={onChange}
-                />
-              )}
-            />
-            {errors.mobile && (
-              <Text style={styles.error}>{errors.mobile.message}</Text>
-            )}
-
-            <Text style={styles.inputLabel}>Email ID</Text>
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { value, onChange } }) => (
-                <TextInput
-                  value={value}
-                  style={styles.input}
-                  placeholder="Enter Email ID"
-                  placeholderTextColor="#9CA3AF"
-                  onChangeText={onChange}
-                />
-              )}
-            />
-            {errors.email && (
-              <Text style={styles.error}>{errors.email.message}</Text>
-            )}
-
-            <Text style={styles.inputLabel}>Reason</Text>
-            <Controller
-              control={control}
-              name="reason"
-              render={({ field: { value, onChange } }) => (
-                <TextInput
-                  value={value}
-                  style={styles.input}
-                  placeholder="Enter Reason"
-                  placeholderTextColor="#9CA3AF"
-                  onChangeText={onChange}
-                />
-              )}
-            />
-            {errors.reason && (
-              <Text style={styles.error}>{errors.reason.message}</Text>
-            )}
-
-            <Text style={styles.inputLabel}>Date of Birth</Text>
-            <TouchableOpacity
-              style={styles.dateInput}
-              onPress={() => setShowDatePicker(true)}
-            >
-              <Text>{watch("dob") || "DD/MM/YYYY"}</Text>
-              <Ionicons name="calendar-outline" size={20} />
-            </TouchableOpacity>
-            {errors.dob && (
-              <Text style={styles.error}>{errors.dob.message}</Text>
-            )}
-
-            <TouchableOpacity
-              style={styles.saveBtn}
-              onPress={handleSubmit(onSubmit)}
-            >
-              <Text style={styles.saveText}>Save</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.saveBtn}
+                onPress={handleSubmit(onSubmit)}
+              >
+                <Text style={styles.saveText}>Save</Text>
+              </TouchableOpacity>
+            </ScrollView>
           </View>
-        </View>
+        </KeyboardAvoidingView>
 
         {showDatePicker && (
           <DateTimePicker
@@ -531,7 +601,7 @@ const styles = StyleSheet.create({
   /*  Modal  */
   modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "flex-end" },
 
-  modalContent: { width: "100%", height: "80%", backgroundColor: COLORS.white, padding: scale(16), borderTopLeftRadius: scale(20), borderTopRightRadius: scale(20) },
+  modalContent: { width: "100%", backgroundColor: COLORS.white, padding: scale(16), borderTopLeftRadius: scale(20), borderTopRightRadius: scale(20) },
 
   modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: SIZES.medium },
 
@@ -543,11 +613,66 @@ const styles = StyleSheet.create({
 
   inputLabel: { fontSize: 14, fontWeight: "500", color: "#101623", marginBottom: 6 },
 
-  saveBtn: { backgroundColor: COLORS.primary, padding: SIZES.medium, borderRadius: 12, marginTop: 50 },
+  /* ================= GENDER ================= */
+
+  genderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    marginBottom: verticalScale(15),
+    top: scale(3),
+
+  },
+
+  genderOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: scale(25),
+
+  },
+
+  outerCircle: {
+    height: scale(20),
+    width: scale(20),
+    borderRadius: scale(10),
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: scale(8),
+  },
+
+  innerCircle: {
+    height: scale(10),
+    width: scale(10),
+    borderRadius: scale(5),
+    backgroundColor: COLORS.primary,
+  },
+
+  outerCircleDisabled: {
+    height: scale(20),
+    width: scale(20),
+    borderRadius: scale(10),
+    borderWidth: 2,
+    borderColor: "#D1D5DB",
+    marginRight: scale(8),
+  },
+
+  genderText: {
+    fontSize: scale(14),
+    color: "#111827",
+  },
+
+  genderTextDisabled: {
+    fontSize: scale(14),
+    color: "#9CA3AF",
+  },
+
+  saveBtn: { backgroundColor: COLORS.primary, padding: SIZES.medium, borderRadius: 12, marginTop: 30 },
 
   saveText: { color: COLORS.white, textAlign: "center", fontSize: SIZES.medium, fontFamily: FONT.bold },
 
-  dateInput: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderWidth: 1, borderColor: COLORS.lightGray, borderRadius: scale(12), paddingVertical: verticalScale(14), paddingHorizontal: scale(14), marginBottom: verticalScale(12) },
+  dateInput: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderWidth: 1, borderColor: COLORS.lightGray, borderRadius: scale(12), paddingVertical: verticalScale(14), paddingHorizontal: scale(14) },
 
   error: { color: "red", fontSize: 12, marginBottom: 6 },
 

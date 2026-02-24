@@ -9,6 +9,8 @@ export const patientSchema = z.object({
     .max(50, "Name must be under 50 characters")
     .regex(/^[A-Za-z\s]+$/, "Name can contain only letters"),
 
+  gender: z.enum(["MALE", "FEMALE", "OTHERS"]),
+
   mobile: z
     .string()
     .min(1, "Please enter mobile number")

@@ -9,19 +9,6 @@ import {
 import { scale, verticalScale } from "../../../utils/styling";
 import api from "../../../api/client";
 
-const LAB_IMAGES = {
-  1: require("../../../../assets/ApolloLab.jpg"),
-  2: require("../../../../assets/thyrocare.jpg"),
-  3: require("../../../../assets/Dr Lal.png"),
-  4: require("../../../../assets/metropolis.jpg"),
-  5: require("../../../../assets/SRL.jpg"),
-  6: require("../../../../assets/vijaya.jpg"),
-  7: require("../../../../assets/Medplus.jpg"),
-  8: require("../../../../assets/Healthians.jpg"),
-  9: require("../../../../assets/orangeHealth.jpg"),
-  10: require("../../../../assets/Redcliffe.jpg"),
-};
-
 const SKELETON_COUNT = 4;
 
 const RecentlyViewedTests = () => {
@@ -47,9 +34,7 @@ const RecentlyViewedTests = () => {
         name: item.testName,
         type: item.labName,
         price: `₹${item.price}`,
-        icon:
-          LAB_IMAGES[item.labId] ||
-          require("../../../../assets/blood.jpg"),
+        icon: item.imageUrl, // ✅ from backend
       }));
 
       setRecentTests(formattedData);
@@ -83,7 +68,12 @@ const RecentlyViewedTests = () => {
           : recentTests.map((item) => (
               <View style={styles.card} key={item.id}>
                 <View style={styles.iconBox}>
-                  <Image source={item.icon} style={styles.icon} />
+                  {item.icon && (
+                    <Image
+                      source={{ uri: item.icon }}
+                      style={styles.icon}
+                    />
+                  )}
                 </View>
 
                 <View style={styles.info}>
@@ -120,24 +110,23 @@ const styles = StyleSheet.create({
   },
 
   listContent: {
-    paddingLeft: scale(6),   
+    paddingLeft: scale(6),
     paddingRight: scale(16),
     paddingBottom: verticalScale(6),
   },
 
-card: {
-  flexDirection: "row",
-  alignItems: "center",
-  backgroundColor: "#FFFFFF",
-  borderRadius: scale(18),          
-  paddingVertical: scale(14),       
-  paddingHorizontal: scale(16),    
-  marginRight: scale(16),           
-  marginBottom: verticalScale(8),
-  elevation: 3,                     
-  minWidth: scale(110),             
-},
-
+  card: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    borderRadius: scale(18),
+    paddingVertical: scale(14),
+    paddingHorizontal: scale(16),
+    marginRight: scale(16),
+    marginBottom: verticalScale(8),
+    elevation: 3,
+    minWidth: scale(110),
+  },
 
   iconBox: {
     width: scale(38),
