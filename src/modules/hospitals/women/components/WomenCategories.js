@@ -14,7 +14,6 @@ import { scale, verticalScale } from "../../../../utils/styling";
 
 const WomenCategories = ({ data = [], loading = false }) => {
   const navigation = useNavigation();
-
   const onViewAllPress = () => {
     navigation.navigate("WomenDepartmentsScreen");
   };
