@@ -15,6 +15,9 @@ import Backbtn from '../../components/Backbtn';
 const WomenHospitalDetails = ({ route }) => {
 
   const HOSPITAL_ID = route.params.id || 1;
+  const categoryId = route?.params?.categoryId;
+  const categoryName= route?.params?.categoryName;
+  
 
   const navigation = useNavigation();
   const {
@@ -61,6 +64,9 @@ const WomenHospitalDetails = ({ route }) => {
       </ScrollView>
       <TouchableOpacity style={styles.bookbtn} onPress={() => navigation.navigate('WomenDoctorsScreen', {
         hospitalId: HOSPITAL_ID,
+        categoryId:categoryId,
+        categoryName:categoryName,
+        
       })}>
         <Text style={styles.book}>Book Appointment</Text>
       </TouchableOpacity>

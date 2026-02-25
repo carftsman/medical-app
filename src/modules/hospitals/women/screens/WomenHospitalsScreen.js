@@ -29,8 +29,8 @@ const WomenHospitalsScreen = ({ navigation, route }) => {
   const [favorites, setFavorites] = useState({});
   const [loading, setLoading] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
-  const categoryIdFromRoute = route?.params?.categoryId;
-  const categoryNameFromRoute = route?.params?.categoryName;
+  const categoryIdFromRoute = route?.params?.departmentId;
+  const categoryNameFromRoute = route?.params?.departmentName;
   console.log("Route Category ID:", categoryIdFromRoute);
   console.log("Route Category Name:", categoryNameFromRoute);
   const loadHospitals = async () => {
@@ -55,7 +55,7 @@ const WomenHospitalsScreen = ({ navigation, route }) => {
             : undefined,
 
             page: 1,
-            limit: 20,
+            limit: 30,
           },
         }
       );
@@ -131,7 +131,7 @@ console.log("Filters Received:", JSON.stringify(filters, null, 2));
             women: true,
 
             page: 1,
-            limit: 20,
+            limit: 30,
             
           },
           
@@ -153,12 +153,12 @@ console.log("Filters Received:", JSON.stringify(filters, null, 2));
 
 
 
-      if (filters.openNow) {
-        result = result.filter(h => h.isOpen === true);
-      }
+      // if (filters.openNow) {
+      //   result = result.filter(h => h.isOpen === true);
+      // }
 
       // if (filters.open24x7) {
-      //   result = result.filter(h => h.isOpen24x7 === true);
+      //   result = result.filter(h => Boolean(h.open24x7));
       // }
 
       if (filters.city) {
@@ -247,7 +247,7 @@ console.log("Filters Received:", JSON.stringify(filters, null, 2));
                 distance={item.distance}
                 location={item.place || item.location || ''}
                 description={item.speciality || item.department || ''}
-                isOpen24Hours={item.isOpen24x7 || item.isOpen}
+                isOpen24Hours={item.open24x7 || item.isOpen}
                 rating={item.rating}
                 isFavorite={!!favorites[item.id]}
                 onFavoritePress={() =>
@@ -261,6 +261,8 @@ console.log("Filters Received:", JSON.stringify(filters, null, 2));
                   navigation.navigate('WomenHospitalDetails', {
                     data: item,
                     id: item.id,
+                    categoryId: categoryIdFromRoute,
+                    categoryName: categoryNameFromRoute,
                   })
                 }
               />
