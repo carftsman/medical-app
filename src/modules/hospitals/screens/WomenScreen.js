@@ -147,7 +147,7 @@ const fetchWomenDoctors = async () => {
       params: {
         lat: 17.385044,
         lng: 78.486671,
-        distance: 5,
+        distance: 50,
         women: true,
         mode: "BOTH",
         availability: "ALL",

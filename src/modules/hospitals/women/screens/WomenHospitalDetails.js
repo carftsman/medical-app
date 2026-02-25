@@ -17,6 +17,7 @@ const WomenHospitalDetails = ({ route }) => {
   const HOSPITAL_ID = route.params.id || route?.params.hospitalId ||1;
   const categoryId = route?.params?.categoryId;
   const categoryName= route?.params?.categoryName;
+  console.log("cname", categoryName);
    
 
   const navigation = useNavigation();
