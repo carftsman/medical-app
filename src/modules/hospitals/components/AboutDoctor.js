@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
         marginTop: verticalScale(20),
     },
     languagesHeaderText: {
-        fontSize: scale(20),
+        fontSize: scale(18),
         fontWeight: '600',
         paddingBottom: verticalScale(15),
     },
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
         marginTop: verticalScale(20),
     },
     qualificationHeaderText: {
-        fontSize: scale(20),
+        fontSize: scale(18),
         fontWeight: '600',
         paddingBottom: verticalScale(15),
     },
