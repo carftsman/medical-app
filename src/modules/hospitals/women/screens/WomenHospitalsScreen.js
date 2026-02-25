@@ -29,8 +29,8 @@ const WomenHospitalsScreen = ({ navigation, route }) => {
   const [favorites, setFavorites] = useState({});
   const [loading, setLoading] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
-  const categoryIdFromRoute = route?.params?.departmentId;
-  const categoryNameFromRoute = route?.params?.departmentName;
+  const categoryIdFromRoute = route?.params?.categoryId || route?.params?.departmentId;
+  const categoryNameFromRoute = route?.params?.categoryName || route?.params?.departmentName;
   console.log("Route Category ID:", categoryIdFromRoute);
   console.log("Route Category Name:", categoryNameFromRoute);
   const loadHospitals = async () => {
@@ -51,8 +51,8 @@ const WomenHospitalsScreen = ({ navigation, route }) => {
             women: true,
             sort: 'distance',
             categoryIds: categoryIdFromRoute
-            ? categoryIdFromRoute.toString()
-            : undefined,
+              ? categoryIdFromRoute.toString()
+              : undefined,
 
             page: 1,
             limit: 30,
@@ -63,7 +63,7 @@ const WomenHospitalsScreen = ({ navigation, route }) => {
       console.log("API RESPONSE COUNT:", res?.data?.data?.length);
       console.log("API RESPONSE DATA:", res?.data?.data);
 
-    
+
       console.log("PARAMS SENT:",
         {
           latitude: LATITUDE,
@@ -106,7 +106,7 @@ const WomenHospitalsScreen = ({ navigation, route }) => {
 
   const handleApplyFilter = async filters => {
     console.log("===== APPLY FILTER CLICKED =====");
-console.log("Filters Received:", JSON.stringify(filters, null, 2));
+    console.log("Filters Received:", JSON.stringify(filters, null, 2));
 
     try {
       setLoading(true);
@@ -115,9 +115,9 @@ console.log("Filters Received:", JSON.stringify(filters, null, 2));
 
       const res = await api.get(
         '/hospital/user/hospitals/nearby',
-        
+
         {
-          params: {           
+          params: {
             latitude: LATITUDE,
             longitude: LONGITUDE,
             radius: filters.distance || DEFAULT_RADIUS,
@@ -132,13 +132,13 @@ console.log("Filters Received:", JSON.stringify(filters, null, 2));
 
             page: 1,
             limit: 30,
-            
+
           },
-          
+
         }
 
       );
-      
+
       console.log("FILTER PARAMS SENT:", {
         radius: filters.distance,
         categoryIds: filters.categoryIds,
@@ -178,7 +178,7 @@ console.log("Filters Received:", JSON.stringify(filters, null, 2));
         );
       }
 
-      
+
 
 
 
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#FFF',
-    
+
   },
   container: {
     flex: 1,
