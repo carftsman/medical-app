@@ -16,16 +16,16 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RefreshControl } from 'react-native';
 import { setConsultationType, setBookingId, setDate } from '../../redux/slices/BookingSlice';
 
-
 const WomenDoctorDetails = ({ route, navigation }) => {
 
-  const doctorId = route?.params?.doctorId || 1;
+  const doctorId = route?.params?.doctorId;
 
   const { selectedDate, selectedTime } = useSelector(
     state => state.hospital.consultation
   );
 
   const dispatch = useDispatch();
+
   const [loading, setLoading] = useState(true);
   const [timeSlotsLoading, setTimeSlotsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -69,15 +69,15 @@ const WomenDoctorDetails = ({ route, navigation }) => {
     }
   };
 
-
   const fetchDateSlots = async (isRefresh = false) => {
     try {
       isRefresh ? setRefreshing(true) : setLoading(true);
 
       const response = await api.get(`/appointments/availability`, {
-        params: { doctorId: doctorId || 1 }
+        params: { 
+          doctorId,
+        }
       });
-      console.log("slot", response?.data.days);
       setDateSlots(response?.data.days);
       dispatch(setDate(response?.data.days[0].date));
       setError('');
@@ -90,7 +90,6 @@ const WomenDoctorDetails = ({ route, navigation }) => {
     }
   };
 
-
   const fetchTimeSlots = async () => {
     try {
       setTimeSlotsLoading(true);
@@ -100,8 +99,7 @@ const WomenDoctorDetails = ({ route, navigation }) => {
           date: selectedDate,
         }
       });
-      console.log("slots", response?.data);
-      // const filteredSlots = response?.data.slots.filter(slot => slot.isAvailable === true);
+      const filteredSlots = response?.data.slots.filter(slot => slot.isAvailable === true);
       setTimeSlots(response?.data.slots);
     }
     catch (error) {
@@ -110,7 +108,7 @@ const WomenDoctorDetails = ({ route, navigation }) => {
     finally {
       setTimeSlotsLoading(false);
     }
-  }
+  };
 
 const fetchReviews = async () => {
   try {
@@ -144,6 +142,7 @@ const fetchReviews = async () => {
       console.log("Error sending Id: ", error.message);
     }
   }
+
   const onRefresh = async () => {
     setRefreshing(true);
     await Promise.all([
@@ -163,11 +162,9 @@ const fetchReviews = async () => {
 
   useEffect(() => {
     if (hospitalId) {
-      console.log("i", hospitalId);
       fetchHospitalDetails(hospitalId);
     }
   }, [hospitalId]);
-
 
   useEffect(() => {
     if (selectedDate) {
@@ -187,15 +184,14 @@ const fetchReviews = async () => {
     dispatch(setConsultationType('SELF'));
   };
 
-
-  if (loading) {
+  if (loading || refreshing) {
     return (
       <View style={{
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-        <ActivityIndicator size={'large'} color={'#056FD2'} />
+        <ActivityIndicator size={'large'} color={'#F47FBB'} />
       </View>
     )
   }
@@ -223,7 +219,6 @@ const fetchReviews = async () => {
           />
         }
       >
-
 
         <DoctorInfoWomen
           image={doctorDetails?.imageUrl}
@@ -273,7 +268,6 @@ const fetchReviews = async () => {
           disabled={!selectedTime}
           onPress={handleBookAppointment}
         >
-
           <Text style={styles.bookAppointmentText}>Book Appointment</Text>
         </TouchableOpacity>
       </View>
@@ -294,6 +288,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: scale(20),
+    paddingTop: scale(10),
     backgroundColor: 'white',
   },
   screenHeader: {
@@ -334,6 +329,4 @@ const styles = StyleSheet.create({
     backgroundColor: '#BDBDBD',
     borderColor: '#BDBDBD',
   },
-
 });
-

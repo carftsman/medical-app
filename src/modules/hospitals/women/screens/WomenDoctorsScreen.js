@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput,
@@ -9,7 +8,6 @@ import {
   TouchableOpacity
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -26,8 +24,9 @@ const WomenDoctorsScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const dispatch = useDispatch();
-
-  const routeCategoryName = route?.params?.categoryName || "Cardiology";
+  const routeCategoryId = route?.params?.categoryId;
+  const routeCategoryName = route?.params?.categoryName;
+  console.log("catname", routeCategoryName);
   const routeHospitalId = route?.params?.hospitalId || null;
 
   const reduxMode = useSelector(
@@ -45,9 +44,9 @@ const WomenDoctorsScreen = () => {
   const [error, setError] = useState('');
 
 
- const routeMode = route.params?.mode;
-const finalMode =
-  (routeMode || reduxMode).toUpperCase();
+  const routeMode = route.params?.mode;
+  const finalMode =
+    (routeMode || reduxMode).toUpperCase();
 
 
 
@@ -106,7 +105,10 @@ const finalMode =
           {
             params: {
               mode: finalMode,
-              women: true
+              women: true,
+              lat: 17.385044,
+              lng:78.486671,
+              distance: 50,
             },
           }
         );
@@ -114,7 +116,10 @@ const finalMode =
         response = await api.get('/hospital/user/doctors', {
           params: {
             mode: finalMode,
-            women: true
+            women: true,
+             lat: 17.385044,
+              lng: 78.486671,
+            distance: 50,
           },
         });
       }
@@ -127,7 +132,7 @@ const finalMode =
         rating: Number(item.rating) || 0,
         fee: Number(item.consultationFee) || 0,
         hospitalName: item.hospital?.name || '',
-        distance: Number(item.distance) || 0,
+        distance: Number(item.distance) || 50,
         availableDate: item.availableDate || 'today',
         availableTime: item.availableTime || '9AM - 5PM',
         imageUrl: item.imageUrl || 'https://via.placeholder.com/150',
@@ -163,7 +168,6 @@ const finalMode =
           activeCategory.toLowerCase()
       );
 
-
   const ListHeader = () => (
     <View style={styles.headerWrapper}>
       <View style={styles.searchBox}>
@@ -175,7 +179,6 @@ const finalMode =
           style={styles.searchInput}
         />
       </View>
-
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {loadingCategories
@@ -204,8 +207,6 @@ const finalMode =
           ))}
       </ScrollView>
 
-
-      {/* MODE FILTER */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {[
           { label: 'Hospital visit', value: 'OFFLINE' },
@@ -240,7 +241,6 @@ const finalMode =
     </View>
   );
 
-  /* ---------- RENDER ---------- */
   return (
     <View style={styles.container}>
       <View style={styles.header}>

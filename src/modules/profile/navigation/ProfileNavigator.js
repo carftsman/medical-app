@@ -13,7 +13,9 @@ import LabReports from '../screens/LabReports';
 import SavedAddress from '../screens/SavedAddress';
 import PaymentsHistory from '../screens/PaymentsHistory';
 import HelpAndSupport from '../screens/HelpAndSupport';
-
+import OrderTrackingScreen from '../screens/OrderTracking';
+import MedicinesFeedbackScreen from '../screens/MedicinesFeedbackScreen';
+import MedicinesFeedbackSuccessScreen from '../screens/MedicinesFeedbackSuccessScreen';
 
 const ProfileNavigator = () => {
     const Stack = createNativeStackNavigator();
@@ -34,7 +36,9 @@ const ProfileNavigator = () => {
     <Stack.Screen name="SavedAddress" component={SavedAddress} />
     <Stack.Screen name="PaymentsHistory" component={PaymentsHistory} />
     <Stack.Screen name="HelpAndSupport" component={HelpAndSupport} />
-  
+    <Stack.Screen name="OrderTracking" component={OrderTrackingScreen}/>
+    <Stack.Screen name="MedicinesFeedbackScreen" component={MedicinesFeedbackScreen}/>
+    <Stack.Screen name="MedicinesFeedbackSuccessScreen" component={MedicinesFeedbackSuccessScreen}/>
    </Stack.Navigator>
   )
 }
