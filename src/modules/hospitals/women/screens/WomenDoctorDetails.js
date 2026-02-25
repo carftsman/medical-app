@@ -31,6 +31,7 @@ const WomenDoctorDetails = ({ route, navigation }) => {
   const [showModal, setShowModal] = useState(false);
   const [doctorDetails, setDoctorDetails] = useState({});
   const [dateSlots, setDateSlots] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [hospitalDetails, setHospitalDetails] = useState({});
@@ -109,6 +110,22 @@ const WomenDoctorDetails = ({ route, navigation }) => {
     }
   };
 
+const fetchReviews = async () => {
+  try {
+    const response = await api.get(
+      `/hospital/user/doctors/${doctorId}/reviews`
+    );
+
+    setReviews(response?.data?.reviews);
+    console.log("reviews", response?.data?.reviews);
+  }
+  catch (error) {
+    console.log("Error fetching reviews: ", error);
+  }
+};
+
+
+
   const bookAppointmentForSelf = async () => {
     try {
       const response = await api.post(`/appointments/hold`,
@@ -138,6 +155,9 @@ const WomenDoctorDetails = ({ route, navigation }) => {
   useEffect(() => {
     fetchDoctorDetails();
     fetchDateSlots();
+    if(doctorId) {
+      fetchReviews();
+    }
   }, []);
 
   useEffect(() => {
@@ -233,7 +253,9 @@ const WomenDoctorDetails = ({ route, navigation }) => {
         // distancekm={hospitalDetails?.distancekm}
         />
 
-        <DoctorReviewsWomen />
+        <DoctorReviewsWomen 
+        reviews={reviews}
+        />
 
       </ScrollView>
 
