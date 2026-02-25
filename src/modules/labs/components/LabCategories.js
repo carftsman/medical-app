@@ -12,7 +12,7 @@ import api from "../../../api/client";
 import { scale, verticalScale } from "../../../utils/styling";
 
 /* COMPONENT */
-const LabCategories = ({ labId }) => {
+const LabCategories = () => {
   const navigation = useNavigation();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,13 +26,22 @@ const LabCategories = ({ labId }) => {
       setLoading(true);
 
       const res = await api.get("/labs/categories/all");
-      const sections = res?.data?.sections || [];
-      const allCategories = sections.flatMap(section => section.categories || []);
+
+      const sections =
+        res?.data?.data?.sections ||
+        res?.data?.sections ||
+        [];
+
+      const allCategories = sections.flatMap(
+        (section) => section.categories || []
+      );
 
       setCategories(allCategories);
-
     } catch (e) {
-      console.log("Categories API error:", e);
+      console.log(
+        "Categories API error:",
+        e?.response?.data || e.message
+      );
     } finally {
       setLoading(false);
     }
@@ -45,17 +54,19 @@ const LabCategories = ({ labId }) => {
     </View>
   );
 
+  const handleCategoryPress = (item) => {
+    navigation.navigate("LabsScreen", {
+      categoryId: item.id,
+      categoryName: item.name,
+    });
+  };
+
   const renderItem = ({ item }) => {
     return (
       <TouchableOpacity
         style={styles.card}
         activeOpacity={0.85}
-        onPress={() =>
-          navigation.navigate("LabsScreen", {
-            categoryId: item.id,
-            categoryName: item.name,
-          })
-        }
+        onPress={() => handleCategoryPress(item)}
       >
         <View style={styles.imageWrapper}>
           {item.imageUrl && (

@@ -5,7 +5,6 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  ActivityIndicator,
   RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -70,11 +69,11 @@ const HospitalsScreen = ({ navigation }) => {
     loadHospitals(true);
   };
 
-  /*  DATA SOURCE  */
+  /* DATA SOURCE */
   const dataSource =
     overrideResults !== null ? overrideResults : hospitals;
 
-  /*  SKELETON CARD  */
+  /* SKELETON CARD */
   const SkeletonCard = () => (
     <View style={styles.skeletonCard}>
       <View style={styles.skeletonImage} />
@@ -90,7 +89,7 @@ const HospitalsScreen = ({ navigation }) => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
 
-        {/*  HEADER = */}
+        {/* HEADER */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={22} />
@@ -101,18 +100,13 @@ const HospitalsScreen = ({ navigation }) => {
           <View style={{ width: 22 }} />
         </View>
 
-        {/* SEARCH AND FILTER */}
+        {/* SEARCH + FILTER */}
         <View style={styles.searchRow}>
-          <SearchHospital
-            onResults={setOverrideResults}
-          />
-
-          <HospitalFilters
-            onPress={() => setShowFilter(true)}
-          />
+          <SearchHospital onResults={setOverrideResults} />
+          <HospitalFilters onPress={() => setShowFilter(true)} />
         </View>
 
-        {/*LIST  */}
+        {/* LIST */}
         {loading ? (
           <View style={{ marginTop: 20 }}>
             <SkeletonCard />
@@ -139,19 +133,17 @@ const HospitalsScreen = ({ navigation }) => {
                 distance={item?.distance}
                 location={item?.place || item?.location || ''}
                 description={item?.speciality || item?.department || ''}
+                rating={item?.rating || 0}  
                 isOpen24Hours={
                   item?.isOpen24x7 || item?.isOpen || false
                 }
-
                 isFavorite={!!favorites[item?.id]}
-
                 onFavoritePress={() =>
                   setFavorites(prev => ({
                     ...prev,
                     [item?.id]: !prev[item?.id],
                   }))
                 }
-
                 onViewDetails={() =>
                   navigation.navigate('HospitalDetails', {
                     data: item,
@@ -169,7 +161,7 @@ const HospitalsScreen = ({ navigation }) => {
           />
         )}
 
-        {/* FILTER POPUP  */}
+        {/* FILTER POPUP */}
         <HospitalFilterPopup
           visible={showFilter}
           latitude={LATITUDE}
@@ -179,7 +171,6 @@ const HospitalsScreen = ({ navigation }) => {
             setOverrideResults(filteredData)
           }
         />
-
       </View>
     </SafeAreaView>
   );
@@ -187,7 +178,7 @@ const HospitalsScreen = ({ navigation }) => {
 
 export default HospitalsScreen;
 
-/*  STYLES */
+/* STYLES  */
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -219,7 +210,7 @@ const styles = StyleSheet.create({
     color: '#888',
   },
 
-  /* SKELETON  */
+  /* SKELETON */
 
   skeletonCard: {
     flexDirection: 'row',
