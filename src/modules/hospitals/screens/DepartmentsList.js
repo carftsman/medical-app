@@ -14,7 +14,7 @@ import Feather from "react-native-vector-icons/Feather";
 import { SafeAreaView } from "react-native-safe-area-context";
 import api from "../../../api/client";
 import { useSelector } from "react-redux";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { scale } from "../../../utils/styling";
 
 export default function FindDoctorsScreen() {
@@ -25,11 +25,11 @@ export default function FindDoctorsScreen() {
   const [error, setError] = useState("");
 
   const navigation = useNavigation();
-
+  const route = useRoute();
   const mode = useSelector(
     state => state.hospital.consultation.mode
   );
-
+  const { onSelect } = route.params || {};
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -70,26 +70,33 @@ export default function FindDoctorsScreen() {
     }
   };
 
-  /* ---------- NAVIGATION (LOGIC UNCHANGED, MODE PASSED AS-IS) ---------- */
+
   const handleNavigation = (item) => {
-    if (mode === "online") {
-      navigation.navigate("DoctorsList", {
-        categoryId: item.id,
-        categoryName: item.name,
-        mode: mode,
-      });
-    } else if (mode === "offline") {
-      navigation.navigate("HospitalsScreen");
-    } else if (mode === "instant") {
-      navigation.navigate("PatientDetails");
-    } else {
-      navigation.navigate("DoctorsList", {
-        categoryId: item.id,
-        categoryName: item.name,
-        mode: "offline", 
-      });
-    }
-  };
+  
+  if (onSelect) {
+    onSelect(item.name);   
+    navigation.goBack();   
+    return;
+  }
+
+  if (mode === "online") {
+    navigation.navigate("DoctorsList", {
+      categoryId: item.id,
+      categoryName: item.name,
+      mode: mode,
+    });
+  } else if (mode === "offline") {
+    navigation.navigate("HospitalsScreen");
+  } else if (mode === "instant") {
+    navigation.navigate("PatientDetails");
+  } else {
+    navigation.navigate("DoctorsList", {
+      categoryId: item.id,
+      categoryName: item.name,
+      mode: "offline",
+    });
+  }
+};
 
   const listData = useMemo(() => {
     return searchText.trim().length > 0 ? symptoms : categories;
@@ -120,7 +127,7 @@ export default function FindDoctorsScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <View style={styles.container}>
         <View style={{
         flexDirection:"row",
@@ -167,7 +174,7 @@ export default function FindDoctorsScreen() {
           />
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 

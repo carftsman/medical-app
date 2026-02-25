@@ -308,7 +308,7 @@ const PaymentScreen = ({ navigation, route }) => {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <View style={styles.header}>
         <Backbtn onPress={() => navigation.goBack()} />
         <Text style={styles.headerTitle}>Payment</Text>
@@ -333,7 +333,7 @@ const PaymentScreen = ({ navigation, route }) => {
           </Text>
         </TouchableOpacity>
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 

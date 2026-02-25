@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   FlatList,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
@@ -15,6 +14,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import DoctorCard from '../components/DoctorCard';
 import DoctorSkeleton from '../components/DoctScreen-Skeleton';
 import Backbtn from '../components/Backbtn';
+import CategoryBar from '../components/Doctorlist-CategoryBar';
+
 import api from '../../../api/client';
 import { hospitalApi } from '../services/hospital.api';
 import { setConsultationMode } from '../redux/slices/BookingSlice';
@@ -27,36 +28,33 @@ const DoctorsList = () => {
   const dispatch = useDispatch();
 
   const routeCategoryName = route.params?.categoryName;
-  const routeSearch = route.params?.search;
-  
+  const routeMode = route.params?.mode;
+
   const reduxMode = useSelector(
     state => state.hospital?.consultation?.mode
   );
 
-  
+  const finalMode =
+    (reduxMode || routeMode || 'offline').toUpperCase();
+
   const [search, setSearch] = useState('');
   const [doctorsData, setDoctorsData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [activeCategory, setActiveCategory] = useState('All');
   const [loadingCategories, setLoadingCategories] = useState(true);
-  
- 
- const routeMode = route.params?.mode;
 
-const finalMode =
-  (routeMode || reduxMode || "offline").toUpperCase();
+  const [activeCategory, setActiveCategory] = useState(
+    routeCategoryName || 'All'
+  );
 
+  /* ---------- UPDATE CATEGORY WHEN ROUTE CHANGES ---------- */
   useEffect(() => {
-  if (routeCategoryName) {
-    setActiveCategory(routeCategoryName);
-  }
+    if (routeCategoryName) {
+      setActiveCategory(routeCategoryName);
+    }
+  }, [routeCategoryName]);
 
-  if (routeMode) {
-    dispatch(setConsultationMode(routeMode)); 
-  }
-}, [routeCategoryName, routeMode]);
-
+  /* ---------- FETCH CATEGORIES ---------- */
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -73,12 +71,13 @@ const finalMode =
         })),
       ]);
     } catch (e) {
-      console.log('Category API error', e);
+      console.log(e);
     } finally {
-    setLoadingCategories(false); 
-  }
+      setLoadingCategories(false);
+    }
   };
 
+  /* ---------- FETCH DOCTORS ---------- */
   useEffect(() => {
     fetchDoctors();
   }, [activeCategory, finalMode]);
@@ -87,142 +86,120 @@ const finalMode =
     try {
       setLoading(true);
 
-    const routeSearch = route.params?.search;
+      const params = {
+        lat: 17.385044,
+        lng: 78.486671,
+        mode: finalMode,
+        page: 1,
+        limit: 20,
+        distance: 5,
+      };
 
-const response = await api.get('/hospital/user/doctors', {
-  params: {
-    mode: finalMode,
-    q: routeSearch,   // send to backend
-  },
-});
+      if (activeCategory !== 'All') {
+        params.specialization = activeCategory;
+      }
 
+      const response = await api.get(
+        '/hospital/user/doctors',
+        { params }
+      );
 
-    
-      const mappedDoctors = (response.data.doctors || []).map(item => ({
-        id: item.id.toString(),
-        doctorName: item.name || '',
-        specialization: item.specialization || '',
-        experience: Number(item.experience) || 0,
-        rating: Number(item.rating) || 0,
-        fee: Number(item.consultationFee) || 0,
-        hospitalName: item.hospital?.name || '',
-        distance: Number(item.distance) || 0,
-        availableDate: item.availableDate || 'today',
-        availableTime: item.availableTime || '9AM - 5PM',
-        imageUrl: item.imageUrl || 'https://via.placeholder.com/150',
-        categoryName: item.category?.name || '',
-      }));
-
-      setDoctorsData(mappedDoctors);
+      setDoctorsData(response.data.data || []);
     } catch (e) {
-      console.log('Doctors API error', e);
+      console.log(e);
     } finally {
       setLoading(false);
     }
   };
-const filteredDoctors = doctorsData.filter(d => {
-  const matchesCategory =
-    activeCategory === 'All' ||
-    d.specialization?.toLowerCase() === activeCategory.toLowerCase();
-
-  const matchesSearch =
-    !routeSearch ||
-    d.doctorName?.toLowerCase().includes(routeSearch.toLowerCase()) ||
-    d.specialization?.toLowerCase().includes(routeSearch.toLowerCase());
-
-  return matchesCategory && matchesSearch;
-});
-
-
-
-  const ListHeader = () => (
-    <View style={styles.headerWrapper}>
-      <View style={styles.searchBox}>
-        <Icon name="magnify" size={18} color="#999" />
-        <TextInput
-          placeholder="Search for Doctors"
-          value={search}
-          onChangeText={setSearch}
-          style={styles.searchInput}
-        />
-      </View>
-
-<ScrollView horizontal showsHorizontalScrollIndicator={false}>
-  {loadingCategories
-    ? [1, 2, 3, 4].map(i => (
-        <View key={i} style={styles.skeletonChip} />
-      ))
-    : categories.map(cat => (
-        <TouchableOpacity
-          key={cat.name}
-          style={[
-            styles.filterButton,
-            activeCategory === cat.name && styles.activeFilter,
-          ]}
-          onPress={() => setActiveCategory(cat.name)}
-        >
-          <Text
-            style={[
-              styles.filterText,
-              activeCategory === cat.name &&
-                styles.activeFilterText,
-            ]}
-          >
-            {cat.name}
-          </Text>
-        </TouchableOpacity>
-      ))}
-</ScrollView>
-
-
-      {/* MODE FILTER */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {[
-          { label: 'Hospital visit', value: 'OFFLINE' },
-          { label: 'Online consult', value: 'ONLINE' },
-        ].map(mode => (
-          <TouchableOpacity
-            key={mode.value}
-            style={[
-              styles.filterChip,
-              finalMode === mode.value && styles.activeChip,
-            ]}
-            onPress={() =>
-              dispatch(setConsultationMode(mode.value.toLowerCase()))
-            }
-          >
-            <Text
-              style={[
-                styles.filterText,
-                finalMode === mode.value && styles.activeText,
-              ]}
-            >
-              {mode.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-    </View>
-  );
 
   /* ---------- RENDER ---------- */
   return (
     <View style={styles.container}>
+
+      {/* HEADER */}
       <View style={styles.header}>
         <Backbtn onPress={() => navigation.goBack()} />
         <Text style={styles.headerTitle}>Doctors</Text>
         <View style={{ width: 25 }} />
       </View>
 
+      {/* SEARCH */}
+      <View style={styles.searchBox}>
+        <Icon name="magnify" size={18} color="#999" />
+        <TextInput
+          placeholder="Search for Doctors"
+          placeholderTextColor={COLORS.lightGray}
+          value={search}
+          onChangeText={setSearch}
+          style={styles.searchInput}
+        />
+      </View>
+
+      {/* CATEGORY BAR */}
+      <View style={{ marginBottom: 16 }}>
+        <CategoryBar
+          categories={categories}
+          activeCategory={activeCategory}
+          setActiveCategory={setActiveCategory}
+          loadingCategories={loadingCategories}
+          routeCategoryName={routeCategoryName}
+          styles={styles}
+        />
+      </View>
+
+      {/* MODE BUTTONS */}
+      <View style={styles.modeContainer}>
+        <TouchableOpacity
+          style={[
+            styles.modeButton,
+            finalMode === 'OFFLINE' && styles.selectedMode,
+          ]}
+          onPress={() =>
+            dispatch(setConsultationMode('offline'))
+          }
+        >
+          <Text
+            style={[
+              styles.modeText,
+              finalMode === 'OFFLINE' && styles.activeModeText,
+            ]}
+          >
+            Hospital visit
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.modeButton,
+            finalMode === 'ONLINE' && styles.selectedMode,
+          ]}
+          onPress={() =>
+            dispatch(setConsultationMode('online'))
+          }
+        >
+          <Text
+            style={[
+              styles.modeText,
+              finalMode === 'ONLINE' && styles.activeModeText,
+            ]}
+          >
+            Online consult
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* DOCTOR LIST */}
       <FlatList
-        data={loading ? [1, 2, 3, 4] : filteredDoctors}
+        style={{ flex: 1 }}
+        data={loading ? [1,2,3,4] : doctorsData}
         keyExtractor={(item, index) =>
-          loading ? index.toString() : item.id
+          loading ? index.toString() : item.id.toString()
         }
         renderItem={({ item }) =>
-          loading ? <DoctorSkeleton /> : <DoctorCard doctor={item} />
+          loading
+            ? <DoctorSkeleton />
+            : <DoctorCard doctor={item} />
         }
-        ListHeaderComponent={ListHeader}
         ListEmptyComponent={
           !loading && (
             <Text style={styles.noResultText}>
@@ -242,32 +219,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
-    paddingHorizontal: scale(16),
+    paddingHorizontal: scale(SIZES.medium),
   },
+
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: verticalScale(8),
+    paddingBottom: verticalScale(10),
   },
+
   headerTitle: {
     flex: 1,
-    textAlign: 'center',
     fontSize: scale(16),
     fontFamily: FONT.medium,
+    textAlign: 'center',
+    fontWeight: '700',
   },
-  
-skeletonChip: {
-  height: verticalScale(36),
-  width: scale(90),
-  borderRadius: 20,
-  backgroundColor: '#E5E7EB',
-  marginRight: 10,
-},
 
-  headerWrapper: {
-    minHeight: verticalScale(170),
-    justifyContent: 'flex-start',
-  },
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -275,51 +243,81 @@ skeletonChip: {
     borderColor: COLORS.lightGray,
     borderRadius: 30,
     paddingHorizontal: 12,
-    height: verticalScale(50),
-    marginBottom: 10,
+    height: 48,
+    marginBottom: 6,
   },
+
   searchInput: {
     flex: 1,
     marginLeft: 8,
   },
+
   filterButton: {
     borderWidth: 1,
     borderColor: COLORS.lightGray,
     borderRadius: 20,
-    paddingHorizontal: 16,
-    justifyContent:"center",
+    paddingHorizontal: scale(16),
+    paddingVertical: verticalScale(10),
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 10,
-    marginBottom: 10,
   },
-  filterChip: {
-    borderWidth: 1,
-    borderColor: COLORS.lightGray,
-    borderRadius: 15,
-    paddingHorizontal: 45,
-    alignItems:"center",
-    justifyContent:"center",
-    marginRight: 6,
-    marginBottom: 12,
-  },
+
   activeFilter: {
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
   },
-  activeChip: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
+
   filterText: {
     fontSize: 13,
     color: COLORS.gray,
+    fontFamily: FONT.regular,
   },
-  activeText: {
-    color: COLORS.white,
-  },
+
   activeFilterText: {
     color: COLORS.white,
-    fontWeight: '700',
+    fontWeight: '600',
   },
+
+  skeletonChip: {
+    height: verticalScale(36),
+    width: scale(90),
+    borderRadius: 20,
+    backgroundColor: '#E5E7EB',
+    marginRight: 10,
+  },
+
+  
+  modeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  
+  },
+
+  modeButton: {
+    width: '48%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+  },
+
+  selectedMode: {
+    backgroundColor: COLORS.primary,
+  },
+
+  modeText: {
+    fontFamily: FONT.medium,
+    fontSize: 14,
+    color: COLORS.primary,
+  },
+
+  activeModeText: {
+    color: COLORS.white,
+  },
+
   noResultText: {
     textAlign: 'center',
     marginTop: 20,

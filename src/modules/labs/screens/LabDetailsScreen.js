@@ -11,7 +11,7 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from 'react-native';
-import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { labApi } from '../services/labApi';
 import { COLORS, SIZES } from '../../../config/constants';
@@ -22,14 +22,13 @@ const LabDetailsScreen = () => {
   const navigation = useNavigation();
 
   const labId = route?.params?.labId ?? 3;
-  const categoryId = route?.params?.categoryId;
+  const uploadedFiles = route?.params?.files || null;
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showTimings, setShowTimings] = useState(false);
   const [openPackageId, setOpenPackageId] = useState(null);
-
 
   const fetchLabDetails = async () => {
     try {
@@ -42,7 +41,6 @@ const LabDetailsScreen = () => {
       setRefreshing(false);
     }
   };
-
 
   useEffect(() => {
     if (labId) {
@@ -82,17 +80,16 @@ const LabDetailsScreen = () => {
 
       await Share.share({
         message: `🏥 ${data.name}
-          ⭐ Rating: ${data.rating || 0}
-          📍 Location: ${locationText}
-          🗺️ Google Maps:
-          ${mapsUrl}`,
-        });
+⭐ Rating: ${data.rating || 0}
+📍 Location: ${locationText}
+🗺️ Google Maps:
+${mapsUrl}`,
+      });
     } catch (error) {
       console.log('Share error:', error);
     }
   };
 
-  
   const renderStars = (rating = 0) => {
     const stars = [];
     const fullStars = Math.floor(rating);
@@ -112,6 +109,7 @@ const LabDetailsScreen = () => {
 
   return (
     <View style={styles.container}>
+
       {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -137,6 +135,7 @@ const LabDetailsScreen = () => {
           />
         }
       >
+
         {/* IMAGE */}
         <Image
           source={{
@@ -169,57 +168,14 @@ const LabDetailsScreen = () => {
             </Text>
           </View>
 
-         
           <View style={styles.infoCard}>
             <View style={styles.infoLeft}>
-             
               <View style={styles.row}>
                 <Icon name="map-marker-outline" size={scale(18)} />
                 <Text style={styles.addressText}>
                   {data.address || `${data.name}, ${data.city}`}
                 </Text>
               </View>
-
-              <TouchableOpacity
-                style={styles.openRow}
-                onPress={() => setShowTimings(!showTimings)}
-              >
-                <View style={styles.row}>
-                  <Icon
-                    name="clock-outline"
-                    size={scale(16)}
-                    color={COLORS.green}
-                  />
-                  <Text style={styles.openText}>
-                    Open <Text style={styles.closeText}>Closes 8 PM</Text>
-                  </Text>
-                </View>
-
-                <Icon
-                  name={showTimings ? 'chevron-up' : 'chevron-down'}
-                  size={scale(20)}
-                />
-              </TouchableOpacity>
-
-              {showTimings && (
-                <View style={styles.timingBox}>
-                  <View style={styles.timingRow}>
-                    <View style={styles.timingColumn}>
-                      <Text style={styles.timingLabel}>Mon - Fri</Text>
-                      <Text style={styles.timingValue}>
-                        {data.timings?.monFri || '9 AM - 9 PM'}
-                      </Text>
-                    </View>
-
-                    <View style={styles.timingColumn}>
-                      <Text style={styles.timingLabel}>Sat - Sun</Text>
-                      <Text style={styles.timingValue}>
-                        {data.timings?.satSun || '9 AM - 9 PM'}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              )}
             </View>
 
             <TouchableOpacity
@@ -235,9 +191,9 @@ const LabDetailsScreen = () => {
               <Icon name="navigation-variant" size={scale(20)} />
             </TouchableOpacity>
           </View>
-
         </View>
 
+        {/* PACKAGES INCLUDED */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
             Packages Included ({data.packagesIncluded?.length || 0})
@@ -273,26 +229,39 @@ const LabDetailsScreen = () => {
         </View>
       </ScrollView>
 
+      {/* BOTTOM BUTTON */}
       <View style={styles.bottom}>
-        <TouchableOpacity
-          style={styles.bookBtn}
-          onPress={() =>
-            navigation.navigate('PackagesScreen', {
-              labId: data.id,
-              categoryId: categoryId,
-            })
-          }
-        >
-          <Text style={styles.bookText}>Book Test</Text>
-        </TouchableOpacity>
+        {uploadedFiles ? (
+          <TouchableOpacity
+            style={[styles.bookBtn, { backgroundColor: "#4368ed" }]}
+            onPress={() =>
+              navigation.navigate("ReviewPrescription", {
+                lab: data,
+                files: uploadedFiles,
+              })
+            }
+          >
+            <Text style={styles.bookText}>Proceed</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.bookBtn}
+            onPress={() =>
+              navigation.navigate("PackagesScreen", {
+                labId: data.id,
+              })
+            }
+          >
+            <Text style={styles.bookText}>Book Test</Text>
+          </TouchableOpacity>
+        )}
       </View>
+
     </View>
   );
 };
 
 export default LabDetailsScreen;
-
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -301,19 +270,19 @@ const styles = StyleSheet.create({
 
   center: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   header: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     zIndex: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: COLORS.white,
     paddingHorizontal: scale(16),
     paddingTop: verticalScale(40),
@@ -326,11 +295,11 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: scale(12),
     fontSize: SIZES.large,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 
   banner: {
-    width: '100%',
+    width: "100%",
     height: verticalScale(260),
     marginTop: verticalScale(80),
   },
@@ -341,13 +310,13 @@ const styles = StyleSheet.create({
 
   labName: {
     fontSize: SIZES.large,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 
   topRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
 
   callBtn: {
@@ -355,34 +324,33 @@ const styles = StyleSheet.create({
     height: scale(36),
     borderRadius: scale(18),
     backgroundColor: COLORS.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: verticalScale(6),
   },
 
   ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: verticalScale(8),
   },
 
   starsRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginRight: scale(6),
   },
 
   ratingText: {
     fontSize: SIZES.medium,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.black,
     marginRight: scale(8),
   },
-
 
   reviewLink: {
     marginLeft: scale(8),
@@ -391,9 +359,9 @@ const styles = StyleSheet.create({
   },
 
   infoCard: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: '#F6F9FC',
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: "#F6F9FC",
     borderRadius: scale(12),
     padding: scale(12),
     marginTop: verticalScale(12),
@@ -411,9 +379,9 @@ const styles = StyleSheet.create({
   },
 
   openRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginTop: verticalScale(10),
   },
 
@@ -421,21 +389,23 @@ const styles = StyleSheet.create({
     marginLeft: scale(6),
     fontSize: SIZES.medium,
     color: COLORS.green,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 
   closeText: {
     color: COLORS.darkgray,
-    fontWeight: '400',
+    fontWeight: "400",
   },
 
   timingBox: {
     marginTop: verticalScale(8),
   },
+
   timingRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
+
   timingLabel: {
     fontSize: SIZES.medium,
     color: COLORS.darkgray,
@@ -444,13 +414,14 @@ const styles = StyleSheet.create({
 
   timingValue: {
     fontSize: SIZES.medium,
-    fontWeight: '700',
+    fontWeight: "700",
     color: COLORS.black,
   },
 
   timingColumn: {
     flex: 1,
   },
+
   timingText: {
     fontSize: SIZES.medium,
     color: COLORS.darkgray,
@@ -461,14 +432,14 @@ const styles = StyleSheet.create({
     height: scale(36),
     borderRadius: scale(18),
     backgroundColor: COLORS.white,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     elevation: 2,
   },
 
   sectionTitle: {
     fontSize: SIZES.large,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: verticalScale(10),
   },
 
@@ -480,14 +451,14 @@ const styles = StyleSheet.create({
   },
 
   accordionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     padding: scale(12),
   },
 
   accordionTitle: {
     fontSize: SIZES.medium,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 
   accordionBody: {
@@ -510,12 +481,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     paddingVertical: verticalScale(14),
     borderRadius: scale(10),
-    alignItems: 'center',
+    alignItems: "center",
   },
 
   bookText: {
     color: COLORS.white,
     fontSize: SIZES.large,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });

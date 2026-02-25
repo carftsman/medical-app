@@ -10,11 +10,11 @@ const DoctorReviewCard = ({ item }) => {
             <View style={styles.reviewsHeader}>
                 <View style={styles.reviewsPhotoName}>
                     <View style={styles.reviewPhotoCard}>
-                        <Image source={item.photo} style={styles.reviewPhoto} />
+                        <Image source={item.userImage} style={styles.reviewPhoto} />
                     </View>
                     <View style={{ gap: 5 }}>
-                        <Text style={styles.reviewName}>{item.name}</Text>
-                        <Text style={styles.reviewDate}>{item.date.split("T")[0]}</Text>
+                        <Text style={styles.reviewName}>{item.userName}</Text>
+                        <Text style={styles.reviewDate}>{item.createdAt.split("T")[0]}</Text>
                     </View>
                 </View>
                 <View style={{ flexDirection: 'row' }}>
@@ -28,7 +28,7 @@ const DoctorReviewCard = ({ item }) => {
                     ))}
                 </View>
             </View>
-            <Text style={styles.reviewComment}>{item.comments}</Text>
+            <Text style={styles.reviewComment}>{item.comment}</Text>
         </View>
     );
 }
@@ -69,19 +69,19 @@ const styles = StyleSheet.create({
         height: verticalScale(56),
     },
     reviewName: {
-        fontSize: scale(22),
+        fontSize: scale(18),
         fontWeight: '700',
         color: '#2F2A2A',
     },
     reviewDate: {
-        fontSize: scale(18),
+        fontSize: scale(16),
         fontWeight: '400',
         color: '#302A2A99',
     },
     reviewComment: {
         paddingHorizontal: scale(10),
         paddingVertical: verticalScale(10),
-        fontSize: scale(15),
+        fontSize: scale(16),
         lineHeight: verticalScale(24),
         fontWeight: '400',
         color: '#2F2A2A',

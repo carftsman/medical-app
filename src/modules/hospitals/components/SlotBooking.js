@@ -92,14 +92,12 @@ const SlotBooking = ({ dates, times, timeSlotsLoading }) => {
                     return (
                         <TouchableOpacity
                             key={item.date}
-                            disabled={isDisabled}
                             onPress={() => {
                                 dispatch(setDate(item.date));
                             }}
                             style={[
                                 styles.slotsCard,
-                                selectedDate === item.date && !isDisabled && styles.selectedCard,
-                                isDisabled && styles.disabledCard,
+                                selectedDate === item.date && styles.selectedCard,
                             ]}
                         >
                             <Text style={[

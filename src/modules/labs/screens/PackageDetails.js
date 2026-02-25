@@ -18,11 +18,14 @@ import { addToCart } from '../redux/labsCartSlice';
 import { COLORS, SIZES } from '../../../config/constants';
 import { scale, verticalScale } from '../../../utils/styling';
 import PackageDetailsSkeleton from '../components/PackageDetailsSkeleton';
+import useAuth from '../../../hooks/useAuth';
 
 const PackageDetails = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { user } = useAuth();
+  const userId = user?.id;
 
   const packageId = route?.params?.packageId ?? 1;
 
@@ -35,7 +38,7 @@ const PackageDetails = () => {
   const [openIncludes, setOpenIncludes] = useState(false);
 
   const isAdded = cartItems.some(
-    item => Number(item.labTestId) === Number(packageId)
+    item => Number(item.packageId) === Number(packageId)
   );
 
   const fetchDetails = async () => {
@@ -91,12 +94,9 @@ const PackageDetails = () => {
       setAdding(true);
 
       const payload = {
-        userId: 12,
+        userId: userId,
         labId: data.labId,
-        labTestId: data.id,
-        quantity: 1,
-        consultationType: "LAB_VISIT",
-        patientProfileId: null,
+        packageId: data.id,
       };
 
       const res = await labApi.addToLabCart(payload);

@@ -53,7 +53,7 @@ const onRefresh = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.screenHeader}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <AntDesign name="left" size={scale(24)} color="#000" />
@@ -81,7 +81,7 @@ const onRefresh = () => {
       })}>
         <Text style={styles.book}>Book Appointment</Text>
       </TouchableOpacity>
-    </SafeAreaView>
+    </View>
   );
 };
 
