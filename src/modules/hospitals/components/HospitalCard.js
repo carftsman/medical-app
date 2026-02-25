@@ -1,4 +1,3 @@
-// ======================= HospitalCard.js =======================
 import React from 'react';
 import {
   View,
@@ -11,18 +10,18 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { scale } from '../../../utils/styling';
 
 const HospitalCard = ({
-  image,               // can be URL or require()
+  image,
   hospitalName = '',
   distance,
   location = '',
   description = '',
-  isEmergency = true,
+  rating = 0, 
   isOpen24Hours = true,
   isFavorite = false,
   onFavoritePress,
   onViewDetails,
 }) => {
-  /* ---------- IMAGE SOURCE FIX ---------- */
+  /*  IMAGE SOURCE FIX  */
   const imageSource =
     typeof image === 'string'
       ? { uri: image }
@@ -38,13 +37,13 @@ const HospitalCard = ({
           <View style={styles.imagePlaceholder} />
         )}
 
-        {/* EMERGENCY BADGE */}
-        {isEmergency && (
-          <View style={styles.emergencyBadge}>
-            <Icon name="alert-circle" size={scale(14)} color="#FFF" />
-            <Text style={styles.emergencyText}>Emergency</Text>
-          </View>
-        )}
+        {/*  RATING BADGE  */}
+        <View style={styles.ratingBadge}>
+          <Icon name="star" size={scale(14)} color="#FFF" />
+          <Text style={styles.ratingTextBadge}>
+            {rating ? rating.toFixed(1) : '0.0'}
+          </Text>
+        </View>
       </View>
 
       {/* CONTENT */}
@@ -68,10 +67,9 @@ const HospitalCard = ({
             <>
               <View style={styles.iconTextRow}>
                 <Icon name="navigation" size={scale(13)} color="#056FD2" />
-              <Text style={styles.distanceText}>
-  {Number(distance).toFixed(1)} km
-</Text>
-
+                <Text style={styles.distanceText}>
+                  {Number(distance).toFixed(1)} km
+                </Text>
               </View>
               <View style={styles.divider} />
             </>
@@ -120,10 +118,10 @@ const HospitalCard = ({
     </View>
   );
 };
-//
+
 export default HospitalCard;
 
-/* ======================= STYLES ======================= */
+/*STYLES  */
 const styles = StyleSheet.create({
   container: {
     width: scale(340),
@@ -135,44 +133,52 @@ const styles = StyleSheet.create({
     marginVertical: scale(12),
     alignSelf: 'center',
   },
+
   imageWrapper: {
     height: scale(180),
     backgroundColor: '#F2F4F7',
   },
+
   image: {
     width: '100%',
     height: '100%',
   },
+
   imagePlaceholder: {
     width: '100%',
     height: '100%',
     backgroundColor: '#EAEAEA',
   },
-  emergencyBadge: {
+
+  ratingBadge: {
     position: 'absolute',
     top: scale(10),
     left: scale(10),
-    backgroundColor: '#FB2C36',
+    backgroundColor: '#366de4',
     paddingHorizontal: scale(10),
     paddingVertical: scale(4),
     borderRadius: scale(14),
     flexDirection: 'row',
     alignItems: 'center',
   },
-  emergencyText: {
+
+  ratingTextBadge: {
     color: '#FFF',
     fontSize: scale(11),
     marginLeft: scale(4),
     fontWeight: '600',
   },
+
   content: {
     padding: scale(14),
   },
+
   rowBetween: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+
   hospitalName: {
     fontSize: scale(16),
     fontWeight: '700',
@@ -180,54 +186,64 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: scale(8),
   },
+
   openBadge: {
     backgroundColor: '#00C950',
     borderRadius: scale(12),
     paddingHorizontal: scale(10),
     paddingVertical: scale(4),
   },
+
   openText: {
     color: '#FFF',
     fontSize: scale(11),
     fontWeight: '600',
   },
+
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: scale(6),
   },
+
   iconTextRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+
   distanceText: {
     marginLeft: scale(4),
     fontSize: scale(13),
     color: '#056FD2',
   },
+
   divider: {
     width: 1,
     height: scale(14),
     backgroundColor: '#DADADA',
     marginHorizontal: scale(8),
   },
+
   locationText: {
     marginLeft: scale(4),
     fontSize: scale(13),
     color: '#777',
     flexShrink: 1,
   },
+
   description: {
     marginTop: scale(6),
     fontSize: scale(13),
     color: '#777',
   },
+
   bottomActions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: scale(10),
   },
+
   viewDetailsBtn: {
     flex: 1,
     borderWidth: 1,
@@ -237,11 +253,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: scale(10),
   },
+
   viewDetailsText: {
     color: '#056FD2',
     fontSize: scale(12),
     fontWeight: '600',
   },
+
   favBtn: {
     padding: scale(6),
   },
