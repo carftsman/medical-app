@@ -58,8 +58,8 @@ const PatientDetails = ({ route, navigation }) => {
 
     console.log('Final Payload:', payload);
 
-    Alert.alert('Success', 'Patient details submitted successfully');
-  };
+  navigation.navigate('Payments', {
+  });  };
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.white }} edges={['top']}>
@@ -151,7 +151,7 @@ const PatientDetails = ({ route, navigation }) => {
           style={[styles.dropdown, categoryName && styles.active]}
           onPress={() =>
             navigation.navigate('DepartmentsList', {
-              onSelect: value => setProblem(value),
+              onSelect: (value) => {setProblem(value)},
             })
           }
         >

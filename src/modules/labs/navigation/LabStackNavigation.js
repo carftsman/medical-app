@@ -29,59 +29,57 @@ import InvoiceScreen from '../screens/InvoiceScreen';
 const LabStackNavigation = () => {
   const Stack = createNativeStackNavigator();
   return (
-    <LabCartProvider>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="LabTabNavigation" component={LabTabNavigation} />
-        <Stack.Screen name="SearchScreen" component={LabsSearchScreen} />
-        <Stack.Screen
-          name="UploadPrescription"
-          component={UploadPrescriptionScreen}
-        />
-        <Stack.Screen
-          name="PrescriptionPreview"
-          component={PrescriptionPreviewScreen}
-        />
-        <Stack.Screen
-          name="ReviewPrescription"
-          component={ReviewPrescriptionScreen}
-        />
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name="LabTabNavigation" component={LabTabNavigation} />
+      <Stack.Screen name="SearchScreen" component={LabsSearchScreen} />
+      <Stack.Screen
+        name="UploadPrescription"
+        component={UploadPrescriptionScreen}
+      />
+      <Stack.Screen
+        name="PrescriptionPreview"
+        component={PrescriptionPreviewScreen}
+      />
+      <Stack.Screen
+        name="ReviewPrescription"
+        component={ReviewPrescriptionScreen}
+      />
 
-        <Stack.Screen
-          name="PrescriptionSuccess"
-          component={PrescriptionSuccessScreen}
-        />
+      <Stack.Screen
+        name="PrescriptionSuccess"
+        component={PrescriptionSuccessScreen}
+      />
 
-        <Stack.Screen
-          name="PrescriptionTracking"
-          component={PrescriptionTrackingScreen}
-        />
-        <Stack.Screen
-          name="PrescriptionList"
-          component={PrescriptionListScreen}
-        />
-        <Stack.Screen name="LabsScreen" component={LabsScreen} />
-        <Stack.Screen name="LabDetails" component={LabDetailsScreen} />
-        <Stack.Screen name="PackagesScreen" component={PackagesScreen} />
-        <Stack.Screen name="PackagesDetails" component={PackageDetails} />
-        <Stack.Screen name="CartScreen" component={LabsCartScreen} />
-        <Stack.Screen name="SelectSlot" component={SelectSlotScreen} />
-        <Stack.Screen name="AddAddress" component={AddAddressScreen} />
-        <Stack.Screen name="ReviewCart" component={ReviewCart} />
-        <Stack.Screen name="ReportsTab" component={ReportsTab} />
-        <Stack.Screen name="ReportDetails" component={ReportDetailsScreen} />
-        <Stack.Screen name="Feedback" component={LabFeedbackScreen} />
-        <Stack.Screen
-          name="LabFeedbackSuccess"
-          component={LabFeedbackSuccessScreen}
-        />
-        <Stack.Screen name="LabBookingSuccess" component={LabBookingSuccess} />
-        <Stack.Screen name="InvoiceScreen" component={InvoiceScreen} />
-      </Stack.Navigator>
-    </LabCartProvider>
+      <Stack.Screen
+        name="PrescriptionTracking"
+        component={PrescriptionTrackingScreen}
+      />
+      <Stack.Screen
+        name="PrescriptionList"
+        component={PrescriptionListScreen}
+      />
+      <Stack.Screen name="LabsScreen" component={LabsScreen} />
+      <Stack.Screen name="LabDetails" component={LabDetailsScreen} />
+      <Stack.Screen name="PackagesScreen" component={PackagesScreen} />
+      <Stack.Screen name="PackagesDetails" component={PackageDetails} />
+      <Stack.Screen name="CartScreen" component={LabsCartScreen} />
+      <Stack.Screen name="SelectSlot" component={SelectSlotScreen} />
+      <Stack.Screen name="AddAddress" component={AddAddressScreen} />
+      <Stack.Screen name="ReviewCart" component={ReviewCart} />
+      <Stack.Screen name="ReportsTab" component={ReportsTab} />
+      <Stack.Screen name="ReportDetails" component={ReportDetailsScreen} />
+      <Stack.Screen name="Feedback" component={LabFeedbackScreen} />
+      <Stack.Screen
+        name="LabFeedbackSuccess"
+        component={LabFeedbackSuccessScreen}
+      />
+      <Stack.Screen name="LabBookingSuccess" component={LabBookingSuccess} />
+      <Stack.Screen name="InvoiceScreen" component={InvoiceScreen} />
+    </Stack.Navigator>
   );
 };
 
