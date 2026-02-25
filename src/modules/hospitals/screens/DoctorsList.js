@@ -122,6 +122,9 @@ const DoctorsList = () => {
         params: {
           mode: finalMode,
           q: routeSearch, // send to backend
+          distance: 50,
+          lat: 17.385044,
+          lng: 78.486671,
         },
       });
 
@@ -159,8 +162,6 @@ const DoctorsList = () => {
 
     return matchesCategory && matchesSearch;
   });
-
-  console.log('doctors list', route.params);
 
   const ListHeader = () => (
     <View style={styles.headerWrapper}>
