@@ -27,7 +27,7 @@ const WomenDoctorsScreen = () => {
   const route = useRoute();
   const dispatch = useDispatch();
 
-  const routeCategoryName = route?.params?.categoryName;
+  const routeCategoryName = route?.params?.categoryName || "Cardiology";
   const routeHospitalId = route?.params?.hospitalId || null;
 
   const reduxMode = useSelector(
@@ -78,6 +78,17 @@ const finalMode =
     }
   };
 
+  useEffect(() => {
+  if (routeCategoryName && categories.length > 0) {
+    const categoryExists = categories.find(
+      cat => cat.name.toLowerCase() === routeCategoryName.toLowerCase()
+    );
+
+    if (categoryExists) {
+      setActiveCategory(categoryExists.name);
+    }
+  }
+}, [categories, routeCategoryName]);
 
   useEffect(() => {
     fetchDoctors();

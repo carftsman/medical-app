@@ -20,7 +20,8 @@ const ProfileNavigator = () => {
   return (
    <Stack.Navigator screenOptions={{
     headerShown:false
-   }}>
+   }}
+   initialRouteName='AddFamilyMembers'>
     <Stack.Screen name="Profile" component={ProfileScreen} />
     <Stack.Screen name="EditProfile" component={EditProfile} /> 
    <Stack.Screen name='FamilyMembers' component={FamilyMembers}/>

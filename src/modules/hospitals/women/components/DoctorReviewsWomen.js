@@ -4,23 +4,23 @@ import { scale, verticalScale } from '../../../../utils/styling';
 import DoctorReviewCardWomen from './DoctorReviewCardWomen';
 
 
-const DoctorReviewsWomen = () => {
+const DoctorReviewsWomen = ({ reviews }) => {
 
-    const reviews = [{
-        photo: require("../../../../../assets/doctorPhoto.jpg"),
-        name: 'Akshay',
-        date: "2025-01-20T11:00:00.000Z",
-        rating: 4,
-        comments: "A doctor is a highly respected professional who dedicates their life to caring for the sick.",
-    },
-    {
-        photo: require("../../../../../assets/doctorPhoto.jpg"),
-        name: 'Sathvika',
-        date: "2025-01-10T11:00:00.000Z",
-        rating: 5,
-        comments: "A doctor is a highly respected professional who dedicates their life to caring for the sick.",
-    }
-    ];
+    // const reviews = [{
+    //     photo: require("../../../../../assets/doctorPhoto.jpg"),
+    //     name: 'Akshay',
+    //     date: "2025-01-20T11:00:00.000Z",
+    //     rating: 4,
+    //     comments: "A doctor is a highly respected professional who dedicates their life to caring for the sick.",
+    // },
+    // {
+    //     photo: require("../../../../../assets/doctorPhoto.jpg"),
+    //     name: 'Sathvika',
+    //     date: "2025-01-10T11:00:00.000Z",
+    //     rating: 5,
+    //     comments: "A doctor is a highly respected professional who dedicates their life to caring for the sick.",
+    // }
+    // ];
 
     return (
         <View>
