@@ -17,18 +17,25 @@ import Icon from "react-native-vector-icons/Ionicons";
 const InvoiceScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const bookingIds = route?.params?.bookingIds ?? 21;
+
+  // ✅ FIXED: Properly handling bookingIds array
+  const bookingIds = route?.params?.bookingIds ?? [];
+  const bookingId = bookingIds.length > 0 ? bookingIds[0] : null;
 
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchInvoice();
-  }, []);
+    if (bookingId) {
+      fetchInvoice();
+    } else {
+      setLoading(false);
+    }
+  }, [bookingId]);
 
   const fetchInvoice = async () => {
     try {
-      const res = await labApi.getLabInvoice(bookingIds);
+      const res = await labApi.getLabInvoice(bookingId);
       setInvoice(res.data.invoice);
     } catch (error) {
       console.log(
@@ -101,8 +108,6 @@ const InvoiceScreen = () => {
   const { lab, patient, test, slot, payment } = invoice;
 
   return (
-
-
     <View style={{ flex: 1, backgroundColor: "#F8FAFC" }}>
 
       {/* Fixed Header */}
@@ -123,6 +128,7 @@ const InvoiceScreen = () => {
         contentContainerStyle={{ paddingHorizontal: 16 }}
         showsVerticalScrollIndicator={false}
       >
+
         {/* Payment Status */}
         <View style={styles.successContainer}>
           <View style={styles.successIcon}>

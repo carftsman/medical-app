@@ -33,8 +33,7 @@ const LabStackNavigation = () => {
         screenOptions={{
           headerShown: false,
         }}
-        // initialRouteName='InvoiceScreen'
-        initialRouteName='LabBookingSuccess'
+       
       >
         <Stack.Screen name="LabTabNavigation" component={LabTabNavigation} />
         <Stack.Screen name="SearchScreen" component={LabsSearchScreen} />
