@@ -156,7 +156,6 @@ const LabsCartScreen = () => {
             keyExtractor={item => item.id.toString()}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
-              flex: 1,
               paddingBottom: verticalScale(120),
             }}
             // ListHeaderComponent={<CartHeader />}

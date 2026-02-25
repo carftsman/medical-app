@@ -4,9 +4,18 @@ import { TouchableOpacity, StyleSheet } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 const Backbtn = ({ onPress }) => {
   const navigation = useNavigation();
+
+  const handleNavigate = () => {
+    if (onPress) {
+      onPress();
+      return;
+    } else {
+      navigation.goBack();
+    }
+  };
   return (
     <TouchableOpacity
-      onPress={onPress}
+      onPress={handleNavigate}
       style={styles.container}
       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
     >

@@ -1,88 +1,101 @@
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  ActivityIndicator,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import PrescriptionEmptyView from '../components/prescription/PrescriptionEmptyView';
-import PrescriptionListScreen from '../components/prescription/PrescriptionsList';
+import { scale } from '../../../../utils/styling';
 
-import { getUserPrescriptions } from '../services/prescriptionApi';
-
-const MyPrescriptionsScreen = () => {
+const PrescriptionEmptyView = () => {
   const navigation = useNavigation();
-
-  const [uploads, setUploads] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [previewImage, setPreviewImage] = useState(null);
-  const [previewPDF, setPreviewPDF] = useState(null);
-
-  /* ================= FETCH ================= */
-  const fetchPrescriptions = async () => {
-    try {
-      const response = await getUserPrescriptions();
-      let data = response?.data?.data || [];
-
-      if (!Array.isArray(data)) data = [data];
-
-      const sorted = data.sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-      );
-
-      setUploads(sorted);
-    } catch (error) {
-      console.log('Prescription List Error:', error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchPrescriptions();
-    }, []),
-  );
-
-  // if (loading) {
-  //   return (
-  //     <View style={{ flex: 1 }}>
-  //       <View style={styles.header}>
-  //         <TouchableOpacity>
-  //           <Feather name="arrow-left" size={22} color="#111827" />
-  //         </TouchableOpacity>
-
-  //         <Text style={styles.headerTitle}>My Prescriptions</Text>
-  //         <View style={{ width: 25 }} />
-  //       </View>
-  //       <View style={styles.loaderContainer}>
-  //         <ActivityIndicator size="large" color="#056FD2" />
-  //       </View>
-  //     </View>
-  //   );
-  // }
-
-  return <PrescriptionEmptyView />;
-
   return (
-    <PrescriptionListScreen
-      uploads={uploads}
-      refreshing={refreshing}
-      setRefreshing={setRefreshing}
-      previewImage={previewImage}
-      setPreviewImage={setPreviewImage}
-      previewPDF={previewPDF}
-      setPreviewPDF={setPreviewPDF}
-      fetchPrescriptions={fetchPrescriptions}
-    />
+    <View style={styles.safe}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity>
+          <Feather name="arrow-left" size={22} color="#111827" />
+        </TouchableOpacity>
+
+        <Text style={styles.headerTitle}>My Prescriptions</Text>
+        <View style={{ width: 25 }} />
+      </View>
+
+      <ScrollView contentContainerStyle={styles.container}>
+        {/* Empty State Icon */}
+        <View style={styles.circle}>
+          <View style={styles.innerIcon}>
+            <MaterialCommunityIcons
+              name="file-document-outline"
+              size={36}
+              color="#3B82F6"
+            />
+          </View>
+
+          <View style={styles.cameraIcon}>
+            <Ionicons name="camera" size={16} color="#3B82F6" />
+          </View>
+        </View>
+
+        {/* Title */}
+        <Text style={styles.title}>
+          You haven’t uploaded any prescriptions yet.
+        </Text>
+
+        {/* Subtitle */}
+        <Text style={styles.subtitle}>
+          Upload your first prescription to find the best lab prices near you
+          and book tests with ease
+        </Text>
+
+        {/* Upload Button */}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('UploadPrescription')}
+          style={styles.uploadBtn}
+        >
+          <Ionicons name="cloud-upload-outline" size={20} color="#fff" />
+          <Text style={styles.uploadText}> Upload Prescription</Text>
+        </TouchableOpacity>
+
+        {/* How it works */}
+        <Text style={styles.howTitle}>HOW IT WORKS</Text>
+
+        <View style={styles.steps}>
+          <Step
+            icon={<Ionicons name="camera-outline" size={20} color="#3B82F6" />}
+            title="Upload"
+            desc="Snap a photo or upload a PDF of your doctor’s prescription."
+          />
+          <Step
+            icon={<Ionicons name="time-outline" size={20} color="#3B82F6" />}
+            title="Wait"
+            desc="Labs review and confirms avialability within 30–120 mins."
+          />
+          <Step
+            icon={
+              <MaterialCommunityIcons
+                name="cart-outline"
+                size={20}
+                color="#3B82F6"
+              />
+            }
+            title="Book"
+            desc="Compare prices and book a home collection from your preferred lab."
+          />
+        </View>
+
+        {/* Secure Badge */}
+        <View style={styles.secureBadge}>
+          <Ionicons name="shield-checkmark" size={16} color="#3B82F6" />
+          <Text style={styles.secureText}> 100% ENCRYPTED & SECURE</Text>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -96,7 +109,7 @@ const Step = ({ icon, title, desc }) => (
   </View>
 );
 
-export default MyPrescriptionsScreen;
+export default PrescriptionEmptyView;
 
 const styles = StyleSheet.create({
   safe: {

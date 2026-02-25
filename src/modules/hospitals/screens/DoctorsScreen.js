@@ -28,8 +28,7 @@ const DoctorsScreen = () => {
   const [doctorsData, setDoctorsData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedType, setSelectedType] = useState("ONLINE");
-
+  const [selectedType, setSelectedType] = useState('ONLINE');
 
   const applyFilters = () => {
     setShowFilter(false);
@@ -40,11 +39,16 @@ const DoctorsScreen = () => {
       setLoading(true);
       setError(null);
 
-      const response = await api.get('/hospital/user/doctors',
-        {
+      const response = await api.get('/hospital/user/doctors', {
+        params: {
           mode: selectedType,
-        }
-      );
+          distance: 50,
+          lat: 17.385044,
+          lng: 78.486671,
+        },
+      });
+
+      console.log('doctors response', response.data);
 
       const mappedDoctors = response.data.doctors.map(item => ({
         id: item.id.toString(),
@@ -63,7 +67,10 @@ const DoctorsScreen = () => {
 
       setDoctorsData(mappedDoctors);
     } catch (err) {
-      console.log('Doctors API Error:', err);
+      console.log(
+        'Doctors API Error:',
+        err.response.data.message || error.message,
+      );
       setError('Unable to fetch doctors');
     } finally {
       setLoading(false);
@@ -81,19 +88,19 @@ const DoctorsScreen = () => {
 
   const getFilteredDoctors = () => {
     let data = [...doctorsData];
-console.log("Filtering for type:", selectedType);
+    console.log('Filtering for type:', selectedType);
 
-  data = data.filter(d => {
-    if (d.consultationMode  === "BOTH") return true;
+    data = data.filter(d => {
+      if (d.consultationMode === 'BOTH') return true;
 
-    if (selectedType === "OFFLINE" && d.consultationMode  === "OFFLINE")
-      return true;
+      if (selectedType === 'OFFLINE' && d.consultationMode === 'OFFLINE')
+        return true;
 
-    if (selectedType === "ONLINE" && d.consultationMode  === "ONLINE")
-      return true;
+      if (selectedType === 'ONLINE' && d.consultationMode === 'ONLINE')
+        return true;
 
-    return false;
-  });
+      return false;
+    });
 
     // Search
     if (search.trim()) {
@@ -183,6 +190,8 @@ console.log("Filtering for type:", selectedType);
     applyFilters,
   };
 
+  console.log(doctorsData);
+
   return (
     <View style={styles.container}>
       {/*Search Bar */}
@@ -199,10 +208,7 @@ console.log("Filtering for type:", selectedType);
 
       <DoctModalButton {...allModalProps} />
 
-      <DoctorScreenMode
-      selected={selectedType}
-      onChange={setSelectedType}
-      />
+      <DoctorScreenMode selected={selectedType} onChange={setSelectedType} />
       {/* Doctor Card */}
       <DoctList
         loading={loading}

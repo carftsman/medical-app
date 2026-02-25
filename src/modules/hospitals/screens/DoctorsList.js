@@ -45,7 +45,7 @@ const DoctorsList = () => {
 
   const finalMode = (routeMode || reduxMode || 'offline').toUpperCase();
   const [activeCategory, setActiveCategory] = useState(
-    routeCategoryName || 'All',
+    () => routeCategoryName || 'All',
   );
 
   /* ---------- UPDATE CATEGORY WHEN ROUTE CHANGES ---------- */
@@ -83,6 +83,14 @@ const DoctorsList = () => {
     fetchDoctors();
   }, [activeCategory, finalMode]);
 
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      fetchDoctors(search);
+    }, 500);
+
+    return () => clearTimeout(delayDebounce);
+  }, [search]);
+
   const fetchDoctors = async () => {
     try {
       setLoading(true);
@@ -92,7 +100,8 @@ const DoctorsList = () => {
           `/hospital/user/hospital/${hospitalId}/doctors`,
           {
             params: {
-              mode: finalMode,
+              specialization: activeCategory === 'All' ? '' : activeCategory,
+              search,
             },
           },
         );
@@ -120,6 +129,8 @@ const DoctorsList = () => {
 
       const routeSearch = route.params?.search;
 
+      console.log('active category', activeCategory);
+
       const response = await api.get('/hospital/user/doctors', {
         params: {
           mode: finalMode,
@@ -127,6 +138,8 @@ const DoctorsList = () => {
           distance: 50,
           lat: 17.385044,
           lng: 78.486671,
+          specialization: activeCategory === 'All' ? '' : activeCategory,
+          search,
         },
       });
 

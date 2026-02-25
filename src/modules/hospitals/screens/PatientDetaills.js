@@ -58,8 +58,8 @@ const PatientDetails = ({ route, navigation }) => {
 
     console.log('Final Payload:', payload);
 
-  navigation.navigate('Payments', {
-  });  };
+    navigation.navigate('Payments', {});
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.white }} edges={['top']}>
@@ -151,7 +151,9 @@ const PatientDetails = ({ route, navigation }) => {
           style={[styles.dropdown, categoryName && styles.active]}
           onPress={() =>
             navigation.navigate('DepartmentsList', {
-              onSelect: (value) => {setProblem(value)},
+              onSelect: value => {
+                setProblem(value);
+              },
             })
           }
         >
@@ -332,11 +334,9 @@ const styles = StyleSheet.create({
   descHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     marginTop: verticalScale(SIZES.medium),
   },
   descLabel: {
-    flex: 1,
     fontFamily: FONT.medium,
     fontSize: scale(SIZES.medium),
     color: COLORS.black,
