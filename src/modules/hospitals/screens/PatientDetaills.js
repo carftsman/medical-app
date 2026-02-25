@@ -57,11 +57,11 @@ const PatientDetails = ({ navigation }) => {
 
     console.log('Final Payload:', payload);
 
-    Alert.alert('Success', 'Patient details submitted successfully');
-  };
+  navigation.navigate('Payments', {
+  });  };
 
   return (
-    <SafeAreaView
+    <View
       style={{ flex: 1, backgroundColor: COLORS.white }}
       edges={['top']}
     >
@@ -153,7 +153,7 @@ const PatientDetails = ({ navigation }) => {
           style={styles.dropdown}
           onPress={() =>
             navigation.navigate('DepartmentsList', {
-              onSelect: value => setProblem(value),
+              onSelect: (value) => {setProblem(value)},
             })
           }
         >
@@ -234,7 +234,7 @@ const PatientDetails = ({ navigation }) => {
         />
         {/* </KeyboardAvoidingView> */}
       </KeyboardAwareScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

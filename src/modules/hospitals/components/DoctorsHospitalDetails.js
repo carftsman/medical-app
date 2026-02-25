@@ -5,9 +5,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { scale, verticalScale } from '../../../utils/styling';
 
-const DoctorsHospitalDetails = ({ image, name, place, latitude, longitude }) => {
+const DoctorsHospitalDetails = ({ image, name, place, latitude, longitude, distanceKm, rating, timings, days, startTime, endTime }) => {
 
-    const rating = 4.3;
     const hospitalRatingStars = Math.round(rating);
 
     const openGoogleMaps = () => {
@@ -16,6 +15,17 @@ const DoctorsHospitalDetails = ({ image, name, place, latitude, longitude }) => 
         Linking.openURL(url);
     };
 
+    const formatTime = (dateString) => {
+        if (!dateString) return '';
+
+        const date = new Date(dateString);
+
+        return date.toLocaleTimeString("en-IN", {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+        });
+    };
 
     return (
         <View style={styles.hospitalDetailsHeader}>
@@ -29,7 +39,7 @@ const DoctorsHospitalDetails = ({ image, name, place, latitude, longitude }) => 
                     <View style={styles.hospitalDetails}>
                         <Text style={styles.hospitalName}>{name}</Text>
                         <Text style={styles.hospitalLocation}>
-                            <Text><FontAwesome name="location-arrow" size={15} color="#056FD2" /> 2.4 kms </Text>
+                            <Text><FontAwesome name="location-arrow" size={15} color="#056FD2" /> {distanceKm || 2.4} kms </Text>
                             |
                             <Ionicons name="location-outline" size={15} color="#FF0000" /><Text> {place}</Text>
                         </Text>
@@ -50,8 +60,8 @@ const DoctorsHospitalDetails = ({ image, name, place, latitude, longitude }) => 
                     <Text style={styles.timingsText} >Timings</Text>
                     <View style={styles.timingsCards}>
                         <View style={styles.timingsCard}>
-                            <Text style={styles.timingsTextDays}>Mon - Sat</Text>
-                            <Text style={styles.timingsTextTime}>6:30 AM - 10:00 PM</Text>
+                            <Text style={styles.timingsTextDays}>{days}</Text>
+                            <Text style={styles.timingsTextTime}>{formatTime(startTime)} - {formatTime(endTime)}</Text>
                         </View>
                         <View style={styles.timingsCard}>
                             <Text style={styles.timingsTextDays}>Sun</Text>
@@ -61,7 +71,7 @@ const DoctorsHospitalDetails = ({ image, name, place, latitude, longitude }) => 
                 </View>
 
                 <View style={styles.mapContainer}>
-                    <Image style={styles.mapImage} source={require('../../../../assets/Map.png')}/>
+                    <Image style={styles.mapImage} source={require('../../../../assets/Map.png')} />
                 </View>
 
                 <TouchableOpacity style={styles.getDirectionsButton} onPress={openGoogleMaps}>

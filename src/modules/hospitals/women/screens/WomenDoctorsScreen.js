@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput,
@@ -9,7 +8,6 @@ import {
   TouchableOpacity
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -26,7 +24,7 @@ const WomenDoctorsScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const dispatch = useDispatch();
-
+  const routeCategoryId = route?.params?.categoryId;
   const routeCategoryName = route?.params?.categoryName;
   const routeHospitalId = route?.params?.hospitalId || null;
 
@@ -45,20 +43,12 @@ const WomenDoctorsScreen = () => {
   const [error, setError] = useState('');
 
 
- const routeMode = route.params?.mode;
+  const routeMode = route.params?.mode;
   const finalMode =
-    (routeMode || reduxMode || "offline").toUpperCase();
+    (routeMode || reduxMode).toUpperCase();
 
- 
-  useEffect(() => {
-    if (routeCategoryName) {
-      setActiveCategory(routeCategoryName);
-    }
 
-    if (routeMode) {
-      dispatch(setConsultationMode(routeMode));
-    }
-  }, [routeCategoryName, routeMode]);
+
 
   useEffect(() => {
     fetchCategories();
@@ -160,7 +150,6 @@ const WomenDoctorsScreen = () => {
           activeCategory.toLowerCase()
       );
 
-
   const ListHeader = () => (
     <View style={styles.headerWrapper}>
       <View style={styles.searchBox}>
@@ -172,7 +161,6 @@ const WomenDoctorsScreen = () => {
           style={styles.searchInput}
         />
       </View>
-
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {loadingCategories
@@ -201,8 +189,6 @@ const WomenDoctorsScreen = () => {
           ))}
       </ScrollView>
 
-
-      {/* MODE FILTER */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {[
           { label: 'Hospital visit', value: 'OFFLINE' },
@@ -237,7 +223,6 @@ const WomenDoctorsScreen = () => {
     </View>
   );
 
-  /* ---------- RENDER ---------- */
   return (
     <View style={styles.container}>
       <View style={styles.header}>

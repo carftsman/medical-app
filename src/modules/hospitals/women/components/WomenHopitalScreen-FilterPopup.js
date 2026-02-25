@@ -83,6 +83,10 @@ setCategories(data);
     .filter(cat => selectedCategories.includes(cat.id))
     .map(cat => cat.name);
   const handleApply = () => {
+    console.log("Filters Applied:", {
+  openNow,
+  open24x7,
+});
     onApply({
       distance,
       sortBy,
@@ -261,12 +265,12 @@ const styles = StyleSheet.create({
   },
 
   chip: {
-    backgroundColor: COLORS.lightGray,
+    backgroundColor: COLORS.white,
     paddingHorizontal: scale(16),
     paddingVertical: verticalScale(8),
     borderRadius: scale(20),
     borderWidth: scale(1),
-    borderColor: COLORS.lightGray,
+    borderColor: COLORS.lightblack,
   },
 
   chipActive: {
@@ -350,7 +354,7 @@ const styles = StyleSheet.create({
   applyBtn: {
     flex: 1,
     height: verticalScale(48),
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.pink,
     borderRadius: scale(28),
     alignItems: 'center',
     justifyContent: 'center',

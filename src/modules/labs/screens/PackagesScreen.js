@@ -13,14 +13,20 @@ import PackageCardSkeleton from '../components/PackageCardSkeleton';
 import PackagesHeader from '../components/PackagesHeader';
 import { COLORS } from '../../../config/constants';
 import { scale } from '../../../utils/styling';
-import { useLabCart } from '../context/LabCartContext';
+import { useDispatch, useSelector } from 'react-redux';
+import useAuth from '../../../hooks/useAuth';
 
 const PackagesScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const labId = route?.params?.labId;
+  const selectedAge = route?.params?.selectedAge;
+  const categoryId = route?.params?.categoryId;
+  const dispatch = useDispatch();
+  const cartItems = useSelector(state => state.labsCart.items);
+  const { user } = useAuth();
+  const userId = user?.id;
 
-  const { cartItems, addToCart } = useLabCart();
 
   const [filterVisible, setFilterVisible] = useState(false);
   const [labName, setLabName] = useState('');
@@ -30,7 +36,7 @@ const PackagesScreen = () => {
   const [searchText, setSearchText] = useState('');
   const [addingItemIds, setAddingItemIds] = useState([]);
 
-  
+
   const formatPackages = (packages) => {
     return packages?.map(item => ({
       id: item.packageId,
@@ -49,14 +55,14 @@ const PackagesScreen = () => {
     })) || [];
   };
 
-  
+
   useFocusEffect(
     useCallback(() => {
       if (labId) {
         fetchLabDetails();
-        fetchPackages();
+        fetchPackagesWithParams();
       }
-    }, [labId])
+    }, [labId, selectedAge, categoryId])
   );
 
   useEffect(() => {
@@ -76,17 +82,37 @@ const PackagesScreen = () => {
     }
   };
 
-  const fetchPackages = async () => {
+  const fetchPackagesWithParams = async () => {
     try {
       setListLoading(true);
-      const res = await labApi.getLabTests(labId);
-      setData(formatPackages(res?.data?.packages));
+
+      let params = {};
+
+      if (selectedAge) {
+        params.minAge = selectedAge;
+        params.maxAge = selectedAge;
+      }
+
+      if (categoryId) {
+        params.categoryId = categoryId;
+      }
+
+      console.log("FILTER PARAMS:", params);
+
+      const res =
+        selectedAge || categoryId
+          ? await labApi.filterPackages(labId, params)
+          : await labApi.getLabTests(labId);
+
+      setData(formatPackages(res?.data?.packages || []));
     } catch (error) {
-      console.log('Packages API error', error);
+      console.log("Packages fetch error:", error);
     } finally {
       setListLoading(false);
     }
   };
+
+
 
   const handleSearch = async () => {
     try {
@@ -99,10 +125,10 @@ const PackagesScreen = () => {
         searchText.trim().length === 0
           ? allPackages
           : allPackages.filter(item =>
-              item.packageName
-                ?.toLowerCase()
-                .includes(searchText.toLowerCase())
-            );
+            item.packageName
+              ?.toLowerCase()
+              .includes(searchText.toLowerCase())
+          );
 
       setData(formatPackages(filtered));
     } catch (error) {
@@ -115,7 +141,8 @@ const PackagesScreen = () => {
   const onRefresh = async () => {
     try {
       setRefreshing(true);
-      await fetchPackages();
+      await fetchPackagesWithParams();
+
     } catch (error) {
       console.log('Refresh error:', error);
     } finally {
@@ -130,73 +157,76 @@ const PackagesScreen = () => {
       setAddingItemIds(prev => [...prev, item.id]);
 
       const payload = {
-        userId: item.userId || 21,
+        userId: userId,
         labId: item.labId,
-        labTestId: item.id,
+        packageId: item.id,
+        quantity: 1,
+
       };
 
-      await addToCart(payload);
+      const res = await labApi.addToLabCart(payload);
+      if (res?.data?.item) {
+        dispatch(addToCart(res.data.item));
+      }
 
     } catch (error) {
       console.log('Add to cart failed:', error?.response?.data || error.message);
-    } finally {
-      setAddingItemIds(prev => prev.filter(id => id !== item.id));
     }
   };
 
-const applyFilters = async (filters) => {
-  try {
-    setListLoading(true);
+  const applyFilters = async (filters) => {
+    try {
+      setListLoading(true);
 
-    let params = {};
+      let params = {};
 
-    
-    if (filters.feeRange) {
-      const [min, max] = filters.feeRange.split('-');
-      params.minPrice = Number(min);
-      params.maxPrice = Number(max);
+
+      if (filters.feeRange) {
+        const [min, max] = filters.feeRange.split('-');
+        params.minPrice = Number(min);
+        params.maxPrice = Number(max);
+      }
+
+      // AGE
+      if (filters.age) {
+        const [min, max] = filters.age.split('-');
+        params.minAge = Number(min);
+        params.maxAge = Number(max);
+      }
+
+      // GENDER
+      if (filters.gender) {
+        params.gender = filters.gender;
+      }
+
+      // SORT
+      if (filters.sort) {
+        params.sortBy = filters.sort;
+      }
+
+      console.log("FILTER PARAMS:", params);
+
+      const res = await labApi.filterPackages(labId, params);
+
+      let packages = formatPackages(res?.data?.packages || []);
+
+
+      if (filters.sort === 'price_asc') {
+        packages.sort((a, b) => a.price - b.price);
+      }
+
+      if (filters.sort === 'price_desc') {
+        packages.sort((a, b) => b.price - a.price);
+      }
+
+      setData([...packages]);
+
+    } catch (error) {
+      console.log('Filter error:', error?.response?.data || error.message);
+    } finally {
+      setListLoading(false);
     }
-
-    // AGE
-    if (filters.age) {
-      const [min, max] = filters.age.split('-');
-      params.minAge = Number(min);
-      params.maxAge = Number(max);
-    }
-
-    // GENDER
-    if (filters.gender) {
-      params.gender = filters.gender;
-    }
-
-    // SORT 
-    if (filters.sort) {
-      params.sortBy = filters.sort;
-    }
-
-    console.log("FILTER PARAMS:", params);
-
-    const res = await labApi.filterPackages(labId, params);
-
-    let packages = formatPackages(res?.data?.packages || []);
-
-    
-    if (filters.sort === 'price_asc') {
-      packages.sort((a, b) => a.price - b.price);
-    }
-
-    if (filters.sort === 'price_desc') {
-      packages.sort((a, b) => b.price - a.price);
-    }
-
-    setData([...packages]); 
-
-  } catch (error) {
-    console.log('Filter error:', error?.response?.data || error.message);
-  } finally {
-    setListLoading(false);
-  }
-};
+  };
 
 
 
@@ -204,7 +234,7 @@ const applyFilters = async (filters) => {
   return (
     <View style={styles.container}>
       <PackagesHeader
-        title={labName || 'Laboratory'}
+        title={route?.params?.categoryName || labName}
         searchText={searchText}
         setSearchText={setSearchText}
         onFilterPress={() => setFilterVisible(true)}
@@ -226,7 +256,10 @@ const applyFilters = async (filters) => {
           refreshing={refreshing}
           onRefresh={onRefresh}
           renderItem={({ item }) => {
-            const isAdded = cartItems.some(cart => cart.labTestId === item.id);
+            const isAdded = cartItems.some(
+              cart => Number(cart.packageId) === Number(item.id)
+            );
+
 
             return (
               <PackageCard
@@ -272,4 +305,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#999',
   },
-});
+}); 

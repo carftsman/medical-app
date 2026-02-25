@@ -68,7 +68,17 @@ const HospitalsHomeScreen = ({navigation}) => {
     fetchCategories();
     fetchNearbyHospitals();
   }, []);
+  useEffect(() => {
+  if (navigation?.getState()?.routes) {
+    const route = navigation.getState().routes.find(
+      r => r.name === 'PatientDetails'
+    );
 
+    if (route?.params?.consultationMode === 'instant') {
+      dispatch(setConsultationMode('instant'));
+    }
+  }
+}, []);
   const fetchCategories = async () => {
     try {
       setLoadingDepartments(true)

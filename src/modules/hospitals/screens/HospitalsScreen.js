@@ -5,7 +5,7 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -22,22 +22,25 @@ const LATITUDE = 17.385044;
 const LONGITUDE = 78.486671;
 
 const HospitalsScreen = ({ navigation }) => {
-  const [mode, setMode] = useState('BOTH');
   const [hospitals, setHospitals] = useState([]);
-  const [overrideResults, setOverrideResults] = useState(null); // 🔑 KEY FIX
+  const [overrideResults, setOverrideResults] = useState(null);
   const [favorites, setFavorites] = useState({});
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
 
-  /* ================= LOAD HOSPITALS ================= */
-  const loadHospitals = async selectedMode => {
-    setLoading(true);
-    setMode(selectedMode);
-    setOverrideResults(null); // reset search/filter safely
+  /* LOAD HOSPITALS */
+  const loadHospitals = async (isRefresh = false) => {
+    if (isRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+
+    setOverrideResults(null);
 
     try {
-      const res = await hospitalApi.getHospitalsByMode({
-        mode: selectedMode,
+      const res = await hospitalApi.getNearbyHospitals({
         latitude: LATITUDE,
         longitude: LONGITUDE,
       });
@@ -45,6 +48,7 @@ const HospitalsScreen = ({ navigation }) => {
       const hospitalList =
         res?.data?.data ||
         res?.data?.hospitals ||
+        res?.data?.results ||
         [];
 
       setHospitals(Array.isArray(hospitalList) ? hospitalList : []);
@@ -53,80 +57,97 @@ const HospitalsScreen = ({ navigation }) => {
       setHospitals([]);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
-    loadHospitals('BOTH');
+    loadHospitals();
   }, []);
 
-  /* ================= DATA SOURCE ================= */
+  const onRefresh = () => {
+    loadHospitals(true);
+  };
+
+  /* DATA SOURCE */
   const dataSource =
     overrideResults !== null ? overrideResults : hospitals;
+
+  /* SKELETON CARD */
+  const SkeletonCard = () => (
+    <View style={styles.skeletonCard}>
+      <View style={styles.skeletonImage} />
+      <View style={styles.skeletonContent}>
+        <View style={styles.skeletonLineLarge} />
+        <View style={styles.skeletonLineSmall} />
+        <View style={styles.skeletonLineSmall} />
+      </View>
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
+
         {/* HEADER */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={22} />
           </TouchableOpacity>
+
           <Text style={styles.title}>Nearby Hospitals</Text>
+
           <View style={{ width: 22 }} />
         </View>
 
         {/* SEARCH + FILTER */}
         <View style={styles.searchRow}>
-          <SearchHospital
-            mode={mode}
-            onResults={setOverrideResults} // ✅ unified
-          />
+          <SearchHospital onResults={setOverrideResults} />
           <HospitalFilters onPress={() => setShowFilter(true)} />
-        </View>
-
-        {/* MODE SWITCH */}
-        <View style={styles.modeRow}>
-          {['ONLINE', 'OFFLINE', 'BOTH'].map(item => (
-            <ModeButton
-              key={item}
-              label={item}
-              active={mode === item}
-              onPress={() => loadHospitals(item)}
-            />
-          ))}
         </View>
 
         {/* LIST */}
         {loading ? (
-          <ActivityIndicator style={{ marginTop: 30 }} />
+          <View style={{ marginTop: 20 }}>
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </View>
         ) : (
           <FlatList
             data={dataSource}
             keyExtractor={(item, index) =>
-              String(item.id || item._id || index)
+              String(item?.id || item?._id || index)
+            }
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={['#056FD2']}
+              />
             }
             renderItem={({ item }) => (
               <HospitalCard
-                image={item.imageUrl || null} // ✅ let card handle it
-                hospitalName={item.name || item.hospitalName}
-                distance={item.distance}
-                location={item.place || item.location || ''}
-                description={item.speciality || item.department || ''}
-                isOpen24Hours={item.isOpen24x7 || item.isOpen}
-
-                isFavorite={!!favorites[item.id]}
+                image={item?.imageUrl || null}
+                hospitalName={item?.name || item?.hospitalName}
+                distance={item?.distance}
+                location={item?.place || item?.location || ''}
+                description={item?.speciality || item?.department || ''}
+                rating={item?.rating || 0}  
+                isOpen24Hours={
+                  item?.isOpen24x7 || item?.isOpen || false
+                }
+                isFavorite={!!favorites[item?.id]}
                 onFavoritePress={() =>
                   setFavorites(prev => ({
                     ...prev,
-                    [item.id]: !prev[item.id],
+                    [item?.id]: !prev[item?.id],
                   }))
                 }
-
                 onViewDetails={() =>
                   navigation.navigate('HospitalDetails', {
                     data: item,
-                    id: item.id,
+                    id: item?.id,
                   })
                 }
               />
@@ -143,11 +164,12 @@ const HospitalsScreen = ({ navigation }) => {
         {/* FILTER POPUP */}
         <HospitalFilterPopup
           visible={showFilter}
-          mode={mode}
           latitude={LATITUDE}
           longitude={LONGITUDE}
           onClose={() => setShowFilter(false)}
-          onApply={data => setOverrideResults(data)} // ✅ unified
+          onApply={(filteredData) =>
+            setOverrideResults(filteredData)
+          }
         />
       </View>
     </SafeAreaView>
@@ -156,22 +178,7 @@ const HospitalsScreen = ({ navigation }) => {
 
 export default HospitalsScreen;
 
-/* ================= MODE BUTTON ================= */
-
-const ModeButton = ({ label, active, onPress }) => (
-  <TouchableOpacity
-    style={[styles.modeButton, active && styles.activeMode]}
-    onPress={onPress}
-  >
-    <Text
-      style={[styles.modeText, active && styles.activeModeText]}
-    >
-      {label}
-    </Text>
-  </TouchableOpacity>
-);
-
-/* ================= STYLES ================= */
+/* STYLES  */
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -195,33 +202,47 @@ const styles = StyleSheet.create({
   searchRow: {
     flexDirection: 'row',
     paddingHorizontal: scale(16),
-  },
-  modeRow: {
-    flexDirection: 'row',
-    margin: scale(16),
-    backgroundColor: '#F2F4F7',
-    borderRadius: scale(10),
-    padding: scale(4),
-  },
-  modeButton: {
-    flex: 1,
-    paddingVertical: scale(8),
-    borderRadius: scale(8),
-    alignItems: 'center',
-  },
-  activeMode: {
-    backgroundColor: '#056FD2',
-  },
-  modeText: {
-    color: '#667085',
-    fontWeight: '600',
-  },
-  activeModeText: {
-    color: '#FFF',
+    marginBottom: scale(8),
   },
   emptyText: {
     textAlign: 'center',
     marginTop: 40,
     color: '#888',
+  },
+
+  /* SKELETON */
+
+  skeletonCard: {
+    flexDirection: 'row',
+    backgroundColor: '#F2F4F7',
+    marginHorizontal: scale(16),
+    marginBottom: scale(12),
+    borderRadius: scale(12),
+    padding: scale(12),
+  },
+  skeletonImage: {
+    width: scale(80),
+    height: scale(80),
+    backgroundColor: '#E0E0E0',
+    borderRadius: scale(10),
+  },
+  skeletonContent: {
+    flex: 1,
+    marginLeft: scale(12),
+    justifyContent: 'center',
+  },
+  skeletonLineLarge: {
+    height: scale(14),
+    backgroundColor: '#E0E0E0',
+    borderRadius: 6,
+    marginBottom: scale(8),
+    width: '80%',
+  },
+  skeletonLineSmall: {
+    height: scale(12),
+    backgroundColor: '#E0E0E0',
+    borderRadius: 6,
+    marginBottom: scale(6),
+    width: '60%',
   },
 });

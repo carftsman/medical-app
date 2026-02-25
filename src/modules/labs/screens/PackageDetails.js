@@ -11,18 +11,25 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { labApi } from '../services/labApi';
+import { addToCart } from '../redux/labsCartSlice';
 import { COLORS, SIZES } from '../../../config/constants';
 import { scale, verticalScale } from '../../../utils/styling';
 import PackageDetailsSkeleton from '../components/PackageDetailsSkeleton';
-import { useLabCart } from '../context/LabCartContext';
+import useAuth from '../../../hooks/useAuth';
 
 const PackageDetails = () => {
   const route = useRoute();
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const { user } = useAuth();
+  const userId = user?.id;
 
   const packageId = route?.params?.packageId ?? 1;
+
+  const cartItems = useSelector(state => state.labsCart.items);
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -30,10 +37,8 @@ const PackageDetails = () => {
   const [adding, setAdding] = useState(false);
   const [openIncludes, setOpenIncludes] = useState(false);
 
-  const { cartItems, addToCart } = useLabCart();
-
   const isAdded = cartItems.some(
-    item => item.labTestId === packageId
+    item => Number(item.packageId) === Number(packageId)
   );
 
   const fetchDetails = async () => {
@@ -64,10 +69,7 @@ const PackageDetails = () => {
 
       setData(formattedData);
     } catch (error) {
-      console.log(
-        'Package details API error:',
-        error?.response?.data || error.message,
-      );
+      console.log(error?.response?.data || error.message);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -85,36 +87,28 @@ const PackageDetails = () => {
     fetchDetails();
   }, [packageId]);
 
-  const handleShare = async () => {
-    try {
-      await Share.share({
-        message: `🧪 ${data.name}
-        📊 Tests: ${data.summary?.testsCount}
-        ⏱ Report Time: ${data.summary?.reportTime}`,
-      });
-    } catch (error) {
-      console.log('Share error:', error);
-    }
-  };
-
   const handleAddToCart = async () => {
     try {
-      if (adding) return;
+      if (adding || !data) return;
 
       setAdding(true);
 
       const payload = {
-        userId: 21,
-        labId: data?.labId,
-        labTestId: data?.id,
+        userId: userId,
+        labId: data.labId,
+        packageId: data.id,
       };
 
-      await addToCart(payload);
+      const res = await labApi.addToLabCart(payload);
+
+      if (res?.data?.item) {
+        dispatch(addToCart(res.data.item));
+      }
 
     } catch (error) {
       console.log(
         'Add to cart failed:',
-        error?.response?.data || error.message,
+        error?.response?.data || error.message
       );
     } finally {
       setAdding(false);
@@ -135,7 +129,6 @@ const PackageDetails = () => {
 
   return (
     <View style={styles.container}>
-      {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.canGoBack() && navigation.goBack()}
@@ -147,7 +140,13 @@ const PackageDetails = () => {
           {data.name}
         </Text>
 
-        <TouchableOpacity onPress={handleShare}>
+        <TouchableOpacity onPress={() =>
+          Share.share({
+            message: `🧪 ${data.name}
+📊 Tests: ${data.summary?.testsCount}
+⏱ Report Time: ${data.summary?.reportTime}`,
+          })
+        }>
           <Icon name="share-variant" size={scale(20)} />
         </TouchableOpacity>
       </View>
@@ -188,7 +187,6 @@ const PackageDetails = () => {
           </Text>
         </View>
 
-        {/* TESTS INCLUDED */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
             Tests Included ({testsBlock?.tests?.length || 0})
@@ -220,23 +218,8 @@ const PackageDetails = () => {
             )}
           </TouchableOpacity>
         </View>
-
-        {/* INSTRUCTIONS */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Instructions</Text>
-
-          <View style={styles.instructionBox}>
-            {data.instructions?.map((item, index) => (
-              <View key={index} style={styles.bulletRow}>
-                <Text style={styles.bullet}>•</Text>
-                <Text style={styles.bulletText}>{item}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
       </ScrollView>
 
-      {/* BOTTOM CTA */}
       <View style={styles.bottom}>
         <View>
           <Text style={styles.originalPrice}>

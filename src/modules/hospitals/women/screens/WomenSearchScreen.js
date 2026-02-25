@@ -2,7 +2,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   View,
@@ -17,14 +16,16 @@ import {
 import api from '../../../../api/client';
 import { COLORS, FONT, SIZES } from '../../../../config/constants';
 import { scale, verticalScale } from '../../../../utils/styling';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
-const RECENT_SEARCHES = ['Fertility', 'Gynacologist', 'Dermatologist'];
+const RECENT_SEARCHES = ['Psychiatry', 'Gynecology', 'Dermatology'];
 const USER_LAT = 17.385;
 const USER_LNG = 78.4867;
 
 const SearchScreen = ({ navigation }) => {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
+const [hasSearched, setHasSearched] = useState(false);
 
   // SEARCH RESULTS
   const [doctors, setDoctors] = useState([]);
@@ -40,6 +41,7 @@ const SearchScreen = ({ navigation }) => {
   const fetchResults = async (query) => {
     try {
       setLoading(true);
+       setHasSearched(true);
       const res = await api.get('/hospital/user/modeSearch', {
         params: { q: query },
       });
@@ -89,55 +91,73 @@ const SearchScreen = ({ navigation }) => {
     }, 500);
   };
 
-  const renderRecent = ({ item }) => (
+ const renderRecent = ({ item }) => (
+  <TouchableOpacity
+    style={styles.recentCard}
+    onPress={() => {
+      setSearch(item);
+      onChangeSearch(item);   
+    }}
+  >
+    <Text style={styles.recentText}>{item}</Text>
+  </TouchableOpacity>
+);
+const renderDoctor = ({ item }) => (
+  <TouchableOpacity
+    style={styles.card}
+    activeOpacity={0.9}
+    onPress={() =>
+      navigation.navigate('WomenDoctorDetails', {
+        doctorId: item.id,
+      })
+    }
+  >
+    <View style={styles.avatarWrapper}>
+      <Image source={{ uri: item.imageUrl }} style={styles.avatar} />
+      <View style={styles.onlineDot} />
+    </View>
+
+    <View style={{ flex: 1 }}>
+      <Text style={styles.title}>{item.name}</Text>
+      <Text style={styles.sub}>{item.specialization}</Text>
+      <Text style={styles.meta}>⭐ 4.5 (200+ reviews)</Text>
+    </View>
+
+    {/* Book Button */}
     <TouchableOpacity
-      style={styles.recentCard}
-      onPress={() => {
-        setSearch(item);
-        fetchResults(item);
+      style={styles.bookBtn}
+      activeOpacity={0.8}
+      onPress={(e) => {
+        e.stopPropagation(); 
+        navigation.navigate('WomenDoctorDetails', {
+          doctorId: item.id,
+        });
       }}
     >
-      <Text style={styles.recentText}>{item}</Text>
+      <Text style={styles.bookText}>Book</Text>
     </TouchableOpacity>
-  );
+  </TouchableOpacity>
+);
 
-  const renderDoctor = ({ item }) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() =>
-        navigation.navigate('WomenDoctorDetails', { doctorId: item.id })
-      }
-    >
-      <View style={styles.avatarWrapper}>
-        <Image source={{ uri: item.imageUrl }} style={styles.avatar}/>
-        <View style={styles.onlineDot} />
-      </View>
-
-      <View style={{ flex: 1 }}>
-        <Text style={styles.title}>{item.name}</Text>
-        <Text style={styles.sub}>{item.specialization}</Text>
-        <Text style={styles.meta}>⭐ 4.5 (200+ reviews)</Text>
-      </View>
-
-      <TouchableOpacity style={styles.bookBtn}>
-        <Text style={styles.bookText}>Book</Text>
-      </TouchableOpacity>
-    </TouchableOpacity>
-  );
-
- const renderHospital = ({ item }) => (
-  <View style={styles.hospitalCard}>
+const renderHospital = ({ item }) => (
+  <TouchableOpacity
+    style={styles.hospitalCard}
+    activeOpacity={0.9}
+    onPress={() =>
+      navigation.navigate('WomenHospitalDetails', {
+       id: item.id,
+      })
+    }
+  >
     <View style={styles.hospitalRow}>
-
-      {/* Left image */}
+      
       <Image
         source={{ uri: item.imageUrl }}
         style={styles.hospitalImage}
       />
 
-      {/* Right content */}
+   
       <View style={styles.hospitalRight}>
-
         <View style={styles.hospitalTitleRow}>
           <Text style={styles.title}>{item.name}</Text>
 
@@ -147,34 +167,52 @@ const SearchScreen = ({ navigation }) => {
             </View>
           )}
         </View>
+
         <Text style={styles.hospitalMeta}>
-          {item.distance ? `${Number(item.distance).toFixed(1)} kms`
-    : '2.4 kms'}  | {item.place}
+          {item.distance
+            ? `${Number(item.distance).toFixed(1)} kms`
+            : '2.4 kms'}{' '}
+          | {item.place}
         </Text>
-<Text style={styles.hospitalSub}>
-    {item.speciality}
-  </Text>
-       
+
+        <Text style={styles.hospitalSub}>
+          {item.speciality}
+        </Text>
+
+        
         <TouchableOpacity
           style={styles.hospitalInlineBtn}
-          onPress={() =>
-            navigation.navigate('WomenHospitalDetails', { hospitalId: item.id })
-          }
+          activeOpacity={0.8}
+          onPress={(e) => {
+            e.stopPropagation(); 
+            navigation.navigate('WomenHospitalDetails', {
+              id: item.id,
+            });
+          }}
         >
           <Text style={styles.hospitalInlineBtnText}>
             View Details
           </Text>
         </TouchableOpacity>
-
       </View>
     </View>
-  </View>
+  </TouchableOpacity>
 );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.lightGray }}>
+    <View style={{ flex: 1, backgroundColor: COLORS.lightGray }}>
       <View style={styles.container}>
-        <Text style={styles.screenTitle}>Find Your Doctor</Text>
+        <View style={styles.headerTop}>
+  <TouchableOpacity
+    style={styles.backButton}
+    onPress={() => navigation.goBack()}
+  >
+    <AntDesign name="left" size={20} color="black" />
+  </TouchableOpacity>
+
+  <Text style={styles.screenTitle}>Find Your Doctor</Text>
+</View>
+
         <View style={styles.searchBox}>
           <Ionicons name="search-outline" size={20} color={COLORS.gray} />
           <TextInput
@@ -202,7 +240,7 @@ const SearchScreen = ({ navigation }) => {
                 <>
                   <View style={styles.header}>
                     <Text style={styles.headerText}>Recent Searches</Text>
-                    <Text style={styles.clear}>Clear All</Text>
+                    
                   </View>
 
                   <FlatList
@@ -218,7 +256,12 @@ const SearchScreen = ({ navigation }) => {
                         <Text style={styles.section}>
                           Available Doctors
                         </Text>
-                        <Text style={styles.viewAll}>View All</Text>
+                       <TouchableOpacity
+  onPress={() => navigation.navigate('WomenDoctorsScreen')}
+>
+  <Text style={styles.viewAll}>View All</Text>
+</TouchableOpacity>
+
                       </View>
 
                       <FlatList
@@ -235,7 +278,12 @@ const SearchScreen = ({ navigation }) => {
                     <>
                       <View style={styles.sectionHeader}>
                         <Text style={styles.section}>Near by hospitals</Text>
-                        <Text style={styles.viewAll}>View All</Text>
+                        <TouchableOpacity
+  onPress={() => navigation.navigate('WomenHospitalsScreen')}
+>
+  <Text style={styles.viewAll}>View All</Text>
+</TouchableOpacity>
+
                       </View>
 
                       {nearbyHospitals.map((item, idx) => (
@@ -255,7 +303,13 @@ const SearchScreen = ({ navigation }) => {
                     <>
                       <View style={styles.sectionHeader}>
                         <Text style={styles.section}>DOCTORS</Text>
-                        <Text style={styles.viewAll}>View All</Text>
+                         <TouchableOpacity
+  onPress={() => navigation.navigate('WomenDoctorsScreen',{
+    categoryName:search,
+  })}
+>
+  <Text style={styles.viewAll}>View All</Text>
+</TouchableOpacity>
                       </View>
                       {doctors.slice(0, 5).map((item, idx) => (
                         <View key={item.id || idx}>
@@ -264,12 +318,17 @@ const SearchScreen = ({ navigation }) => {
                       ))}
                     </>
                   )}
-
                   {hospitals.length > 0 && (
                     <>
                       <View style={styles.sectionHeader}>
                         <Text style={styles.section}>HOSPITALS</Text>
-                        <Text style={styles.viewAll}>View All</Text>
+                         <TouchableOpacity
+  onPress={() => navigation.navigate('WomenHospitalsScreen',{
+    categoryName:search,
+  })}
+>
+  <Text style={styles.viewAll}>View All</Text>
+</TouchableOpacity>
                       </View>
                       {hospitals.slice(0, 5).map((item, idx) => (
                         <View key={item.id || idx}>
@@ -280,29 +339,32 @@ const SearchScreen = ({ navigation }) => {
                   )}
 
                   {!loading &&
-                    doctors.length === 0 &&
-                    hospitals.length === 0 && (
-                      <Text style={styles.emptyText}>No results found</Text>
-                    )}
+  hasSearched &&
+  doctors.length === 0 &&
+  hospitals.length === 0 && (
+    <Text style={styles.emptyText}>No results found</Text>
+)}
                 </>
               )}
             </>
           )}
         />
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
-
 const styles = {
   container: {
-    flex: 1,
-    padding: scale(16),
-  },
+  flex: 1,
+  paddingHorizontal: scale(16),
+   paddingTop: verticalScale(25),  
+},
+
   screenTitle: {
     fontSize: SIZES.large,
     fontFamily: FONT.bold,
-    marginBottom: verticalScale(14),
+    marginBottom: verticalScale(6),
+
   },
   searchBox: {
     flexDirection: 'row',
@@ -327,10 +389,6 @@ const styles = {
   headerText: {
     fontSize: SIZES.medium,
     fontFamily: FONT.bold,
-  },
-  clear: {
-    fontSize: SIZES.small,
-    color: COLORS.danger,
   },
   recentCard: {
     backgroundColor: COLORS.white,
@@ -418,8 +476,6 @@ const styles = {
     marginTop: verticalScale(2),
     fontSize: SIZES.small,
     color: COLORS.pink,
-    
-
   },
   openBadge: {
     backgroundColor: '#DCFCE7',
@@ -472,7 +528,6 @@ const styles = {
   marginLeft: scale(10),
   justifyContent: 'space-between',
 },
-
 hospitalInlineBtn: {
   marginTop: verticalScale(10),
   backgroundColor: COLORS.pink,
@@ -490,6 +545,17 @@ hospitalSub: {
   color: COLORS.gray,
   marginTop: verticalScale(2),
 },
-
+headerTop: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: verticalScale(40),
+  marginBottom: verticalScale(10),
+},
+backButton: {
+  position: 'absolute',
+  left: 0,
+  padding: scale(8),
+},
 };
 export default SearchScreen;

@@ -3,7 +3,6 @@
 /* eslint-disable no-unused-vars */
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { scale, verticalScale } from '../../../../utils/styling';
 import api from '../../../../api/client'
@@ -17,16 +16,16 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RefreshControl } from 'react-native';
 import { setConsultationType, setBookingId, setDate } from '../../redux/slices/BookingSlice';
 
-
 const WomenDoctorDetails = ({ route, navigation }) => {
 
-  const doctorId =  route?.params?.doctorId || 1;
+  const doctorId = route?.params?.doctorId;
 
   const { selectedDate, selectedTime } = useSelector(
     state => state.hospital.consultation
   );
 
   const dispatch = useDispatch();
+
   const [loading, setLoading] = useState(true);
   const [timeSlotsLoading, setTimeSlotsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -38,7 +37,7 @@ const WomenDoctorDetails = ({ route, navigation }) => {
   const [error, setError] = useState('');
 
   const hospitalId = doctorDetails?.hospital?.id;
-  console.log("ID",hospitalId);
+  console.log("ID", hospitalId);
 
   const fetchDoctorDetails = async (isRefresh = false) => {
     try {
@@ -69,15 +68,15 @@ const WomenDoctorDetails = ({ route, navigation }) => {
     }
   };
 
-
   const fetchDateSlots = async (isRefresh = false) => {
     try {
       isRefresh ? setRefreshing(true) : setLoading(true);
 
       const response = await api.get(`/appointments/availability`, {
-        params: { doctorId: doctorId || 1 }
+        params: { 
+          doctorId,
+        }
       });
-      console.log("slot", response?.data.days);
       setDateSlots(response?.data.days);
       dispatch(setDate(response?.data.days[0].date));
       setError('');
@@ -90,7 +89,6 @@ const WomenDoctorDetails = ({ route, navigation }) => {
     }
   };
 
-
   const fetchTimeSlots = async () => {
     try {
       setTimeSlotsLoading(true);
@@ -100,8 +98,7 @@ const WomenDoctorDetails = ({ route, navigation }) => {
           date: selectedDate,
         }
       });
-      console.log("slots", response?.data);
-      // const filteredSlots = response?.data.slots.filter(slot => slot.isAvailable === true);
+      const filteredSlots = response?.data.slots.filter(slot => slot.isAvailable === true);
       setTimeSlots(response?.data.slots);
     }
     catch (error) {
@@ -110,7 +107,7 @@ const WomenDoctorDetails = ({ route, navigation }) => {
     finally {
       setTimeSlotsLoading(false);
     }
-  }
+  };
 
   const bookAppointmentForSelf = async () => {
     try {
@@ -120,13 +117,15 @@ const WomenDoctorDetails = ({ route, navigation }) => {
           bookingFor: 'SELF',
         }
       );
-      console.log(response?.data);
+      console.log("DATAAAAA: ", response?.data);
       dispatch(setBookingId(response?.data?.bookingId));
+      fetchTimeSlots();
     }
     catch (error) {
       console.log("Error sending Id: ", error.message);
     }
   }
+
   const onRefresh = async () => {
     setRefreshing(true);
     await Promise.all([
@@ -143,11 +142,9 @@ const WomenDoctorDetails = ({ route, navigation }) => {
 
   useEffect(() => {
     if (hospitalId) {
-      console.log("i", hospitalId);
       fetchHospitalDetails(hospitalId);
     }
   }, [hospitalId]);
-
 
   useEffect(() => {
     if (selectedDate) {
@@ -156,24 +153,31 @@ const WomenDoctorDetails = ({ route, navigation }) => {
   }, [selectedDate]);
 
   const handleBookAppointment = () => {
+
+    // ❌ If no time slot selected, do nothing
+    if (!selectedTime) {
+      return;
+    }
+
+    // ✅ If time selected, allow booking
     setShowModal(true);
     dispatch(setConsultationType('SELF'));
-  }
+  };
 
-  if (loading) {
+  if (loading || refreshing) {
     return (
       <View style={{
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-        <ActivityIndicator size={'large'} color={'#056FD2'} />
+        <ActivityIndicator size={'large'} color={'#F47FBB'} />
       </View>
     )
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
 
       <View style={styles.screenHeader}>
         <TouchableOpacity
@@ -195,7 +199,6 @@ const WomenDoctorDetails = ({ route, navigation }) => {
           />
         }
       >
-
 
         <DoctorInfoWomen
           image={doctorDetails?.imageUrl}
@@ -227,7 +230,7 @@ const WomenDoctorDetails = ({ route, navigation }) => {
           days={hospitalDetails?.availability?.days}
           startTime={hospitalDetails?.availability?.startTime}
           endTime={hospitalDetails?.availability?.endTime}
-          // distancekm={hospitalDetails?.distancekm}
+        // distancekm={hospitalDetails?.distancekm}
         />
 
         <DoctorReviewsWomen />
@@ -235,7 +238,14 @@ const WomenDoctorDetails = ({ route, navigation }) => {
       </ScrollView>
 
       <View style={styles.bookAppointmentButtonCard}>
-        <TouchableOpacity style={styles.bookAppointmentButton} onPress={() => handleBookAppointment()} >
+        <TouchableOpacity
+          style={[
+            styles.bookAppointmentButton,
+            !selectedTime && styles.disabledButton
+          ]}
+          disabled={!selectedTime}
+          onPress={handleBookAppointment}
+        >
           <Text style={styles.bookAppointmentText}>Book Appointment</Text>
         </TouchableOpacity>
       </View>
@@ -246,7 +256,7 @@ const WomenDoctorDetails = ({ route, navigation }) => {
         bookAppointmentForSelf={bookAppointmentForSelf}
         doctorId={doctorId}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -256,6 +266,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: scale(20),
+    paddingTop: scale(10),
     backgroundColor: 'white',
   },
   screenHeader: {
@@ -291,6 +302,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: scale(16),
     fontWeight: '600',
-  }
+  },
+  disabledButton: {
+    backgroundColor: '#BDBDBD',
+    borderColor: '#BDBDBD',
+  },
 });
-

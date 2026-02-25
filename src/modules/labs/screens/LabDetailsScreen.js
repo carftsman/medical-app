@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -10,38 +10,40 @@ import {
   Share,
   RefreshControl,
   ActivityIndicator,
-} from 'react-native';
-import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { labApi } from '../services/labApi';
-import { COLORS, SIZES } from '../../../config/constants';
-import { scale, verticalScale } from '../../../utils/styling';
+} from "react-native";
+import { useRoute, useNavigation } from "@react-navigation/native";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { labApi } from "../services/labApi";
+import { COLORS, SIZES } from "../../../config/constants";
+import { scale, verticalScale } from "../../../utils/styling";
 
 const LabDetailsScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
 
   const labId = route?.params?.labId ?? 3;
+  const isUploadFlow = route?.params?.isUploadFlow === true;
+  const uploadedFiles = route?.params?.files || null;
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [showTimings, setShowTimings] = useState(false);
   const [openPackageId, setOpenPackageId] = useState(null);
-
 
   const fetchLabDetails = async () => {
     try {
       const res = await labApi.getLabDetails(labId);
       setData(res?.data);
     } catch (error) {
-      console.log('Lab details API error:', error?.response?.data || error.message);
+      console.log(
+        "Lab details API error:",
+        error?.response?.data || error.message
+      );
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
-
 
   useEffect(() => {
     if (labId) {
@@ -76,22 +78,21 @@ const LabDetailsScreen = () => {
         data.address || `${data.name}, ${data.city}`;
 
       const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-        locationText,
+        locationText
       )}`;
 
       await Share.share({
         message: `🏥 ${data.name}
-          ⭐ Rating: ${data.rating || 0}
-          📍 Location: ${locationText}
-          🗺️ Google Maps:
-          ${mapsUrl}`,
-        });
+⭐ Rating: ${data.rating || 0}
+📍 Location: ${locationText}
+🗺️ Google Maps:
+${mapsUrl}`,
+      });
     } catch (error) {
-      console.log('Share error:', error);
+      console.log("Share error:", error);
     }
   };
 
-  
   const renderStars = (rating = 0) => {
     const stars = [];
     const fullStars = Math.floor(rating);
@@ -99,11 +100,17 @@ const LabDetailsScreen = () => {
 
     for (let i = 1; i <= 5; i++) {
       if (i <= fullStars) {
-        stars.push(<Icon key={i} name="star" size={scale(16)} color="#F5A623" />);
+        stars.push(
+          <Icon key={i} name="star" size={scale(16)} color="#F5A623" />
+        );
       } else if (i === fullStars + 1 && hasHalfStar) {
-        stars.push(<Icon key={i} name="star-half-full" size={scale(16)} color="#F5A623" />);
+        stars.push(
+          <Icon key={i} name="star-half-full" size={scale(16)} color="#F5A623" />
+        );
       } else {
-        stars.push(<Icon key={i} name="star-outline" size={scale(16)} color="#F5A623" />);
+        stars.push(
+          <Icon key={i} name="star-outline" size={scale(16)} color="#F5A623" />
+        );
       }
     }
     return stars;
@@ -136,12 +143,11 @@ const LabDetailsScreen = () => {
           />
         }
       >
-        {/* IMAGE */}
         <Image
           source={{
             uri:
               data.imageUrl ||
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTxEscPwXOmagb4I6akEBtLthHxH2gFrB_xg&s',
+              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTxEscPwXOmagb4I6akEBtLthHxH2gFrB_xg&s",
           }}
           style={styles.banner}
         />
@@ -167,100 +173,42 @@ const LabDetailsScreen = () => {
               {data.rating || 0}
             </Text>
           </View>
-
-         
-          <View style={styles.infoCard}>
-            <View style={styles.infoLeft}>
-             
-              <View style={styles.row}>
-                <Icon name="map-marker-outline" size={scale(18)} />
-                <Text style={styles.addressText}>
-                  {data.address || `${data.name}, ${data.city}`}
-                </Text>
-              </View>
-
-              <TouchableOpacity
-                style={styles.openRow}
-                onPress={() => setShowTimings(!showTimings)}
-              >
-                <View style={styles.row}>
-                  <Icon
-                    name="clock-outline"
-                    size={scale(16)}
-                    color={COLORS.green}
-                  />
-                  <Text style={styles.openText}>
-                    Open <Text style={styles.closeText}>Closes 8 PM</Text>
-                  </Text>
-                </View>
-
-                <Icon
-                  name={showTimings ? 'chevron-up' : 'chevron-down'}
-                  size={scale(20)}
-                />
-              </TouchableOpacity>
-
-              {showTimings && (
-                <View style={styles.timingBox}>
-                  <View style={styles.timingRow}>
-                    <View style={styles.timingColumn}>
-                      <Text style={styles.timingLabel}>Mon - Fri</Text>
-                      <Text style={styles.timingValue}>
-                        {data.timings?.monFri || '9 AM - 9 PM'}
-                      </Text>
-                    </View>
-
-                    <View style={styles.timingColumn}>
-                      <Text style={styles.timingLabel}>Sat - Sun</Text>
-                      <Text style={styles.timingValue}>
-                        {data.timings?.satSun || '9 AM - 9 PM'}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              )}
-            </View>
-
-            <TouchableOpacity
-              style={styles.navIcon}
-              onPress={() =>
-                Linking.openURL(
-                  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                    data.address || `${data.name}, ${data.city}`,
-                  )}`,
-                )
-              }
-            >
-              <Icon name="navigation-variant" size={scale(20)} />
-            </TouchableOpacity>
-          </View>
-
         </View>
 
+        {/* PACKAGES */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
             Packages Included ({data.packagesIncluded?.length || 0})
           </Text>
 
-          {data.packagesIncluded?.map(pkg => {
+          {data.packagesIncluded?.map((pkg) => {
             const packageId = pkg.id ?? pkg.packageId;
-            const packageName = pkg.name ?? pkg.packageName;
             const isOpen = openPackageId === packageId;
 
             return (
               <View key={packageId} style={styles.accordion}>
                 <TouchableOpacity
                   style={styles.accordionHeader}
-                  onPress={() => setOpenPackageId(isOpen ? null : packageId)}
+                  onPress={() =>
+                    setOpenPackageId(isOpen ? null : packageId)
+                  }
                 >
-                  <Text style={styles.accordionTitle}>{packageName}</Text>
-                  <Icon name={isOpen ? 'chevron-up' : 'chevron-down'} size={scale(20)} />
+                  <Text style={styles.accordionTitle}>
+                    {pkg.name ?? pkg.packageName}
+                  </Text>
+                  <Icon
+                    name={isOpen ? "chevron-up" : "chevron-down"}
+                    size={scale(20)}
+                  />
                 </TouchableOpacity>
 
                 {isOpen && (
                   <View style={styles.accordionBody}>
                     {pkg.tests?.map((test, index) => (
-                      <Text key={`${packageId}-${index}`} style={styles.bulletText}>
+                      <Text
+                        key={`${packageId}-${index}`}
+                        style={styles.bulletText}
+                      >
                         • {test}
                       </Text>
                     ))}
@@ -272,25 +220,38 @@ const LabDetailsScreen = () => {
         </View>
       </ScrollView>
 
+      {/* BOTTOM BUTTON */}
       <View style={styles.bottom}>
-        <TouchableOpacity
-          style={styles.bookBtn}
-          onPress={() =>
-            navigation.navigate('PackagesScreen', {
-              labId: data.id,
-            })
-          }
-        >
-          <Text style={styles.bookText}>Book Test</Text>
-        </TouchableOpacity>
+        {isUploadFlow ? (
+          <TouchableOpacity
+            style={[styles.bookBtn, { backgroundColor: "#4368ed" }]}
+            onPress={() =>
+              navigation.navigate("ReviewPrescription", {
+                lab: data,
+                files: uploadedFiles,
+              })
+            }
+          >
+            <Text style={styles.bookText}>Proceed</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.bookBtn}
+            onPress={() =>
+              navigation.navigate("PackagesScreen", {
+                labId: data.id,
+              })
+            }
+          >
+            <Text style={styles.bookText}>Book Test</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
 };
 
 export default LabDetailsScreen;
-
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -299,19 +260,20 @@ const styles = StyleSheet.create({
 
   center: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 
+  /* HEADER */
   header: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     zIndex: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: COLORS.white,
     paddingHorizontal: scale(16),
     paddingTop: verticalScale(40),
@@ -324,28 +286,32 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: scale(12),
     fontSize: SIZES.large,
-    fontWeight: '700',
+    fontWeight: "700",
+    color: COLORS.black,
   },
 
+  /* BANNER */
   banner: {
-    width: '100%',
+    width: "100%",
     height: verticalScale(260),
     marginTop: verticalScale(80),
   },
 
+  /* SECTION */
   section: {
     padding: scale(16),
   },
 
   labName: {
     fontSize: SIZES.large,
-    fontWeight: '700',
+    fontWeight: "700",
+    color: COLORS.black,
   },
 
   topRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
 
   callBtn: {
@@ -353,143 +319,62 @@ const styles = StyleSheet.create({
     height: scale(36),
     borderRadius: scale(18),
     backgroundColor: COLORS.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: verticalScale(6),
-  },
-
+  /* RATING */
   ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: verticalScale(6),
     marginBottom: verticalScale(8),
   },
 
   starsRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginRight: scale(6),
   },
 
   ratingText: {
     fontSize: SIZES.medium,
-    fontWeight: '600',
-    color: COLORS.black,
-    marginRight: scale(8),
-  },
-
-
-  reviewLink: {
-    marginLeft: scale(8),
-    fontSize: SIZES.medium,
-    color: COLORS.primary,
-  },
-
-  infoCard: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: '#F6F9FC',
-    borderRadius: scale(12),
-    padding: scale(12),
-    marginTop: verticalScale(12),
-  },
-
-  infoLeft: {
-    flex: 1,
-    paddingRight: scale(10),
-  },
-
-  addressText: {
-    marginLeft: scale(6),
-    fontSize: SIZES.medium,
-    flex: 1,
-  },
-
-  openRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: verticalScale(10),
-  },
-
-  openText: {
-    marginLeft: scale(6),
-    fontSize: SIZES.medium,
-    color: COLORS.green,
-    fontWeight: '600',
-  },
-
-  closeText: {
-    color: COLORS.darkgray,
-    fontWeight: '400',
-  },
-
-  timingBox: {
-    marginTop: verticalScale(8),
-  },
-  timingRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  timingLabel: {
-    fontSize: SIZES.medium,
-    color: COLORS.darkgray,
-    marginBottom: verticalScale(4),
-  },
-
-  timingValue: {
-    fontSize: SIZES.medium,
-    fontWeight: '700',
+    fontWeight: "600",
     color: COLORS.black,
   },
 
-  timingColumn: {
-    flex: 1,
-  },
-  timingText: {
-    fontSize: SIZES.medium,
-    color: COLORS.darkgray,
-  },
-
-  navIcon: {
-    width: scale(36),
-    height: scale(36),
-    borderRadius: scale(18),
-    backgroundColor: COLORS.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 2,
-  },
-
+  /* SECTION TITLE */
   sectionTitle: {
     fontSize: SIZES.large,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: verticalScale(10),
+    color: COLORS.black,
   },
 
+  /* ACCORDION */
   accordion: {
     borderWidth: 1,
     borderColor: COLORS.lightGray,
-    borderRadius: scale(8),
+    borderRadius: scale(10),
     marginBottom: verticalScale(10),
+    backgroundColor: "#FAFBFD",
   },
 
   accordionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: scale(12),
   },
 
   accordionTitle: {
     fontSize: SIZES.medium,
-    fontWeight: '600',
+    fontWeight: "600",
+    color: COLORS.black,
   },
 
   accordionBody: {
-    padding: scale(12),
+    paddingHorizontal: scale(12),
+    paddingBottom: scale(12),
   },
 
   bulletText: {
@@ -498,22 +383,24 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(4),
   },
 
+  /* BOTTOM BUTTON */
   bottom: {
     padding: scale(16),
     borderTopWidth: 1,
     borderColor: COLORS.lightGray,
+    backgroundColor: COLORS.white,
   },
 
   bookBtn: {
     backgroundColor: COLORS.primary,
     paddingVertical: verticalScale(14),
-    borderRadius: scale(10),
-    alignItems: 'center',
+    borderRadius: scale(12),
+    alignItems: "center",
   },
 
   bookText: {
     color: COLORS.white,
     fontSize: SIZES.large,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });

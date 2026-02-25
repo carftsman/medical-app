@@ -13,9 +13,17 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import api from "../../../api/client"; 
+import { useRoute } from "@react-navigation/native";
 
 const LabsListScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+
+  const categoryId = route?.params?.categoryId;
+
+  // ✅ ADDED
+  const uploadedFiles = route?.params?.files || [];
+  const isUploadFlow = route?.params?.isUploadFlow || false;
 
   const [labs, setLabs] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -34,6 +42,7 @@ const LabsListScreen = () => {
           maxRating: 5,
           page: 1,
           limit: 10,
+          categoryId: categoryId,
         },
       });
 
@@ -98,18 +107,39 @@ const LabsListScreen = () => {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={()=> navigation.navigate("LabDetails", { labId: item.id })}>
+ {/* ✅ PASS SELECTED LAB PROPERLY */}
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() =>
+          navigation.navigate("LabDetails", {
+            labId: item.id,
+            categoryId: categoryId,
+            files: uploadedFiles,
+            isUploadFlow: isUploadFlow,
+            selectedLab: {
+              id: item.id,
+              name: item.name,
+              city: item.city,
+              address: item.address,
+              location: item.location,
+            },
+          })
+        }
+      >
         <Text style={styles.buttonText}>View Details</Text>
       </TouchableOpacity>
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("UploadPrescription")
+          }
+        >
           <Icon name="arrow-back" size={24} />
         </TouchableOpacity>
 
@@ -146,7 +176,7 @@ const LabsListScreen = () => {
           showsVerticalScrollIndicator={false}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 

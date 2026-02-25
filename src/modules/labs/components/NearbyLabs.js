@@ -12,20 +12,6 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import api from "../../../api/client";
 import { scale, verticalScale } from "../../../utils/styling";
 
-/* STATIC IMAGES */
-const LAB_IMAGES = {
-  1: require("../../../../assets/ApolloLab.jpg"),
-  2: require("../../../../assets/thyrocare.jpg"),
-  3: require("../../../../assets/Dr Lal.png"),
-  4: require("../../../../assets/metropolis.jpg"),
-  5: require("../../../../assets/SRL.jpg"),
-  6: require("../../../../assets/vijaya.jpg"),
-  7: require("../../../../assets/Medplus.jpg"),
-  8: require("../../../../assets/Healthians.jpg"),
-  9: require("../../../../assets/orangeHealth.jpg"),
-  10: require("../../../../assets/Redcliffe.jpg"),
-};
-
 const NearbyLabs = () => {
   const navigation = useNavigation();
   const [labs, setLabs] = useState([]);
@@ -57,28 +43,28 @@ const NearbyLabs = () => {
     }
   };
 
-  /* ✅ NAVIGATE TO LAB DETAILS */
+  /* LAB DETAILS */
   const goToLabDetails = (lab) => {
     navigation.navigate("LabDetails", {
       labId: lab.id,
     });
   };
 
-  /* VIEW ALL NAVIGATION (UNCHANGED) */
+  /* VIEW ALL */
   const goToLabsScreen = () => {
     navigation.navigate("LabsScreen");
   };
 
   const LabCard = ({ item }) => {
-    const image = LAB_IMAGES[item.id];
-
     return (
       <TouchableOpacity
         style={styles.card}
         activeOpacity={0.9}
         onPress={() => goToLabDetails(item)}
       >
-        {image && <Image source={image} style={styles.image} />}
+        {item.imageUrl && (
+          <Image source={{ uri: item.imageUrl }} style={styles.image} />
+        )}
 
         <View style={styles.ratingBadge}>
           <Ionicons name="star" size={12} color="#FFC107" />

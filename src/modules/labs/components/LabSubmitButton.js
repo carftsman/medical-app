@@ -1,11 +1,16 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 
-const LabSubmitButton = ({ title, }) => {
-  const navigation = useNavigation();
+const LabSubmitButton = ({ title, onPress, disabled }) => {
   return (
-    <TouchableOpacity onPress={ () => navigation.navigate('LabFeedbackSuccess')} style={styles.button} >
+    <TouchableOpacity
+      onPress={onPress}
+      disabled={disabled}
+      style={[
+        styles.button,
+        disabled && { opacity: 0.6 }
+      ]}
+    >
       <Text style={styles.text}>{title}</Text>
     </TouchableOpacity>
   );

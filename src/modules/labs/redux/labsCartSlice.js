@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-
 const initialState = {
   items: [],
 };
@@ -8,26 +7,42 @@ const labsCartSlice = createSlice({
   name: 'labsCart',
   initialState,
   reducers: {
+    setCartItems: (state, action) => {
+      state.items = (action.payload || []).map(item => ({
+        ...item,
+        name: item.name || item.packageName, // ✅ normalize here
+      }));
+    },
     addToCart: (state, action) => {
       const exists = state.items.find(
-        item => item.labTestId === action.payload.labTestId
+        item =>
+          Number(item.packageId) === Number(action.payload.packageId)
       );
       if (!exists) {
-        state.items.push(action.payload);
+        state.items.push({
+          ...action.payload,
+          name:
+            action.payload.name ||
+            action.payload.packageName, // ✅ normalize here too
+        });
       }
     },
     removeFromCart: (state, action) => {
       state.items = state.items.filter(
-        item => item.labTestId !== action.payload
+        item =>
+          Number(item.packageId) !== Number(action.payload)
       );
     },
-    clearCart: state => {
+    clearCart: (state) => {
       state.items = [];
     },
   },
 });
-
-export const { addToCart, removeFromCart, clearCart } =
-  labsCartSlice.actions;
-
+export const {
+  setCartItems,
+  addToCart,
+  removeFromCart,
+  clearCart,
+} = labsCartSlice.actions;
 export default labsCartSlice.reducer;
+

@@ -20,8 +20,6 @@ const LATITUDE = 17.385044;
 const LONGITUDE = 78.486671;
 const DEFAULT_RADIUS = 20;
 
-
-
 const WomenHospitalsScreen = ({ navigation, route }) => {
   const [hospitals, setHospitals] = useState([]);
   const [searchResults, setSearchResults] = useState(null);
@@ -31,7 +29,10 @@ const WomenHospitalsScreen = ({ navigation, route }) => {
   const [favorites, setFavorites] = useState({});
   const [loading, setLoading] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
-
+  const categoryIdFromRoute = route?.params?.categoryId || route?.params?.departmentId;
+  const categoryNameFromRoute = route?.params?.categoryName || route?.params?.departmentName;
+  console.log("Route Category ID:", categoryIdFromRoute);
+  console.log("Route Category Name:", categoryNameFromRoute);
   const loadHospitals = async () => {
 
     setLoading(true);
@@ -39,6 +40,7 @@ const WomenHospitalsScreen = ({ navigation, route }) => {
     setFilterResults(null);
 
     try {
+      console.log("===== FILTER CLICKED =====");
       const res = await api.get(
         '/hospital/user/hospitals/nearby',
         {
@@ -48,16 +50,20 @@ const WomenHospitalsScreen = ({ navigation, route }) => {
             radius: DEFAULT_RADIUS,
             women: true,
             sort: 'distance',
+            categoryIds: categoryIdFromRoute
+              ? categoryIdFromRoute.toString()
+              : undefined,
+
             page: 1,
-            limit: 20,
+            limit: 30,
           },
         }
       );
-      console.log("API FULL RESPONSE:", res?.data);
-      console.log("HOSPITAL LIST:", res?.data?.data);
-      console.log("COUNT:", res?.data?.data?.length);
+      console.log("API URL:", res.config.url);
+      console.log("API RESPONSE COUNT:", res?.data?.data?.length);
+      console.log("API RESPONSE DATA:", res?.data?.data);
 
-      console.log("INITIAL LOAD RESPONSE:", res?.data);
+
       console.log("PARAMS SENT:",
         {
           latitude: LATITUDE,
@@ -99,6 +105,9 @@ const WomenHospitalsScreen = ({ navigation, route }) => {
 
 
   const handleApplyFilter = async filters => {
+    console.log("===== APPLY FILTER CLICKED =====");
+    console.log("Filters Received:", JSON.stringify(filters, null, 2));
+
     try {
       setLoading(true);
       setSearchText('');
@@ -106,6 +115,7 @@ const WomenHospitalsScreen = ({ navigation, route }) => {
 
       const res = await api.get(
         '/hospital/user/hospitals/nearby',
+
         {
           params: {
             latitude: LATITUDE,
@@ -121,10 +131,14 @@ const WomenHospitalsScreen = ({ navigation, route }) => {
             women: true,
 
             page: 1,
-            limit: 20,
+            limit: 30,
+
           },
+
         }
+
       );
+
       console.log("FILTER PARAMS SENT:", {
         radius: filters.distance,
         categoryIds: filters.categoryIds,
@@ -138,13 +152,14 @@ const WomenHospitalsScreen = ({ navigation, route }) => {
       let result = res?.data?.data || [];
 
 
-      if (filters.openNow) {
-        result = result.filter(h => h.isOpen === true);
-      }
 
-      if (filters.open24x7) {
-        result = result.filter(h => h.isOpen24x7 === true);
-      }
+      // if (filters.openNow) {
+      //   result = result.filter(h => h.isOpen === true);
+      // }
+
+      // if (filters.open24x7) {
+      //   result = result.filter(h => Boolean(h.open24x7));
+      // }
 
       if (filters.city) {
         result = result.filter(h =>
@@ -163,7 +178,7 @@ const WomenHospitalsScreen = ({ navigation, route }) => {
         );
       }
 
-      
+
 
 
 
@@ -180,7 +195,7 @@ const WomenHospitalsScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     loadHospitals();
-  }, []);
+  }, [categoryIdFromRoute]);
 
   const dataSource =
     searchText?.trim().length > 0
@@ -232,7 +247,7 @@ const WomenHospitalsScreen = ({ navigation, route }) => {
                 distance={item.distance}
                 location={item.place || item.location || ''}
                 description={item.speciality || item.department || ''}
-                isOpen24Hours={item.isOpen24x7 || item.isOpen}
+                isOpen24Hours={item.open24x7 || item.isOpen}
                 rating={item.rating}
                 isFavorite={!!favorites[item.id]}
                 onFavoritePress={() =>
@@ -246,6 +261,8 @@ const WomenHospitalsScreen = ({ navigation, route }) => {
                   navigation.navigate('WomenHospitalDetails', {
                     data: item,
                     id: item.id,
+                    categoryId: categoryIdFromRoute,
+                    categoryName: categoryNameFromRoute,
                   })
                 }
               />
@@ -276,7 +293,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#FFF',
-    
+
   },
   container: {
     flex: 1,

@@ -7,7 +7,7 @@ import DoctorCard from '../components/DoctorCard';
 
 const DoctList = ({
   loading,
-  getFilteredDoctors,
+  doctorsData,
   search,
   error
 }) => {
@@ -24,7 +24,7 @@ const DoctList = ({
     <Text style={styles.errorText}>{error}</Text>
       ) : (
         <FlatList
-          data={getFilteredDoctors()}
+          data={doctorsData}
           keyExtractor={item => item.id.toString()}
           renderItem={({ item }) => (
             <DoctorCard doctor={item} />

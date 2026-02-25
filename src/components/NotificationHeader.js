@@ -8,7 +8,6 @@ export default function NotificationHeader({
   onNotificationPress,
   onProfilePress,
 }) {
-
   const navigation = useNavigation();
   return (
     <View style={styles.container}>

@@ -9,6 +9,8 @@ import DoctorSearchBar from '../components/DoctScreen-SearchBar';
 import DoctFilterButton from '../components/DoctScreen-FilterButton';
 import DoctModalButton from '../components/DoctScreen-FilterModal';
 import DoctList from '../components/DoctScreen-DoctorList';
+import DoctorScreenMode from '../components/DoctScreen-Mode';
+
 const DoctorsScreen = () => {
   const [search, setSearch] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('All');
@@ -18,44 +20,118 @@ const DoctorsScreen = () => {
   const [experience, setExperience] = useState(0);
   const [feeRange, setFeeRange] = useState(null);
   const [distance, setDistance] = useState(null);
+  const [allCategories, setAllCategories] = useState([]);
   const [availability, setAvailability] = useState({
     today: false,
     tomorrow: false,
     now: false,
   });
+
   const [doctorsData, setDoctorsData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  const applyFilters = () => {
-    setShowFilter(false);
-  };
+  const [selectedType, setSelectedType] = useState("ONLINE");
 
   const fetchDoctors = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await api.get('/hospital/user/doctors');
+    const params = {
+    lat: 17.385044,         
+    lng: 78.486671,          
 
-      const mappedDoctors = response.data.doctors.map(item => ({
-        id: item.id.toString(),
+    search: search?.trim() || undefined,
+
+  categoryIds:
+  selectedFilter !== 'All'
+    ? String(selectedFilter)
+    : department !== 'All'
+    ? String(department)
+    : undefined,
+
+    minExp: experience || undefined,
+
+    maxFee:
+      feeRange === '100-500'
+        ? 500
+        : feeRange === '500-1000'
+        ? 1000
+        
+        : undefined,
+
+    distance: distance || 16,   // Swagger expects "distance" not maxDistance
+
+    mode: selectedType || undefined,
+
+    availability:
+      availability.today
+        ? 'today'
+        : availability.tomorrow
+        ? 'tomorrow'
+        : availability.now
+        ? 'now'
+        : undefined,
+
+    sort:
+  sortBy === 'experience'
+    ? 'experience_desc'
+    : sortBy === 'fee'
+    ? 'fee_asc'
+    : undefined,
+
+    page: 1,
+    limit: 20,
+};
+      const response = await api.get('/hospital/user/doctors', { params });
+
+      let doctorsArray = [];
+
+      if (Array.isArray(response?.data?.doctors)) {
+        doctorsArray = response.data.doctors;
+      } else if (Array.isArray(response?.data)) {
+        doctorsArray = response.data;
+      }
+
+      const mappedDoctors = doctorsArray.map(item => ({
+        id: item.id?.toString() || Math.random().toString(),
         doctorName: item.name || '',
-        specialization: item.specialization || '',
+        specialization: item.specialization || item.category?.name || '',
         experience: Number(item.experience) || 0,
         rating: Number(item.rating) || 0,
         fee: Number(item.consultationFee) || 0,
         hospitalName: item.hospital?.name || '',
-        distance: Number(item.distance) || 0,
+        distance: Number(item.distanceKm) || 0,
         availableDate: item.availableDate || 'today',
         availableTime: item.availableTime || '9AM - 5PM',
-        imageUrl: item.imageUrl || 'https://via.placeholder.com/150',
+        imageUrl: item.imageUrl || '',
+        consultationMode: item.consultationMode || 'BOTH',
       }));
 
       setDoctorsData(mappedDoctors);
-    } catch (err) {
-      console.log('Doctors API Error:', err);
-      setError('Unable to fetch doctors');
+
+      // ✅ Build categories from API response
+if (allCategories.length === 0 && doctorsArray.length > 0) {
+  const categories = [
+    { id: 'All', name: 'All' },
+    ...doctorsArray
+      .map(d => ({
+        id: d.category?.id,
+        name: d.category?.name,
+      }))
+      .filter(
+        (value, index, self) =>
+          value.id &&
+          index === self.findIndex(t => t.id === value.id)
+      ),
+  ];
+
+  setAllCategories(categories);
+}
+     
+      } catch (err) {
+      console.log("API ERROR:", err?.response?.data || err);
+      setError("Unable to fetch doctors");
     } finally {
       setLoading(false);
     }
@@ -63,73 +139,18 @@ const DoctorsScreen = () => {
 
   useEffect(() => {
     fetchDoctors();
-  }, []);
+  }, [
+    selectedType,
+    selectedFilter,
+    department,
+    experience,
+    feeRange,
+    distance,
+    availability,
+    sortBy,
+    search,
+  ]);
 
-  const specializations = [
-    'All',
-    ...new Set(doctorsData.map(d => d.specialization)),
-  ];
-
-  ///Filter Application
-  const getFilteredDoctors = () => {
-    let data = [...doctorsData];
-
-    // Search
-    if (search.trim()) {
-      data = data.filter(
-        d =>
-          d.doctorName.toLowerCase().includes(search.toLowerCase()) ||
-          d.hospitalName.toLowerCase().includes(search.toLowerCase()) ||
-          d.specialization.toLowerCase().includes(search.toLowerCase()) ||
-          d.availableTime.toLowerCase().includes(search.toLowerCase()) ||
-          d.availableDate.toLowerCase().includes(search.toLowerCase()) ||
-          d.fee.toString().includes(search) ||
-          d.experience.toString().includes(search) ||
-          d.rating.toString().includes(search) ||
-          d.distance.toString().includes(search),
-      );
-    }
-
-    // Scrollable specialization filter
-    if (selectedFilter !== 'All') {
-      data = data.filter(d => d.specialization === selectedFilter);
-    }
-
-    // Modal department filter
-    if (department !== 'All') {
-      data = data.filter(d => d.specialization === department);
-    }
-
-    // Experience
-    data = data.filter(d => d.experience >= experience);
-
-    // Fee
-    if (feeRange === '100-500') data = data.filter(d => d.fee <= 500);
-    if (feeRange === '500-1000')
-      data = data.filter(d => d.fee > 500 && d.fee <= 1000);
-    if (feeRange === '1000+') data = data.filter(d => d.fee > 1000);
-
-    // Distance
-    if (distance) {
-      data = data.filter(d => d.distance <= distance);
-    }
-
-    // Availability
-    if (availability.today)
-      data = data.filter(d => d.availableDate === 'today');
-    if (availability.tomorrow)
-      data = data.filter(d => d.availableDate === 'tomorrow');
-    if (availability.now) data = data.filter(d => d.availableDate === 'now');
-
-    // Sorting
-    if (sortBy === 'experience')
-      data.sort((a, b) => b.experience - a.experience);
-    if (sortBy === 'fee') data.sort((a, b) => a.fee - b.fee);
-
-    return data;
-  };
-
-  ///Clear Filters
   const clearFilters = () => {
     setSortBy(null);
     setDepartment('All');
@@ -139,58 +160,49 @@ const DoctorsScreen = () => {
     setAvailability({ today: false, tomorrow: false, now: false });
     setSelectedFilter('All');
     setSearch('');
-    setShowFilter(false);
-  };
-
-  const allModalProps = {
-    showFilter,
-    setShowFilter,
-
-    sortBy,
-    setSortBy,
-
-    department,
-    setDepartment,
-
-    specializations,
-
-    experience,
-    setExperience,
-
-    feeRange,
-    setFeeRange,
-
-    distance,
-    setDistance,
-
-    availability,
-    setAvailability,
-
-    clearFilters,
-    applyFilters,
   };
 
   return (
     <View style={styles.container}>
-      {/*Search Bar */}
       <DoctorSearchBar search={search} setSearch={setSearch} />
 
-      {/* Filter Bar */}
       <DoctFilterButton
-        specializations={specializations}
+        specializations={allCategories}
         selectedFilter={selectedFilter}
         setSelectedFilter={setSelectedFilter}
         setShowFilter={setShowFilter}
       />
-      {/* FILTER MODAL */}
 
-      <DoctModalButton {...allModalProps} />
+      <DoctModalButton
+        showFilter={showFilter}
+        setShowFilter={setShowFilter}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        department={department}
+        setDepartment={setDepartment}
+        specializations={allCategories}
+        experience={experience}
+        setExperience={setExperience}
+        feeRange={feeRange}
+        setFeeRange={setFeeRange}
+        distance={distance}
+        setDistance={setDistance}
+        availability={availability}
+        setAvailability={setAvailability}
+        clearFilters={clearFilters}
+        applyFilters={fetchDoctors}
+      />
 
-      {/* Doctor Card */}
+      <DoctorScreenMode
+        selected={selectedType}
+        onChange={setSelectedType}
+      />
+
       <DoctList
         loading={loading}
-        getFilteredDoctors={getFilteredDoctors}
+        doctorsData={doctorsData}
         search={search}
+        error={error}
       />
     </View>
   );
