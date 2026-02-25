@@ -11,6 +11,7 @@ import MedicinesOrdered from '../screens/MedicinesOrdered';
 import OrderDetails from '../screens/OrderDetails';
 import LabReports from '../screens/LabReports';
 import SavedAddress from '../screens/SavedAddress';
+import AddAddress from '../screens/AddAddress';  
 import PaymentsHistory from '../screens/PaymentsHistory';
 import HelpAndSupport from '../screens/HelpAndSupport';
 import OrderTrackingScreen from '../screens/OrderTracking';
@@ -20,10 +21,10 @@ import MedicinesFeedbackSuccessScreen from '../screens/MedicinesFeedbackSuccessS
 const ProfileNavigator = () => {
     const Stack = createNativeStackNavigator();
   return (
-   <Stack.Navigator screenOptions={{
-    headerShown:false
-   }}
-   initialRouteName='AddFamilyMembers'>
+      <Stack.Navigator
+  /*initialRouteName="SavedAddress"*/
+  screenOptions={{ headerShown: false }}
+>
     <Stack.Screen name="Profile" component={ProfileScreen} />
     <Stack.Screen name="EditProfile" component={EditProfile} /> 
    <Stack.Screen name='FamilyMembers' component={FamilyMembers}/>
@@ -34,6 +35,7 @@ const ProfileNavigator = () => {
     <Stack.Screen name="OrderDetails" component={OrderDetails} />
     <Stack.Screen name="LabReports" component={LabReports} />
     <Stack.Screen name="SavedAddress" component={SavedAddress} />
+    <Stack.Screen name="AddAddress" component={AddAddress} />   
     <Stack.Screen name="PaymentsHistory" component={PaymentsHistory} />
     <Stack.Screen name="HelpAndSupport" component={HelpAndSupport} />
     <Stack.Screen name="OrderTracking" component={OrderTrackingScreen}/>
