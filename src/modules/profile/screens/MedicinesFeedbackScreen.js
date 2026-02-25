@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import LabStarRating from '../components/LabStarRating';
-import LabFeedbackInput from '../components/LabFeedbackInput';
-import LabSubmitButton from '../components/LabSubmitButton';
+import MedicinesFeedbackInput from '../components/MedicinesFeedbackInput';
+import MedicinesFeedbackSubmitButton from '../components/MedicinesFeedbackSubmitButton'; 
+import MedicinesStarRating from '../components/MedicinesStarRating';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -16,7 +16,7 @@ import { scale, verticalScale } from '../../../utils/styling';
 import api from '../../../api/client';
 
 
-const LabFeedback = ({route}) => {
+const MedicinesFeedbackScreen = ({route}) => {
   const navigation = useNavigation();
    const id = route?.params?.id || 2;
   const [rating, setRating] = useState(0);
@@ -34,22 +34,22 @@ const LabFeedback = ({route}) => {
     try {
       setLoading(true);
 
-      const response = await api.post(
-        '/labs/feedback', 
-        {
-          bookingId: id, 
-          rating: rating,
-          comment: feedback,
-        },
+      // const response = await api.post(
+      //   '/labs/feedback', 
+      //   {
+      //     bookingId: id, 
+      //     rating: rating,
+      //     comment: feedback,
+      //   },
        
         
-      );
+      // );
 
     console.log(response.data);
 
       if (response.status === 200 || response.status === 201) {
         navigation.navigate(
-          'LabFeedbackSuccess',
+          'MedicinesFeedbackSuccessScreen',
         
         );
 
@@ -76,11 +76,11 @@ const LabFeedback = ({route}) => {
         <View style={{ width: 24 }} />
       </View>
 
-      <LabStarRating rating={rating} onChange={setRating} />
+      <MedicinesStarRating rating={rating} onChange={setRating} />
 
-      <LabFeedbackInput value={feedback} onChangeText={setFeedback} />
+      <MedicinesFeedbackInput value={feedback} onChangeText={setFeedback} />
 
-      <LabSubmitButton
+      <MedicinesFeedbackSubmitButton
         title={loading ? 'Submitting...' : 'Submit'}
         onPress={handleSubmit}
         disabled={loading}
@@ -89,7 +89,7 @@ const LabFeedback = ({route}) => {
   );
 };
 
-export default LabFeedback;
+export default MedicinesFeedbackScreen;
 
 const styles = StyleSheet.create({
   container: {

@@ -22,6 +22,7 @@ const LabDetailsScreen = () => {
   const navigation = useNavigation();
 
   const labId = route?.params?.labId ?? 3;
+  const isUploadFlow = route?.params?.isUploadFlow === true;
   const uploadedFiles = route?.params?.files || null;
 
   console.log('uploadFiles', uploadedFiles);
@@ -29,7 +30,6 @@ const LabDetailsScreen = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [showTimings, setShowTimings] = useState(false);
   const [openPackageId, setOpenPackageId] = useState(null);
 
   const fetchLabDetails = async () => {
@@ -149,7 +149,6 @@ ${mapsUrl}`,
           />
         }
       >
-        {/* IMAGE */}
         <Image
           source={{
             uri:
@@ -176,33 +175,9 @@ ${mapsUrl}`,
             <View style={styles.starsRow}>{renderStars(data.rating)}</View>
             <Text style={styles.ratingText}>{data.rating || 0}</Text>
           </View>
-
-          <View style={styles.infoCard}>
-            <View style={styles.infoLeft}>
-              <View style={styles.row}>
-                <Icon name="map-marker-outline" size={scale(18)} />
-                <Text style={styles.addressText}>
-                  {data.address || `${data.name}, ${data.city}`}
-                </Text>
-              </View>
-            </View>
-
-            <TouchableOpacity
-              style={styles.navIcon}
-              onPress={() =>
-                Linking.openURL(
-                  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                    data.address || `${data.name}, ${data.city}`,
-                  )}`,
-                )
-              }
-            >
-              <Icon name="navigation-variant" size={scale(20)} />
-            </TouchableOpacity>
-          </View>
         </View>
 
-        {/* PACKAGES INCLUDED */}
+        {/* PACKAGES */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
             Packages Included ({data.packagesIncluded?.length || 0})
@@ -210,7 +185,6 @@ ${mapsUrl}`,
 
           {data.packagesIncluded?.map(pkg => {
             const packageId = pkg.id ?? pkg.packageId;
-            const packageName = pkg.name ?? pkg.packageName;
             const isOpen = openPackageId === packageId;
 
             return (
@@ -219,7 +193,9 @@ ${mapsUrl}`,
                   style={styles.accordionHeader}
                   onPress={() => setOpenPackageId(isOpen ? null : packageId)}
                 >
-                  <Text style={styles.accordionTitle}>{packageName}</Text>
+                  <Text style={styles.accordionTitle}>
+                    {pkg.name ?? pkg.packageName}
+                  </Text>
                   <Icon
                     name={isOpen ? 'chevron-up' : 'chevron-down'}
                     size={scale(20)}
@@ -246,7 +222,7 @@ ${mapsUrl}`,
 
       {/* BOTTOM BUTTON */}
       <View style={styles.bottom}>
-        {uploadedFiles.length > 0 ? (
+        {isUploadFlow ? (
           <TouchableOpacity
             style={[styles.bookBtn, { backgroundColor: '#4368ed' }]}
             onPress={() =>
@@ -288,6 +264,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
+  /* HEADER */
   header: {
     position: 'absolute',
     top: 0,
@@ -310,14 +287,17 @@ const styles = StyleSheet.create({
     marginHorizontal: scale(12),
     fontSize: SIZES.large,
     fontWeight: '700',
+    color: COLORS.black,
   },
 
+  /* BANNER */
   banner: {
     width: '100%',
     height: verticalScale(260),
     marginTop: verticalScale(80),
   },
 
+  /* SECTION */
   section: {
     padding: scale(16),
   },
@@ -325,6 +305,7 @@ const styles = StyleSheet.create({
   labName: {
     fontSize: SIZES.large,
     fontWeight: '700',
+    color: COLORS.black,
   },
 
   topRow: {
@@ -342,15 +323,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: verticalScale(6),
-  },
-
+  /* RATING */
   ratingRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: verticalScale(6),
     marginBottom: verticalScale(8),
   },
 
@@ -363,120 +340,41 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
     fontWeight: '600',
     color: COLORS.black,
-    marginRight: scale(8),
   },
 
-  reviewLink: {
-    marginLeft: scale(8),
-    fontSize: SIZES.medium,
-    color: COLORS.primary,
-  },
-
-  infoCard: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: '#F6F9FC',
-    borderRadius: scale(12),
-    padding: scale(12),
-    marginTop: verticalScale(12),
-  },
-
-  infoLeft: {
-    flex: 1,
-    paddingRight: scale(10),
-  },
-
-  addressText: {
-    marginLeft: scale(6),
-    fontSize: SIZES.medium,
-    flex: 1,
-  },
-
-  openRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: verticalScale(10),
-  },
-
-  openText: {
-    marginLeft: scale(6),
-    fontSize: SIZES.medium,
-    color: COLORS.green,
-    fontWeight: '600',
-  },
-
-  closeText: {
-    color: COLORS.darkgray,
-    fontWeight: '400',
-  },
-
-  timingBox: {
-    marginTop: verticalScale(8),
-  },
-
-  timingRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-
-  timingLabel: {
-    fontSize: SIZES.medium,
-    color: COLORS.darkgray,
-    marginBottom: verticalScale(4),
-  },
-
-  timingValue: {
-    fontSize: SIZES.medium,
-    fontWeight: '700',
-    color: COLORS.black,
-  },
-
-  timingColumn: {
-    flex: 1,
-  },
-
-  timingText: {
-    fontSize: SIZES.medium,
-    color: COLORS.darkgray,
-  },
-
-  navIcon: {
-    width: scale(36),
-    height: scale(36),
-    borderRadius: scale(18),
-    backgroundColor: COLORS.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 2,
-  },
-
+  /* SECTION TITLE */
   sectionTitle: {
     fontSize: SIZES.large,
     fontWeight: '700',
     marginBottom: verticalScale(10),
+    color: COLORS.black,
   },
 
+  /* ACCORDION */
   accordion: {
     borderWidth: 1,
     borderColor: COLORS.lightGray,
-    borderRadius: scale(8),
+    borderRadius: scale(10),
     marginBottom: verticalScale(10),
+    backgroundColor: '#FAFBFD',
   },
 
   accordionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     padding: scale(12),
   },
 
   accordionTitle: {
     fontSize: SIZES.medium,
     fontWeight: '600',
+    color: COLORS.black,
   },
 
   accordionBody: {
-    padding: scale(12),
+    paddingHorizontal: scale(12),
+    paddingBottom: scale(12),
   },
 
   bulletText: {
@@ -485,16 +383,18 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(4),
   },
 
+  /* BOTTOM BUTTON */
   bottom: {
     padding: scale(16),
     borderTopWidth: 1,
     borderColor: COLORS.lightGray,
+    backgroundColor: COLORS.white,
   },
 
   bookBtn: {
     backgroundColor: COLORS.primary,
     paddingVertical: verticalScale(14),
-    borderRadius: scale(10),
+    borderRadius: scale(12),
     alignItems: 'center',
   },
 

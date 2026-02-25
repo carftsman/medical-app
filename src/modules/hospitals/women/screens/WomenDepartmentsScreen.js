@@ -59,6 +59,7 @@ const renderItem = ({ item }) => {
       onPress={() =>
         navigation.navigate('WomenHospitalsScreen', {
           departmentId: item.id,
+          departmentName:item.name,
         })
       }
     >
