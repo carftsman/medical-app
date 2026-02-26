@@ -83,6 +83,10 @@ setCategories(data);
     .filter(cat => selectedCategories.includes(cat.id))
     .map(cat => cat.name);
   const handleApply = () => {
+    console.log("Filters Applied:", {
+  openNow,
+  open24x7,
+});
     onApply({
       distance,
       sortBy,

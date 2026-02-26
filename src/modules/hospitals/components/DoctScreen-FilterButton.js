@@ -35,26 +35,26 @@ const DoctFilterButton = ({
 
       {/* Scrollable Chips */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {specializations.map(item => (
-          <TouchableOpacity
-            key={item}
-            style={[
-              styles.filterButton,
-              selectedFilter === item && styles.activeFilter,
-            ]}
-            onPress={() => setSelectedFilter(item)}
-          >
-            <Text
-              style={[
-                styles.filterText,
-                selectedFilter === item && styles.activeFilterText,
-              ]}
-            >
-              {item}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+  {specializations.map(item => (
+    <TouchableOpacity
+      key={item.id}
+      style={[
+        styles.filterButton,
+        selectedFilter === item.id && styles.activeFilter,
+      ]}
+      onPress={() => setSelectedFilter(item.id)}
+    >
+      <Text
+        style={[
+          styles.filterText,
+          selectedFilter === item.id && styles.activeFilterText,
+        ]}
+      >
+        {item.name}
+      </Text>
+    </TouchableOpacity>
+  ))}
+</ScrollView>
     </View>
   );
 };

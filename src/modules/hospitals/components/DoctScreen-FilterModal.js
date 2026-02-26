@@ -81,12 +81,13 @@ const DoctModalButton = ({
 
           <View style={styles.dropdown}>
             <Picker selectedValue={department} onValueChange={setDepartment}>
-              <Picker.Item label="All" value="All" />
-              {specializations
-                .filter(s => s !== 'All')
-                .map(dep => (
-                  <Picker.Item key={dep} label={dep} value={dep} />
-                ))}
+              {specializations.map(dep => (
+                <Picker.Item
+                  key={dep.id}
+                  label={dep.name}
+                  value={dep.id}
+                />
+              ))}
             </Picker>
           </View>
 
@@ -108,7 +109,7 @@ const DoctModalButton = ({
           <Text style={styles.sectionTitle}>Fee Range</Text>
 
           <View style={styles.chipRow}>
-            {['100-500', '500-1000', '1000+'].map(fee => (
+            {['100-500', '500-1000',].map(fee => (
               <TouchableOpacity
                 key={fee}
                 style={[styles.chip, feeRange === fee && styles.activeChip]}
@@ -125,7 +126,7 @@ const DoctModalButton = ({
           <Text style={styles.sectionTitle}>Distance</Text>
 
           <View style={styles.chipRow}>
-            {[2, 5, 10].map(km => (
+            {[5, 10,15,20].map(km => (
               <TouchableOpacity
                 key={km}
                 style={[styles.chip, distance === km && styles.activeChip]}
@@ -170,11 +171,23 @@ const DoctModalButton = ({
 
           {/* Buttons */}
           <View style={styles.modalFooter}>
-            <TouchableOpacity style={styles.clearBtn} onPress={clearFilters}>
+            <TouchableOpacity
+              style={styles.clearBtn}
+              onPress={() => {
+                clearFilters();
+                setShowFilter(false);
+              }}
+            >
               <Text>Clear</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.applyBtn} onPress={applyFilters}>
+            <TouchableOpacity
+              style={styles.applyBtn}
+              onPress={() => {
+                applyFilters();
+                setShowFilter(false);
+              }}
+            >
               <Text style={{ color: '#fff' }}>Apply</Text>
             </TouchableOpacity>
           </View>

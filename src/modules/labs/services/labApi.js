@@ -78,5 +78,8 @@ export const labApi = {
   deleteAddress: (id) => {
     return api.delete(`/labs/address/${id}`);
   },
+  getLabInvoice: (bookingId) => {
+  return api.get(`/labs/bookings/${bookingId}/invoice`);
+},
 
 };

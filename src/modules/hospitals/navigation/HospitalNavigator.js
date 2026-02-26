@@ -141,6 +141,7 @@ const HospitalStackNavigator = () => {
         headerShown: false,
        
       }}
+      
     >
       
       <Stack.Screen name="HospitalsTab" component={HospitalTabNavigator} />
