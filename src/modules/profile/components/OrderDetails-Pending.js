@@ -97,12 +97,12 @@ const PendingOrder = ({ order }) => {
       </View>
 
       {/* ===== Rate Experience ===== */}
-      <TouchableOpacity style={styles.rateBtn} onPress={() => navigation.navigate("MedicinesFeedbackScreen")}>
+      {/* <TouchableOpacity style={styles.rateBtn} onPress={() => navigation.navigate("MedicinesFeedbackScreen")}>
         <View style={styles.rowBetween}>
           <Text style={styles.rateText}>Rate Experience</Text>
           <Text style={{ fontSize: scale(16) }}>›</Text>
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       {/* ===== Bottom Buttons ===== */}
       <View style={styles.bottomRow}>
@@ -268,13 +268,14 @@ tableHeadText: {
   bottomRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: verticalScale(20),
+    marginTop: verticalScale(30),
+    
   },
 
   cancelBtn: {
     flex: 1,
     borderWidth: 1,
-    borderColor: COLORS.red,
+    borderColor: COLORS.danger,
     padding: scale(14),
     borderRadius: scale(10),
     alignItems: "center",
@@ -282,7 +283,7 @@ tableHeadText: {
   },
 
   cancelText: {
-    color: COLORS.red,
+    color: COLORS.danger,
     fontFamily: FONT.semiBold,
     fontSize: scale(13),
   },

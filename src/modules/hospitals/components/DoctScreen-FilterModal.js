@@ -55,7 +55,10 @@ const DoctModalButton = ({
 
           {[
             { label: 'Experience (High to Low)', value: 'experience' },
-            { label: 'Fee (Low to High)', value: 'fee' },
+            { label: 'Fee (Low to High)', value: 'fee_low' },
+            { label: 'Fee (High to Low)', value: 'fee_high' },
+            { label: 'Rating (High to Low)', value: 'rating' },
+            { label: 'Distance (Near to Far)', value: 'distance' }
           ].map(item => (
             <TouchableOpacity
               key={item.value}
@@ -126,7 +129,7 @@ const DoctModalButton = ({
           <Text style={styles.sectionTitle}>Distance</Text>
 
           <View style={styles.chipRow}>
-            {[5, 10,15,20].map(km => (
+            {[5, 10, 15, 20].map(km => (
               <TouchableOpacity
                 key={km}
                 style={[styles.chip, distance === km && styles.activeChip]}
@@ -209,6 +212,7 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: 'rgba(0,0,0,0.45)',
     justifyContent: 'flex-end',
+    
   },
 
   /* ---------- MODAL CONTAINER ---------- */
@@ -227,8 +231,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingBottom: verticalScale(12),
-    borderBottomWidth: scale(1),
+    paddingBottom: verticalScale(-10),
     borderBottomColor: COLORS.lightGray,
   },
 
@@ -240,7 +243,7 @@ const styles = StyleSheet.create({
 
   /* ---------- SECTION TITLES ---------- */
   sectionTitle: {
-    marginTop: verticalScale(16),
+    marginTop: verticalScale(10),
     marginBottom: verticalScale(8),
     fontSize: scale(14),
     fontFamily: FONT.bold,
@@ -261,14 +264,14 @@ const styles = StyleSheet.create({
     borderRadius: scale(8),
     overflow: 'hidden',
     backgroundColor: COLORS.white,
-    marginBottom: verticalScale(10),
+    marginBottom: verticalScale(-10),
   },
 
   /* ---------- EXPERIENCE RANGE ---------- */
   rangeText: {
     fontSize: scale(12),
     color: COLORS.primary,
-    marginBottom: verticalScale(6),
+    marginBottom: verticalScale(2),
     fontFamily: FONT.medium,
   },
 
@@ -276,7 +279,7 @@ const styles = StyleSheet.create({
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginTop: verticalScale(4),
+    marginTop: verticalScale(-2),
   },
 
   chip: {
@@ -286,7 +289,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(14),
     paddingVertical: verticalScale(6),
     marginRight: scale(10),
-    marginBottom: verticalScale(10),
+    marginBottom: verticalScale(-5),
     backgroundColor: COLORS.white,
   },
 

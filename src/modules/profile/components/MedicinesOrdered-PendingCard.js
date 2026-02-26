@@ -24,7 +24,9 @@ const PendingOrderCard = ({ item, navigation }) => {
           Purchased Date: {item.orderedDate}
         </Text>
       </TouchableOpacity>
-<View style={styles.imageRow}>
+<TouchableOpacity style={styles.imageRow} onPress={() =>
+          navigation.navigate("OrderDetails", { order: item })
+        }>
   {item.items?.map((medicine) => (
     <Image
       key={medicine.id}
@@ -32,7 +34,7 @@ const PendingOrderCard = ({ item, navigation }) => {
       style={styles.medicineImage}
     />
   ))}
-</View>
+</TouchableOpacity>
 
 <Text style={styles.itemCount}>
   {item.items.length} Item(s)
@@ -92,17 +94,37 @@ const styles = StyleSheet.create({
   statusBadge: {
     paddingHorizontal: scale(10),
     paddingVertical: verticalScale(4),
-    borderRadius: scale(20),
+    borderRadius: scale(30),
+    backgroundColor: "#e9edad",
   },
 
-  pending: {
-    backgroundColor: "#FFF3CD", // yellow
+  delivered: {
+    backgroundColor: "#e8edd4",
   },
 
   statusText: {
     fontSize: scale(11),
     fontFamily: FONT.semiBold,
-    color: "#8A6D3B",
+    color: "#4a5715",
+  },
+
+  imageRow: {
+    flexDirection: "row",
+    marginTop: verticalScale(-5),
+  },
+
+  medicineImage: {
+    width: scale(60),
+    height: scale(60),
+    marginLeft: scale(10),
+    resizeMode: "contain",
+  },
+
+  itemCount: {
+    fontSize: scale(12),
+    fontFamily: FONT.medium,
+    marginTop: verticalScale(6),
+    color: COLORS.black,
   },
 
   buttonRow: {
@@ -142,22 +164,4 @@ const styles = StyleSheet.create({
     fontFamily: FONT.semiBold,
     color: COLORS.white,
   },
-  imageRow: {
-  flexDirection: "row",
-  marginTop: verticalScale(10),
-},
-
-medicineImage: {
-  width: scale(50),
-  height: scale(50),
-  marginRight: scale(10),
-  resizeMode: "contain",
-},
-
-itemCount: {
-  fontSize: scale(12),
-  fontFamily: FONT.medium,
-  marginTop: verticalScale(6),
-  color: COLORS.black,
-},
 });
