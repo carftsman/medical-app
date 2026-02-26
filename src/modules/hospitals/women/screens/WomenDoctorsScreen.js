@@ -26,6 +26,7 @@ const WomenDoctorsScreen = () => {
   const dispatch = useDispatch();
   const routeCategoryId = route?.params?.categoryId;
   const routeCategoryName = route?.params?.categoryName;
+  console.log("catname", routeCategoryName);
   const routeHospitalId = route?.params?.hospitalId || null;
 
   const reduxMode = useSelector(
@@ -76,6 +77,17 @@ const WomenDoctorsScreen = () => {
     }
   };
 
+  useEffect(() => {
+  if (routeCategoryName && categories.length > 0) {
+    const categoryExists = categories.find(
+      cat => cat.name.toLowerCase() === routeCategoryName.toLowerCase()
+    );
+
+    if (categoryExists) {
+      setActiveCategory(categoryExists.name);
+    }
+  }
+}, [categories, routeCategoryName]);
 
   useEffect(() => {
     fetchDoctors();
@@ -93,7 +105,10 @@ const WomenDoctorsScreen = () => {
           {
             params: {
               mode: finalMode,
-              women: true
+              women: true,
+              lat: 17.385044,
+              lng:78.486671,
+              distance: 50,
             },
           }
         );
@@ -101,7 +116,10 @@ const WomenDoctorsScreen = () => {
         response = await api.get('/hospital/user/doctors', {
           params: {
             mode: finalMode,
-            women: true
+            women: true,
+             lat: 17.385044,
+              lng: 78.486671,
+            distance: 50,
           },
         });
       }
@@ -114,7 +132,7 @@ const WomenDoctorsScreen = () => {
         rating: Number(item.rating) || 0,
         fee: Number(item.consultationFee) || 0,
         hospitalName: item.hospital?.name || '',
-        distance: Number(item.distance) || 0,
+        distance: Number(item.distance) || 50,
         availableDate: item.availableDate || 'today',
         availableTime: item.availableTime || '9AM - 5PM',
         imageUrl: item.imageUrl || 'https://via.placeholder.com/150',

@@ -10,11 +10,11 @@ const DoctorReviewCardWomen = ({ item }) => {
             <View style={styles.reviewsHeader}>
                 <View style={styles.reviewsPhotoName}>
                     <View style={styles.reviewPhotoCard}>
-                        <Image source={item.photo} style={styles.reviewPhoto} />
+                        <Image source={item.userImage} style={styles.reviewPhoto} />
                     </View>
                     <View style={{ gap: 5 }}>
-                        <Text style={styles.reviewName}>{item.name}</Text>
-                        <Text style={styles.reviewDate}>{item.date.split("T")[0]}</Text>
+                        <Text style={styles.reviewName}>{item.userName}</Text>
+                        <Text style={styles.reviewDate}>{item.createdAt.split("T")[0]}</Text>
                     </View>
                 </View>
                 <View style={{ flexDirection: 'row' }}>
@@ -28,7 +28,7 @@ const DoctorReviewCardWomen = ({ item }) => {
                     ))}
                 </View>
             </View>
-            <Text style={styles.reviewComment}>{item.comments}</Text>
+            <Text style={styles.reviewComment}>{item.comment}</Text>
         </View>
     );
 }
