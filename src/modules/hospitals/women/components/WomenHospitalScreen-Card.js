@@ -40,10 +40,12 @@ const WomenHospitalCard = ({
           <View style={styles.imagePlaceholder} />
         )}
 
-        <View style={styles.ratingBadge}>
-          <Icon name="star" size={scale(14)} color="#FFD700" />
-          <Text style={styles.ratingText}>4.5</Text>
-        </View>
+       <View style={styles.ratingBadge}>
+  <Icon name="star" size={scale(14)} color="#FFD700" />
+  <Text style={styles.ratingText}>
+    {rating}
+  </Text>
+</View>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -57,10 +59,10 @@ const WomenHospitalCard = ({
         </View>
 
         <TouchableOpacity
-  style={styles.locationRow}
-  activeOpacity={0.8}
-  onPress={onViewDetails}   // or any function you want
->
+        style={styles.locationRow}
+        activeOpacity={0.8}
+        onPress={onViewDetails}   // or any function you want
+      >
 
           {distance !== undefined && distance !== null && (
             <>

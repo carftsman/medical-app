@@ -72,7 +72,7 @@ const onRefresh = () => {
   }
 >
 
-        <HospitalInfo hospital={hospital} />
+        <HospitalInfo hospital={hospital} /> 
         <HospitalDoctorList doctor={doctors.data} hospitalId={HOSPITAL_ID} />
         <HospitalContactInfo hospital={hospital} />
       </ScrollView>

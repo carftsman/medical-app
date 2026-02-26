@@ -29,11 +29,11 @@ import InvoiceScreen from '../screens/InvoiceScreen';
 const LabStackNavigation = () => {
   const Stack = createNativeStackNavigator();
   return (
-    <LabCartProvider>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
         }}
+       
       >
         <Stack.Screen name="LabTabNavigation" component={LabTabNavigation} />
         <Stack.Screen name="SearchScreen" component={LabsSearchScreen} />
@@ -78,7 +78,7 @@ const LabStackNavigation = () => {
         <Stack.Screen name="LabBookingSuccess" component={LabBookingSuccess} />
         <Stack.Screen name='InvoiceScreen' component={InvoiceScreen} />
       </Stack.Navigator>
-    </LabCartProvider>
+   
   );
 };
 

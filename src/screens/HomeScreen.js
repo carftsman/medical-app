@@ -141,6 +141,7 @@ export default function HomeScreen() {
         <ServiceBlock />
 
         {/* FIND YOUR BEST DOCTOR */}
+        {/* FIND YOUR BEST DOCTOR */}
         <View style={styles.sectionWrapper}>
           <Text style={styles.sectionTitle}>Find your Best Doctor</Text>
 
@@ -149,6 +150,10 @@ export default function HomeScreen() {
               {
                 img: require('../../assets/doctorin30.png'),
                 text: 'Doctor in mins',
+                action: () =>
+                  navigation.navigate('HospitalsMain', {
+                    screen: 'PatientDetails',
+                  }),
               },
               {
                 img: require('../../assets/Calltobook.png'),
@@ -157,13 +162,31 @@ export default function HomeScreen() {
               {
                 img: require('../../assets/WomanHealth.png'),
                 text: 'Woman Health',
+                action: () =>
+                  navigation.navigate('HospitalsMain', {
+                    screen: 'HospitalsTab',
+                    params: {
+                      screen: 'WomenScreen',
+                    },
+                  }),
               },
               {
                 img: require('../../assets/Dochome.png'),
                 text: 'Find best Doctor',
+                action: () =>
+                  navigation.navigate('HospitalsMain', {
+                    screen: 'HospitalsTab',
+                    params: {
+                      screen: 'DoctorsScreen',
+                    },
+                  }),
               },
             ].map((item, index) => (
-              <TouchableOpacity key={index} style={styles.doctorCard}>
+              <TouchableOpacity
+                key={index}
+                style={styles.doctorCard}
+                onPress={item.action}
+              >
                 <View style={styles.doctorImgWrap}>
                   <Image source={item.img} style={styles.doctorImg} />
                 </View>
@@ -187,6 +210,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        
         {/* LAB TESTS BY CONCERNS */}
         <View style={styles.labHeader}>
           <Text style={styles.labTitle}>Lab Tests by Concerns</Text>
@@ -202,26 +226,32 @@ export default function HomeScreen() {
               id: 1,
               name: 'Diabetes',
               img: require('../../assets/diabetes.png'),
+              filter: 'diabetes',
             },
             {
               id: 2,
               name: 'Thyroid',
               img: require('../../assets/thyroid.png'),
-            },
-            {
-              id: 3,
-              name: 'Women Care',
-              img: require('../../assets/women.png'),
+              filter: 'thyroid',
             },
             {
               id: 4,
               name: 'Blood Test',
               img: require('../../assets/blood.png'),
+              filter: 'blood',
             },
           ].map(item => (
             <TouchableOpacity
               key={item.id}
               style={[styles.labCard, { marginRight: 12 }]}
+              onPress={() =>
+                navigation.navigate('LabsMain', {
+                  screen: 'PackagesScreen',
+                  params: {
+                    labId: 1,
+                  },
+                })
+              }
             >
               <View style={styles.labImgWrap}>
                 <Image source={item.img} style={styles.labImage} />
@@ -232,7 +262,6 @@ export default function HomeScreen() {
             </TouchableOpacity>
           ))}
         </ScrollView>
-
         <View style={styles.shopSection}>
           <Text style={styles.shopTitle}>Shop Smarter Save Better</Text>
 
