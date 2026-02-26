@@ -231,7 +231,7 @@ ${mapsUrl}`,
 
       {/* BOTTOM BUTTON */}
       <View style={styles.bottom}>
-        {uploadedFiles ? (
+        {uploadedFiles.length>0 ? (
           <TouchableOpacity
             style={[styles.bookBtn, { backgroundColor: "#4368ed" }]}
             onPress={() =>
