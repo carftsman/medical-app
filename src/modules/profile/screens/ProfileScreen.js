@@ -102,7 +102,9 @@ const ProfileScreen = () => {
             items={[
               { title: 'Family Members', icon: 'people-outline', route: 'FamilyMembers' },
               { title: 'My Appointments', icon: 'calendar-outline', route: 'MyAppointments' },
-               { title: 'My Remainders', icon: 'calendar-outline', route: 'MyRemainders' },
+               { title: 'My Remainders', icon: 'time-outline', route: 'MyRemainders' },
+               { title: 'Favourites', icon: 'heart-outline', route: 'Favourites' },
+               
               
               { title: 'Medicines Orders', icon: 'medical-outline', route: 'MedicinesOrdered' },
               { title: 'Lab Tests & Reports', icon: 'document-text-outline', route: 'LabReports' },

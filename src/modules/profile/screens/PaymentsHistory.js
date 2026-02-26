@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React,{useState} from 'react';
+import { ScrollView } from 'react-native';
 
 
 const PaymentsHistory = () => {
@@ -7,6 +8,7 @@ const PaymentsHistory = () => {
   return (
     <View style ={styles.container} >
       <ScrollView showsVerticalScrollIndicator = {false}>
+      
       <Text>Payment</Text>
        </ScrollView>
     </View>
