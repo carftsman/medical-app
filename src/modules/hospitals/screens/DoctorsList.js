@@ -92,7 +92,7 @@ const DoctorsList = () => {
         mode: finalMode,
         page: 1,
         limit: 20,
-        distance: 5,
+        distance: 50,
       };
 
       if (activeCategory !== 'All') {
@@ -104,7 +104,7 @@ const DoctorsList = () => {
         { params }
       );
 
-      setDoctorsData(response.data.data || []);
+      setDoctorsData(response.data.doctors || []);
     } catch (e) {
       console.log(e);
     } finally {

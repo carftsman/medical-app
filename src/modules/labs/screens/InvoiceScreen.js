@@ -300,10 +300,6 @@ const InvoiceScreen = () => {
 
 export default InvoiceScreen;
 
-<<<<<<< HEAD
-const styles = StyleSheet.create({})
-
-=======
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -605,4 +601,3 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
 });
->>>>>>> 6365e477c29e4f092e66408c836aee4075b517aa

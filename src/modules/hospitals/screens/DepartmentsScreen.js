@@ -62,15 +62,23 @@ const DepartmentsScreen = () => {
 
   const limitedCategories = categories.slice(0, 6);
   const limitedSymptoms = symptoms.slice(0, 6);
-  const onDepartmentPress = (item) => {
-  console.log('Pressed department:', item.name);
 
-  navigation.getParent().navigate('DoctorsList', {
-    categoryId: item.id,
-    categoryName: item.name,
-    
-  });
-};
+  const onDepartmentPress = (item) => {
+    console.log('Pressed department:', item.name);
+
+    navigation.getParent().navigate('DoctorsList', {
+      categoryId: item.id,
+      categoryName: item.name,
+    });
+  };
+
+  const onSymptomPress = (item) => {
+    console.log("symptom Pressed:", item)
+    navigation.getParent().navigate('DoctorsList', {
+      categoryId: item?.category?.id,
+      categoryName: item?.category?.name,
+    });
+  };
 
 
   return (
@@ -99,7 +107,7 @@ const DepartmentsScreen = () => {
               data={limitedSymptoms}
               loading={loading}
               showViewAll={false}
-              
+              onCategoryPress={onSymptomPress}
             />
           </>
         }

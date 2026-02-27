@@ -222,11 +222,7 @@ ${mapsUrl}`,
 
       {/* BOTTOM BUTTON */}
       <View style={styles.bottom}>
-<<<<<<< HEAD
-        {uploadedFiles.length>0 ? (
-=======
         {isUploadFlow ? (
->>>>>>> 6365e477c29e4f092e66408c836aee4075b517aa
           <TouchableOpacity
             style={[styles.bookBtn, { backgroundColor: "#4368ed" }]}
             onPress={() =>
