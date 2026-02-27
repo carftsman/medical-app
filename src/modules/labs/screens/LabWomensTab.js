@@ -1,10 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import EmptyCart from '../components/EmptyCart'
 
 const LabWomensTab = () => {
   return (
-    <View>
+    <View style={{flex
+      :1
+    }}>
       <Text>LabWomensTab</Text>
+      <EmptyCart/>
     </View>
   )
 }

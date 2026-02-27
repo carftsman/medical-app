@@ -7,7 +7,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
+ ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -23,7 +23,7 @@ import api from '../../../api/client';
 
 const BookingDetails = () => {
   const navigation = useNavigation();
-  const bookingId = useSelector(state => state.hospital.consultation.bookingId);
+ const bookingId = useSelector(state => state.hospital.consultation.bookingId);
   console.log("Booking ID: ", bookingId);
   const [bookingData, setBookingData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -277,3 +277,4 @@ const styles = StyleSheet.create({
     color: 'red',
   },
 });
+                                                                                                       

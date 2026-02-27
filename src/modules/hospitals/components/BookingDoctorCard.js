@@ -3,7 +3,7 @@ import React from 'react';
 import { scale, verticalScale } from '../../../utils/styling';
 
 const BookingDoctorCard = ({ doctor }) => {
-  if (!doctor) return null;
+ if (!doctor) return null;
 
   return (
     <View style={styles.doctorCard}>

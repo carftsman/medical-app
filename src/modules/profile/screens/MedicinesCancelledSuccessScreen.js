@@ -5,7 +5,7 @@ import { scale, verticalScale } from "../../../utils/styling";
 import { COLORS } from "../../../config/constants";
 
 
-const LabFeedbackSuccessScreen = () => {
+const MedicinesCancelledSuccessScreen = () => {
   return (
     <View style={styles.container}>
       {/* Circle Wrapper */}
@@ -22,17 +22,17 @@ const LabFeedbackSuccessScreen = () => {
       </View>
 
       {/* Title */}
-      <Text style={styles.title}>Thank You for your feedback</Text>
+      <Text style={styles.title}>The cancellation was completed successfully</Text>
 
       {/* Subtitle */}
       <Text style={styles.subtitle}>
-        Thank You for your feedback on your experience with us
+        We're sorry to see it go. You can place a new order anytime
       </Text>
     </View>
   );
 };
 
-export default LabFeedbackSuccessScreen;
+export default MedicinesCancelledSuccessScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -85,6 +85,4 @@ const styles = StyleSheet.create({
     lineHeight: verticalScale(22),
   },
 });
-
-
 
