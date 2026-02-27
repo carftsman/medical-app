@@ -104,6 +104,17 @@ const ProfileScreen = () => {
                 route: 'MyAppointments',
               },
               {
+                title: 'My Remainders',
+                icon: 'time-outline',
+                route: 'MyRemainders',
+              },
+              {
+                title: 'Favourites',
+                icon: 'heart-outline',
+                route: 'Favourites',
+              },
+
+              {
                 title: 'Medicines Orders',
                 icon: 'medical-outline',
                 route: 'MedicinesOrdered',

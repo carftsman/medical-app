@@ -41,6 +41,7 @@ export default function ReportCard({ item }) {
       onPress={() =>
         navigation.navigate('ReportDetails', {
           id: item.reportId,
+          report: item,
         })
       }
     >
@@ -82,7 +83,7 @@ export default function ReportCard({ item }) {
             color="#777"
             style={{ marginLeft: scale(10) }}
           />
-          <Text style={styles.subText}>{item.testsCount}</Text>
+          <Text style={styles.subText}>{item?.testsCount}</Text>
         </View>
 
         <View style={styles.row}>
