@@ -220,6 +220,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
     
+    
   },
 
   container: {
@@ -230,6 +231,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: scale(24),
     borderTopRightRadius: scale(24),
     maxHeight: '85%',
+    
   },
 
   headerRow: {
@@ -349,7 +351,7 @@ const styles = StyleSheet.create({
   bottomRow: {
     flexDirection: 'row',
     gap: scale(12),
-    marginTop: verticalScale(22),
+    top:scale(10),
   },
 
   applyBtn: {

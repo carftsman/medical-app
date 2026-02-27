@@ -70,8 +70,8 @@ const DoctModalButton = ({
               <Icon
                 name={
                   sortBy === item.value
-                    ? 'checkbox-marked'
-                    : 'checkbox-blank-outline'
+                    ? 'radiobox-marked'
+                    : 'radiobox-blank'
                 }
                 size={scale(18)}
               />
