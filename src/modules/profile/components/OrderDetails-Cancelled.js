@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   Image,
+  TouchableOpacity
 } from "react-native";
 import { scale, verticalScale } from "../../../utils/styling";
 import { COLORS, FONT } from "../../../config/constants";
@@ -29,6 +30,7 @@ const CancelledOrder = ({ order }) => {
           <View style={styles.cancelledBadge}>
             <Text style={styles.badgeText}>Cancelled</Text>
           </View>
+         
         </View>
       </View>
 
@@ -73,9 +75,17 @@ const CancelledOrder = ({ order }) => {
               ₹{item.price}/-
             </Text>
         
-          </View>
+          </View>                    
         ))}
       </View>
+       <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={styles.orderBtn}
+              onPress={() => console.log("Reorder")}
+            >
+              <Text style={styles.orderText}>Order Again</Text>
+            </TouchableOpacity>
+          </View>
 
     </ScrollView>
   );
@@ -116,7 +126,7 @@ const styles = StyleSheet.create({
   },
 
   cancelledBadge: {
-    backgroundColor: "#F8D7DA",
+    backgroundColor: COLORS.danger,
     paddingHorizontal: scale(10),
     paddingVertical: verticalScale(4),
     borderRadius: scale(20),
@@ -207,5 +217,25 @@ tableHeadText: {
   tableText: {
     fontSize: scale(12),
     fontFamily: FONT.regular,
+  },
+  
+  buttonRow: {
+    borderTopWidth: 0.5,
+    borderTopColor: COLORS.border,
+    paddingTop: verticalScale(30),
+
+  },
+
+  orderBtn: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: verticalScale(10),
+    borderRadius: scale(8),
+    alignItems: "center",
+  },
+
+  orderText: {
+    fontSize: scale(12),
+    fontFamily: FONT.semiBold,
+    color: COLORS.white,
   },
 });

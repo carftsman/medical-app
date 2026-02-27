@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { scale, verticalScale } from "../../../utils/styling";
 import { COLORS, FONT } from "../../../config/constants";
-
+import BackButton from "../../../components/BackButton";
 import DeliveredOrderCard from "../components/MedicinesOrdered-DeliveredCard";
 import PendingOrderCard from "../components/MedicinesOrdered-PendingCard";
 import CancelledOrderCard from "../components/MedicinesOrdered-CanceledCard";
@@ -211,7 +211,16 @@ const MedicinesOrdered = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Search */}
+       {/* Header */}
+    <View style={styles.header}>
+      <BackButton onPress={() => navigation.goBack()} />
+
+      <Text style={styles.headerTitle}>
+        Medicines Ordered
+      </Text>
+
+      <View style={styles.rightSpace} />
+    </View>
       <TextInput
         placeholder="Search by order ID"
         placeholderTextColor={COLORS.gray}
@@ -251,6 +260,7 @@ const MedicinesOrdered = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: verticalScale(30) }}
       />
+      
     </View>
   );
 };
@@ -263,6 +273,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(15),
     paddingTop: verticalScale(10),
   },
+  header: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  marginBottom: verticalScale(15),
+
+  marginHorizontal: scale(-15),   
+  paddingHorizontal: scale(1),   
+},
+
+headerTitle: {
+  flex: 1,
+  textAlign: "center",
+  fontSize: scale(16),
+  fontFamily: FONT.bold,
+  color: COLORS.black,
+  marginBottom:scale(-10),
+},
+
+rightSpace: {
+  width: scale(32), // same width as back button
+},
+  
 
   searchInput: {
     backgroundColor: COLORS.white,

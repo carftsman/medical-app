@@ -11,7 +11,6 @@ import ReportCard from '../components/ReportCard';
 import SearchBar from '../components/SearchBar';
 import FilterBottomSheet from '../components/FilterBottomSheet';
 import { scale, verticalScale } from '../../../utils/styling';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import api from '../../../api/client';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
@@ -47,7 +46,7 @@ export default function ReportsTab() {
 
       const res = await api.get('/labs/reports', {
         params: {
-          userId: 21,
+          userId: 1,
           ...(search && { search }),
           ...(status &&
             status !== '*' && {
@@ -105,6 +104,7 @@ export default function ReportsTab() {
         style={styles.container}
         contentContainerStyle={{ paddingBottom: verticalScale(100) }}
         showsVerticalScrollIndicator={false}
+        
       >
         {loading && (
           <ActivityIndicator
