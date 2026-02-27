@@ -154,6 +154,7 @@ const PatientDetails = ({ route, navigation }) => {
               onSelect: value => {
                 setProblem(value);
               },
+              title: 'Select Your Concern',
             })
           }
         >

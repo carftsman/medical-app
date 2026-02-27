@@ -155,7 +155,11 @@ const LabsCartScreen = () => {
             data={cartItems}
             keyExtractor={item => item.id.toString()}
             showsVerticalScrollIndicator={false}
+            style={{
+              flex: 1,
+            }}
             contentContainerStyle={{
+              flexGrow: 1,
               paddingBottom: verticalScale(120),
             }}
             // ListHeaderComponent={<CartHeader />}
@@ -174,7 +178,17 @@ const LabsCartScreen = () => {
                 }}
               />
             )}
-            ListEmptyComponent={<EmptyCart />}
+            ListEmptyComponent={() => (
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <EmptyCart />
+              </View>
+            )}
             ListFooterComponent={
               cartItems.length > 0 ? (
                 <CartCouponBanner

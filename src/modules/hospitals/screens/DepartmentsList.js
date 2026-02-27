@@ -30,7 +30,7 @@ export default function FindDoctorsScreen() {
 
   const route = useRoute();
 
-  const { onSelect } = route.params || {};
+  const { onSelect, title } = route.params || {};
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -137,7 +137,7 @@ export default function FindDoctorsScreen() {
             <Feather name="arrow-left" size={28} color="#111827" />
           </TouchableOpacity>
 
-          <Text style={styles.header}>Find Doctors</Text>
+          <Text style={styles.header}>{title || 'Find Doctors'}</Text>
         </View>
 
         <View style={styles.searchBox}>
