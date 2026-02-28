@@ -7,19 +7,18 @@ import {
   FlatList,
   StyleSheet,
   ActivityIndicator,
-  Alert
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { scale, verticalScale } from '../../../utils/styling';
-import api from "../../../api/client"
-import useAuth from "../../../hooks/useAuth"
+import api from '../../../api/client';
+import useAuth from '../../../hooks/useAuth';
 
 function SavedAddress({ navigation, route }) {
-
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const { user } = useAuth()
+  const { user } = useAuth();
   const USER_ID = user?.id || 6;
 
   // GET ADDRESS API
@@ -28,7 +27,7 @@ function SavedAddress({ navigation, route }) {
       setLoading(true);
 
       const response = await api.get(`/labs/address`, {
-        params: { userId: USER_ID }
+        params: { userId: USER_ID },
       });
 
       const result = response.data;
@@ -40,16 +39,12 @@ function SavedAddress({ navigation, route }) {
       }
 
       if (result.savedAddresses && result.savedAddresses.length > 0) {
-        combinedAddresses = [
-          ...combinedAddresses,
-          ...result.savedAddresses
-        ];
+        combinedAddresses = [...combinedAddresses, ...result.savedAddresses];
       }
 
       setAddresses(combinedAddresses);
-
     } catch (error) {
-      console.log("error", error?.response?.data?.message || error.message)
+      console.log('error', error?.response?.data?.message || error.message);
       setAddresses([]);
     } finally {
       setLoading(false);
@@ -81,7 +76,6 @@ function SavedAddress({ navigation, route }) {
       setAddresses(updated);
 
       Alert.alert('Success', 'Address deleted successfully');
-
     } catch (error) {
       console.log('Delete Error:', error);
       Alert.alert('Error', 'Unable to delete address');
@@ -90,7 +84,6 @@ function SavedAddress({ navigation, route }) {
 
   const renderAddress = ({ item, index }) => (
     <View style={styles.card}>
-
       <View style={styles.leftSection}>
         <Text style={styles.name}>{item.fullName || ''}</Text>
 
@@ -102,23 +95,18 @@ function SavedAddress({ navigation, route }) {
           {item.city || ''}, {item.state || ''}, {item.pinCode || ''}
         </Text>
 
-        {item.mobile && (
-          <Text style={styles.phone}>
-            +91 {item.mobile}
-          </Text>
-        )}
+        {item.mobile && <Text style={styles.phone}>+91 {item.mobile}</Text>}
       </View>
 
       <View style={styles.divider} />
 
       <View style={styles.iconSection}>
-
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() =>
             navigation.navigate('AddAddress', {
               editData: item,
-              editIndex: index
+              editIndex: index,
             })
           }
         >
@@ -129,21 +117,14 @@ function SavedAddress({ navigation, route }) {
           style={styles.actionButton}
           onPress={() => deleteAddress(index, item.id)}
         >
-          <Icon
-            name="trash-outline"
-            size={scale(22)}
-            color="#FF4D4F"
-          />
+          <Icon name="trash-outline" size={scale(22)} color="#FF4D4F" />
         </TouchableOpacity>
-
       </View>
-
     </View>
   );
 
   return (
     <View style={styles.container}>
-
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
 
       <View style={styles.header}>
@@ -186,7 +167,10 @@ function SavedAddress({ navigation, route }) {
             showsVerticalScrollIndicator={false}
           />
 
-          <TouchableOpacity onPress={goToAddAddress} style={styles.bottomButton}>
+          <TouchableOpacity
+            onPress={goToAddAddress}
+            style={styles.bottomButton}
+          >
             <Text style={styles.bottomButtonText}>Add New Address</Text>
           </TouchableOpacity>
         </View>
@@ -200,10 +184,9 @@ export default SavedAddress;
 /* ================= STYLES ================= */
 
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF'
+    backgroundColor: '#FFFFFF',
   },
 
   header: {
@@ -212,29 +195,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: verticalScale(14),
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0'
+    borderBottomColor: '#F0F0F0',
   },
 
   backButton: {
     position: 'absolute',
-    left: scale(16)
+    left: scale(16),
   },
 
   headerTitle: {
     fontSize: scale(18),
     fontWeight: '600',
-    color: '#000'
+    color: '#000',
   },
 
   loaderContainer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
 
   listContainer: {
     flex: 1,
-    padding: scale(16)
+    padding: scale(16),
   },
 
   card: {
@@ -245,55 +228,55 @@ const styles = StyleSheet.create({
     padding: scale(16),
     marginBottom: verticalScale(14),
     borderWidth: 1,
-    borderColor: '#EAEAEA'
+    borderColor: '#EAEAEA',
   },
 
   leftSection: {
-    flex: 1
+    flex: 1,
   },
 
   name: {
     fontSize: scale(16),
     fontWeight: '600',
     color: '#000',
-    marginBottom: verticalScale(4)
+    marginBottom: verticalScale(4),
   },
 
   addressText: {
     fontSize: scale(13),
     color: '#6B6B6B',
-    marginTop: verticalScale(2)
+    marginTop: verticalScale(2),
   },
 
   phone: {
     fontSize: scale(13),
     color: '#000',
-    marginTop: verticalScale(6)
+    marginTop: verticalScale(6),
   },
 
   divider: {
     width: 1,
     height: '100%',
     backgroundColor: '#E0E0E0',
-    marginHorizontal: scale(14)
+    marginHorizontal: scale(14),
   },
 
   iconSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
 
   actionButton: {
     marginLeft: scale(14),
-    padding: scale(4)
+    padding: scale(4),
   },
 
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: scale(20)
+    paddingHorizontal: scale(20),
   },
 
   emptyIcon: {
@@ -303,14 +286,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#E6F0FA',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: verticalScale(25)
+    marginBottom: verticalScale(25),
   },
 
   emptyTitle: {
     fontSize: scale(22),
     fontWeight: '700',
     color: '#000',
-    textAlign: 'center'
+    textAlign: 'center',
   },
 
   emptySubtitle: {
@@ -318,20 +301,20 @@ const styles = StyleSheet.create({
     color: '#8A8A8A',
     textAlign: 'center',
     marginTop: verticalScale(8),
-    marginBottom: verticalScale(25)
+    marginBottom: verticalScale(25),
   },
 
   addButton: {
     backgroundColor: '#1E73BE',
     paddingVertical: verticalScale(12),
     paddingHorizontal: scale(40),
-    borderRadius: scale(12)
+    borderRadius: scale(12),
   },
 
   addButtonText: {
     color: '#FFF',
     fontSize: scale(16),
-    fontWeight: '600'
+    fontWeight: '600',
   },
 
   bottomButton: {
@@ -339,13 +322,12 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(14),
     borderRadius: scale(12),
     alignItems: 'center',
-    marginTop: verticalScale(10)
+    marginTop: verticalScale(10),
   },
 
   bottomButtonText: {
     color: '#FFF',
     fontSize: scale(16),
-    fontWeight: '600'
-  }
-
+    fontWeight: '600',
+  },
 });

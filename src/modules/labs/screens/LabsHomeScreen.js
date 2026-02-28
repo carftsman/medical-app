@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,24 +8,26 @@ import {
   ImageBackground,
   RefreshControl,
   ActivityIndicator,
-} from "react-native";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import LinearGradient from "react-native-linear-gradient";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { scale, verticalScale } from "../../../utils/styling";
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import LinearGradient from 'react-native-linear-gradient';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { scale, verticalScale } from '../../../utils/styling';
 
-import LocationHeader from "../../../components/LocationHeader";
-import SosButton from "../../../components/SosButton";
+import LocationHeader from '../../../components/LocationHeader';
+import SosButton from '../../../components/SosButton';
 
-import CallToBookCard from "../components/CallToBookCard";
-import LabTestByAge from "../components/LabTestByAge";
-import LabCategories from "../components/LabCategories";
-import NearbyLabs from "../components/NearbyLabs";
-import RecentlyBookingTests from "../components/RecentlyBookingTests";
-import CertifiedLabs from "../components/CertifiedLabs";
+import CallToBookCard from '../components/CallToBookCard';
+import LabTestByAge from '../components/LabTestByAge';
+import LabCategories from '../components/LabCategories';
+import NearbyLabs from '../components/NearbyLabs';
+import RecentlyBookingTests from '../components/RecentlyBookingTests';
+import CertifiedLabs from '../components/CertifiedLabs';
+import { useSelector } from 'react-redux';
+import { COLORS } from '../../../config/constants';
 
-import { getUserPrescriptions } from "../services/prescriptionApi";
+import { getUserPrescriptions } from '../services/prescriptionApi';
 
 export default function LabsHomeScreen() {
   const navigation = useNavigation();
@@ -33,6 +35,8 @@ export default function LabsHomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [uploadedList, setUploadedList] = useState([]);
   const [loadingUploads, setLoadingUploads] = useState(true);
+
+  const cartItems = useSelector(state => state.labsCart.items);
 
   /* ================= FETCH UPLOADS FROM API ================= */
 
@@ -52,13 +56,12 @@ export default function LabsHomeScreen() {
 
       // Sort latest first
       const sorted = formatted.sort(
-        (a, b) =>
-          new Date(b.createdAt) - new Date(a.createdAt)
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
       );
 
       setUploadedList(sorted);
     } catch (error) {
-      console.log("Home Upload Fetch Error:", error);
+      console.log('Home Upload Fetch Error:', error);
     } finally {
       setLoadingUploads(false);
       setRefreshing(false);
@@ -72,7 +75,7 @@ export default function LabsHomeScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchUploads();
-    }, [])
+    }, []),
   );
 
   const onRefresh = useCallback(() => {
@@ -83,10 +86,9 @@ export default function LabsHomeScreen() {
   return (
     <View style={styles.safeArea}>
       <View style={styles.container}>
-
         {/* ================= HEADER ================= */}
         <LinearGradient
-          colors={["#1E63F2", "#16C7B7"]}
+          colors={['#1E63F2', '#16C7B7']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.header}
@@ -103,7 +105,10 @@ export default function LabsHomeScreen() {
                 />
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.iconBtn}>
+              <TouchableOpacity
+                style={styles.iconBtn}
+                onPress={() => navigation.navigate('Profile')}
+              >
                 <Ionicons
                   name="person-circle-outline"
                   size={scale(32)}
@@ -117,7 +122,7 @@ export default function LabsHomeScreen() {
             <TouchableOpacity
               activeOpacity={0.8}
               style={styles.searchBar}
-              onPress={() => navigation.navigate("SearchScreen")}
+              onPress={() => navigation.navigate('SearchScreen')}
             >
               <Ionicons
                 name="search-outline"
@@ -131,13 +136,33 @@ export default function LabsHomeScreen() {
 
             <TouchableOpacity
               style={styles.cartRight}
-              onPress={() => navigation.navigate("CartScreen")}
+              onPress={() => navigation.navigate('CartScreen')}
             >
-              <Ionicons
-                name="cart-outline"
-                size={scale(32)}
-                color="#FFFFFF"
-              />
+              <Ionicons name="cart-outline" size={scale(38)} color="#FFFFFF" />
+              {cartItems.length > 0 && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: 2,
+                    right: -5,
+                    height: 18,
+                    width: 18,
+                    backgroundColor: COLORS.danger,
+                    borderRadius: 50,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      color: 'white',
+                    }}
+                  >
+                    {cartItems.length}
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
           </View>
         </LinearGradient>
@@ -150,19 +175,18 @@ export default function LabsHomeScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              colors={["#1E63F2"]}
+              colors={['#1E63F2']}
               tintColor="#1E63F2"
             />
           }
         >
-
           {/* ================= ACTION CARDS ================= */}
           <View style={styles.sideBySideRow}>
             <CallToBookCard phoneNumber="108" />
 
             <TouchableOpacity
               style={styles.sideCard}
-              onPress={() => navigation.navigate("UploadPrescription")}
+              onPress={() => navigation.navigate('UploadPrescription')}
             >
               <View style={styles.sideLeft}>
                 <View style={styles.docIconBox}>
@@ -196,27 +220,22 @@ export default function LabsHomeScreen() {
             />
           ) : uploadedList.length > 0 ? (
             <View style={{ marginTop: verticalScale(20) }}>
-
               <View style={styles.recentHeader}>
-                <Text style={styles.recentTitle}>
-                  Recent Appointments
-                </Text>
+                <Text style={styles.recentTitle}>Recent Appointments</Text>
 
                 <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate("PrescriptionList")
-                  }
+                  onPress={() => navigation.navigate('PrescriptionList')}
                 >
                   <Text style={styles.viewAll}>View All</Text>
                 </TouchableOpacity>
               </View>
 
-              {uploadedList.slice(0, 3).map((item) => (
+              {uploadedList.slice(0, 3).map(item => (
                 <TouchableOpacity
                   key={item.groupId}
                   style={styles.recentCard}
                   onPress={() =>
-                    navigation.navigate("PrescriptionTracking", {
+                    navigation.navigate('PrescriptionTracking', {
                       groupId: item.groupId,
                     })
                   }
@@ -248,26 +267,20 @@ export default function LabsHomeScreen() {
           <View style={styles.bannerWrapper}>
             <TouchableOpacity activeOpacity={0.9}>
               <ImageBackground
-                source={require("../../../../assets/Labs_Banner.png")}
+                source={require('../../../../assets/Labs_Banner.png')}
                 style={styles.bannerImage}
                 imageStyle={styles.bannerImageRadius}
               >
                 <View style={styles.bannerContent}>
-                  <Text style={styles.bannerTitle}>
-                    Stay informed about
-                  </Text>
-                  <Text style={styles.bannerTitleBold}>
-                    the new variant
-                  </Text>
+                  <Text style={styles.bannerTitle}>Stay informed about</Text>
+                  <Text style={styles.bannerTitleBold}>the new variant</Text>
 
                   <Text style={styles.bannerDesc}>
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                   </Text>
 
                   <View style={styles.infoChip}>
-                    <Text style={styles.infoText}>
-                      info: (123) 123 456 789
-                    </Text>
+                    <Text style={styles.infoText}>info: (123) 123 456 789</Text>
                   </View>
                 </View>
               </ImageBackground>
@@ -279,11 +292,9 @@ export default function LabsHomeScreen() {
           <NearbyLabs />
           <RecentlyBookingTests />
           <CertifiedLabs />
-
         </ScrollView>
 
         <SosButton />
-
       </View>
     </View>
   );
@@ -291,12 +302,12 @@ export default function LabsHomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#1E63F2",
+    backgroundColor: '#1E63F2',
   },
 
   container: {
     flex: 1,
-    backgroundColor: "#F5FAFF",
+    backgroundColor: '#F5FAFF',
   },
 
   /*  HEADER  */
@@ -308,13 +319,13 @@ const styles = StyleSheet.create({
   },
 
   headerRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: verticalScale(16),
   },
 
   rightIcons: {
-    flexDirection: "row",
+    flexDirection: 'row',
   },
 
   iconBtn: {
@@ -322,19 +333,19 @@ const styles = StyleSheet.create({
   },
 
   searchRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
 
   searchBar: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: '#FFFFFF',
     borderRadius: scale(10),
     height: verticalScale(44),
     paddingHorizontal: scale(12),
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 
   cartRight: {
@@ -344,7 +355,7 @@ const styles = StyleSheet.create({
   searchPlaceholder: {
     marginLeft: scale(10),
     fontSize: scale(14),
-    color: "#9AA5B1",
+    color: '#9AA5B1',
   },
 
   /* BODY  */
@@ -358,79 +369,79 @@ const styles = StyleSheet.create({
   /*ACTION CARDS */
 
   sideBySideRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 
   sideCard: {
     flex: 1,
-    backgroundColor: "#DCE5F7",
+    backgroundColor: '#DCE5F7',
     borderRadius: scale(14),
     paddingVertical: verticalScale(22),
     paddingHorizontal: scale(12),
     minHeight: verticalScale(72),
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginLeft: scale(10),
   },
 
   sideLeft: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 
   docIconBox: {
     width: scale(36),
     height: scale(36),
     borderRadius: scale(10),
-    backgroundColor: "#B1CEF8",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#B1CEF8',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: scale(8),
   },
 
   cardTitle: {
     fontSize: scale(13),
-    fontWeight: "600",
-    color: "#222",
+    fontWeight: '600',
+    color: '#222',
   },
 
   cardSub: {
     fontSize: scale(11),
-    color: "#666",
+    color: '#666',
   },
 
   /*RECENT UPLOAD  */
 
   recentHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: verticalScale(10),
   },
 
   recentTitle: {
     fontSize: scale(16),
-    fontWeight: "700",
-    color: "#222",
+    fontWeight: '700',
+    color: '#222',
   },
 
   viewAll: {
-    color: "#056FD2",
-    fontWeight: "600",
+    color: '#056FD2',
+    fontWeight: '600',
     fontSize: scale(13),
   },
 
   recentCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F0F6FF",
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0F6FF',
     paddingVertical: verticalScale(14),
     paddingHorizontal: scale(14),
     borderRadius: scale(16),
     marginBottom: verticalScale(10),
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOpacity: 0.04,
     shadowRadius: 4,
     elevation: 2,
@@ -440,21 +451,21 @@ const styles = StyleSheet.create({
     width: scale(38),
     height: scale(38),
     borderRadius: scale(12),
-    backgroundColor: "#DCE9FF",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#DCE9FF',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: scale(12),
   },
 
   refText: {
-    fontWeight: "700",
+    fontWeight: '700',
     fontSize: scale(14),
-    color: "#222",
+    color: '#222',
   },
 
   statusText: {
     fontSize: scale(12),
-    color: "#0E9F6E",
+    color: '#0E9F6E',
     marginTop: verticalScale(2),
   },
 
@@ -465,11 +476,11 @@ const styles = StyleSheet.create({
   },
 
   bannerImage: {
-    width: "100%",
+    width: '100%',
     height: verticalScale(160),
     borderRadius: scale(16),
-    overflow: "hidden",
-    justifyContent: "center",
+    overflow: 'hidden',
+    justifyContent: 'center',
   },
 
   bannerImageRadius: {
@@ -477,25 +488,25 @@ const styles = StyleSheet.create({
   },
 
   bannerContent: {
-    width: "65%",
+    width: '65%',
     paddingLeft: scale(8),
   },
 
   bannerTitle: {
     fontSize: scale(16),
-    fontWeight: "800",
-    color: "#7A8799",
+    fontWeight: '800',
+    color: '#7A8799',
   },
 
   bannerTitleBold: {
     fontSize: scale(16),
-    fontWeight: "800",
-    color: "#5F6F85",
+    fontWeight: '800',
+    color: '#5F6F85',
   },
 
   bannerDesc: {
     fontSize: scale(11),
-    color: "#8B97A8",
+    color: '#8B97A8',
     marginTop: verticalScale(6),
   },
 
@@ -505,13 +516,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(11),
     borderRadius: scale(8),
     borderWidth: 1.5,
-    borderColor: "#F26D6D",
-    backgroundColor: "rgba(242,109,109,0.08)",
+    borderColor: '#F26D6D',
+    backgroundColor: 'rgba(242,109,109,0.08)',
   },
 
   infoText: {
     fontSize: scale(11),
-    fontWeight: "700",
-    color: "#F26D6D",
+    fontWeight: '700',
+    color: '#F26D6D',
   },
 });

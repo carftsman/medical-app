@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,12 +10,12 @@ import {
   Share,
   RefreshControl,
   ActivityIndicator,
-} from "react-native";
-import { useRoute, useNavigation } from "@react-navigation/native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { labApi } from "../services/labApi";
-import { COLORS, SIZES } from "../../../config/constants";
-import { scale, verticalScale } from "../../../utils/styling";
+} from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { labApi } from '../services/labApi';
+import { COLORS, SIZES } from '../../../config/constants';
+import { scale, verticalScale } from '../../../utils/styling';
 
 const LabDetailsScreen = () => {
   const route = useRoute();
@@ -24,6 +24,8 @@ const LabDetailsScreen = () => {
   const labId = route?.params?.labId ?? 3;
   const isUploadFlow = route?.params?.isUploadFlow === true;
   const uploadedFiles = route?.params?.files || null;
+
+  console.log('uploadFiles', uploadedFiles);
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -36,8 +38,8 @@ const LabDetailsScreen = () => {
       setData(res?.data);
     } catch (error) {
       console.log(
-        "Lab details API error:",
-        error?.response?.data || error.message
+        'Lab details API error:',
+        error?.response?.data || error.message,
       );
     } finally {
       setLoading(false);
@@ -74,11 +76,10 @@ const LabDetailsScreen = () => {
 
   const handleShare = async () => {
     try {
-      const locationText =
-        data.address || `${data.name}, ${data.city}`;
+      const locationText = data.address || `${data.name}, ${data.city}`;
 
       const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-        locationText
+        locationText,
       )}`;
 
       await Share.share({
@@ -89,7 +90,7 @@ const LabDetailsScreen = () => {
 ${mapsUrl}`,
       });
     } catch (error) {
-      console.log("Share error:", error);
+      console.log('Share error:', error);
     }
   };
 
@@ -101,15 +102,20 @@ ${mapsUrl}`,
     for (let i = 1; i <= 5; i++) {
       if (i <= fullStars) {
         stars.push(
-          <Icon key={i} name="star" size={scale(16)} color="#F5A623" />
+          <Icon key={i} name="star" size={scale(16)} color="#F5A623" />,
         );
       } else if (i === fullStars + 1 && hasHalfStar) {
         stars.push(
-          <Icon key={i} name="star-half-full" size={scale(16)} color="#F5A623" />
+          <Icon
+            key={i}
+            name="star-half-full"
+            size={scale(16)}
+            color="#F5A623"
+          />,
         );
       } else {
         stars.push(
-          <Icon key={i} name="star-outline" size={scale(16)} color="#F5A623" />
+          <Icon key={i} name="star-outline" size={scale(16)} color="#F5A623" />,
         );
       }
     }
@@ -147,7 +153,7 @@ ${mapsUrl}`,
           source={{
             uri:
               data.imageUrl ||
-              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTxEscPwXOmagb4I6akEBtLthHxH2gFrB_xg&s",
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTxEscPwXOmagb4I6akEBtLthHxH2gFrB_xg&s',
           }}
           style={styles.banner}
         />
@@ -166,12 +172,8 @@ ${mapsUrl}`,
           </View>
 
           <View style={styles.ratingRow}>
-            <View style={styles.starsRow}>
-              {renderStars(data.rating)}
-            </View>
-            <Text style={styles.ratingText}>
-              {data.rating || 0}
-            </Text>
+            <View style={styles.starsRow}>{renderStars(data.rating)}</View>
+            <Text style={styles.ratingText}>{data.rating || 0}</Text>
           </View>
         </View>
 
@@ -181,7 +183,7 @@ ${mapsUrl}`,
             Packages Included ({data.packagesIncluded?.length || 0})
           </Text>
 
-          {data.packagesIncluded?.map((pkg) => {
+          {data.packagesIncluded?.map(pkg => {
             const packageId = pkg.id ?? pkg.packageId;
             const isOpen = openPackageId === packageId;
 
@@ -189,15 +191,13 @@ ${mapsUrl}`,
               <View key={packageId} style={styles.accordion}>
                 <TouchableOpacity
                   style={styles.accordionHeader}
-                  onPress={() =>
-                    setOpenPackageId(isOpen ? null : packageId)
-                  }
+                  onPress={() => setOpenPackageId(isOpen ? null : packageId)}
                 >
                   <Text style={styles.accordionTitle}>
                     {pkg.name ?? pkg.packageName}
                   </Text>
                   <Icon
-                    name={isOpen ? "chevron-up" : "chevron-down"}
+                    name={isOpen ? 'chevron-up' : 'chevron-down'}
                     size={scale(20)}
                   />
                 </TouchableOpacity>
@@ -224,9 +224,9 @@ ${mapsUrl}`,
       <View style={styles.bottom}>
         {isUploadFlow ? (
           <TouchableOpacity
-            style={[styles.bookBtn, { backgroundColor: "#4368ed" }]}
+            style={[styles.bookBtn, { backgroundColor: '#4368ed' }]}
             onPress={() =>
-              navigation.navigate("ReviewPrescription", {
+              navigation.navigate('ReviewPrescription', {
                 lab: data,
                 files: uploadedFiles,
               })
@@ -238,7 +238,7 @@ ${mapsUrl}`,
           <TouchableOpacity
             style={styles.bookBtn}
             onPress={() =>
-              navigation.navigate("PackagesScreen", {
+              navigation.navigate('PackagesScreen', {
                 labId: data.id,
               })
             }
@@ -260,20 +260,20 @@ const styles = StyleSheet.create({
 
   center: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   /* HEADER */
   header: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     zIndex: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: COLORS.white,
     paddingHorizontal: scale(16),
     paddingTop: verticalScale(40),
@@ -286,13 +286,13 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: scale(12),
     fontSize: SIZES.large,
-    fontWeight: "700",
+    fontWeight: '700',
     color: COLORS.black,
   },
 
   /* BANNER */
   banner: {
-    width: "100%",
+    width: '100%',
     height: verticalScale(260),
     marginTop: verticalScale(80),
   },
@@ -304,14 +304,14 @@ const styles = StyleSheet.create({
 
   labName: {
     fontSize: SIZES.large,
-    fontWeight: "700",
+    fontWeight: '700',
     color: COLORS.black,
   },
 
   topRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
 
   callBtn: {
@@ -319,33 +319,33 @@ const styles = StyleSheet.create({
     height: scale(36),
     borderRadius: scale(18),
     backgroundColor: COLORS.primary,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   /* RATING */
   ratingRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: verticalScale(6),
     marginBottom: verticalScale(8),
   },
 
   starsRow: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginRight: scale(6),
   },
 
   ratingText: {
     fontSize: SIZES.medium,
-    fontWeight: "600",
+    fontWeight: '600',
     color: COLORS.black,
   },
 
   /* SECTION TITLE */
   sectionTitle: {
     fontSize: SIZES.large,
-    fontWeight: "700",
+    fontWeight: '700',
     marginBottom: verticalScale(10),
     color: COLORS.black,
   },
@@ -356,19 +356,19 @@ const styles = StyleSheet.create({
     borderColor: COLORS.lightGray,
     borderRadius: scale(10),
     marginBottom: verticalScale(10),
-    backgroundColor: "#FAFBFD",
+    backgroundColor: '#FAFBFD',
   },
 
   accordionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     padding: scale(12),
   },
 
   accordionTitle: {
     fontSize: SIZES.medium,
-    fontWeight: "600",
+    fontWeight: '600',
     color: COLORS.black,
   },
 
@@ -395,12 +395,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     paddingVertical: verticalScale(14),
     borderRadius: scale(12),
-    alignItems: "center",
+    alignItems: 'center',
   },
 
   bookText: {
     color: COLORS.white,
     fontSize: SIZES.large,
-    fontWeight: "600",
+    fontWeight: '600',
   },
 });

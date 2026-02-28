@@ -1,5 +1,5 @@
-import React from 'react'
-import { Platform, View } from 'react-native'
+import React from 'react';
+import { Platform, View } from 'react-native';
 import MainHomeScreen from '../../../screens/MainHomeScreen';
 import LabsHomeScreen from '../screens/LabsHomeScreen';
 import CategoriesTab from '../screens/CategoriesTab';
@@ -14,34 +14,30 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
-import Fontisto from "react-native-vector-icons/Fontisto"
-
-
-
+import Fontisto from 'react-native-vector-icons/Fontisto';
+import PrescriptionsTab from '../screens/PrescriptionsTab';
 
 const LabTabNavigator = () => {
   const Tab = createBottomTabNavigator();
 
   const insets = useSafeAreaInsets();
-  
 
   return (
     <Tab.Navigator
-     initialRouteName='LabsHomeScreen'
+      initialRouteName="LabsHomeScreen"
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
           backgroundColor: '#fff',
           borderTopWidth: 0,
           borderTopColor: '#e1e8ed',
-          position: "absolute",
+          position: 'absolute',
           left: 0,
           right: 0,
           bottom: 0,
           height: verticalScale(70),
-          paddingBottom: Platform.OS === "ios"
-            ? verticalScale(10)
-            : verticalScale(6),
+          paddingBottom:
+            Platform.OS === 'ios' ? verticalScale(10) : verticalScale(6),
           paddingTop: verticalScale(6),
           elevation: 10,
         },
@@ -95,12 +91,12 @@ const LabTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="LabWomensTab"
-        component={WomensTab}
+        name="PrescriptionsTab"
+        component={PrescriptionsTab}
         options={{
-          tabBarLabel: 'Women',
+          tabBarLabel: 'Prescriptions',
           tabBarIcon: ({ focused, color, size }) => (
-            <AntDesignIcon name="woman" size={size} color={color} />
+            <Fontisto name="prescription" size={size} color={color} />
           ),
         }}
       />
@@ -108,4 +104,4 @@ const LabTabNavigator = () => {
   );
 };
 
-export default LabTabNavigator
+export default LabTabNavigator;

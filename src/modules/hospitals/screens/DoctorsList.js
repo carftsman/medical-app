@@ -21,6 +21,7 @@ import { hospitalApi } from '../services/hospital.api';
 import { setConsultationMode } from '../redux/slices/BookingSlice';
 import { scale, verticalScale } from '../../../utils/styling';
 import { COLORS, FONT, SIZES } from '../../../config/constants';
+import Feather from 'react-native-vector-icons/Feather';
 
 const DoctorsList = () => {
   const navigation = useNavigation();
@@ -28,14 +29,11 @@ const DoctorsList = () => {
   const dispatch = useDispatch();
 
   const routeCategoryName = route.params?.categoryName;
-  const routeMode = route.params?.mode;
+  const routeSearch = route.params?.search;
+  const hospitalId = route.params?.hospitalId;
+  const hospitalName = route.params?.hospitalName;
 
-  const reduxMode = useSelector(
-    state => state.hospital?.consultation?.mode
-  );
-
-  const finalMode =
-    (reduxMode || routeMode || 'offline').toUpperCase();
+  const reduxMode = useSelector(state => state.hospital?.consultation?.mode);
 
   const [search, setSearch] = useState('');
   const [doctorsData, setDoctorsData] = useState([]);
@@ -43,8 +41,11 @@ const DoctorsList = () => {
   const [loading, setLoading] = useState(false);
   const [loadingCategories, setLoadingCategories] = useState(true);
 
+  const routeMode = route.params?.mode;
+
+  const finalMode = (routeMode || reduxMode || 'offline').toUpperCase();
   const [activeCategory, setActiveCategory] = useState(
-    routeCategoryName || 'All'
+    () => routeCategoryName || 'All',
   );
 
   /* ---------- UPDATE CATEGORY WHEN ROUTE CHANGES ---------- */
@@ -82,29 +83,82 @@ const DoctorsList = () => {
     fetchDoctors();
   }, [activeCategory, finalMode]);
 
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      fetchDoctors(search);
+    }, 500);
+
+    return () => clearTimeout(delayDebounce);
+  }, [search]);
+
   const fetchDoctors = async () => {
     try {
       setLoading(true);
 
-      const params = {
-        lat: 17.385044,
-        lng: 78.486671,
-        mode: finalMode,
-        page: 1,
-        limit: 20,
-        distance: 5,
-      };
+      if (hospitalId) {
+        const response = await api.get(
+          `/hospital/user/hospital/${hospitalId}/doctors`,
+          {
+            params: {
+              specialization: activeCategory === 'All' ? '' : activeCategory,
+              search,
+            },
+          },
+        );
 
-      if (activeCategory !== 'All') {
-        params.specialization = activeCategory;
+        console.log('hospitalId', response.data.data);
+
+        const mappedDoctors = (response.data.data || []).map(item => ({
+          id: item.id.toString(),
+          doctorName: item.name || '',
+          specialization: item.specialization || '',
+          experience: Number(item.experience) || 0,
+          rating: Number(item.rating) || 0,
+          fee: Number(item.consultationFee) || 0,
+          hospitalName: item.hospital?.name || '',
+          distance: Number(item.distance) || 0,
+          availableDate: item.availableDate || 'today',
+          availableTime: item.availableTime || '9AM - 5PM',
+          imageUrl: item.imageUrl || 'https://via.placeholder.com/150',
+          categoryName: item.category?.name || '',
+        }));
+
+        setDoctorsData(mappedDoctors);
+        return;
       }
 
-      const response = await api.get(
-        '/hospital/user/doctors',
-        { params }
-      );
+      const routeSearch = route.params?.search;
 
-      setDoctorsData(response.data.data || []);
+      console.log('active category', activeCategory);
+
+      const response = await api.get('/hospital/user/doctors', {
+        params: {
+          mode: finalMode,
+          q: routeSearch, // send to backend
+          distance: 50,
+          lat: 17.385044,
+          lng: 78.486671,
+          specialization: activeCategory === 'All' ? '' : activeCategory,
+          search,
+        },
+      });
+
+      const mappedDoctors = (response.data.doctors || []).map(item => ({
+        id: item.id.toString(),
+        doctorName: item.name || '',
+        specialization: item.specialization || '',
+        experience: Number(item.experience) || 0,
+        rating: Number(item.rating) || 0,
+        fee: Number(item.consultationFee) || 0,
+        hospitalName: item.hospital?.name || '',
+        distance: Number(item.distance) || 0,
+        availableDate: item.availableDate || 'today',
+        availableTime: item.availableTime || '9AM - 5PM',
+        imageUrl: item.imageUrl || 'https://via.placeholder.com/150',
+        categoryName: item.category?.name || '',
+      }));
+
+      setDoctorsData(mappedDoctors);
     } catch (e) {
       console.log(e);
     } finally {
@@ -115,11 +169,10 @@ const DoctorsList = () => {
   /* ---------- RENDER ---------- */
   return (
     <View style={styles.container}>
-
       {/* HEADER */}
       <View style={styles.header}>
         <Backbtn onPress={() => navigation.goBack()} />
-        <Text style={styles.headerTitle}>Doctors</Text>
+        <Text style={styles.headerTitle}>{hospitalName} Doctors</Text>
         <View style={{ width: 25 }} />
       </View>
 
@@ -154,9 +207,7 @@ const DoctorsList = () => {
             styles.modeButton,
             finalMode === 'OFFLINE' && styles.selectedMode,
           ]}
-          onPress={() =>
-            dispatch(setConsultationMode('offline'))
-          }
+          onPress={() => dispatch(setConsultationMode('offline'))}
         >
           <Text
             style={[
@@ -173,9 +224,7 @@ const DoctorsList = () => {
             styles.modeButton,
             finalMode === 'ONLINE' && styles.selectedMode,
           ]}
-          onPress={() =>
-            dispatch(setConsultationMode('online'))
-          }
+          onPress={() => dispatch(setConsultationMode('online'))}
         >
           <Text
             style={[
@@ -191,20 +240,16 @@ const DoctorsList = () => {
       {/* DOCTOR LIST */}
       <FlatList
         style={{ flex: 1 }}
-        data={loading ? [1,2,3,4] : doctorsData}
+        data={loading ? [1, 2, 3, 4] : doctorsData}
         keyExtractor={(item, index) =>
           loading ? index.toString() : item.id.toString()
         }
         renderItem={({ item }) =>
-          loading
-            ? <DoctorSkeleton />
-            : <DoctorCard doctor={item} />
+          loading ? <DoctorSkeleton /> : <DoctorCard doctor={item} />
         }
         ListEmptyComponent={
           !loading && (
-            <Text style={styles.noResultText}>
-              No Doctors available
-            </Text>
+            <Text style={styles.noResultText}>No Doctors available</Text>
           )
         }
       />
@@ -258,8 +303,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: scale(16),
     paddingVertical: verticalScale(10),
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 10,
   },
 
@@ -287,11 +332,9 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
 
-  
   modeContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-  
   },
 
   modeButton: {
