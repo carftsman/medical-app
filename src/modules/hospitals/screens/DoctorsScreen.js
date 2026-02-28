@@ -74,8 +74,14 @@ const DoctorsScreen = () => {
         sort:
           sortBy === 'experience'
             ? 'experience_desc'
-            : sortBy === 'fee'
+            : sortBy === 'fee_low'
             ? 'fee_asc'
+            : sortBy === 'fee_high'
+            ? 'fee_desc'
+            : sortBy === 'rating'
+            ? 'rating_desc'
+            : sortBy === 'distance'
+            ? 'distance_asc'
             : undefined,
 
         page: 1,

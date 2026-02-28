@@ -20,6 +20,7 @@ import TermsAndConditions from '../screens/TermsAndConditions';
 import OrderTrackingScreen from '../screens/OrderTracking';
 import MedicinesFeedbackScreen from '../screens/MedicinesFeedbackScreen';
 import MedicinesFeedbackSuccessScreen from '../screens/MedicinesFeedbackSuccessScreen';
+import MedicinesCancelledSuccessScreen from '../screens/MedicinesCancelledSuccessScreen';
 
 const ProfileNavigator = () => {
     const Stack = createNativeStackNavigator();
@@ -48,6 +49,7 @@ const ProfileNavigator = () => {
     <Stack.Screen name="OrderTracking" component={OrderTrackingScreen}/>
     <Stack.Screen name="MedicinesFeedbackScreen" component={MedicinesFeedbackScreen}/>
     <Stack.Screen name="MedicinesFeedbackSuccessScreen" component={MedicinesFeedbackSuccessScreen}/>
+    <Stack.Screen name="MedicinesCancelledSuccessScreen" component={MedicinesCancelledSuccessScreen}/>
    </Stack.Navigator>
   )
 }

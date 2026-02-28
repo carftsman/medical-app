@@ -1,4 +1,4 @@
-import React from "react";
+import { React, useState } from "react";
 import {
   View,
   Text,
@@ -10,9 +10,12 @@ import {
 import { scale, verticalScale } from "../../../utils/styling";
 import { COLORS, FONT } from "../../../config/constants";
 import { useNavigation } from "@react-navigation/native";
+import CancelConfirmationModal from "./CancelConfirmationModal";
 
 const PendingOrder = ({ order }) => {
+
   const navigation = useNavigation();
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const total = order.items.reduce(
     (sum, item) => sum + item.price,
     0
@@ -20,7 +23,7 @@ const PendingOrder = ({ order }) => {
 
   return (
     <ScrollView style={styles.container}>
-      
+
       {/* ===== Order Info ===== */}
       <View style={styles.card}>
         <View style={styles.rowBetween}>
@@ -64,22 +67,22 @@ const PendingOrder = ({ order }) => {
 
       {/* Table Rows */}
       {order.items.map((item) => (
-     <View key={item.id} style={styles.tableRow}>
-       
-       <Text style={[styles.tableText, { flex: 2 }]}>
-         {item.name}
-       </Text>
-   
-       <Text style={[styles.tableText, { flex: 1, textAlign: "center" }]}>
-         {item.quantity}
-       </Text>
-   
-       <Text style={[styles.tableText, { flex: 1, textAlign: "right" }]}>
-         ₹{item.price}/-
-       </Text>
-   
-     </View>
-   ))}
+        <View key={item.id} style={styles.tableRow}>
+
+          <Text style={[styles.tableText, { flex: 2 }]}>
+            {item.name}
+          </Text>
+
+          <Text style={[styles.tableText, { flex: 1, textAlign: "center" }]}>
+            {item.quantity}
+          </Text>
+
+          <Text style={[styles.tableText, { flex: 1, textAlign: "right" }]}>
+            ₹{item.price}/-
+          </Text>
+
+        </View>
+      ))}
 
       {/* ===== Payment Details ===== */}
       <Text style={styles.sectionTitle}>Payment Details</Text>
@@ -97,28 +100,38 @@ const PendingOrder = ({ order }) => {
       </View>
 
       {/* ===== Rate Experience ===== */}
-      <TouchableOpacity style={styles.rateBtn} onPress={() => navigation.navigate("MedicinesFeedbackScreen")}>
+      {/* <TouchableOpacity style={styles.rateBtn} onPress={() => navigation.navigate("MedicinesFeedbackScreen")}>
         <View style={styles.rowBetween}>
           <Text style={styles.rateText}>Rate Experience</Text>
           <Text style={{ fontSize: scale(16) }}>›</Text>
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       {/* ===== Bottom Buttons ===== */}
       <View style={styles.bottomRow}>
-        <TouchableOpacity style={styles.cancelBtn}>
+        <TouchableOpacity
+          style={styles.cancelBtn}
+          onPress={() => setShowCancelModal(true)}
+        >
           <Text style={styles.cancelText}>Cancel Order</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.trackBtn}onPress={() =>
-        navigation.navigate("OrderTracking", {
-        order: order, 
-        })
+        <TouchableOpacity style={styles.trackBtn} onPress={() =>
+          navigation.navigate("OrderTracking", {
+            order: order,
+          })
         }>
           <Text style={styles.trackText}>Track Order</Text>
         </TouchableOpacity>
       </View>
-
+      <CancelConfirmationModal
+        visible={showCancelModal}
+        onCancel={() => setShowCancelModal(false)}
+        onConfirm={() => {
+          setShowCancelModal(false);
+          navigation.navigate("MedicinesCancelledSuccessScreen");
+        }}
+      />
     </ScrollView>
   );
 };
@@ -221,29 +234,29 @@ const styles = StyleSheet.create({
     fontFamily: FONT.regular,
   },
   tableHeader: {
-  flexDirection: "row",
-  backgroundColor: "#E8F1FB",
-  padding: scale(10),
-  borderRadius: scale(8),
-},
+    flexDirection: "row",
+    backgroundColor: "#E8F1FB",
+    padding: scale(10),
+    borderRadius: scale(8),
+  },
 
-tableRow: {
-  flexDirection: "row",
-  alignItems: "center",
-  paddingVertical: verticalScale(8),
-  borderBottomWidth: 0.5,
-  borderBottomColor: COLORS.border,
-},
+  tableRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: verticalScale(8),
+    borderBottomWidth: 0.5,
+    borderBottomColor: COLORS.border,
+  },
 
-tableText: {
-  fontSize: scale(12),
-  fontFamily: FONT.regular,
-},
+  tableText: {
+    fontSize: scale(12),
+    fontFamily: FONT.regular,
+  },
 
-tableHeadText: {
-  fontSize: scale(12),
-  fontFamily: FONT.semiBold,
-},
+  tableHeadText: {
+    fontSize: scale(12),
+    fontFamily: FONT.semiBold,
+  },
 
   paymentCard: {
     backgroundColor: COLORS.white,
@@ -268,13 +281,14 @@ tableHeadText: {
   bottomRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: verticalScale(20),
+    marginTop: verticalScale(30),
+
   },
 
   cancelBtn: {
     flex: 1,
     borderWidth: 1,
-    borderColor: COLORS.red,
+    borderColor: COLORS.danger,
     padding: scale(14),
     borderRadius: scale(10),
     alignItems: "center",
@@ -282,7 +296,7 @@ tableHeadText: {
   },
 
   cancelText: {
-    color: COLORS.red,
+    color: COLORS.danger,
     fontFamily: FONT.semiBold,
     fontSize: scale(13),
   },
