@@ -4,45 +4,58 @@ import { scale, verticalScale } from "../../../utils/styling";
 import { COLORS, FONT } from "../../../config/constants";
 
 const CancelledOrderCard = ({ item, navigation }) => {
-  return (
-    <View style={styles.cardWrapper}>
-      <View style={styles.cardContent}>
-        <View style={styles.rowBetween}>
+ return (
+  <View style={styles.cardWrapper}>
 
-          <Text style={styles.orderId}>Order ID: #{item.orderId}</Text>
-          <View style={[styles.statusBadge, styles.cancelled]}>
-            <Text style={styles.statusText}>Cancelled</Text>
-          </View>
-        </View>
-
-        <Text style={styles.date}>
-          Purchased Date: {item.orderedDate}
+    {/* 🔵 Clickable Area */}
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={() =>
+        navigation.navigate("OrderDetails", { order: item })
+      }
+      style={styles.cardContent}
+    >
+      <View style={styles.rowBetween}>
+        <Text style={styles.orderId}>
+          Order ID: #{item.orderId}
         </Text>
-      </View>
-        
-<View style={styles.imageRow}>
-  {item.items?.map((medicine) => (
-    <Image
-      key={medicine.id}
-      source={medicine.image}
-      style={styles.medicineImage}
-    />
-  ))}
-</View>
 
-<Text style={styles.itemCount}>
-  {item.items.length} Item(s)
-</Text>
-      <View style={styles.buttonRow}>
-        <TouchableOpacity
-          style={styles.orderBtn}
-          onPress={() => console.log("Reorder")}
-        >
-          <Text style={styles.orderText}>Order Again</Text>
-        </TouchableOpacity>
+        <View style={[styles.statusBadge, styles.cancelled]}>
+          <Text style={styles.statusText}>Cancelled</Text>
+        </View>
       </View>
+
+      <Text style={styles.date}>
+        Purchased Date: {item.orderedDate}
+      </Text>
+
+      <View style={styles.imageRow}>
+        {item.items?.map((medicine) => (
+          <Image
+            key={medicine.id}
+            source={medicine.image}
+            style={styles.medicineImage}
+          />
+        ))}
+      </View>
+
+      <Text style={styles.itemCount}>
+        {item.items?.length} Item(s)
+      </Text>
+    </TouchableOpacity>
+
+    {/* 🔘 Button Section */}
+    <View style={styles.buttonRow}>
+      <TouchableOpacity
+        style={styles.orderBtn}
+        onPress={() => console.log("Reorder")}
+      >
+        <Text style={styles.orderText}>Order Again</Text>
+      </TouchableOpacity>
     </View>
-  );
+
+  </View>
+);
 };
 export default CancelledOrderCard;
 const styles = StyleSheet.create({

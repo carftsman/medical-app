@@ -7,37 +7,37 @@ import { Calendar } from 'react-native-calendars';
 
 const STATUS = ['Normal', 'Abnormal', 'Borderline'];
 
-const TIME_OPTIONS = [
-  'Last 15 Days',
-  'Last 30 Days',
-  'Last 3 Months',
-  'Last 6 Months',
-  'Last 1 Year', 
-];
+// const TIME_OPTIONS = [
+//   'Last 15 Days',
+//   'Last 30 Days',
+//   'Last 3 Months',
+//   'Last 6 Months',
+//   'Last 1 Year', 
+// ];
 
 export default function FilterBottomSheet({ visible, onClose, onApply }) {
   const [selectedStatus, setSelectedStatus] = useState('*');
-  const [timeRange, setTimeRange] = useState('Last 30 Days');
+  // const [timeRange, setTimeRange] = useState('Last 30 Days');
   const [showDropdown, setShowDropdown] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
-  const getDateFromRange = () => {
-    const today = new Date();
-    let past = new Date();
+  // const getDateFromRange = () => {
+  //   const today = new Date();
+  //   let past = new Date();
 
-    if (timeRange === 'Last 15 Days') past.setDate(today.getDate() - 15);
-    if (timeRange === 'Last 30 Days') past.setDate(today.getDate() - 30);
-    if (timeRange === 'Last 3 Months') past.setMonth(today.getMonth() - 3);
-    if (timeRange === 'Last 6 Months') past.setMonth(today.getMonth() - 6);
-    if (timeRange === 'Last 1 Year') past.setFullYear(today.getFullYear() - 1);
+  //   if (timeRange === 'Last 15 Days') past.setDate(today.getDate() - 15);
+  //   if (timeRange === 'Last 30 Days') past.setDate(today.getDate() - 30);
+  //   if (timeRange === 'Last 3 Months') past.setMonth(today.getMonth() - 3);
+  //   if (timeRange === 'Last 6 Months') past.setMonth(today.getMonth() - 6);
+  //   if (timeRange === 'Last 1 Year') past.setFullYear(today.getFullYear() - 1);
 
-    return {
-      fromDate: past.toISOString().split('T')[0],
-      toDate: today.toISOString().split('T')[0],
-    };
-  };
+  //   return {
+  //     fromDate: past.toISOString().split('T')[0],
+  //     toDate: today.toISOString().split('T')[0],
+  //   };
+  // };
 
   const handleApply = () => {
     let fromDate = startDate;
@@ -62,7 +62,7 @@ export default function FilterBottomSheet({ visible, onClose, onApply }) {
     setSelectedStatus('*');
     setStartDate(null);
     setEndDate(null);
-    setTimeRange('Last 30 Days');
+    // setTimeRange('Last 30 Days');
 
     onApply({
       reportStatus: '*',
@@ -117,16 +117,16 @@ export default function FilterBottomSheet({ visible, onClose, onApply }) {
           ))}
         </View>
 
-        <Text style={styles.label}>Time Range</Text>
+        {/* <Text style={styles.label}>Time Range</Text>
         <TouchableOpacity
           style={styles.dropdown}
           onPress={() => setShowDropdown(!showDropdown)}
         >
           <Text style={styles.dropdownText}>{timeRange}</Text>
           <Ionicons name="chevron-down" size={scale(16)} color="#444" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
-        {showDropdown && (
+        {/* {showDropdown && (
           <View style={styles.dropdownList}>
             {TIME_OPTIONS.map(item => (
               <TouchableOpacity
@@ -141,7 +141,7 @@ export default function FilterBottomSheet({ visible, onClose, onApply }) {
               </TouchableOpacity>
             ))}
           </View>
-        )}
+        )} */}
 
         <Text style={styles.label}>Date Range</Text>
 
