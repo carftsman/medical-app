@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -161,7 +161,7 @@ const LabsScreen = () => {
       <TouchableOpacity
         style={styles.viewBtn}
         onPress={() =>
-          navigation.navigate("LabDetails", {
+          navigation.navigate('LabDetails', {
             labId: item.id,
             categoryId,
           })

@@ -46,10 +46,7 @@ const HospitalsScreen = ({ navigation }) => {
       });
 
       const hospitalList =
-        res?.data?.data ||
-        res?.data?.hospitals ||
-        res?.data?.results ||
-        [];
+        res?.data?.data || res?.data?.hospitals || res?.data?.results || [];
 
       setHospitals(Array.isArray(hospitalList) ? hospitalList : []);
     } catch (error) {
@@ -70,8 +67,7 @@ const HospitalsScreen = ({ navigation }) => {
   };
 
   /* DATA SOURCE */
-  const dataSource =
-    overrideResults !== null ? overrideResults : hospitals;
+  const dataSource = overrideResults !== null ? overrideResults : hospitals;
 
   /* SKELETON CARD */
   const SkeletonCard = () => (
@@ -86,9 +82,8 @@ const HospitalsScreen = ({ navigation }) => {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <View style={styles.container}>
-
         {/* HEADER */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -133,10 +128,8 @@ const HospitalsScreen = ({ navigation }) => {
                 distance={item?.distance}
                 location={item?.place || item?.location || ''}
                 description={item?.speciality || item?.department || ''}
-                rating={item?.rating || 0}  
-                isOpen24Hours={
-                  item?.isOpen24x7 || item?.isOpen || false
-                }
+                rating={item?.rating || 0}
+                isOpen24Hours={item?.isOpen24x7 || item?.isOpen || false}
                 isFavorite={!!favorites[item?.id]}
                 onFavoritePress={() =>
                   setFavorites(prev => ({
@@ -153,9 +146,7 @@ const HospitalsScreen = ({ navigation }) => {
               />
             )}
             ListEmptyComponent={
-              <Text style={styles.emptyText}>
-                No hospitals found
-              </Text>
+              <Text style={styles.emptyText}>No hospitals found</Text>
             }
             showsVerticalScrollIndicator={false}
           />
@@ -167,12 +158,10 @@ const HospitalsScreen = ({ navigation }) => {
           latitude={LATITUDE}
           longitude={LONGITUDE}
           onClose={() => setShowFilter(false)}
-          onApply={(filteredData) =>
-            setOverrideResults(filteredData)
-          }
+          onApply={filteredData => setOverrideResults(filteredData)}
         />
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 

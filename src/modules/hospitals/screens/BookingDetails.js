@@ -7,7 +7,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
- ActivityIndicator,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -23,8 +23,8 @@ import api from '../../../api/client';
 
 const BookingDetails = () => {
   const navigation = useNavigation();
- const bookingId = useSelector(state => state.hospital.consultation.bookingId);
-  console.log("Booking ID: ", bookingId);
+  const bookingId = useSelector(state => state.hospital.consultation.bookingId);
+  console.log('Booking ID: ', bookingId);
   const [bookingData, setBookingData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -40,21 +40,21 @@ const BookingDetails = () => {
       setLoading(true);
       setError('');
 
-      const response = await api.get(
-        `/appointments/${bookingId}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            // Authorization: `Bearer YOUR_TOKEN`,
-          },
-        }
-      );
+      const response = await api.get(`/appointments/${bookingId}`, {
+        headers: {
+          Accept: 'application/json',
+          // Authorization: `Bearer YOUR_TOKEN`,
+        },
+      });
 
       console.log('Booking Details Response:', response.data);
 
       setBookingData(response.data);
     } catch (err) {
-      console.log('Error fetching booking details:', err.response || err.message);
+      console.log(
+        'Error fetching booking details:',
+        err.response || err.message,
+      );
       setError('Booking not found');
     } finally {
       setLoading(false);
@@ -78,9 +78,9 @@ const BookingDetails = () => {
   }
 
   if (!bookingData) {
-    return <Text>no bookingId</Text>
+    return <Text>no bookingId</Text>;
   }
-  console.log("bookingData", bookingData)
+  console.log('bookingData', bookingData);
 
   return (
     <View style={styles.safe}>
@@ -98,7 +98,11 @@ const BookingDetails = () => {
 
         {/* Booking Details */}
         <View style={styles.section}>
-          <SectionHeader title="Booking Details" showChange doctorId={bookingData.doctor.id} />
+          <SectionHeader
+            title="Booking Details"
+            showChange
+            doctorId={bookingData.doctor.id}
+          />
 
           <DetailRow
             icon="person-outline"
@@ -116,29 +120,25 @@ const BookingDetails = () => {
             label="Slot Time"
             value={bookingData.appointment?.time}
           />
-          {
-            bookingData?.reason &&
+          {bookingData?.reason && (
             <View style={styles.reasonHeader}>
               <Text style={styles.reasonTitle}>Reason</Text>
               <TouchableOpacity>
                 {/* <Text style={styles.reasonChange}>Change</Text> */}
               </TouchableOpacity>
             </View>
-          }
+          )}
 
-          {
-            bookingData?.reason &&
+          {bookingData?.reason && (
             <View style={styles.reasonRow}>
               <Ionicons
                 name="document-text-outline"
                 size={23}
                 color="#4f76c4ff"
               />
-              <Text>
-                {bookingData.reason}
-              </Text>
+              <Text>{bookingData.reason}</Text>
             </View>
-          }
+          )}
         </View>
 
         {/* Payment Summary */}
@@ -179,14 +179,13 @@ const BookingDetails = () => {
       {/* Pay Button */}
       <TouchableOpacity
         style={styles.payButton}
-        onPress={() => navigation.navigate('Payments', {
-          totalFee: bookingData?.payment?.total
-        })}
+        onPress={() =>
+          navigation.navigate('Payments', {
+            totalFee: bookingData?.payment?.total,
+          })
+        }
       >
-        <Text style={styles.payText}>
-          Pay ₹{bookingData.payment?.total}
-        </Text>
-
+        <Text style={styles.payText}>Pay ₹{bookingData.payment?.total}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -277,4 +276,3 @@ const styles = StyleSheet.create({
     color: 'red',
   },
 });
-                                                                                                       
