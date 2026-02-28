@@ -1,7 +1,15 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable no-unused-vars */
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 import React, { useEffect, useState } from 'react';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { scale, verticalScale } from '../../../utils/styling';
@@ -14,14 +22,18 @@ import SlotBooking from '../components/SlotBooking';
 import BookConsultationModal from '../components/BookConsultationModal';
 import { useSelector, useDispatch } from 'react-redux';
 import { RefreshControl } from 'react-native';
-import { setConsultationType, setBookingId, setDate } from '../redux/slices/BookingSlice';
+import {
+  setConsultationType,
+  setBookingId,
+  setDate,
+} from '../redux/slices/BookingSlice';
+import Backbtn from '../components/Backbtn';
 
 const DoctorDetails = ({ route, navigation }) => {
-
   const doctorId = route?.params?.doctorId || 1;
 
   const { selectedDate, selectedTime } = useSelector(
-    state => state.hospital.consultation
+    state => state.hospital.consultation,
   );
 
   const dispatch = useDispatch();
@@ -39,7 +51,7 @@ const DoctorDetails = ({ route, navigation }) => {
   const [error, setError] = useState('');
 
   const hospitalId = doctorDetails?.hospital?.id;
-  console.log("ID", hospitalId);
+  console.log('ID', hospitalId);
 
   const fetchDoctorDetails = async (isRefresh = false) => {
     try {
@@ -48,25 +60,22 @@ const DoctorDetails = ({ route, navigation }) => {
       const response = await api.get(`/hospital/user/doctors/${doctorId}`);
       setDoctorDetails(response?.data);
       setError('');
-    }
-    catch (err) {
-      console.log("Error fetching Doctor Details: ", err);
+    } catch (err) {
+      console.log('Error fetching Doctor Details: ', err);
       setError('Failed to refresh doctor details');
-    }
-    finally {
+    } finally {
       isRefresh ? setRefreshing(false) : setLoading(false);
     }
   };
 
-  const fetchHospitalDetails = async (id) => {
+  const fetchHospitalDetails = async id => {
     try {
       const response = await api.get(`/hospital/user/hospitals/${id}/info`);
-      console.log("hospital", response?.data);
-      console.log("Days:", hospitalDetails?.availability?.days);
+      console.log('hospital', response?.data);
+      console.log('Days:', hospitalDetails?.availability?.days);
       setHospitalDetails(response?.data);
-    }
-    catch (error) {
-      console.log("Error sending Id: ", error.message);
+    } catch (error) {
+      console.log('Error sending Id: ', error.message);
     }
   };
 
@@ -77,16 +86,15 @@ const DoctorDetails = ({ route, navigation }) => {
       const response = await api.get(`/appointments/availability`, {
         params: {
           doctorId,
-        }
+        },
       });
       setDateSlots(response?.data.days);
       dispatch(setDate(response?.data.days[0].date));
       setError('');
     } catch (error) {
-      console.log("Error fetching date slots: ", error);
+      console.log('Error fetching date slots: ', error);
       setError('Failed to refresh slots');
-    }
-    finally {
+    } finally {
       isRefresh ? setRefreshing(false) : setLoading(false);
     }
   };
@@ -98,15 +106,15 @@ const DoctorDetails = ({ route, navigation }) => {
         params: {
           doctorId,
           date: selectedDate,
-        }
+        },
       });
-      const filteredSlots = response?.data.slots.filter(slot => slot.isAvailable === true);
+      const filteredSlots = response?.data.slots.filter(
+        slot => slot.isAvailable === true,
+      );
       setTimeSlots(response?.data?.slots);
-    }
-    catch (error) {
-      console.log("Error fetching time slots: ", error);
-    }
-    finally {
+    } catch (error) {
+      console.log('Error fetching time slots: ', error);
+    } finally {
       setTimeSlotsLoading(false);
     }
   };
@@ -114,43 +122,43 @@ const DoctorDetails = ({ route, navigation }) => {
   const fetchDoctorReviews = async () => {
     try {
       setReviewsLoading(true);
-      const response = await api.get(`/hospital/user/doctors/${doctorId}/reviews`, {
-        params: {
-          doctorId,
-        }
-      });
+      const response = await api.get(
+        `/hospital/user/doctors/${doctorId}/reviews`,
+        {
+          params: {
+            doctorId,
+          },
+        },
+      );
 
       setReviews(response?.data?.reviews);
     } catch (error) {
-      console.log("Reviews error: ", error);
+      console.log('Reviews error: ', error);
     } finally {
       setReviewsLoading(false);
     }
-  }
+  };
 
   const bookAppointmentForSelf = async () => {
     try {
-      const response = await api.post(`/appointments/hold`,
-        {
-          slotId: selectedTime.slotId,
-          bookingFor: 'SELF',
-        }
-      );
-      console.log(response?.data);
+      const response = await api.post(`/appointments/hold`, {
+        slotId: selectedTime.slotId,
+        bookingFor: 'SELF',
+      });
+      console.log('appointment booking for self', response?.data);
       dispatch(setBookingId(response?.data?.bookingId));
       fetchTimeSlots();
-    }
-    catch (error) {
-      console.log("Error sending Id: ", error.message);
+      navigation.navigate('BookingDetails');
+    } catch (error) {
+      Alert.alert('Error', error.response.data.message || error.message);
+      console.log('appointment booking for self error: ', error.response);
+      console.log('Error sending Id: ', error.message);
     }
   };
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([
-      fetchDoctorDetails(true),
-      fetchDateSlots(true),
-    ]);
+    await Promise.all([fetchDoctorDetails(true), fetchDateSlots(true)]);
     setRefreshing(false);
   };
 
@@ -175,7 +183,6 @@ const DoctorDetails = ({ route, navigation }) => {
   }, [hospitalId]);
 
   const handleBookAppointment = () => {
-
     // ❌ If no time slot selected, do nothing
     if (!selectedTime) {
       return;
@@ -188,23 +195,22 @@ const DoctorDetails = ({ route, navigation }) => {
 
   if (loading || refreshing) {
     return (
-      <View style={{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         <ActivityIndicator size={'large'} color={'#056FD2'} />
       </View>
-    )
+    );
   }
 
   return (
     <View style={styles.container}>
-
       <View style={styles.screenHeader}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-        >
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <AntDesign name="left" size={22} color="black" />
         </TouchableOpacity>
         <Text style={styles.screenHeaderText}>Doctor Info</Text>
@@ -221,7 +227,6 @@ const DoctorDetails = ({ route, navigation }) => {
           />
         }
       >
-
         <DoctorInfo
           image={doctorDetails?.imageUrl}
           name={doctorDetails?.name}
@@ -257,14 +262,10 @@ const DoctorDetails = ({ route, navigation }) => {
           days={hospitalDetails?.availability?.days}
           startTime={hospitalDetails?.availability?.startTime}
           endTime={hospitalDetails?.availability?.endTime}
-        // distancekm={hospitalDetails?.distancekm}
+          // distancekm={hospitalDetails?.distancekm}
         />
 
-        <DoctorReviews
-        data={reviews}
-        reviewsLoading={reviewsLoading}
-        />
-
+        <DoctorReviews data={reviews} reviewsLoading={reviewsLoading} />
       </ScrollView>
 
       <View style={styles.bookAppointmentButtonCard}>

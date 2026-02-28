@@ -1,35 +1,36 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   FlatList,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import Feather from "react-native-vector-icons/Feather";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Feather from 'react-native-vector-icons/Feather';
 
-import { COLORS } from "../../../config/constants";
-import { scale, verticalScale } from "../../../utils/styling";
-import AddAddressModal from "../components/AddAddressModal";
+import { COLORS } from '../../../config/constants';
+import { scale, verticalScale } from '../../../utils/styling';
+import AddAddressModal from '../components/AddAddressModal';
 
-import { useFocusEffect } from "@react-navigation/native";
-import { labApi } from "../services/labApi";
+import { useFocusEffect } from '@react-navigation/native';
+import { labApi } from '../services/labApi';
+import useAuth from '../../../hooks/useAuth';
 
 const AddAddressScreen = ({ navigation, route }) => {
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [showAddAddress, setShowAddAddress] = useState(false);
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const { user } = useAuth();
 
   const fetchAddresses = async () => {
     try {
       setLoading(true);
-      const res = await labApi.getAddresses(USER_ID);
+      const res = await labApi.getAddresses(user.id);
 
-      console.log("ADDRESS RESPONSE", JSON.stringify(res.data, null, 2));
+      console.log('ADDRESS RESPONSE', JSON.stringify(res.data, null, 2));
 
       const apiData = res.data || {};
 
@@ -44,27 +45,29 @@ const AddAddressScreen = ({ navigation, route }) => {
       if (list.length > 0) {
         setSelectedAddressId(list[0].id);
       }
-
     } catch (e) {
-      console.log("Address fetch error", e?.response?.data || e);
+      console.log('Address fetch error', e?.response?.data || e);
     } finally {
       setLoading(false);
     }
   };
 
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     fetchAddresses();
+  //   }, []),
+  // );
 
-  useFocusEffect(
-    React.useCallback(() => {
-      fetchAddresses();
-    }, [])
-  );
+  useEffect(() => {
+    fetchAddresses();
+  }, []);
 
-  const USER_ID = 4; // later take from redux/auth
+  // const USER_ID = 4; // later take from redux/auth
 
-  const handleAddAddress = async (newAddress) => {
+  const handleAddAddress = async newAddress => {
     try {
       const res = await labApi.createAddress({
-        userId: USER_ID,
+        userId: user.id,
         fullName: newAddress.name,
         mobile: newAddress.mobile,
         house: newAddress.house,
@@ -84,33 +87,38 @@ const AddAddressScreen = ({ navigation, route }) => {
 
       return true;
     } catch (e) {
-      console.log("Add address error", e?.response?.data || e);
+      console.log('Add address error', e?.response?.data || e);
       return false;
     }
   };
 
-
-
-
-  const handleDelete = async (id) => {
+  const handleDelete = async id => {
     try {
       await labApi.deleteAddress(id);
       fetchAddresses(); // refresh
     } catch (e) {
-      console.log("Delete failed", e);
+      console.log('Delete failed', e);
+    }
+  };
+
+  const handleConfirmAddress = async () => {
+    try {
+      await labApi.setDefaultAddress(selectedAddressId, user.id);
+      navigation.navigate('ReviewCart');
+    } catch (error) {
+      console.log('error while confirming address', error);
     }
   };
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Text>Loading addresses...</Text>
       </View>
     );
   }
 
   const selectedAddress = addresses.find?.(a => a.id === selectedAddressId);
-
 
   return (
     <View style={styles.container}>
@@ -121,37 +129,32 @@ const AddAddressScreen = ({ navigation, route }) => {
 
         <Text style={styles.headerTitle}>Saved Addresses</Text>
 
-        <TouchableOpacity onPress={() => setShowAddAddress(true)} >
+        <TouchableOpacity onPress={() => setShowAddAddress(true)}>
           <Text style={styles.addText}>+ Add</Text>
         </TouchableOpacity>
       </View>
 
       <FlatList
         data={addresses}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => {
           const isSelected = Number(item.id) === Number(selectedAddressId);
 
           return (
             <TouchableOpacity
-              style={[
-                styles.card,
-                isSelected && styles.cardActive,
-              ]}
+              style={[styles.card, isSelected && styles.cardActive]}
               onPress={() => setSelectedAddressId(Number(item.id))}
             >
               <View style={styles.cardHeader}>
                 <Text style={styles.name}>{item.fullName}</Text>
-                <TouchableOpacity
-                  onPress={() => handleDelete(item.id)}
-                >
+                <TouchableOpacity onPress={() => handleDelete(item.id)}>
                   <Feather name="trash-2" size={18} color="red" />
                 </TouchableOpacity>
-
               </View>
 
               <Text style={styles.address}>
-                {item.house}, {item.street}, {item.landmark ? item.landmark + ", " : ""}
+                {item.house}, {item.street},{' '}
+                {item.landmark ? item.landmark + ', ' : ''}
                 {item.city}, {item.state} - {item.pinCode}
               </Text>
               <Text style={styles.phone}>{item.mobile}</Text>
@@ -160,10 +163,12 @@ const AddAddressScreen = ({ navigation, route }) => {
         }}
       />
 
-      <TouchableOpacity style={styles.confirmButton}
+      <TouchableOpacity
+        style={styles.confirmButton}
         onPress={() => {
           if (!selectedAddress) return;
-          navigation.navigate("LabCheckout", { address: selectedAddress });
+          // navigation.navigate('LabCheckout', { address: selectedAddress });
+          handleConfirmAddress();
         }}
       >
         <Text style={styles.confirmText}>Confirm Address</Text>
@@ -180,7 +185,6 @@ const AddAddressScreen = ({ navigation, route }) => {
 
 export default AddAddressScreen;
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -189,26 +193,26 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: verticalScale(16),
   },
 
   headerTitle: {
     fontSize: scale(16),
-    fontWeight: "600",
+    fontWeight: '600',
   },
 
   addText: {
     color: COLORS.blue,
     fontSize: scale(14),
-    fontWeight: "600",
+    fontWeight: '600',
   },
 
   card: {
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: '#E5E7EB',
     borderRadius: scale(12),
     padding: scale(12),
     marginBottom: verticalScale(12),
@@ -216,18 +220,18 @@ const styles = StyleSheet.create({
 
   cardActive: {
     borderColor: COLORS.blue,
-    backgroundColor: "#F0F7FF",
+    backgroundColor: '#F0F7FF',
   },
 
   cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: verticalScale(6),
   },
 
   name: {
     fontSize: scale(14),
-    fontWeight: "600",
+    fontWeight: '600',
   },
 
   address: {
@@ -245,19 +249,19 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.blue,
     paddingVertical: verticalScale(14),
     borderRadius: scale(10),
-    alignItems: "center",
-    marginTop: "auto",
+    alignItems: 'center',
+    marginTop: 'auto',
   },
 
   confirmText: {
     color: COLORS.white,
     fontSize: scale(14),
-    fontWeight: "600",
+    fontWeight: '600',
   },
 
   addressCard: {
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: '#E5E7EB',
     borderRadius: scale(12),
     padding: scale(12),
     marginBottom: verticalScale(12),
@@ -266,7 +270,7 @@ const styles = StyleSheet.create({
 
   name: {
     fontSize: scale(14),
-    fontWeight: "600",
+    fontWeight: '600',
     marginBottom: verticalScale(4),
   },
 
@@ -279,5 +283,4 @@ const styles = StyleSheet.create({
     fontSize: scale(12),
     marginTop: verticalScale(4),
   },
-
 });
