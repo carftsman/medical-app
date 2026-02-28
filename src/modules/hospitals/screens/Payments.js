@@ -1,4 +1,3 @@
-
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react-native/no-inline-styles */
 
@@ -13,7 +12,7 @@ import {
   TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import api from '../../../api/client';
@@ -24,18 +23,39 @@ import Backbtn from '../components/Backbtn';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { debitCardSchema, upiSchema } from '../utils/PayValidation';
+import useAuth from '../../../hooks/useAuth';
+import { clearCart } from '../../labs/redux/labsCartSlice';
 
 const PAYMENT_MODES = [
-  { id: 'debit', title: 'Debit Card', iconType: 'vector', iconName: 'card-outline' },
+  {
+    id: 'debit',
+    title: 'Debit Card',
+    iconType: 'vector',
+    iconName: 'card-outline',
+  },
   { id: 'upi', title: 'UPI', icon: require('../../../../assets/Upi.png') },
-  { id: 'phonepe', title: 'PhonePe', icon: require('../../../../assets/PhonePe.png') },
-  { id: 'gpay', title: 'Google Pay', icon: require('../../../../assets/Google.png') },
+  {
+    id: 'phonepe',
+    title: 'PhonePe',
+    icon: require('../../../../assets/PhonePe.png'),
+  },
+  {
+    id: 'gpay',
+    title: 'Google Pay',
+    icon: require('../../../../assets/Google.png'),
+  },
 ];
 
 const PaymentScreen = ({ navigation, route }) => {
-  const bookingId = useSelector(state => state.hospital?.consultation?.bookingId);
+  const bookingId = useSelector(
+    state => state.hospital?.consultation?.bookingId,
+  );
+  const dispatch = useDispatch();
+  const { user } = useAuth();
   const totalAmount = route?.params?.totalFee ?? 0;
   const women = route?.params?.women;
+  const labId = route?.params?.labId;
+  const slotId = route?.params?.slotId;
 
   const [selectedMethod, setSelectedMethod] = useState(null);
 
@@ -63,16 +83,36 @@ const PaymentScreen = ({ navigation, route }) => {
   /* API */
 
   const confirmBooking = async () => {
-    if (!bookingId) {
-      alert('Booking ID missing');
-      return;
-    }
-
+    console.log('confirm booking...');
     try {
-      const res = await api.post(
-        `/appointments/${bookingId}/payment`,
-        {}
-      );
+      if (labId) {
+        const res = await api.post(`/labs/bookings/confirm`, {
+          userId: user.id,
+          slotId,
+        });
+
+        console.log('lab booking', res.data);
+
+        if (res.status) {
+          navigation.navigate('LabsMain', {
+            screen: 'LabBookingSuccess',
+            params: {
+              booking: res.data.booking,
+              bookingIds: res.data.booking.bookingIds,
+            },
+          });
+
+          dispatch(clearCart());
+        }
+
+        return;
+      }
+
+      if (!bookingId) {
+        alert('Booking ID missing');
+        return;
+      }
+      const res = await api.post(`/appointments/${bookingId}/payment`, {});
 
       if (!women) {
         navigation.replace('BookingSuccess', {
@@ -80,18 +120,19 @@ const PaymentScreen = ({ navigation, route }) => {
           status: res.data.status,
           message: res.data.message,
         });
-      }
-      else {
+      } else {
         navigation.replace('WomenBookingSuccess', {
           bookingId,
           status: res.data.status,
           message: res.data.message,
         });
       }
-
     } catch (error) {
+      console.log(error);
       if (error.response) {
-        alert(error.response.data?.message || 'Payment failed');
+        alert(
+          error.response.data?.message || error.message || 'Payment failed',
+        );
       } else {
         alert('Network error');
       }
@@ -210,9 +251,7 @@ const PaymentScreen = ({ navigation, route }) => {
         ]}
         onPress={confirmBooking}
       >
-        <Text style={styles.payText}>
-          Pay ₹{totalAmount.toFixed(2)}
-        </Text>
+        <Text style={styles.payText}>Pay ₹{totalAmount.toFixed(2)}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -249,14 +288,9 @@ const PaymentScreen = ({ navigation, route }) => {
             onPress={() => field.onChange(!field.value)}
           >
             <View
-              style={[
-                styles.checkbox,
-                field.value && styles.checkboxChecked,
-              ]}
+              style={[styles.checkbox, field.value && styles.checkboxChecked]}
             />
-            <Text style={styles.checkboxLabel}>
-              Save VPA for future
-            </Text>
+            <Text style={styles.checkboxLabel}>Save VPA for future</Text>
           </TouchableOpacity>
         )}
       />
@@ -269,9 +303,7 @@ const PaymentScreen = ({ navigation, route }) => {
         ]}
         onPress={confirmBooking}
       >
-        <Text style={styles.payText}>
-          Pay ₹{totalAmount.toFixed(2)}
-        </Text>
+        <Text style={styles.payText}>Pay ₹{totalAmount.toFixed(2)}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -307,6 +339,7 @@ const PaymentScreen = ({ navigation, route }) => {
     </View>
   );
 
+  console.log('payments', slotId);
   return (
     <View style={styles.safeArea}>
       <View style={styles.header}>
@@ -316,7 +349,7 @@ const PaymentScreen = ({ navigation, route }) => {
       </View>
 
       <View style={styles.amountRow}>
-        <Text style={styles.label}>Total Payable</Text>
+        <Text style={styles.label}>Total Payable {slotId}</Text>
         <Text style={styles.amount}>₹{totalAmount.toFixed(2)}</Text>
       </View>
 
@@ -328,9 +361,7 @@ const PaymentScreen = ({ navigation, route }) => {
 
       {(selectedMethod === 'phonepe' || selectedMethod === 'gpay') && (
         <TouchableOpacity style={styles.bottomPayBtn} onPress={confirmBooking}>
-          <Text style={styles.payText}>
-            Pay ₹{totalAmount.toFixed(2)}
-          </Text>
+          <Text style={styles.payText}>Pay ₹{totalAmount.toFixed(2)}</Text>
         </TouchableOpacity>
       )}
     </View>

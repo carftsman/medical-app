@@ -1,13 +1,22 @@
 import { React, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Linking,
+} from 'react-native';
 import { scale, verticalScale } from '../../../utils/styling';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import { COLORS } from '../../../config/constants';
 const HospitalInfo = ({ hospital }) => {
   const [show1, setShow1] = useState(false);
   const [show2, setShow2] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const categories = hospital?.specializations;
-  const visibleCategories = categories.slice(0, 3);
+  const visibleCategories = categories;
   const remainingCount = categories.length - visibleCategories.length;
   const PHONE_NUMBER = '9876543210';
   const handleCallPress = () => {
@@ -15,15 +24,17 @@ const HospitalInfo = ({ hospital }) => {
   };
   return (
     <View>
-      <Image source={{ uri: hospital.imageUrl }} style={styles.Imagebg}
-      />
+      <Image source={{ uri: hospital.imageUrl }} style={styles.Imagebg} />
       <View style={styles.details}>
         <View style={styles.d1}>
           <Text style={styles.count}>{hospital?.stats.patients || 0}+</Text>
           <Text style={styles.sub}>Patients</Text>
         </View>
         <View style={styles.d1}>
-          <Text style={styles.count}> {hospital?.stats.experienceYears || 0}+</Text>
+          <Text style={styles.count}>
+            {' '}
+            {hospital?.stats.experienceYears || 0}+
+          </Text>
           <Text style={styles.sub}>Exp.years</Text>
         </View>
         <View style={styles.d1}>
@@ -39,15 +50,22 @@ const HospitalInfo = ({ hospital }) => {
               <Ionicons
                 style={styles.phone}
                 name="call"
-                size={scale(26)}
-                color="#364153"
+                size={scale(18)}
+                color={COLORS.primary}
               />
             </TouchableOpacity>
-
           </View>
           <View style={styles.distance}>
-            <Ionicons name="location-outline" size={scale(19)} color="#364153" />
-            <Text style={styles.location}> {hospital?.location.area}, {hospital?.location.city}, {hospital?.location.pincode} </Text>
+            <Ionicons
+              name="location-outline"
+              size={scale(19)}
+              color="#364153"
+            />
+            <Text style={styles.location}>
+              {' '}
+              {hospital?.location.area}, {hospital?.location.city},{' '}
+              {hospital?.location.pincode}{' '}
+            </Text>
             <Text style={styles.km}>{hospital?.distanceKm} km </Text>
           </View>
           <Text
@@ -59,37 +77,44 @@ const HospitalInfo = ({ hospital }) => {
           </Text>
           <View style={styles.category}>
             <View style={styles.categorylist}>
-              {visibleCategories.map((item, index) => (
-                <Text key={index} style={styles.categorycard}>
-                  {item}
-                </Text>
-              ))}
+              {categories
+                .slice(0, showMore ? categories.length : 6)
+                .map((item, index) => (
+                  <Text key={index} style={styles.categorycard}>
+                    {item}
+                  </Text>
+                ))}
             </View>
 
-            {remainingCount > 0 && (
-              <Text style={styles.more}>+{remainingCount} more</Text>
+            {categories.length > 6 && (
+              <TouchableOpacity onPress={() => setShowMore(prev => !prev)}>
+                <Text style={styles.more}>
+                  {!showMore ? `+${categories.length - 6} more` : 'Showless'}
+                </Text>
+              </TouchableOpacity>
             )}
           </View>
 
-
           <Text style={styles.Hname}>About Hospital</Text>
-          <Text numberOfLines={show2 ? undefined : 2}
+          <Text
+            numberOfLines={show2 ? undefined : 2}
             onPress={() => setShow2(!show2)}
-            style={styles.para}>
-            {hospital?.about || "no data"}
+            style={styles.para}
+          >
+            {hospital?.about || 'no data'}
           </Text>
         </View>
       </View>
     </View>
   );
-}
+};
 
 export default HospitalInfo;
 const styles = StyleSheet.create({
   Imagebg: {
     width: '100%',
     height: verticalScale(280),
-    resizeMode: "cover",
+    resizeMode: 'cover',
   },
   details: {
     marginTop: verticalScale(-30),
@@ -128,7 +153,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-
   },
   Hname: {
     fontSize: scale(20),
@@ -167,6 +191,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: scale(10),
     flexWrap: 'wrap',
+    marginBottom: 10,
   },
 
   categorycard: {
@@ -178,7 +203,7 @@ const styles = StyleSheet.create({
     borderColor: '#056FD2',
     color: '#056FD2',
     backgroundColor: '#DBEAFE',
-    marginBottom: verticalScale(6),
+    // marginBottom: verticalScale(6),
   },
   more: {
     marginTop: verticalScale(8),
@@ -189,4 +214,4 @@ const styles = StyleSheet.create({
     backgroundColor: '#E5E7EB',
     color: '#4A5565',
   },
-})
+});

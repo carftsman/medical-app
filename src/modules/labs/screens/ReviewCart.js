@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -94,17 +93,11 @@ const ReviewCart = ({ navigation }) => {
               {/* Patient Info */}
               <View style={styles.patientInfoRow}>
                 <View style={styles.profileCircle}>
-                  <AntDesign
-                    name="user"
-                    size={18}
-                    color={COLORS.white}
-                  />
+                  <AntDesign name="user" size={18} color={COLORS.white} />
                 </View>
 
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.patientName}>
-                    {patient?.fullName}
-                  </Text>
+                  <Text style={styles.patientName}>{patient?.fullName}</Text>
 
                   {patient?.gender && patient?.age && (
                     <Text style={styles.subText}>
@@ -112,9 +105,7 @@ const ReviewCart = ({ navigation }) => {
                     </Text>
                   )}
 
-                  <Text style={styles.phoneText}>
-                    +91 {patient?.phone}
-                  </Text>
+                  <Text style={styles.phoneText}>+91 {patient?.phone}</Text>
                 </View>
               </View>
 
@@ -123,15 +114,10 @@ const ReviewCart = ({ navigation }) => {
               {/* Package Row */}
               <View style={styles.testRow}>
                 <View style={styles.testLeft}>
-
-                  <Text style={styles.packageName}>
-                    {item.name}
-                  </Text>
+                  <Text style={styles.packageName}>{item.name}</Text>
                 </View>
 
-                <Text style={styles.price}>
-                  ₹{item.price}/-
-                </Text>
+                <Text style={styles.price}>₹{item.price}/-</Text>
               </View>
             </View>
           );
@@ -140,20 +126,15 @@ const ReviewCart = ({ navigation }) => {
         {/* ADDRESS */}
         {address && (
           <View style={styles.addressCard}>
-            <Text style={styles.addressName}>
-              {address.fullName}
-            </Text>
+            <Text style={styles.addressName}>{address.fullName}</Text>
 
             <Text style={styles.addressText}>
               {address.house}, {address.street},{'\n'}
               {address.landmark && `${address.landmark}, `}
-              {address.city}, {address.state},{' '}
-              {address.pinCode}
+              {address.city}, {address.state}, {address.pinCode}
             </Text>
 
-            <Text style={styles.addressPhone}>
-              +91 {address.mobile}
-            </Text>
+            <Text style={styles.addressPhone}>+91 {address.mobile}</Text>
           </View>
         )}
 
@@ -163,10 +144,7 @@ const ReviewCart = ({ navigation }) => {
           style={styles.savingsBanner}
           imageStyle={{ borderRadius: scale(14) }}
         >
-          <Image
-            source={cartBannerImg}
-            style={styles.bannerIcon}
-          />
+          <Image source={cartBannerImg} style={styles.bannerIcon} />
         </ImageBackground>
 
         {/* BILL SUMMARY */}
@@ -176,13 +154,9 @@ const ReviewCart = ({ navigation }) => {
           <Row label="Total MRP" value={billSummary.totalMRP} />
 
           <View style={styles.row}>
+            <Text style={{ color: COLORS.green }}>Discount</Text>
             <Text style={{ color: COLORS.green }}>
-              Discount
-            </Text>
-            <Text style={{ color: COLORS.green }}>
-              ₹
-              {billSummary.totalMRP -
-                billSummary.totalAmount}
+              ₹{billSummary.totalMRP - billSummary.totalAmount}
             </Text>
           </View>
 
@@ -190,22 +164,12 @@ const ReviewCart = ({ navigation }) => {
             label="Home Collection Charges"
             value={billSummary.homeCollection}
           />
-          <Row
-            label="Booking Fees"
-            value={billSummary.bookingFee}
-          />
-          <Row
-            label="Platform Fees"
-            value={billSummary.platformFee}
-          />
+          <Row label="Booking Fees" value={billSummary.bookingFee} />
+          <Row label="Platform Fees" value={billSummary.platformFee} />
 
           <View style={styles.divider} />
 
-          <Row
-            label="Total Amount"
-            value={billSummary.totalAmount}
-            bold
-          />
+          <Row label="Total Amount" value={billSummary.totalAmount} bold />
         </View>
       </ScrollView>
 
@@ -213,10 +177,14 @@ const ReviewCart = ({ navigation }) => {
       <TouchableOpacity
         style={styles.payBtn}
         onPress={() =>
-          navigation.navigate('SelectSlot', { cartData })
+          navigation.navigate('SelectSlot', {
+            cartData,
+            labId: cartData.lab.id,
+            totalFee: billSummary.totalAmount,
+          })
         }
       >
-        <Text style={styles.payText}>Pay Now</Text>
+        <Text style={styles.payText}>Select Slot</Text>
       </TouchableOpacity>
     </View>
   );

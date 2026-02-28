@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Alert, KeyboardAvoidingView, Platform } from "react-native";
+import React, { useEffect, useState } from 'react';
+import { Alert, KeyboardAvoidingView, Platform } from 'react-native';
 
 import {
   StyleSheet,
@@ -10,35 +10,34 @@ import {
   TextInput,
   ScrollView,
   Image,
-} from "react-native";
+} from 'react-native';
 
-import Ionicons from "react-native-vector-icons/Ionicons";
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Feather from 'react-native-vector-icons/Feather';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { useNavigation } from "@react-navigation/native";
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useNavigation } from '@react-navigation/native';
 
-import { COLORS, FONT, SIZES } from "../../../config/constants";
-import { scale, verticalScale } from "../../../utils/styling";
+import { COLORS, FONT, SIZES } from '../../../config/constants';
+import { scale, verticalScale } from '../../../utils/styling';
 
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { patientSchema } from "../utils/Validations";
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { patientSchema } from '../utils/Validations';
 
-import { useSelector, useDispatch } from "react-redux";
-import { setBookingId } from "../redux/slices/BookingSlice";
+import { useSelector, useDispatch } from 'react-redux';
+import { setBookingId } from '../redux/slices/BookingSlice';
 
-
-import api from "../../../api/client";
+import api from '../../../api/client';
 
 const AppointmentBooking = ({ route }) => {
-
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  const doctorId = route?.params?.doctorId || 1;
+  const doctorId = route?.params?.doctorId;
 
   const { selectedDate, selectedTime } = useSelector(
-    state => state.hospital.consultation
+    state => state.hospital.consultation,
   );
   const [doctor, setDoctor] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -60,14 +59,14 @@ const AppointmentBooking = ({ route }) => {
   } = useForm({
     resolver: zodResolver(patientSchema),
     defaultValues: {
-      name: "",
-      gender: "",
-      mobile: "",
-      email: "",
-      reason: "",
-      dob: "",
+      name: '',
+      gender: '',
+      mobile: '',
+      email: '',
+      reason: '',
+      dob: '',
     },
-    mode: "onChange",
+    mode: 'onChange',
   });
 
   /*  FETCH DOCTOR */
@@ -76,13 +75,11 @@ const AppointmentBooking = ({ route }) => {
       try {
         if (!doctorId) return;
 
-        const res = await api.get(
-          `/hospital/user/doctors/${doctorId}`
-        );
+        const res = await api.get(`/hospital/user/doctors/${doctorId}`);
 
         setDoctor(res?.data);
       } catch (error) {
-        console.log("Doctor fetch error", error);
+        console.log('Doctor fetch error', error);
       }
     };
 
@@ -91,7 +88,7 @@ const AppointmentBooking = ({ route }) => {
 
   /*  SAVE PATIENT  */
   const onSubmit = data => {
-    console.log("Patient DATAAA: ", data);
+    console.log('Patient DATAAA: ', data);
     if (editingIndex !== null) {
       const updated = [...patients];
       updated[editingIndex] = data;
@@ -114,17 +111,17 @@ const AppointmentBooking = ({ route }) => {
   const onContinue = async () => {
     try {
       if (!selectedTime?.slotId) {
-        console.log("No slot selected");
+        console.log('No slot selected');
         return;
       }
       const patient = patients[selectedIndex];
 
-      const [dd, mm, yyyy] = patient.dob.split("/");
+      const [dd, mm, yyyy] = patient.dob.split('/');
       const formattedDob = `${yyyy}-${mm}-${dd}`;
 
       const payload = {
         slotId: selectedTime.slotId,
-        bookingFor: "OTHER",
+        bookingFor: 'OTHER',
         reason: patient.reason,
         patient: {
           fullName: patient.name,
@@ -135,33 +132,31 @@ const AppointmentBooking = ({ route }) => {
         },
       };
 
-      console.log("Hold appointment payload:", payload);
+      console.log('Hold appointment payload:', payload);
 
-      const res = await api.post("/appointments/hold", payload);
+      const res = await api.post('/appointments/hold', payload);
 
       const bookingId = res.data.bookingId;
 
       dispatch(setBookingId(bookingId));
 
-      navigation.navigate("BookingDetails", { bookingId });
+      navigation.navigate('BookingDetails', { bookingId });
 
-      console.log("Hold appointment success:", res.data);
+      console.log('Hold appointment success:', res.data);
     } catch (error) {
       if (error?.response?.status === 409) {
         Alert.alert(
-
-          "Slot Unavailable",
-          "This slot is no longer available. Please select another time."
+          'Slot Unavailable',
+          'This slot is no longer available. Please select another time.',
         );
       } else {
-        Alert.alert(
-          "Error",
-          "Something went wrong. Please try again."
-        );
-        console.log("ERRORR: ", error);
+        Alert.alert('Error', 'Something went wrong. Please try again.');
+        console.log('ERRORR: ', error);
       }
     }
   };
+
+  console.log(doctor?.imageUrl);
   return (
     <View style={styles.container}>
       {/* HEADER */}
@@ -170,7 +165,7 @@ const AppointmentBooking = ({ route }) => {
           style={styles.backBtn}
           onPress={() => navigation.goBack()}
         >
-          <AntDesign name="left" size={24} color="black" />
+          <Feather name="arrow-left" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Book an Appointment</Text>
         <View style={{ width: 20 }} />
@@ -179,17 +174,15 @@ const AppointmentBooking = ({ route }) => {
       {/* DOCTOR CARD */}
       <View style={styles.doctorCard}>
         <Image
-          source={
-            doctor?.imageUrl
-              ? { uri: doctor.imageUrl }
-              : require("../../../../assets/Doctor.jpg")
-          }
+          source={{
+            uri: doctor?.imageUrl,
+          }}
           style={styles.doctorImg}
         />
         <View style={{ flex: 1 }}>
           <Text style={styles.doctorName}>{doctor?.name}</Text>
           <Text style={styles.specialization}>
-            {doctor?.specialization} |{" "}
+            {doctor?.specialization} |{' '}
             <Text style={styles.exp}>{doctor?.experience} Years</Text>
           </Text>
           <Text style={styles.rating}>⭐⭐⭐⭐⭐ 4.5 (121 reviews)</Text>
@@ -205,9 +198,7 @@ const AppointmentBooking = ({ route }) => {
 
               <View style={styles.dateTimeItem}>
                 <Ionicons name="time-outline" size={14} color="#6B7280" />
-                <Text style={styles.dateTimeText}>
-                  {selectedTime.time}
-                </Text>
+                <Text style={styles.dateTimeText}>{selectedTime.time}</Text>
               </View>
             </View>
           )}
@@ -245,9 +236,7 @@ const AppointmentBooking = ({ route }) => {
                 styles.patientCard,
                 {
                   borderColor:
-                    selectedIndex === index
-                      ? COLORS.primary
-                      : "#D1D5DB",
+                    selectedIndex === index ? COLORS.primary : '#D1D5DB',
                 },
               ]}
             >
@@ -256,7 +245,7 @@ const AppointmentBooking = ({ route }) => {
                   styles.patientTop,
                   {
                     backgroundColor:
-                      selectedIndex === index ? "#EBF5FF" : "#FFFFFF",
+                      selectedIndex === index ? '#EBF5FF' : '#FFFFFF',
                   },
                 ]}
               >
@@ -279,8 +268,8 @@ const AppointmentBooking = ({ route }) => {
                     <Ionicons
                       name={
                         selectedIndex === index
-                          ? "radio-button-on"
-                          : "radio-button-off"
+                          ? 'radio-button-on'
+                          : 'radio-button-off'
                       }
                       size={22}
                       color={COLORS.primary}
@@ -324,7 +313,7 @@ const AppointmentBooking = ({ route }) => {
         <TouchableOpacity
           style={[
             styles.continueBtn,
-            !isPatientSelected && { backgroundColor: "#C7C7C7" },
+            !isPatientSelected && { backgroundColor: '#C7C7C7' },
           ]}
           disabled={!isPatientSelected}
           onPress={onContinue}
@@ -332,7 +321,7 @@ const AppointmentBooking = ({ route }) => {
           <Text
             style={[
               styles.continueText,
-              !isPatientSelected && { color: "#6B7280" },
+              !isPatientSelected && { color: '#6B7280' },
             ]}
           >
             Continue
@@ -343,15 +332,16 @@ const AppointmentBooking = ({ route }) => {
       {/* MODAL */}
       <Modal transparent animationType="slide" visible={showModal}>
         <KeyboardAvoidingView
-           style={styles.modalOverlay}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 40 : 0}
+          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
         >
           <View>
             <ScrollView
               contentContainerStyle={styles.modalContent}
               keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}>
+              showsVerticalScrollIndicator={false}
+            >
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Add New Patient</Text>
                 <TouchableOpacity
@@ -389,14 +379,15 @@ const AppointmentBooking = ({ route }) => {
                 name="gender"
                 render={({ field: { value, onChange } }) => (
                   <View style={styles.genderRow}>
-
                     {/* WOMEN */}
                     <TouchableOpacity
                       style={styles.genderOption}
-                      onPress={() => onChange("FEMALE")}
+                      onPress={() => onChange('FEMALE')}
                     >
                       <View style={styles.outerCircle}>
-                        {value === "FEMALE" && <View style={styles.innerCircle} />}
+                        {value === 'FEMALE' && (
+                          <View style={styles.innerCircle} />
+                        )}
                       </View>
                       <Text style={styles.genderText}>Women</Text>
                     </TouchableOpacity>
@@ -404,10 +395,12 @@ const AppointmentBooking = ({ route }) => {
                     {/* MEN (Disabled but same layout) */}
                     <TouchableOpacity
                       style={styles.genderOption}
-                      onPress={() => onChange("MALE")}
+                      onPress={() => onChange('MALE')}
                     >
                       <View style={styles.outerCircle}>
-                        {value === "MALE" && <View style={styles.innerCircle} />}
+                        {value === 'MALE' && (
+                          <View style={styles.innerCircle} />
+                        )}
                       </View>
                       <Text style={styles.genderText}>Men</Text>
                     </TouchableOpacity>
@@ -415,24 +408,22 @@ const AppointmentBooking = ({ route }) => {
                     {/* OTHERS (Disabled but same layout) */}
                     <TouchableOpacity
                       style={styles.genderOption}
-                      onPress={() => onChange("OTHERS")}
+                      onPress={() => onChange('OTHERS')}
                     >
                       <View style={styles.outerCircle}>
-                        {value === "OTHERS" && <View style={styles.innerCircle} />}
+                        {value === 'OTHERS' && (
+                          <View style={styles.innerCircle} />
+                        )}
                       </View>
                       <Text style={styles.genderText}>Others</Text>
                     </TouchableOpacity>
-
                   </View>
-
-
                 )}
               />
 
               {errors.gender && (
                 <Text style={styles.error}>{errors.gender.message}</Text>
               )}
-
 
               <Text style={styles.inputLabel}>Mobile Number</Text>
               <Controller
@@ -494,7 +485,7 @@ const AppointmentBooking = ({ route }) => {
                 style={styles.dateInput}
                 onPress={() => setShowDatePicker(true)}
               >
-                <Text>{watch("dob") || "DD/MM/YYYY"}</Text>
+                <Text>{watch('dob') || 'DD/MM/YYYY'}</Text>
                 <Ionicons name="calendar-outline" size={20} />
               </TouchableOpacity>
               {errors.dob && (
@@ -519,10 +510,10 @@ const AppointmentBooking = ({ route }) => {
             onChange={(e, date) => {
               setShowDatePicker(false);
               if (date) {
-                const d = String(date.getDate()).padStart(2, "0");
-                const m = String(date.getMonth() + 1).padStart(2, "0");
+                const d = String(date.getDate()).padStart(2, '0');
+                const m = String(date.getMonth() + 1).padStart(2, '0');
                 const y = date.getFullYear();
-                setValue("dob", `${d}/${m}/${y}`, {
+                setValue('dob', `${d}/${m}/${y}`, {
                   shouldValidate: true,
                 });
               }
@@ -536,99 +527,253 @@ const AppointmentBooking = ({ route }) => {
 export default AppointmentBooking;
 
 const styles = StyleSheet.create({
-
-  container: { flex: 1, backgroundColor: COLORS.white, padding: SIZES.medium },
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    paddingHorizontal: SIZES.medium,
+  },
   /*  Header  */
-  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: SIZES.large },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: SIZES.large,
+  },
 
-  backBtn: { width: scale(40), height: scale(40), justifyContent: "center", alignItems: "center", marginTop: verticalScale(30) },
+  backBtn: {
+    width: scale(40),
+    height: scale(40),
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: verticalScale(30),
+  },
 
-  backIcon: { fontSize: scale(26), color: "#101623" },
+  backIcon: { fontSize: scale(26), color: '#101623' },
 
-  headerTitle: { width: scale(188), textAlign: "center", fontSize: scale(18), fontWeight: "600", color: "#101623", marginTop: verticalScale(30) },
+  headerTitle: {
+    textAlign: 'center',
+    fontSize: scale(18),
+    fontWeight: '600',
+    color: '#101623',
+    marginTop: verticalScale(30),
+  },
 
-  rightSpace: { width: 20, },
+  rightSpace: { width: 20 },
   /* Doctor Card  */
-  doctorCard: { width: "100%", height: verticalScale(125), flexDirection: "row", alignItems: "center", padding: scale(16), borderRadius: scale(12), borderWidth: 1, borderColor: COLORS.seablue, backgroundColor: "#EBF5FF", marginBottom: verticalScale(16), },
+  doctorCard: {
+    width: '100%',
+    height: verticalScale(125),
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: scale(16),
+    borderRadius: scale(12),
+    borderWidth: 1,
+    borderColor: COLORS.seablue,
+    backgroundColor: '#EBF5FF',
+    marginBottom: verticalScale(16),
+  },
 
-  doctorImg: { width: scale(87), height: scale(87), borderRadius: scale(8), resizeMode: "cover", marginRight: scale(16) },
+  doctorImg: {
+    width: scale(87),
+    height: scale(87),
+    borderRadius: scale(8),
+    resizeMode: 'center',
+    marginRight: scale(16),
+  },
 
-  doctorName: { fontSize: scale(20), fontWeight: "600", color: "#000000", marginBottom: verticalScale(4), flexWrap: "wrap", },
+  doctorName: {
+    fontSize: scale(20),
+    fontWeight: '600',
+    color: '#000000',
+    marginBottom: verticalScale(4),
+    flexWrap: 'wrap',
+  },
 
-  specialization: { fontSize: SIZES.medium, color: COLORS.gray, marginVertical: 4, fontWeight: "400", flexWrap: "wrap" },
+  specialization: {
+    fontSize: SIZES.medium,
+    color: COLORS.gray,
+    marginVertical: 4,
+    fontWeight: '400',
+    flexWrap: 'wrap',
+  },
 
-  exp: { width: 53, height: 18, fontSize: 15, lineHeight: 15, fontWeight: "500", color: "#05A836" },
+  exp: {
+    width: 53,
+    height: 18,
+    fontSize: 15,
+    lineHeight: 15,
+    fontWeight: '500',
+    color: '#05A836',
+  },
 
   rating: { fontSize: SIZES.small, color: COLORS.black, marginTop: 4 },
   /*  Patient Details  */
-  patientHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 8, marginBottom: 8 },
+  patientHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 8,
+  },
 
-  patientTitle: { width: 141, height: 24, fontSize: 20, lineHeight: 20, fontWeight: "600", color: "#000000" },
+  patientTitle: {
+    fontSize: 20,
+    lineHeight: 20,
+    fontWeight: '600',
+    color: '#000000',
+  },
 
-  addText: { fontSize: 16, fontWeight: "600", color: COLORS.primary },
+  addText: { fontSize: 16, fontWeight: '600', color: COLORS.primary },
 
-  patientBox: { width: "100%", height: 132, borderWidth: 1, borderColor: "#67B6FF", borderRadius: 10, backgroundColor: COLORS.white, justifyContent: "center", alignItems: "center", marginTop: 8 },
+  patientBox: {
+    width: '100%',
+    height: 132,
+    borderWidth: 1,
+    borderColor: '#67B6FF',
+    borderRadius: 10,
+    backgroundColor: COLORS.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+  },
 
   placeholderText: { color: COLORS.gray },
 
-  patientCard: { borderWidth: 1, borderRadius: scale(12), marginTop: verticalScale(8), overflow: "hidden" },
+  patientCard: {
+    borderWidth: 1,
+    borderRadius: scale(12),
+    marginTop: verticalScale(8),
+    overflow: 'hidden',
+  },
 
   patientTop: { padding: scale(12) },
 
-  patientRow: { flexDirection: "row", alignItems: "center" },
+  patientRow: { flexDirection: 'row', alignItems: 'center' },
 
-  avatar: { width: scale(45), height: scale(45), borderRadius: scale(22), backgroundColor: COLORS.primary, justifyContent: "center", alignItems: "center", marginRight: scale(12) },
+  avatar: {
+    width: scale(45),
+    height: scale(45),
+    borderRadius: scale(22),
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: scale(12),
+  },
 
-  patientName: { fontSize: scale(18), fontWeight: "600", color: "#000000" },
+  patientName: { fontSize: scale(18), fontWeight: '600', color: '#000000' },
 
-  patientInfo: { fontSize: scale(14), color: COLORS.gray, marginTop: verticalScale(2) },
+  patientInfo: {
+    fontSize: scale(14),
+    color: COLORS.gray,
+    marginTop: verticalScale(2),
+  },
 
-  actionBtn: { flex: 1, alignItems: "center", flexDirection: "row", justifyContent: "center" },
+  actionBtn: {
+    flex: 1,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
 
-  patientActions: { flexDirection: "row", alignItems: "center", backgroundColor: COLORS.white, borderTopWidth: 1, borderTopColor: "#D6E9FF", paddingVertical: verticalScale(10) },
+  patientActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    borderTopWidth: 1,
+    borderTopColor: '#D6E9FF',
+    paddingVertical: verticalScale(10),
+  },
 
-  actionDivider: { width: 1, height: verticalScale(16), backgroundColor: "#D6E9FF" },
+  actionDivider: {
+    width: 1,
+    height: verticalScale(16),
+    backgroundColor: '#D6E9FF',
+  },
 
-  editText: { color: COLORS.primary, fontWeight: "500" },
+  editText: { color: COLORS.primary, fontWeight: '500' },
 
-  deleteText: { color: COLORS.danger, fontWeight: "500" },
+  deleteText: { color: COLORS.danger, fontWeight: '500' },
 
-  footer: { padding: scale(16), backgroundColor: COLORS.white, borderTopWidth: 1, borderTopColor: "#E5E7EB" },
+  footer: {
+    padding: scale(16),
+    backgroundColor: COLORS.white,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+  },
   /*  Continue Button  */
-  continueBtn: { backgroundColor: COLORS.primary, paddingVertical: verticalScale(14), borderRadius: scale(12) },
+  continueBtn: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: verticalScale(14),
+    borderRadius: scale(12),
+  },
 
-  continueText: { color: COLORS.white, textAlign: "center", fontSize: scale(16), fontFamily: FONT.bold },
+  continueText: {
+    color: COLORS.white,
+    textAlign: 'center',
+    fontSize: scale(16),
+    fontFamily: FONT.bold,
+  },
   /*  Modal  */
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "flex-end" },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
 
-  modalContent: { width: "100%", backgroundColor: COLORS.white, padding: scale(16), borderTopLeftRadius: scale(20), borderTopRightRadius: scale(20) },
+  modalContent: {
+    width: '100%',
+    backgroundColor: COLORS.white,
+    padding: scale(16),
+    borderTopLeftRadius: scale(20),
+    borderTopRightRadius: scale(20),
+  },
 
-  modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: SIZES.medium },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SIZES.medium,
+  },
 
-  modalTitle: { fontSize: 18, fontWeight: "600", color: "#000000", marginBottom: 10 },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000000',
+    marginBottom: 10,
+  },
 
   closeText: { fontSize: 18, color: COLORS.gray },
 
-  input: { borderWidth: 1, borderColor: COLORS.lightGray, borderRadius: 12, padding: SIZES.medium, marginBottom: SIZES.small, color: "#000000" },
+  input: {
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+    borderRadius: 12,
+    padding: SIZES.medium,
+    marginBottom: SIZES.small,
+    color: '#000000',
+  },
 
-  inputLabel: { fontSize: 14, fontWeight: "500", color: "#101623", marginBottom: 6 },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#101623',
+    marginBottom: 6,
+  },
 
   /* ================= GENDER ================= */
 
   genderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-start",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
     marginBottom: verticalScale(15),
     top: scale(3),
-
   },
 
   genderOption: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginRight: scale(25),
-
   },
 
   outerCircle: {
@@ -637,8 +782,8 @@ const styles = StyleSheet.create({
     borderRadius: scale(10),
     borderWidth: 2,
     borderColor: COLORS.primary,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: scale(8),
   },
 
@@ -654,33 +799,53 @@ const styles = StyleSheet.create({
     width: scale(20),
     borderRadius: scale(10),
     borderWidth: 2,
-    borderColor: "#D1D5DB",
+    borderColor: '#D1D5DB',
     marginRight: scale(8),
   },
 
   genderText: {
     fontSize: scale(14),
-    color: "#111827",
+    color: '#111827',
   },
 
   genderTextDisabled: {
     fontSize: scale(14),
-    color: "#9CA3AF",
+    color: '#9CA3AF',
   },
 
-  saveBtn: { backgroundColor: COLORS.primary, padding: SIZES.medium, borderRadius: 12, marginTop: 30 },
+  saveBtn: {
+    backgroundColor: COLORS.primary,
+    padding: SIZES.medium,
+    borderRadius: 12,
+    marginTop: 50,
+  },
 
-  saveText: { color: COLORS.white, textAlign: "center", fontSize: SIZES.medium, fontFamily: FONT.bold },
+  saveText: {
+    color: COLORS.white,
+    textAlign: 'center',
+    fontSize: SIZES.medium,
+    fontFamily: FONT.bold,
+  },
 
-  dateInput: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderWidth: 1, borderColor: COLORS.lightGray, borderRadius: scale(12), paddingVertical: verticalScale(14), paddingHorizontal: scale(14) },
+  dateInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+    borderRadius: scale(12),
+    paddingVertical: verticalScale(14),
+    paddingHorizontal: scale(14),
+    marginBottom: verticalScale(12),
+  },
 
-  error: { color: "red", fontSize: 12, marginBottom: 6 },
+  error: { color: 'red', fontSize: 12, marginBottom: 6 },
 
-  dateTimeRow: { flexDirection: "row", alignItems: "center", marginTop: 6 },
+  dateTimeRow: { flexDirection: 'row', alignItems: 'center', marginTop: 6 },
 
-  dateTimeItem: { flexDirection: "row", alignItems: "center" },
+  dateTimeItem: { flexDirection: 'row', alignItems: 'center' },
 
-  dateTimeText: { marginLeft: 4, fontSize: 13, color: "#374151" },
+  dateTimeText: { marginLeft: 4, fontSize: 13, color: '#374151' },
 
-  separator: { marginHorizontal: 6, color: "#9CA3AF" },
+  separator: { marginHorizontal: 6, color: '#9CA3AF' },
 });

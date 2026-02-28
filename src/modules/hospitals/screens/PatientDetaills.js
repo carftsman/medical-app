@@ -17,17 +17,18 @@ import { scale, verticalScale } from '../../../utils/styling';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-
 import { patientDetailsSchema } from '../utils/FormValidation';
 import Backbtn from '../components/Backbtn';
 import Button from '../components/Button';
 
 const DESCRIPTION_HEIGHT = verticalScale(120);
 
-const PatientDetails = ({ navigation }) => {
+const PatientDetails = ({ route, navigation }) => {
   const [description, setDescription] = useState('');
   const [callMode, setCallMode] = useState('audio');
   const [problem, setProblem] = useState('');
+
+  const categoryName = route.params?.categoryName;
 
   const {
     control,
@@ -44,27 +45,24 @@ const PatientDetails = ({ navigation }) => {
   });
 
   const onSubmit = data => {
-    if (!problem) {
+    if (!categoryName) {
       Alert.alert('Validation', 'Please select your health problem');
       return;
     }
     const payload = {
       ...data,
-      problem,
+      categoryName,
       description,
       callMode,
     };
 
     console.log('Final Payload:', payload);
 
-  navigation.navigate('Payments', {
-  });  };
+    navigation.navigate('Payments', {});
+  };
 
   return (
-    <View
-      style={{ flex: 1, backgroundColor: COLORS.white }}
-      edges={['top']}
-    >
+    <View style={{ flex: 1, backgroundColor: COLORS.white }} edges={['top']}>
       <KeyboardAwareScrollView
         style={styles.container}
         showsVerticalScrollIndicator={false}
@@ -74,7 +72,7 @@ const PatientDetails = ({ navigation }) => {
       >
         {/*  Header  */}
         <View style={styles.header}>
-          <Backbtn onPress={() => navigation.goBack()} />
+          <Backbtn onPress={() => navigation.navigate('HospitalsTab')} />
           <Text style={styles.headerTitle}>Add New Patient</Text>
           <View style={styles.rightSpace} />
         </View>
@@ -150,15 +148,24 @@ const PatientDetails = ({ navigation }) => {
         {/* Health Problem */}
         <Text style={styles.label}>Select your Health Problem</Text>
         <TouchableOpacity
-          style={styles.dropdown}
+          style={[styles.dropdown, categoryName && styles.active]}
           onPress={() =>
             navigation.navigate('DepartmentsList', {
-              onSelect: (value) => {setProblem(value)},
+              onSelect: value => {
+                setProblem(value);
+              },
+              title: 'Select Your Concern',
             })
           }
         >
-          <Text style={[styles.dropdownText, !problem && { color: '#999' }]}>
-            {problem || 'Problem'}
+          <Text
+            style={[
+              styles.dropdownText,
+              !problem && { color: '#999' },
+              categoryName && styles.activeText,
+            ]}
+          >
+            {categoryName || 'Problem'}
           </Text>
           <Ionicons name="chevron-forward" size={20} color="#555" />
         </TouchableOpacity>
@@ -328,11 +335,9 @@ const styles = StyleSheet.create({
   descHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     marginTop: verticalScale(SIZES.medium),
   },
   descLabel: {
-    flex: 1,
     fontFamily: FONT.medium,
     fontSize: scale(SIZES.medium),
     color: COLORS.black,
@@ -353,5 +358,13 @@ const styles = StyleSheet.create({
     fontSize: scale(SIZES.medium),
     textAlignVertical: 'top',
     marginTop: verticalScale(SIZES.base),
+  },
+  active: {
+    borderColor: COLORS.blue,
+    backgroundColor: COLORS.Iceblue,
+  },
+  activeText: {
+    color: COLORS.darkblue,
+    fontSize: scale(16),
   },
 });

@@ -57,7 +57,7 @@ export default function ReportsTab() {
         },
       });
 
-      console.log('LAB REPORTS', res.data);
+      console.log('LAB REPORTS', res.data, user.id);
 
       if (res.status === 200) {
         setReports(res.data?.reports || []);
