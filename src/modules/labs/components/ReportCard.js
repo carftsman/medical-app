@@ -41,7 +41,7 @@ export default function ReportCard({ item }) {
       onPress={() =>
         navigation.navigate('ReportDetails', {
           id: item.reportId,
-          report:item
+          report: item,
         })
       }
     >
