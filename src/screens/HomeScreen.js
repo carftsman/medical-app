@@ -210,7 +210,6 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        
         {/* LAB TESTS BY CONCERNS */}
         <View style={styles.labHeader}>
           <Text style={styles.labTitle}>Lab Tests by Concerns</Text>
@@ -246,7 +245,7 @@ export default function HomeScreen() {
               style={[styles.labCard, { marginRight: 12 }]}
               onPress={() =>
                 navigation.navigate('LabsMain', {
-                  screen: 'PackagesScreen',
+                  screen: 'LabsScreen',
                   params: {
                     labId: 1,
                   },

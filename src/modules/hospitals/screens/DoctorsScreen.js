@@ -30,59 +30,63 @@ const DoctorsScreen = () => {
   const [doctorsData, setDoctorsData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedType, setSelectedType] = useState("ONLINE");
+  const [selectedType, setSelectedType] = useState('ONLINE');
 
   const fetchDoctors = async () => {
     try {
       setLoading(true);
       setError(null);
 
-    const params = {
-    lat: 17.385044,         
-    lng: 78.486671,          
+      const params = {
+        lat: 17.385044,
+        lng: 78.486671,
 
-    search: search?.trim() || undefined,
+        search: search?.trim() || undefined,
 
-  categoryIds:
-  selectedFilter !== 'All'
-    ? String(selectedFilter)
-    : department !== 'All'
-    ? String(department)
-    : undefined,
+        categoryIds:
+          selectedFilter !== 'All'
+            ? String(selectedFilter)
+            : department !== 'All'
+            ? String(department)
+            : undefined,
 
-    minExp: experience || undefined,
+        minExp: experience || undefined,
 
-    maxFee:
-      feeRange === '100-500'
-        ? 500
-        : feeRange === '500-1000'
-        ? 1000
-        
-        : undefined,
+        maxFee:
+          feeRange === '100-500'
+            ? 500
+            : feeRange === '500-1000'
+            ? 1000
+            : undefined,
 
-    distance: distance || 16,   // Swagger expects "distance" not maxDistance
+        distance: distance || 16, // Swagger expects "distance" not maxDistance
 
-    mode: selectedType || undefined,
+        mode: selectedType || undefined,
 
-    availability:
-      availability.today
-        ? 'today'
-        : availability.tomorrow
-        ? 'tomorrow'
-        : availability.now
-        ? 'now'
-        : undefined,
+        availability: availability.today
+          ? 'today'
+          : availability.tomorrow
+          ? 'tomorrow'
+          : availability.now
+          ? 'now'
+          : undefined,
 
-    sort:
-  sortBy === 'experience'
-    ? 'experience_desc'
-    : sortBy === 'fee'
-    ? 'fee_asc'
-    : undefined,
+        sort:
+          sortBy === 'experience'
+            ? 'experience_desc'
+            : sortBy === 'fee_low'
+            ? 'fee_asc'
+            : sortBy === 'fee_high'
+            ? 'fee_desc'
+            : sortBy === 'rating'
+            ? 'rating_desc'
+            : sortBy === 'distance'
+            ? 'distance_asc'
+            : undefined,
 
-    page: 1,
-    limit: 20,
-};
+        page: 1,
+        limit: 20,
+      };
       const response = await api.get('/hospital/user/doctors', { params });
 
       let doctorsArray = [];
@@ -111,27 +115,25 @@ const DoctorsScreen = () => {
       setDoctorsData(mappedDoctors);
 
       // ✅ Build categories from API response
-if (allCategories.length === 0 && doctorsArray.length > 0) {
-  const categories = [
-    { id: 'All', name: 'All' },
-    ...doctorsArray
-      .map(d => ({
-        id: d.category?.id,
-        name: d.category?.name,
-      }))
-      .filter(
-        (value, index, self) =>
-          value.id &&
-          index === self.findIndex(t => t.id === value.id)
-      ),
-  ];
+      if (allCategories.length === 0 && doctorsArray.length > 0) {
+        const categories = [
+          { id: 'All', name: 'All' },
+          ...doctorsArray
+            .map(d => ({
+              id: d.category?.id,
+              name: d.category?.name,
+            }))
+            .filter(
+              (value, index, self) =>
+                value.id && index === self.findIndex(t => t.id === value.id),
+            ),
+        ];
 
-  setAllCategories(categories);
-}
-     
-      } catch (err) {
-      console.log("API ERROR:", err?.response?.data || err);
-      setError("Unable to fetch doctors");
+        setAllCategories(categories);
+      }
+    } catch (err) {
+      console.log('API ERROR:', err?.response?.data || err);
+      setError('Unable to fetch doctors');
     } finally {
       setLoading(false);
     }
@@ -161,6 +163,8 @@ if (allCategories.length === 0 && doctorsArray.length > 0) {
     setSelectedFilter('All');
     setSearch('');
   };
+
+  console.log(doctorsData);
 
   return (
     <View style={styles.container}>
@@ -193,10 +197,7 @@ if (allCategories.length === 0 && doctorsArray.length > 0) {
         applyFilters={fetchDoctors}
       />
 
-      <DoctorScreenMode
-        selected={selectedType}
-        onChange={setSelectedType}
-      />
+      <DoctorScreenMode selected={selectedType} onChange={setSelectedType} />
 
       <DoctList
         loading={loading}

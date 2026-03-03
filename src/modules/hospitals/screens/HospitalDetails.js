@@ -23,13 +23,8 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import HospitalDoctorList from '../components/HospitalDoctorList';
 import HospitalInfo from '../components/HospitalInfo';
 import HospitalContactInfo from '../components/HospitalContactInfo';
-
-// Safe area wrapper
-import { SafeAreaView } from 'react-native-safe-area-context';
-
-// Responsive scaling utilities
-import { scale, verticalScale } from '../../../utils/styling';
-
+import Backbtn from '../components/Backbtn';
+import { scale, verticalScale} from '../../../utils/styling';
 
 // Main Component
 const HospitalDetails = ({ route, navigation }) => {
@@ -79,18 +74,14 @@ const HospitalDetails = ({ route, navigation }) => {
     );
   }
 
+  console.log(hospital);
+
   return (
     <View style={styles.container}>
 
       {/* Header Section */}
       <View style={styles.screenHeader}>
-
-        {/* Back Button */}
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <AntDesign name="left" size={scale(24)} color="#000" />
-        </TouchableOpacity>
-
-        {/* Screen Title */}
+        <Backbtn />
         <Text style={styles.screenHeaderText}>Hospital Info</Text>
 
         {/* Empty View for spacing balance */}
@@ -125,13 +116,12 @@ const HospitalDetails = ({ route, navigation }) => {
         <HospitalContactInfo hospital={hospital} />
 
       </ScrollView>
-
-      {/* Bottom Book Appointment Button */}
-      <TouchableOpacity 
-        style={styles.bookbtn} 
-        onPress={() => 
+      <TouchableOpacity
+        style={styles.bookbtn}
+        onPress={() =>
           navigation.navigate('DoctorsList', {
             hospitalId: HOSPITAL_ID,
+            hospitalName: hospital.name,
           })
         }
       >
@@ -194,7 +184,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#056FD2',
     marginHorizontal: scale(10),
     marginBottom: verticalScale(15),
-    marginTop: verticalScale(10)
-  }
-
+    marginTop: verticalScale(10),
+  },
 });

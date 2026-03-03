@@ -39,41 +39,40 @@ const ProfileScreen = () => {
     fetchProfile();
   }, []);
 
-
   return (
     <View style={styles.container}>
       {/* <StatusBar barStyle="light-content" backgroundColor="#2D73B9" /> */}
 
       <View style={styles.headerCard}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => {
-            console.log('go');
-            navigation.goBack();
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
           }}
         >
-          <Feathericons name="arrow-left" size={scale(22)} color="#fff" />
-        </TouchableOpacity>
-           <Text style={styles.headerTitle}>Profile</Text>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => {
+              console.log('go');
+              navigation.goBack();
+            }}
+          >
+            <Feathericons name="arrow-left" size={scale(22)} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Profile</Text>
 
-             <TouchableOpacity
-          onPress={() => navigation.navigate('EditProfile')}
-          style={styles.editButton}
-        >
-          <Feathericons name="edit" size={scale(20)} color="#fff" />
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('EditProfile')}
+            style={styles.editButton}
+          >
+            <Feathericons name="edit" size={scale(20)} color="#fff" />
+          </TouchableOpacity>
         </View>
 
-      
-
-     
-
         <View style={styles.profileRow}>
-          <View  style={styles.avatar}>
-             <Feathericons name="user" size={scale(28)} color="#fff" />
-             
+          <View style={styles.avatar}>
+            <Feathericons name="user" size={scale(28)} color="#fff" />
           </View>
           {/* <Image
             source={require('../../../../assets/Sravani.jpg')}
@@ -81,17 +80,11 @@ const ProfileScreen = () => {
           /> */}
 
           <View style={styles.info}>
-            <Text style={styles.name}>
-              {profile?.fullName || ''}
-            </Text>
+            <Text style={styles.name}>{profile?.fullName}</Text>
 
-            <Text style={styles.phone}>
-              {profile?.phone || ''}
-            </Text>
+            <Text style={styles.phone}>{profile?.phone}</Text>
 
-            <Text style={styles.email}>
-              {profile?.email || ''}
-            </Text>
+            <Text style={styles.email}>{profile?.email}</Text>
           </View>
         </View>
       </View>
@@ -100,19 +93,62 @@ const ProfileScreen = () => {
         <View style={styles.content}>
           <MenuSection
             items={[
-              { title: 'Family Members', icon: 'people-outline', route: 'FamilyMembers' },
-              { title: 'My Appointments', icon: 'calendar-outline', route: 'MyAppointments' },
-              { title: 'Medicines Orders', icon: 'medical-outline', route: 'MedicinesOrdered' },
-              { title: 'Lab Tests & Reports', icon: 'document-text-outline', route: 'LabReports' },
+              {
+                title: 'Family Members',
+                icon: 'people-outline',
+                route: 'FamilyMembers',
+              },
+              {
+                title: 'My Appointments',
+                icon: 'calendar-outline',
+                route: 'MyAppointments',
+              },
+              {
+                title: 'My Remainders',
+                icon: 'time-outline',
+                route: 'MyRemainders',
+              },
+              {
+                title: 'Favourites',
+                icon: 'heart-outline',
+                route: 'Favourites',
+              },
+
+              {
+                title: 'Medicines Orders',
+                icon: 'medical-outline',
+                route: 'MedicinesOrdered',
+              },
+              {
+                title: 'Lab Tests & Reports',
+                icon: 'document-text-outline',
+                route: 'LabReports',
+              },
             ]}
           />
 
           <MenuSection
             items={[
-              { title: 'Saved Address', icon: 'location-outline', route: 'SavedAddress' },
-              { title: 'Payments', icon: 'card-outline', route: 'PaymentsHistory' },
-              { title: 'Help & Support', icon: 'help-circle-outline', route: 'HelpAndSupport' },
-              { title: 'Terms & Conditions', icon: 'book-outline', route: 'TermsAndConditions' },
+              {
+                title: 'Saved Address',
+                icon: 'location-outline',
+                route: 'SavedAddress',
+              },
+              {
+                title: 'Payments',
+                icon: 'card-outline',
+                route: 'PaymentsHistory',
+              },
+              {
+                title: 'Help & Support',
+                icon: 'help-circle-outline',
+                route: 'HelpAndSupport',
+              },
+              {
+                title: 'Terms & Conditions',
+                icon: 'book-outline',
+                route: 'TermsAndConditions',
+              },
             ]}
           />
 
@@ -166,7 +202,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
     textAlign: 'center',
-    // margintop: scale(50), 
+    // margintop: scale(50),
   },
 
   profileRow: {
@@ -182,8 +218,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#fff',
     marginLeft: scale(10),
-    justifyContent:"center",
-    alignItems:"center"
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   info: {
