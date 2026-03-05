@@ -62,9 +62,9 @@ const styles = StyleSheet.create({
   cardWrapper: {
     backgroundColor: COLORS.white,
     borderRadius: scale(12),
-    marginBottom: verticalScale(12),   // 👈 spacing between cards
+    marginBottom: verticalScale(12),   
     elevation: 3,
-    padding: scale(15),
+    padding: scale(17),
   },
 
   cardContent: {
@@ -93,11 +93,11 @@ const styles = StyleSheet.create({
   statusBadge: {
     paddingHorizontal: scale(10),
     paddingVertical: verticalScale(4),
-    borderRadius: scale(20),
+    borderRadius: scale(10),
   },
 
   cancelled: {
-    backgroundColor: "#F8D7DA", // light red
+    backgroundColor: COLORS.lightDanger, 
   },
 
   statusText: {

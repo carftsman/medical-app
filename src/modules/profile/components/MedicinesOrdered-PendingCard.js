@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   },
 
   cardContent: {
-    padding: scale(16),
+    padding: scale(13),
   },
 
   rowBetween: {
@@ -104,11 +104,10 @@ const styles = StyleSheet.create({
 
   /* ---------- STATUS BADGE ---------- */
   statusBadge: {
-    paddingHorizontal: scale(12),
+    paddingHorizontal: scale(16),
     paddingVertical: verticalScale(4),
     borderRadius: scale(20),
-    backgroundColor: "#FFF3CD", // soft yellow
-  },
+    backgroundColor:COLORS.yellow,  },
 
   statusText: {
     fontSize: scale(11),
@@ -119,8 +118,8 @@ const styles = StyleSheet.create({
   /* ---------- IMAGES ---------- */
   imageRow: {
     flexDirection: "row",
-    marginTop: verticalScale(10),
-    paddingHorizontal: scale(16),
+    marginTop: verticalScale(-10),
+    paddingHorizontal: scale(18),
   },
 
   medicineImage: {
@@ -153,7 +152,8 @@ const styles = StyleSheet.create({
   rateBtn: {
     flex: 1,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor:COLORS.primary,
+    backgroundColor: COLORS.primary,
     paddingVertical: verticalScale(10),
     borderRadius: scale(8),
     alignItems: "center",
@@ -163,13 +163,14 @@ const styles = StyleSheet.create({
   rateText: {
     fontSize: scale(12),
     fontFamily: FONT.medium,
-    color: COLORS.black,
+    color: COLORS.white,
   },
 
   /* Cancel Button */
   cancelBtn: {
     flex: 1,
-    backgroundColor: COLORS.primary,
+    borderWidth:1,
+    borderBlockColor: COLORS.danger,
     paddingVertical: verticalScale(10),
     borderRadius: scale(8),
     alignItems: "center",
@@ -178,6 +179,6 @@ const styles = StyleSheet.create({
   cancelText: {
     fontSize: scale(12),
     fontFamily: FONT.semiBold,
-    color: COLORS.white,
+    color: COLORS.danger,
   },
 });

@@ -223,6 +223,7 @@ tableHeadText: {
     borderTopWidth: 0.5,
     borderTopColor: COLORS.border,
     paddingTop: verticalScale(30),
+    padding:scale(-20),
 
   },
 
