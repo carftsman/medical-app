@@ -7,45 +7,55 @@ import {
   TouchableOpacity
 } from 'react-native';
 import { verticalScale, scale } from '../../../utils/styling';
-
+import Ionicons from 'react-native-vector-icons/Ionicons';
 const FamilyDetailsCard = ({
   image,
   name,
   relationship,
   age,
   gender,
+  number,
+  emailid,
   onEdit,
   onDelete
 }) => {
   return (
     <View style={styles.card}>
 
+      <View style={styles.profile}>
+     <View >
+      <Ionicons name="person" size={50} color="#007bff" />
+     </View>
+    
       {/* Top Row */}
       <View style={styles.topRow}>
-        <Image source={{ uri: image }} style={styles.image} />
+        {/* <Image source={{ uri: image }} style={styles.image} /> */}
 
         <View style={styles.details}>
           <Text style={styles.name}>{name}</Text>
           <Text style={styles.subText}>
             {relationship} • {age} yrs • {gender}
           </Text>
+           <Text style={styles.subText}>
+            {number} •  {emailid}
+          </Text>
         </View>
       </View>
-
+    </View>
  
       <View style={styles.divider} />
 
-      <View style={styles.buttonRow}>
-        <TouchableOpacity  style={styles.button}>
-          <Text style={styles.editText}>Edit</Text>
-        </TouchableOpacity>
+   <View style={styles.buttonRow}>
+  <TouchableOpacity style={styles.button} onPress={onEdit}>
+    <Text style={styles.editText}>Edit</Text>
+  </TouchableOpacity>
 
-        <Text style={styles.separator}>|</Text>
+  <Text style={styles.separator}>|</Text>
 
-        <TouchableOpacity  style={styles.button}>
-          <Text style={styles.deleteText}>Delete</Text>
-        </TouchableOpacity>
-      </View>
+  <TouchableOpacity style={styles.button} onPress={onDelete}>
+    <Text style={styles.deleteText}>Delete</Text>
+  </TouchableOpacity>
+</View>
 
     </View>
   );
@@ -61,9 +71,16 @@ const styles = StyleSheet.create({
     marginVertical: verticalScale(8),
     elevation: 3,
     borderColor: "#A7D3FF",
-    borderWidth: scale(1)
-  },
+    borderWidth: scale(1),
 
+  },
+   profile: {
+      flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: 'center',
+    gap: scale(30),
+    paddingLeft: scale(10)
+   },
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
