@@ -7,11 +7,9 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   ActivityIndicator,
-  TextInput,
   ScrollView,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
-import { scale } from '../../../utils/styling';
 import { hospitalApi } from '../../../api/hospitalApi';
 
 const HospitalFilterPopup = ({
@@ -25,17 +23,17 @@ const HospitalFilterPopup = ({
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [sortBy, setSortBy] = useState('distance');
-  const [stateName, setStateName] = useState('');
-  const [cityName, setCityName] = useState('');
-
   const [distance, setDistance] = useState(8);
   const [openNow, setOpenNow] = useState(false);
   const [open24x7, setOpen24x7] = useState(false);
 
+  const [minRating, setMinRating] = useState(0);
+  const [minPopularity, setMinPopularity] = useState(0);
+
   const [loading, setLoading] = useState(false);
   const [catLoading, setCatLoading] = useState(false);
 
-  /*  CATEGORIES  */
+  /* FETCH CATEGORIES */
   useEffect(() => {
     if (!visible) return;
 
@@ -54,7 +52,6 @@ const HospitalFilterPopup = ({
     fetchCategories();
   }, [visible, mode]);
 
-  /*  TOGGLE CATEGORY  */
   const toggleCategory = id => {
     setSelectedCategories(prev =>
       prev.includes(id)
@@ -63,18 +60,16 @@ const HospitalFilterPopup = ({
     );
   };
 
-  /*  CLEAR ALL  */
   const handleClearAll = () => {
     setSelectedCategories([]);
     setDistance(8);
     setOpenNow(false);
     setOpen24x7(false);
     setSortBy('distance');
-    setStateName('');
-    setCityName('');
+    setMinRating(0);
+    setMinPopularity(0);
   };
 
-  /*  APPLY  */
   const handleApply = async () => {
     try {
       setLoading(true);
@@ -82,9 +77,10 @@ const HospitalFilterPopup = ({
       const payload = {
         latitude,
         longitude,
-        radius: distance,
+        radiusKm: distance,
         categoryIds: selectedCategories,
         mode: mode.toUpperCase(),
+        sort: sortBy,
         openNow,
         open24x7,
         page: 1,
@@ -92,7 +88,33 @@ const HospitalFilterPopup = ({
       };
 
       const res = await hospitalApi.getFilteredNearbyHospitals(payload);
-      const hospitals = res.data?.data || [];
+
+      let hospitals = res.data?.data || [];
+
+      /* FRONTEND FILTERING */
+
+      // Filter by minimum rating
+      if (minRating > 0) {
+        hospitals = hospitals.filter(
+          item => item.rating >= minRating,
+        );
+      }
+
+      // Filter by minimum popularity
+      if (minPopularity > 0) {
+        hospitals = hospitals.filter(
+          item => item.popularity >= minPopularity,
+        );
+      }
+
+      // Sorting fallback
+      if (sortBy === 'rating') {
+        hospitals.sort((a, b) => b.rating - a.rating);
+      }
+
+      if (sortBy === 'popularity') {
+        hospitals.sort((a, b) => b.popularity - a.popularity);
+      }
 
       onApply(hospitals);
       onClose();
@@ -110,7 +132,6 @@ const HospitalFilterPopup = ({
       </TouchableWithoutFeedback>
 
       <View style={styles.container}>
-        {/* HEADER */}
         <View style={styles.headerRow}>
           <Text style={styles.title}>Filters</Text>
           <TouchableOpacity onPress={handleClearAll}>
@@ -119,35 +140,47 @@ const HospitalFilterPopup = ({
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false}>
+
           {/* SORT */}
           <Text style={styles.section}>Sort</Text>
           <View style={styles.rowWrap}>
             {['distance', 'rating', 'popularity'].map(item => (
               <Chip
                 key={item}
-                text={item.charAt(0).toUpperCase() + item.slice(1)}
+                text={item}
                 active={sortBy === item}
                 onPress={() => setSortBy(item)}
               />
             ))}
           </View>
 
-          {/* LOCATION */}
-          <Text style={styles.section}>Location</Text>
-          <View style={styles.locationRow}>
-            <TextInput
-              placeholder="State"
-              value={stateName}
-              onChangeText={setStateName}
-              style={styles.locationInput}
-            />
-            <TextInput
-              placeholder="City"
-              value={cityName}
-              onChangeText={setCityName}
-              style={styles.locationInput}
-            />
-          </View>
+          {/* RATING FILTER */}
+          <Text style={styles.section}>
+            Minimum Rating ({minRating.toFixed(1)})
+          </Text>
+          <Slider
+            minimumValue={0}
+            maximumValue={5}
+            step={0.5}
+            value={minRating}
+            onValueChange={setMinRating}
+            minimumTrackTintColor="#056FD2"
+            thumbTintColor="#056FD2"
+          />
+
+          {/* POPULARITY FILTER */}
+          <Text style={styles.section}>
+            Minimum Popularity ({minPopularity})
+          </Text>
+          <Slider
+            minimumValue={0}
+            maximumValue={500}
+            step={10}
+            value={minPopularity}
+            onValueChange={setMinPopularity}
+            minimumTrackTintColor="#056FD2"
+            thumbTintColor="#056FD2"
+          />
 
           {/* SPECIALITY */}
           <Text style={styles.section}>Speciality</Text>
@@ -167,17 +200,20 @@ const HospitalFilterPopup = ({
           )}
 
           {/* DISTANCE */}
-          <Text style={styles.section}>Distance ({distance} km)</Text>
+          <Text style={styles.section}>
+            Distance ({distance} km)
+          </Text>
           <Slider
             minimumValue={1}
             maximumValue={50}
             step={1}
             value={distance}
             onValueChange={setDistance}
+            minimumTrackTintColor="#056FD2"
+            thumbTintColor="#056FD2"
           />
 
           {/* AVAILABILITY */}
-          <Text style={styles.section}>Availability</Text>
           <CheckBox
             label="Open Now"
             checked={openNow}
@@ -190,7 +226,6 @@ const HospitalFilterPopup = ({
           />
         </ScrollView>
 
-        {/* ACTIONS */}
         <View style={styles.bottomRow}>
           <TouchableOpacity style={styles.applyBtn} onPress={handleApply}>
             {loading ? (
@@ -211,6 +246,7 @@ const HospitalFilterPopup = ({
 
 export default HospitalFilterPopup;
 
+/* CHIP */
 const Chip = ({ text, active, onPress }) => (
   <TouchableOpacity
     style={[styles.chip, active && styles.chipActive]}
@@ -222,6 +258,7 @@ const Chip = ({ text, active, onPress }) => (
   </TouchableOpacity>
 );
 
+/* CHECKBOX */
 const CheckBox = ({ label, checked, onPress }) => (
   <TouchableOpacity style={styles.checkboxRow} onPress={onPress}>
     <View style={[styles.checkbox, checked && styles.checked]}>
@@ -231,118 +268,113 @@ const CheckBox = ({ label, checked, onPress }) => (
   </TouchableOpacity>
 );
 
-/* STYLES  */
-
+/* STYLES SAME AS YOUR CURRENT */
+/* STYLES */
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'rgba(0,0,0,0.45)',
   },
   container: {
-    backgroundColor: '#FFF',
-    padding: 20,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    maxHeight: '85%',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 20,
+    paddingTop: 18,
+    paddingBottom: 30,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    maxHeight: '88%',
   },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    alignItems: 'center',
+    marginBottom: 18,
   },
   title: {
     fontSize: 20,
     fontWeight: '700',
   },
   clearText: {
-    color: '#2979FF',
-    fontWeight: '700',
+    color: '#e74c3c',
+    fontWeight: '600',
   },
   section: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginVertical: 10,
+    fontSize: 15,
+    fontWeight: '600',
+    marginTop: 16,
+    marginBottom: 10,
   },
   rowWrap: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
-  },
-  locationRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  locationInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#CDE0FF',
-    borderRadius: 12,
-    padding: 12,
   },
   chip: {
-    backgroundColor: '#F3F8FF',
+    backgroundColor: '#F2F7FF',
     paddingHorizontal: 16,
     paddingVertical: 10,
-    borderRadius: 20,
+    borderRadius: 25,
+    marginRight: 10,
+    marginBottom: 10,
   },
   chipActive: {
-    backgroundColor: '#2979FF',
+    backgroundColor: '#056FD2',
   },
   chipText: {
     fontSize: 13,
+    color: '#056FD2',
   },
   chipTextActive: {
-    color: '#FFF',
+    color: '#FFFFFF',
   },
- checkboxRow: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 20,
-  marginBottom: 12,
-},
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
   checkbox: {
     width: 22,
     height: 22,
     borderWidth: 2,
-    borderColor: '#CDE0FF',
-    borderRadius: 4,
+    borderColor: '#C9DFFF',
+    borderRadius: 6,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 12,
   },
   checked: {
-    backgroundColor: '#2979FF',
-    borderColor: '#2979FF',
+    backgroundColor: '#056FD2',
+    borderColor: '#056FD2',
   },
   tick: {
-    color: '#FFF',
+    color: '#FFFFFF',
     fontWeight: 'bold',
   },
   bottomRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 16,
+    marginTop: 20,
   },
   applyBtn: {
     flex: 1,
-    backgroundColor: '#2979FF',
+    backgroundColor: '#056FD2',
     paddingVertical: 16,
     borderRadius: 30,
     alignItems: 'center',
+    marginRight: 10,
   },
   applyText: {
-    color: '#FFF',
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '700',
   },
   cancelBtn: {
     flex: 1,
-    backgroundColor: '#EEF3FF',
+    backgroundColor: '#EEF4FF',
     paddingVertical: 16,
     borderRadius: 30,
     alignItems: 'center',
   },
   cancelText: {
-    color: '#2979FF',
+    color: '#056FD2',
     fontSize: 16,
     fontWeight: '700',
   },

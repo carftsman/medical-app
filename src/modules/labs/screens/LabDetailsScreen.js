@@ -22,10 +22,8 @@ const LabDetailsScreen = () => {
   const navigation = useNavigation();
 
   const labId = route?.params?.labId ?? 3;
-  const isUploadFlow = route?.params?.isUploadFlow === true;
-  const uploadedFiles = route?.params?.files || null;
-
-  console.log('uploadFiles', uploadedFiles);
+  const isUploadFlow = Boolean(route?.params?.isUploadFlow);
+  const uploadedFiles = route?.params?.files ?? null;
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -77,7 +75,6 @@ const LabDetailsScreen = () => {
   const handleShare = async () => {
     try {
       const locationText = data.address || `${data.name}, ${data.city}`;
-
       const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
         locationText,
       )}`;
@@ -222,49 +219,45 @@ ${mapsUrl}`,
 
       {/* BOTTOM BUTTON */}
       <View style={styles.bottom}>
-        {isUploadFlow ? (
-          <TouchableOpacity
-            style={[styles.bookBtn, { backgroundColor: '#4368ed' }]}
-            onPress={() =>
+        <TouchableOpacity
+          style={[
+            styles.bookBtn,
+            isUploadFlow && { backgroundColor: '#4368ed' },
+          ]}
+          onPress={() => {
+            if (isUploadFlow) {
               navigation.navigate('ReviewPrescription', {
                 lab: data,
                 files: uploadedFiles,
-              })
-            }
-          >
-            <Text style={styles.bookText}>Proceed</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            style={styles.bookBtn}
-            onPress={() =>
+              });
+            } else {
               navigation.navigate('PackagesScreen', {
                 labId: data.id,
-              })
+              });
             }
-          >
-            <Text style={styles.bookText}>Book Test</Text>
-          </TouchableOpacity>
-        )}
+          }}
+        >
+          <Text style={styles.bookText}>
+            {isUploadFlow ? 'Proceed' : 'Book Test'}
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 };
 
 export default LabDetailsScreen;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
   },
-
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-
-  /* HEADER */
   header: {
     position: 'absolute',
     top: 0,
@@ -281,7 +274,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: COLORS.lightGray,
   },
-
   headerTitle: {
     flex: 1,
     marginHorizontal: scale(12),
@@ -289,68 +281,54 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: COLORS.black,
   },
-
-  /* BANNER */
   banner: {
     width: '100%',
     height: verticalScale(260),
     marginTop: verticalScale(80),
+    resizeMode: 'cover',
   },
-
-  /* SECTION */
   section: {
-    padding: scale(16),
+    paddingHorizontal: scale(16),
+    paddingVertical: verticalScale(12),
   },
-
   labName: {
     fontSize: SIZES.large,
     fontWeight: '700',
     color: COLORS.black,
   },
-
   topRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-
   callBtn: {
-    width: scale(36),
-    height: scale(36),
-    borderRadius: scale(18),
+    width: scale(38),
+    height: scale(38),
+    borderRadius: scale(19),
     backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
-
-  /* RATING */
   ratingRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: verticalScale(6),
-    marginBottom: verticalScale(8),
   },
-
   starsRow: {
     flexDirection: 'row',
     marginRight: scale(6),
   },
-
   ratingText: {
     fontSize: SIZES.medium,
     fontWeight: '600',
     color: COLORS.black,
   },
-
-  /* SECTION TITLE */
   sectionTitle: {
     fontSize: SIZES.large,
     fontWeight: '700',
     marginBottom: verticalScale(10),
     color: COLORS.black,
   },
-
-  /* ACCORDION */
   accordion: {
     borderWidth: 1,
     borderColor: COLORS.lightGray,
@@ -358,46 +336,38 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(10),
     backgroundColor: '#FAFBFD',
   },
-
   accordionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: scale(12),
+    padding: scale(14),
   },
-
   accordionTitle: {
     fontSize: SIZES.medium,
     fontWeight: '600',
     color: COLORS.black,
   },
-
   accordionBody: {
-    paddingHorizontal: scale(12),
-    paddingBottom: scale(12),
+    paddingHorizontal: scale(14),
+    paddingBottom: verticalScale(12),
   },
-
   bulletText: {
     fontSize: SIZES.medium,
-    color: COLORS.darkgray,
-    marginBottom: verticalScale(4),
+    color: COLORS.gray,
+    marginBottom: verticalScale(6),
   },
-
-  /* BOTTOM BUTTON */
   bottom: {
     padding: scale(16),
     borderTopWidth: 1,
     borderColor: COLORS.lightGray,
     backgroundColor: COLORS.white,
   },
-
   bookBtn: {
     backgroundColor: COLORS.primary,
     paddingVertical: verticalScale(14),
     borderRadius: scale(12),
     alignItems: 'center',
   },
-
   bookText: {
     color: COLORS.white,
     fontSize: SIZES.large,

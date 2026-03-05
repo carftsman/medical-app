@@ -12,78 +12,61 @@ import api from "../../../api/client";
 import { scale, verticalScale } from "../../../utils/styling";
 
 const SKELETON_COUNT = 4;
+const CARD_WIDTH = scale(260);
 
-const RecentlyViewedPackages = () => {
+const RecentlyBookingTests = () => {
+
   const userId = useSelector(state => state.auth?.user?.id);
 
-  const [recentPackages, setRecentPackages] = useState([]);
+  const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  /*GET RECENT */
+  const fetchPastBookings = async () => {
 
-  const fetchRecentPackages = async () => {
     try {
+
       setLoading(true);
 
-      const response = await api.get("/labs/recent-view", {
+      const response = await api.get("/labs/bookings/past", {
         params: { userId },
       });
 
-      const packages = response?.data?.recent || [];
+      const bookingsData = response?.data?.bookings || [];
 
-      const formatted = packages.map(item => ({
-        id: item.packageId?.toString(),
-        packageId: item.packageId,
-        labId: item.labId,
-        name: item.packageName,
-        labName: item.labName,
-        price: `₹${item.price}`,
-      }));
+      setBookings(bookingsData);
 
-      setRecentPackages(formatted);
     } catch (error) {
+
       console.log(
-        "GET Recent Error:",
+        "Past Booking Error:",
         error?.response?.data || error.message
       );
-      setRecentPackages([]);
+
+      setBookings([]);
+
     } finally {
+
       setLoading(false);
+
     }
+
   };
+
   useFocusEffect(
     useCallback(() => {
+
       if (userId) {
-        fetchRecentPackages();
+        fetchPastBookings();
       }
+
     }, [userId])
   );
 
-  /* POST SAVE */
-
-  const saveRecentView = async (packageId, labId) => {
-    try {
-      await api.post("/labs/recent-view", {
-        userId,
-        labId,
-        packageId,
-      });
-
-      console.log("Saved recent view");
-    } catch (error) {
-      console.log(
-        "POST Recent Error:",
-        error?.response?.data || error.message
-      );
-    }
-  };
-
-  /*UI */
-
   return (
     <View style={styles.container}>
+
       <Text style={styles.heading}>
-        Recently Viewed Packages
+        Recently Booking Tests
       </Text>
 
       <ScrollView
@@ -91,61 +74,76 @@ const RecentlyViewedPackages = () => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
       >
+
         {loading ? (
+
           Array.from({ length: SKELETON_COUNT }).map((_, index) => (
-            <View style={[styles.card, styles.skeletonCard]} key={index}>
+            <View
+              key={index}
+              style={[styles.card, styles.skeletonCard]}
+            >
               <View style={styles.skeletonIcon} />
+
               <View style={styles.skeletonTextContainer}>
                 <View style={styles.skeletonLineShort} />
                 <View style={styles.skeletonLineLong} />
               </View>
-              <View style={styles.skeletonPrice} />
             </View>
           ))
-        ) : recentPackages.length === 0 ? (
+
+        ) : bookings.length === 0 ? (
+
           <Text style={styles.noDataText}>
-            No recent packages found
+            No past bookings found
           </Text>
+
         ) : (
-          recentPackages.map(item => (
+
+          bookings.map(item => (
+
             <TouchableOpacity
-              key={item.id}
+              key={item.bookingId}
               style={styles.card}
-              activeOpacity={0.8}
-              onPress={() =>
-                saveRecentView(item.packageId, item.labId)
-              }
+              activeOpacity={0.85}
             >
+
               <View style={styles.iconBox} />
 
               <View style={styles.info}>
-                <Text style={styles.name} numberOfLines={1}>
-                  {item.name}
-                </Text>
-                <Text style={styles.type}>
+
+                <Text style={styles.labName}>
                   {item.labName}
                 </Text>
+
+                <Text style={styles.tests} numberOfLines={2}>
+                  {item.tests.join(", ")}
+                </Text>
+
+                <Text style={styles.date}>
+                  {item.date}
+                </Text>
+
               </View>
 
-              <Text style={styles.price}>
-                {item.price}
-              </Text>
             </TouchableOpacity>
+
           ))
+
         )}
+
       </ScrollView>
+
     </View>
   );
 };
 
-export default RecentlyViewedPackages;
-
-/*  STYLES */
+export default RecentlyBookingTests;
 
 const styles = StyleSheet.create({
+
   container: {
     marginTop: verticalScale(22),
-    paddingBottom: verticalScale(6),
+    paddingBottom: verticalScale(10), 
   },
 
   heading: {
@@ -158,23 +156,21 @@ const styles = StyleSheet.create({
 
   listContent: {
     paddingLeft: scale(16),
-    paddingRight: scale(8),
+    paddingRight: scale(24),
+    paddingBottom: verticalScale(6), 
   },
 
   card: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
-    borderRadius: scale(18),
+    borderRadius: scale(16),
     paddingVertical: scale(14),
     paddingHorizontal: scale(16),
     marginRight: scale(14),
-    minWidth: scale(240),
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 4,
+    marginBottom: verticalScale(4), 
+    width: CARD_WIDTH,
+    elevation: 3,
   },
 
   iconBox: {
@@ -189,22 +185,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  name: {
-    fontSize: scale(13),
+  labName: {
+    fontSize: scale(14),
     fontWeight: "700",
     color: "#222",
   },
 
-  type: {
+  tests: {
     fontSize: scale(11),
     color: "#777",
     marginTop: verticalScale(4),
+    lineHeight: 16,
   },
 
-  price: {
-    fontSize: scale(14),
-    fontWeight: "800",
+  date: {
+    fontSize: scale(11),
     color: "#056FD2",
+    marginTop: verticalScale(4),
+    fontWeight: "600",
   },
 
   noDataText: {
@@ -213,10 +211,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(16),
   },
 
-  /* Skeleton */
-
   skeletonCard: {
     backgroundColor: "#F4F6F8",
+    width: CARD_WIDTH,
   },
 
   skeletonIcon: {
@@ -240,16 +237,11 @@ const styles = StyleSheet.create({
   },
 
   skeletonLineLong: {
-    width: scale(140),
+    width: scale(150),
     height: scale(10),
     backgroundColor: "#E5E7EB",
     borderRadius: scale(6),
   },
 
-  skeletonPrice: {
-    width: scale(50),
-    height: scale(14),
-    backgroundColor: "#E5E7EB",
-    borderRadius: scale(6),
-  },
 });
+

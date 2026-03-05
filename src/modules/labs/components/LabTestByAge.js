@@ -8,50 +8,57 @@ import {
   Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import api from "../../../api/client";
 import { scale, verticalScale } from "../../../utils/styling";
 
 /* AGE GROUPS */
 const AGE_GROUPS = [
   {
     label: "10–20",
-    age: 15,
+    minAge: 10,
+    maxAge: 20,
     image: require("../../../../assets/10-20.png"),
   },
   {
     label: "20–40",
-    age: 30,
+    minAge: 20,
+    maxAge: 40,
     image: require("../../../../assets/20-40.png"),
   },
   {
     label: "40–60",
-    age: 50,
+    minAge: 40,
+    maxAge: 60,
     image: require("../../../../assets/40-60.png"),
   },
   {
     label: "60+",
-    age: 65,
+    minAge: 60,
+    maxAge: 100,
     image: require("../../../../assets/60+.png"),
   },
 ];
 
-/* COMPONENT */
 const LabTestByAge = ({ labId }) => {
   const navigation = useNavigation();
 
-  const onAgePress = async (age) => {
+  const onAgePress = (minAge, maxAge) => {
+    if (!labId) {
+      console.log("Lab ID missing");
+      return;
+    }
+
     navigation.navigate("PackagesScreen", {
       labId,
-      selectedAge: age,
+      minAge,
+      maxAge,
     });
-   
   };
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
       activeOpacity={0.85}
-      onPress={() => onAgePress(item.age)}
+      onPress={() => onAgePress(item.minAge, item.maxAge)}
     >
       <View style={styles.imageWrapper}>
         <Image source={item.image} style={styles.image} />
@@ -79,6 +86,7 @@ const LabTestByAge = ({ labId }) => {
 export default LabTestByAge;
 
 /* STYLES */
+
 const styles = StyleSheet.create({
   container: {
     marginTop: verticalScale(22),
