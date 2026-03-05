@@ -9,7 +9,7 @@ import { toggleFavourite } from '../../../redux/slices/favouritesSlice';
 
 
 const DoctorCard = ({ doctor }) => {
-  
+
   if (!doctor) return null;
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -17,84 +17,84 @@ const DoctorCard = ({ doctor }) => {
   const favourites = useSelector(state => state.favourites.items);
   const isFavourite = favourites.some(d => d.id === doctor.id);
 
-  
-  const {
-  imageUrl,
-  doctorName,
-  specialization,
-  rating,
-  hospitalName,
-  experience,
-  fee,
-  availableDate,
-  availableTime,
-  
-} = doctor;
-  
 
-  
+  const {
+    imageUrl,
+    doctorName,
+    specialization,
+    rating,
+    hospitalName,
+    experience,
+    fee,
+    availableDate,
+    availableTime,
+
+  } = doctor;
+
+
+
   return (
     <View style={styles.card}>
-      {/* ❤️ Favourite */}
+      {/* Favourite */}
       <TouchableOpacity
-  style={styles.favBtn}
-  onPress={() => dispatch(toggleFavourite(doctor))}
->
-  <Icon
-    name={isFavourite ? "heart" : "heart-outline"}
-    size={scale(28)}
-    color={isFavourite ? "red" : COLORS.gray}
-  />
-</TouchableOpacity>
+        style={styles.favBtn}
+        onPress={() => dispatch(toggleFavourite(doctor))}
+      >
+        <Icon
+          name={isFavourite ? "heart" : "heart-outline"}
+          size={scale(28)}
+          color={isFavourite ? "red" : COLORS.gray}
+        />
+      </TouchableOpacity>
 
       <TouchableOpacity
-  style={styles.cardContainer}
-  activeOpacity={0.8}
-  onPress={() => navigation.navigate('DoctorDetails', { doctorId: doctor.id })}
+        style={styles.cardContainer}
+        activeOpacity={0.8}
+        onPress={() => navigation.navigate('DoctorDetails', { doctorId: doctor.id })}
 
->
-  {/* Top Row */}
-  <View style={styles.topRow}>
-    <Image source={{ uri: imageUrl }} style={styles.image} />
+      >
+        {/* Top Row */}
+        <View style={styles.topRow}>
+          <Image source={{ uri: imageUrl }} style={styles.image} />
 
-    <View style={styles.topContent}>
-      <View style={styles.nameRow}>
-        <Text style={styles.name}>{doctorName} </Text>
+          <View style={styles.topContent}>
+            <View style={styles.nameRow}>
+              <Text style={styles.name}>{doctorName} </Text>
 
-        <View style={styles.rating}>
-          <Icon name="star" size={scale(14)} color="#FFC107" />
-          <Text style={styles.ratingText}>{String(rating)}</Text>
+              <View style={styles.rating}>
+                <Icon name="star" size={scale(14)} color="#FFC107" />
+                <Text style={styles.ratingText}>{String(rating)}</Text>
+              </View>
+            </View>
+
+            <Text style={styles.specialization}>
+              {specialization} |
+              <Text style={styles.hospital}> {hospitalName}</Text>
+            </Text>
+          </View>
         </View>
-      </View>
 
-      <Text style={styles.specialization}>
-        {specialization} | 
-        <Text style={styles.hospital}> {hospitalName}</Text>
-      </Text>
-    </View>
-  </View>
+        {/* Divider */}
+        <View style={styles.divider} />
 
-  {/* Divider */}
-  <View style={styles.divider} />
+        {/* Info Row */}
+        <View style={styles.infoRow}>
+          <View style={styles.infoBox}>
+            <Text style={styles.infoLabel}>Experience</Text>
+            <Text style={styles.infoValue}>{experience} years +</Text>
+          </View>
 
-  {/* Info Row */}
-  <View style={styles.infoRow}>
-    <View style={styles.infoBox}>
-      <Text style={styles.infoLabel}>Experience</Text>
-      <Text style={styles.infoValue}>{experience} years +</Text>
-    </View>
+          <View style={styles.infoBox}>
+            <Text style={styles.infoLabel}>Fee</Text>
+            <Text style={styles.infoValue}>₹{fee}/-</Text>
+          </View>
 
-    <View style={styles.infoBox}>
-      <Text style={styles.infoLabel}>Fee</Text>
-      <Text style={styles.infoValue}>₹{fee}/-</Text>
-    </View>
-
-    <View style={styles.infoBox}>
-      <Text style={styles.infoLabel}>Available @ {availableDate}</Text>
-      <Text style={styles.infoValue}>{availableTime}</Text>
-    </View>
-  </View>
-</TouchableOpacity>
+          <View style={styles.infoBox}>
+            <Text style={styles.infoLabel}>Available @ {availableDate}</Text>
+            <Text style={styles.infoValue}>{availableTime}</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
 
 
       {/* Book Button */}
@@ -121,13 +121,13 @@ const styles = StyleSheet.create({
     borderColor: COLORS.lightGray,
   },
 
-cardContainer: {
-  backgroundColor: '#fff',
-  borderRadius: scale(12),
-  marginBottom: scale(-4),
-  padding: scale(1),
-  elevation: 2,
-},
+  cardContainer: {
+    backgroundColor: '#fff',
+    borderRadius: scale(12),
+    marginBottom: scale(-4),
+    padding: scale(1),
+    elevation: 2,
+  },
 
   favBtn: {
     position: 'absolute',
