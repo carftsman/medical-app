@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -8,70 +8,85 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import api from '../../../api/client';
-import { useRoute } from '@react-navigation/native';
+  StatusBar,
+} from "react-native";
+import Icon from "react-native-vector-icons/Ionicons";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import api from "../../../api/client";
+import LabFiltersModal from "../components/LabFiltersModal";
 
-const LabsListScreen = () => {
+const LabsScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-
   const categoryId = route?.params?.categoryId;
 
-  // ✅ ADDED
-  const uploadedFiles = route?.params?.files || [];
-  const isUploadFlow = route?.params?.isUploadFlow || false;
+  const flatListRef = useRef(null);
 
   const [labs, setLabs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
 
-  const fetchNearbyLabs = async () => {
+  const [sortBy, setSortBy] = useState("distance");
+  const [radius, setRadius] = useState(null);
+  const [minRating, setMinRating] = useState(null);
+  const [minFee, setMinFee] = useState(null);
+  const [maxFee, setMaxFee] = useState(null);
+
+  const [showFilter, setShowFilter] = useState(false);
+
+  const fetchLabs = async () => {
     try {
       setLoading(true);
 
-      const response = await api.get('/labs/nearby', {
+      const response = await api.get("/labs/nearby", {
         params: {
           latitude: 17.4401,
           longitude: 78.3489,
-          radius: 8,
-          sortBy: 'distance',
-          minRating: 3,
-          maxRating: 5,
+          search: search || undefined,
+          sortBy,
+          radius: radius ?? undefined,
+          minRating: minRating ?? undefined,
+          minFee: minFee ?? undefined,
+          maxFee: maxFee ?? undefined,
           page: 1,
           limit: 10,
-          categoryId: categoryId,
+          categoryId,
         },
       });
 
       setLabs(response?.data?.labs || []);
     } catch (error) {
-      console.log('API ERROR:', error?.response?.data || error.message);
+      console.log("ERROR:", error?.response?.data || error.message);
+      setLabs([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchNearbyLabs();
-  }, []);
+    const delay = setTimeout(() => {
+      fetchLabs();
+    }, 400);
+
+    return () => clearTimeout(delay);
+  }, [categoryId, search, sortBy, radius, minRating, minFee, maxFee]);
 
   const renderStars = (rating = 0) => {
+    const numericRating = Number(rating) || 0;
+
     return (
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        {[1, 2, 3, 4, 5].map(star => (
+      <View style={styles.starRow}>
+        {[1, 2, 3, 4, 5].map((i) => (
           <Icon
-            key={star}
-            name={star <= rating ? 'star' : 'star-outline'}
-            size={16}
+            key={i}
+            name={i <= Math.floor(numericRating) ? "star" : "star-outline"}
+            size={14}
             color="#FFA500"
           />
         ))}
         <Text style={styles.reviewText}>
-          {' '}
-          ({rating ? rating.toFixed(1) : 0})
+          {" "}
+          ({numericRating.toFixed(1)})
         </Text>
       </View>
     );
@@ -79,209 +94,251 @@ const LabsListScreen = () => {
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
-      <View style={styles.topRow}>
+      <View style={styles.cardRow}>
         <Image
           source={{
-            uri:
-              item.image ||
-              'https://content3.jdmagicbox.com/v2/comp/hyderabad/v3/040pxx40.xx40.160331113748.z9v3/catalogue/apollo-diagnostics-hyderabad-0bhdew3qqm.jpg',
+            uri: item.imageUrl || "https://via.placeholder.com/100",
           }}
           style={styles.labImage}
         />
 
-        <View style={styles.labInfo}>
-          <Text style={styles.labName}>{item.name}</Text>
-
-          {renderStars(Math.round(item.rating || 0))}
+        <View style={styles.cardContent}>
+          <Text style={styles.name}>{item.name}</Text>
+          {renderStars(item.rating)}
 
           <View style={styles.locationRow}>
-            <Icon name="location-outline" size={14} color="gray" />
-            <Text style={styles.city}> {item.city || 'Unknown City'}</Text>
-            <Text style={styles.openStatus}>
-              {'  '}• {item.isOpen ? 'Open Now' : 'Closed'}
+            <Icon name="location-outline" size={13} color="#777" />
+            <Text style={styles.city}> {item.city}</Text>
+            <Text
+              style={[
+                styles.open,
+                { color: item.isOpen ? "#1BB55C" : "#E53935" },
+              ]}
+            >
+              {" "}• {item.isOpen ? "Open Now" : "Closed"}
             </Text>
           </View>
+
+          <Text style={styles.distance}>
+            {Number(item.distance)?.toFixed(2)} km away
+          </Text>
+
+          <Text style={styles.fee}>
+            Starting from ₹{item?.startingFee ?? 0}
+          </Text>
         </View>
       </View>
 
- {/* ✅ PASS SELECTED LAB PROPERLY */}
       <TouchableOpacity
-        style={styles.button}
+        style={styles.viewBtn}
         onPress={() =>
-          navigation.navigate('LabDetails', {
+          navigation.navigate("LabDetails", {
             labId: item.id,
-            categoryId: categoryId,
-            files: uploadedFiles,
-            isUploadFlow: isUploadFlow,
-            selectedLab: {
-              id: item.id,
-              name: item.name,
-              city: item.city,
-              address: item.address,
-              location: item.location,
-            },
+            categoryId,
           })
         }
       >
-        <Text style={styles.buttonText}>View Details</Text>
+        <Text style={styles.viewText}>View Details</Text>
       </TouchableOpacity>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+      <StatusBar barStyle="dark-content" />
+
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-back" size={24} />
+          <Icon name="arrow-back" size={22} color="#333" />
         </TouchableOpacity>
-
         <Text style={styles.headerTitle}>Laboratory</Text>
-
-        <Icon name="cart-outline" size={24} />
+        <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
+          <Icon name="cart-outline" size={22} color="#333" />
+        </TouchableOpacity>
       </View>
 
-      {/* Search Bar */}
       <View style={styles.searchRow}>
-        <View style={styles.searchContainer}>
-          <Icon name="search-outline" size={18} color="gray" />
+        <View style={styles.searchBox}>
+          <Icon name="search-outline" size={18} color="#888" />
           <TextInput
-            placeholder="Search for labs, Packages"
+            placeholder="Search for labs or city"
+            placeholderTextColor="#999"
             style={styles.searchInput}
+            value={search}
+            onChangeText={setSearch}
           />
-          <Icon name="mic-outline" size={18} color="gray" />
         </View>
 
-        <TouchableOpacity style={styles.filterBtn}>
-          <Icon name="options-outline" size={20} />
+        <TouchableOpacity
+          style={styles.filterBtn}
+          onPress={() => setShowFilter(true)}
+        >
+          <Icon name="options-outline" size={20} color="#333" />
         </TouchableOpacity>
       </View>
 
       {loading ? (
         <ActivityIndicator size="large" color="#1E88E5" />
+      ) : labs.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>No Labs Found</Text>
+        </View>
       ) : (
         <FlatList
+          ref={flatListRef}
           data={labs}
-          keyExtractor={(item, index) =>
-            item.id?.toString() || index.toString()
-          }
+          keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 40 }}
         />
       )}
+
+      <LabFiltersModal
+        visible={showFilter}
+        onClose={() => setShowFilter(false)}
+        onApply={(filters) => {
+          if (filters.sortBy !== undefined) setSortBy(filters.sortBy);
+          if (filters.radius !== undefined) setRadius(filters.radius);
+          if (filters.minRating !== undefined) setMinRating(filters.minRating);
+          if (filters.minFee !== undefined) setMinFee(filters.minFee);
+          if (filters.maxFee !== undefined) setMaxFee(filters.maxFee);
+
+          flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+          setShowFilter(false);
+        }}
+      />
     </View>
   );
 };
 
-export default LabsListScreen;
+export default LabsScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
-    paddingHorizontal: 15,
+    backgroundColor: "#F4F6FA",
+    paddingHorizontal: 16,
   },
-
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginVertical: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingTop: 15,
+    paddingBottom: 20,
   },
-
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-
-  searchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-
-  searchContainer: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginLeft: 16,
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    height: 45,
-    marginRight: 10,
+    color: "#222",
   },
-
+  searchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 18,
+  },
+  searchBox: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    height: 48,
+    elevation: 3,
+  },
   searchInput: {
     flex: 1,
-    marginHorizontal: 8,
+    marginLeft: 8,
+    fontSize: 14,
   },
-
   filterBtn: {
-    backgroundColor: '#fff',
-    padding: 12,
-    borderRadius: 12,
+    marginLeft: 12,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    height: 48,
+    width: 48,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 3,
   },
-
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 15,
-    padding: 12,
-    marginBottom: 15,
-    elevation: 2,
+    backgroundColor: "#fff",
+    borderRadius: 18,
+    padding: 14,
+    marginBottom: 18,
+    elevation: 4,
   },
-
-  topRow: {
-    flexDirection: 'row',
-  },
-
-  labImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
-    marginRight: 10,
-  },
-
-  labInfo: {
-    flex: 1,
-  },
-
-  labName: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-
-  reviewText: {
-    fontSize: 13,
-    color: 'gray',
-  },
-
+  cardRow: { 
+    flexDirection: "row"
+   },
+  labImage: { 
+    width: 85, 
+    height: 110, 
+    borderRadius: 16
+   },
+  cardContent: { 
+    flex: 1, 
+    marginLeft: 14
+   },
+  name: { 
+    fontSize: 16, 
+    fontWeight: "700",
+    color: "#222"
+   },
+  starRow: { 
+    flexDirection: "row",
+    alignItems: "center"
+   },
+  reviewText: { 
+    fontSize: 12, 
+    color: "#777"
+   },
   locationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 4,
   },
-
-  city: {
+  city: { 
+    fontSize: 12,
+    color: "#777"
+   },
+  open: {
+     fontSize: 12
+     },
+  distance: {
+    fontSize: 12,
+    color: "#888",
+    marginTop: 4,
+  },
+  fee: {
     fontSize: 13,
-    color: 'gray',
+    fontWeight: "700",
+    marginTop: 6,
+    color: "#1E88E5",
   },
-
-  openStatus: {
-    fontSize: 13,
-    color: 'green',
+  viewBtn: {
+    backgroundColor: "#1E88E5",
+    marginTop: 14,
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: "center",
   },
-
-  button: {
-    backgroundColor: '#1E88E5',
-    marginTop: 12,
-    paddingVertical: 10,
-    borderRadius: 10,
-    alignItems: 'center',
+  viewText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 14,
   },
-
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600',
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 50,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#777",
+    fontWeight: "500",
   },
 });
