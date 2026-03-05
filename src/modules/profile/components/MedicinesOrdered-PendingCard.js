@@ -152,7 +152,8 @@ const styles = StyleSheet.create({
   rateBtn: {
     flex: 1,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor:COLORS.primary,
+    backgroundColor: COLORS.primary,
     paddingVertical: verticalScale(10),
     borderRadius: scale(8),
     alignItems: "center",
@@ -162,13 +163,14 @@ const styles = StyleSheet.create({
   rateText: {
     fontSize: scale(12),
     fontFamily: FONT.medium,
-    color: COLORS.black,
+    color: COLORS.white,
   },
 
   /* Cancel Button */
   cancelBtn: {
     flex: 1,
-    backgroundColor: COLORS.primary,
+    borderWidth:1,
+    borderBlockColor: COLORS.danger,
     paddingVertical: verticalScale(10),
     borderRadius: scale(8),
     alignItems: "center",
@@ -177,6 +179,6 @@ const styles = StyleSheet.create({
   cancelText: {
     fontSize: scale(12),
     fontFamily: FONT.semiBold,
-    color: COLORS.white,
+    color: COLORS.danger,
   },
 });
