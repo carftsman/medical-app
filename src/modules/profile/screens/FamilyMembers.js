@@ -1,36 +1,54 @@
 import { StyleSheet, Text, View, TouchableOpacity, FlatList, TextInput } from 'react-native'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, cache } from 'react'
 import FamilyDetailsCard from '../components/FamilyDetailsCard'
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { scale, verticalScale } from '../../../utils/styling'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-
+import api from '../../../api/client';
 
 const FamilyMembers = ({ navigation }) => {
 
   const [search, setSearch] = useState('');
-  const familyData = [
-    {
-      id: '1',
-      name: 'Ramesh Kumar',
-      relationship: 'Father',
-      age: 55,
-      gender: 'Male',
-      image: 'https://randomuser.me/api/portraits/men/1.jpg'
-    },
-    {
-      id: '2',
-      name: 'Sita Kumar',
-      relationship: 'Mother',
-      age: 50,
-      gender: 'Female',
-      image: 'https://randomuser.me/api/portraits/women/1.jpg'
-    }
-  ];
+  const [familyData, setFamilyData] = useState([]);
+  const [loading, setLoading] = useState(false)
+  const fetchFamilyMembers = async () => {
+    try {
+      setLoading(true);
 
+      const response = await api.get('/family-member');
+
+      console.log("Family Members:", response.data);
+
+      setFamilyData(response.data);
+
+    } catch (error) {
+      console.log("Fetch Error:", error.response?.data || error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+ 
+  const onDelete = async (id)=> {
+    try {
+      setLoading(true);
+      const response = await api.delete(`/family-member/${id}`);
+      console.log("delete", response.data);
+      fetchFamilyMembers();
+    } catch (error) {
+      console.log("err" , error);
+    }
+    finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchFamilyMembers();
+  }, []);
   const filteredData = familyData.filter(item =>
-    item.name.toLowerCase().includes(search.toLowerCase())
+    item.fullName.toLowerCase().includes(search?.toLowerCase())
   );
+
   return (
     <View style={styles.container}>
 
@@ -61,12 +79,18 @@ const FamilyMembers = ({ navigation }) => {
         renderItem={({ item }) => (
           <FamilyDetailsCard
             image={item.image}
-            name={item.name}
-            relationship={item.relationship}
+            name={item.fullName}
+            relationship={item.relation}
             age={item.age}
+            number={item.phone}
+            emailid={item.email}
             gender={item.gender}
-          // onEdit={() => console.log('Edit', item.name)}
-          // onDelete={() => console.log('Delete', item.name)}
+            onEdit={() =>
+              navigation.navigate("AddFamilyMembers", {
+                memberData: item,
+              })
+            }
+            onDelete={()=>onDelete(item.id)}
           />
         )}
         showsVerticalScrollIndicator={false}

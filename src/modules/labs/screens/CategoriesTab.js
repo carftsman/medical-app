@@ -12,20 +12,19 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { scale, verticalScale } from "../../../utils/styling";
 import api from "../../../api/client";
-
+ 
 const CategoriesScreen = () => {
   const navigation = useNavigation();
-
+ 
   const [sections, setSections] = useState([]);
   const [allSections, setAllSections] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-
+ 
   const toTitleCase = (text = "") => {
     return text
       .toLowerCase()
@@ -33,19 +32,19 @@ const CategoriesScreen = () => {
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
   };
-
+ 
   const fetchCategories = async () => {
     try {
       const response = await api.get("/labs/categories/all", {
         headers: { "Cache-Control": "no-cache" },
       });
-
+ 
       const apiData = response?.data?.sections || [];
-
+ 
       setSections(apiData);
       setAllSections(apiData);
       setRefreshKey(prev => prev + 1);
-
+ 
     } catch (error) {
       console.log("Category API Error:", error?.message);
     } finally {
@@ -53,31 +52,31 @@ const CategoriesScreen = () => {
       setRefreshing(false);
     }
   };
-
+ 
   useEffect(() => {
     fetchCategories();
   }, []);
-
+ 
   useFocusEffect(
     useCallback(() => {
       fetchCategories();
     }, [])
   );
-
+ 
   const onRefresh = () => {
     setRefreshing(true);
     setLoading(true);
     fetchCategories();
   };
-
+ 
   const handleSearch = (text) => {
     setSearch(text);
-
+ 
     if (!text.trim()) {
       setSections(allSections);
       return;
     }
-
+ 
     const filtered = allSections
       .map((section) => {
         const filteredCategories = section.categories.filter((cat) =>
@@ -86,17 +85,17 @@ const CategoriesScreen = () => {
         return { ...section, categories: filteredCategories };
       })
       .filter((section) => section.categories.length > 0);
-
+ 
     setSections(filtered);
   };
-
+ 
   const handleCategoryPress = (item) => {
     navigation.navigate("LabsScreen", {
       categoryId: item.id,
       categoryName: item.name,
     });
   };
-
+ 
   const renderCategory = ({ item }) => (
     <TouchableOpacity
       style={styles.categoryItem}
@@ -116,7 +115,7 @@ const CategoriesScreen = () => {
       </Text>
     </TouchableOpacity>
   );
-
+ 
   const renderSkeleton = () => (
     <View style={{ marginTop: verticalScale(10) }}>
       {[1, 2, 3].map((section) => (
@@ -161,17 +160,17 @@ const CategoriesScreen = () => {
       ))}
     </View>
   );
-
+ 
   return (
     <View style={styles.container}>
-
+ 
       <View style={styles.headerRow}>
         <Text style={styles.headerTitle}>Categories</Text>
         <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
           <Icon name="cart-outline" size={scale(22)} color="#000" />
         </TouchableOpacity>
       </View>
-
+ 
       <View style={styles.searchContainer}>
         <Icon name="search-outline" size={scale(18)} color="#7f8c8d" />
         <TextInput
@@ -183,7 +182,7 @@ const CategoriesScreen = () => {
         />
         <Icon name="mic-outline" size={scale(18)} color="#7f8c8d" />
       </View>
-
+ 
       {loading ? (
         renderSkeleton()
       ) : (
@@ -191,10 +190,10 @@ const CategoriesScreen = () => {
           style={{ flex: 1 }}
           contentContainerStyle={{
             paddingBottom: verticalScale(20),
-            flexGrow: 1,   
+            flexGrow: 1,
           }}
           showsVerticalScrollIndicator={false}
-          nestedScrollEnabled={true}  
+          nestedScrollEnabled={true}
           keyboardShouldPersistTaps="handled"
           refreshControl={
             <RefreshControl
@@ -207,7 +206,7 @@ const CategoriesScreen = () => {
           {sections.map((item) => {
             const isBloodAnalysis =
               toTitleCase(item.sectionTitle) === "Blood Analysis";
-
+ 
             return (
               <View
                 key={item.id?.toString() || item.sectionTitle}
@@ -219,7 +218,7 @@ const CategoriesScreen = () => {
                 <Text style={styles.sectionTitle}>
                   {toTitleCase(item.sectionTitle)}
                 </Text>
-
+ 
                 <FlatList
                   data={item.categories}
                   extraData={refreshKey}
@@ -237,7 +236,7 @@ const CategoriesScreen = () => {
     </View>
   );
 };
-
+ 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -245,25 +244,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(16),
     paddingTop: verticalScale(6),
   },
+ 
+ 
   headerRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: verticalScale(6),
+    paddingTop: verticalScale(12),
+    paddingBottom: verticalScale(18),
   },
+ 
   headerTitle: {
-    fontSize: scale(18),
-    fontWeight: "600",
+    fontSize: scale(20),
+    fontWeight: "700",
+    marginLeft: scale(13),
+    flex: 1,
     color: "#000",
   },
+ 
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#f2f2f2",
     borderRadius: scale(12),
     paddingHorizontal: scale(12),
-    height: verticalScale(44),
-    marginBottom: verticalScale(10),
+    height: verticalScale(45),
+    marginBottom: verticalScale(11),
   },
   searchInput: {
     flex: 1,
@@ -303,5 +308,5 @@ const styles = StyleSheet.create({
     color: "#555",
   },
 });
-
+ 
 export default CategoriesScreen;
