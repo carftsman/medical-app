@@ -32,7 +32,7 @@ import Backbtn from '../components/Backbtn';
 const DoctorDetails = ({ route, navigation }) => {
   const doctorId = route?.params?.doctorId || 1;
 
-  const { selectedDate, selectedTime } = useSelector(
+  const { selectedDate, selectedTime, mode } = useSelector(
     state => state.hospital.consultation,
   );
 
@@ -140,11 +140,15 @@ const DoctorDetails = ({ route, navigation }) => {
   };
 
   const bookAppointmentForSelf = async () => {
+    const payload = {
+      slotId: selectedTime.slotId,
+      bookingFor: 'SELF', 
+      reason: "",
+      consultationMode: mode,
+    };
+    console.log('Payload for booking: ', payload);
     try {
-      const response = await api.post(`/appointments/hold`, {
-        slotId: selectedTime.slotId,
-        bookingFor: 'SELF',
-      });
+      const response = await api.post(`/appointments/hold`, payload);
       console.log('appointment booking for self', response?.data);
       dispatch(setBookingId(response?.data?.bookingId));
       fetchTimeSlots();
@@ -258,11 +262,8 @@ const DoctorDetails = ({ route, navigation }) => {
           longitude={doctorDetails?.hospital?.longitude}
           distanceKm={doctorDetails?.hospital?.distanceKm}
           rating={doctorDetails?.hospital?.rating}
-          timings={doctorDetails?.hospital?.timings}
-          days={hospitalDetails?.availability?.days}
-          startTime={hospitalDetails?.availability?.startTime}
-          endTime={hospitalDetails?.availability?.endTime}
-          // distancekm={hospitalDetails?.distancekm}
+          monSatTiming={doctorDetails?.hospital?.monSatTiming}
+          sundayTiming={doctorDetails?.hospital?.sundayTiming}
         />
 
         <DoctorReviews data={reviews} reviewsLoading={reviewsLoading} />

@@ -16,7 +16,7 @@ const DoctList = ({
       {loading ? (
         <FlatList
           data={[1, 2, 3, 4, 5, 6]}
-          keyExtractor={(item, index) => index.toString()}
+          keyExtractor={(index) => index.toString()}
           renderItem={() => <DoctorSkeleton />}
 
         />

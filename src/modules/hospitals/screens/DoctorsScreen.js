@@ -59,7 +59,7 @@ const DoctorsScreen = () => {
             ? 1000
             : undefined,
 
-        distance: distance || 16, // Swagger expects "distance" not maxDistance
+        distance: distance || 16, 
 
         mode: selectedType || undefined,
 

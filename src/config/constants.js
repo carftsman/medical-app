@@ -22,6 +22,8 @@ export const COLORS = {
   teal: "#78dfff",
   blueshade: "#a791ce",
   verylightblue: "#c4eeee",
+  lightDanger:"#f48787",
+  yellow:"#ede79d",
 };
  
 export const FONT = {
