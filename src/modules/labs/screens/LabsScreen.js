@@ -18,7 +18,12 @@ import LabFiltersModal from "../components/LabFiltersModal";
 const LabsScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
+
   const categoryId = route?.params?.categoryId;
+
+  // ✅ RECEIVE UPLOAD FLOW PARAMS
+  const isUploadFlow = route?.params?.isUploadFlow ?? false;
+  const uploadedFiles = route?.params?.files ?? null;
 
   const flatListRef = useRef(null);
 
@@ -129,12 +134,15 @@ const LabsScreen = () => {
         </View>
       </View>
 
+      {/* FORWARD UPLOAD FLOW TO LAB DETAILS */}
       <TouchableOpacity
         style={styles.viewBtn}
         onPress={() =>
           navigation.navigate("LabDetails", {
             labId: item.id,
             categoryId,
+            isUploadFlow: isUploadFlow,
+            files: uploadedFiles,
           })
         }
       >
@@ -213,19 +221,21 @@ const LabsScreen = () => {
 };
 
 export default LabsScreen;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F4F6FA",
     paddingHorizontal: 16,
   },
+
+  /* HEADER */
   header: {
     flexDirection: "row",
     alignItems: "center",
     paddingTop: 15,
     paddingBottom: 20,
   },
+
   headerTitle: {
     fontSize: 20,
     fontWeight: "700",
@@ -233,11 +243,14 @@ const styles = StyleSheet.create({
     flex: 1,
     color: "#222",
   },
+
+  /* ================= SEARCH ================= */
   searchRow: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 18,
   },
+
   searchBox: {
     flex: 1,
     flexDirection: "row",
@@ -248,11 +261,14 @@ const styles = StyleSheet.create({
     height: 48,
     elevation: 3,
   },
+
   searchInput: {
     flex: 1,
     marginLeft: 8,
     fontSize: 14,
+    color: "#222",
   },
+
   filterBtn: {
     marginLeft: 12,
     backgroundColor: "#fff",
@@ -263,6 +279,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     elevation: 3,
   },
+
+  /*  CARD */
   card: {
     backgroundColor: "#fff",
     borderRadius: 18,
@@ -270,54 +288,70 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     elevation: 4,
   },
-  cardRow: { 
-    flexDirection: "row"
-   },
-  labImage: { 
-    width: 85, 
-    height: 110, 
-    borderRadius: 16
-   },
-  cardContent: { 
-    flex: 1, 
-    marginLeft: 14
-   },
-  name: { 
-    fontSize: 16, 
-    fontWeight: "700",
-    color: "#222"
-   },
-  starRow: { 
+
+  cardRow: {
     flexDirection: "row",
-    alignItems: "center"
-   },
-  reviewText: { 
-    fontSize: 12, 
-    color: "#777"
-   },
+  },
+
+  labImage: {
+    width: 85,
+    height: 110,
+    borderRadius: 16,
+  },
+
+  cardContent: {
+    flex: 1,
+    marginLeft: 14,
+  },
+
+  name: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#222",
+  },
+
+  /* RATING  */
+  starRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 4,
+  },
+
+  reviewText: {
+    fontSize: 12,
+    color: "#777",
+  },
+
+  /* ================= LOCATION ================= */
   locationRow: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 4,
   },
-  city: { 
+
+  city: {
     fontSize: 12,
-    color: "#777"
-   },
+    color: "#777",
+  },
+
   open: {
-     fontSize: 12
-     },
+    fontSize: 12,
+  },
+
   distance: {
     fontSize: 12,
     color: "#888",
     marginTop: 4,
   },
+
   fee: {
     fontSize: 13,
     fontWeight: "700",
     marginTop: 6,
     color: "#1E88E5",
   },
+
+  /* ================= BUTTON ================= */
   viewBtn: {
     backgroundColor: "#1E88E5",
     marginTop: 14,
@@ -325,17 +359,21 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
   },
+
   viewText: {
     color: "#fff",
     fontWeight: "600",
     fontSize: 14,
   },
+
+  /* ================= EMPTY ================= */
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 50,
   },
+
   emptyText: {
     fontSize: 16,
     color: "#777",
