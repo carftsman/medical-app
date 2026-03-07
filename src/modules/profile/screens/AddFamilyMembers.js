@@ -24,8 +24,8 @@ const AddFamilyMembers = ({ navigation, route }) => {
   const [photoModalVisible, setPhotoModalVisible] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const [errors, setErrors] = useState({});
-  const options = ['Male', 'Female', 'Other'];
-  const relation = ['Mother', 'Father', 'Brother', 'Sister', 'Daughter', 'Son', 'GrandMother', 'GrandFather', 'Other']
+  const options = ['MALE', 'FEMALE', 'OTHER'];
+  const relation = ['MOTHER', 'FATHER', 'BROTHER', 'SISTER', 'DAUGHTER', 'SON', 'GRANDMOTHER', 'GRANDFATHER', 'HUSBAND', 'WIFE','SELF', 'COUSIN', 'FRIEND', 'GRANDSON','GRANDDAUGHTER','OTHERS']
 
   const validateField = (field, value) => {
 
@@ -123,11 +123,18 @@ const AddFamilyMembers = ({ navigation, route }) => {
   }, [memberData]);
   return (
     <KeyboardAvoidingView
-       style={styles.container}
-       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-       keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
+  style={{ flex: 1 , backgroundColor: "#ffff"}}
+  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
+>
+  <View style={{ flex: 1 }}>
+
+    <ScrollView
+      contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+        keyboardDismissMode="on-drag"
     >
-      <View>
         <View style={styles.screenHeader}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -280,20 +287,23 @@ const AddFamilyMembers = ({ navigation, route }) => {
             </View>
           )}
         </View>
+        <View style={{ height: verticalScale(120)}} />
+      </ScrollView>
 
-
-        <TouchableOpacity
-          onPress={handleSubmit}
-          style={[
-            styles.btn,
-            { opacity: isFormValid ? 1 : 0.5 }
-          ]}
-          disabled={!isFormValid}
-        >
-          <Text style={styles.book}>
-            {isEditMode ? "Update" : "Add"}
-          </Text>
-        </TouchableOpacity>
+<View style={styles.bottomButtonContainer}>
+  <TouchableOpacity
+    onPress={handleSubmit}
+    style={[
+      styles.btn,
+      { opacity: isFormValid ? 1 : 0.5 }
+    ]}
+    disabled={!isFormValid}
+  >
+    <Text style={styles.book}>
+      {isEditMode ? "Update" : "Add"}
+    </Text>
+  </TouchableOpacity>
+</View>
       </View>
      
     </KeyboardAvoidingView>
@@ -305,8 +315,8 @@ export default AddFamilyMembers
 const styles = StyleSheet.create({
   container: {
     padding: scale(10),
-    backgroundColor: '#ffffff',
-    flex: 1
+    backgroundColor: '#fff',
+    // flex: 1
   },
   screenHeader: {
     flexDirection: 'row',
@@ -349,7 +359,7 @@ const styles = StyleSheet.create({
     fontStyle: 'normal'
   },
   title: {
-    fontSize: scale(20),
+    fontSize: scale(22),
     fontWeight: '600',
     color: "#525252",
     marginTop: verticalScale(10),
@@ -360,9 +370,10 @@ const styles = StyleSheet.create({
     borderWidth: scale(1),
     borderColor: "#A4A4A4",
     marginTop: scale(10),
-    paddingHorizontal: scale(10),
+    paddingHorizontal: scale(15),
     paddingVertical: verticalScale(10),
-    marginRight: scale(10)
+    marginRight: scale(10),
+    fontSize: scale(16)
   },
   dropdownHeader: {
     flexDirection: 'row',
@@ -370,8 +381,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#A4A4A4',
-    paddingHorizontal: scale(10),
-    paddingVertical: verticalScale(10),
+    paddingHorizontal: scale(15),
+    paddingVertical: verticalScale(15),
     borderRadius: scale(8),
     marginTop: verticalScale(10),
     marginRight: scale(10)
@@ -381,6 +392,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     marginTop: verticalScale(5),
     borderRadius: 10,
+   
   },
   option: {
     padding: scale(8),
@@ -394,8 +406,8 @@ const styles = StyleSheet.create({
     borderRadius: scale(10),
     backgroundColor: '#056FD2',
     marginHorizontal: scale(10),
-    marginBottom: verticalScale(30),
-    marginTop: verticalScale(90),
+    // marginBottom: verticalScale(30),
+    // marginTop: verticalScale(90),
     // padding: scale(20)
   },
   book: {
@@ -405,4 +417,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '600',
   },
+  bottomButtonContainer: {
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  right: 0,
+  paddingHorizontal: scale(12),
+  backgroundColor: "#fff",
+  borderTopWidth: 1,
+  borderColor: "#ffff"
+},
 })
