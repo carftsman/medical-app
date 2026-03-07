@@ -1,124 +1,175 @@
-import api from './client';
-const cleanParams = obj =>
+import api from "./client";
+
+/* REMOVE EMPTY PARAMS */
+
+const cleanParams = (obj) =>
   Object.fromEntries(
     Object.entries(obj).filter(
-      ([, v]) => v !== undefined && v !== null && v !== ''
+      ([, v]) => v !== undefined && v !== null && v !== ""
     )
   );
 
-/* API */
-
 export const hospitalApi = {
 
-  /* NEARBY HOSPITALS */
-  getNearbyHospitals: ({
+  /* GET ALL / NEARBY HOSPITALS */
+
+  getNearbyHospitals: async ({
     latitude,
     longitude,
     radius = 15,
+    sort = "distance",
+    mode = "BOTH",
+    state,
+    city,
+    openNow,
+    open24x7,
+    women = false,
     page = 1,
-    limit = 20,
+    limit = 100   
   }) => {
-    return api.get('/hospital/user/hospitals/nearby', {
-      params: cleanParams({
-        latitude,
-        longitude,
-        radius,
-        page,
-        limit,
-      }),
-    });
+
+    try {
+
+      const res = await api.get("/hospital/user/hospitals/nearby", {
+        params: cleanParams({
+          latitude,
+          longitude,
+          radius,
+          sort,
+          mode,
+          state,
+          city,
+          openNow,
+          open24x7,
+          women,
+          page,
+          limit
+        })
+      });
+
+      return res;
+
+    } catch (error) {
+
+      console.log("Nearby hospitals error:", error);
+
+      return {
+        data: {
+          data: []
+        }
+      };
+
+    }
+
   },
 
-  /*  GET HOSPITALS  */
-  getHospitalsByMode: async ({
+
+  /* FILTER HOSPITALS */
+
+  filterHospitals: async ({
     latitude,
     longitude,
-    radius = 15,
-    page = 1,
-    limit = 20,
+    radius,
+    sort = "distance",
+    mode = "BOTH",
+    state,
+    city,
+    openNow,
+    open24x7,
+    
   }) => {
-    const res = await hospitalApi.getNearbyHospitals({
-      latitude,
-      longitude,
-      radius,
-      page,
-      limit,
-    });
 
-    const hospitals =
-      res?.data?.data ||
-      res?.data?.hospitals ||
-      res?.data?.results ||
-      [];
+    try {
 
-    return {
-      data: {
-        data: Array.isArray(hospitals) ? hospitals : [],
-      },
-    };
+      const res = await api.get("/hospital/user/hospitals/nearby", {
+        params: cleanParams({
+          latitude,
+          longitude,
+          radius,
+          sort,
+          mode,
+          state,
+          city,
+          openNow,
+          open24x7,
+         
+        })
+      });
+
+      return res;
+
+    } catch (error) {
+
+      console.log("Filter hospitals error:", error);
+
+      return {
+        data: {
+          data: []
+        }
+      };
+
+    }
+
   },
 
-  /* FILTER  */
-  getFilteredNearbyHospitals: params => {
-    const cleanedParams = cleanParams({
-      latitude: params.latitude,
-      longitude: params.longitude,
-      radius: params.radius,
-      categoryIds:
-        params.categoryIds?.length > 0
-          ? params.categoryIds.join(',')
-          : undefined,
-      openNow: params.openNow,
-      open24x7: params.open24x7,
-      page: params.page || 1,
-      limit: params.limit || 20,
-    });
 
-    return api.get('/hospital/user/hospitals/nearby', {
-      params: cleanedParams,
-    });
-  },
+  /* SEARCH HOSPITAL */
 
-  /* SEARCH  */
   searchHospitals: async ({
     query,
     page = 1,
-    limit = 20,
+    limit = 100
   }) => {
-    if (!query || query.trim().length === 0) {
-      return { data: { data: [] } };
+
+    try {
+
+      const searchText = query?.trim();
+
+      if (!searchText) {
+
+        return {
+          data: {
+            data: []
+          }
+        };
+
+      }
+
+      const res = await api.get("/hospital/user/modeSearch", {
+        params: cleanParams({
+          q: searchText,
+          type: "hospital",
+          page,
+          limit
+        })
+      });
+
+      const hospitals =
+        res?.data?.data ||
+        res?.data?.hospitals ||
+        res?.data?.results ||
+        [];
+
+      return {
+        data: {
+          data: Array.isArray(hospitals) ? hospitals : []
+        }
+      };
+
+    } catch (error) {
+
+      console.log("Search hospitals error:", error);
+
+      return {
+        data: {
+          data: []
+        }
+      };
+
     }
 
-    const res = await api.get('/hospital/user/modeSearch', {
-      params: cleanParams({
-        q: query,
-        type: 'hospital',
-        page,
-        limit,
-      }),
-    });
+  }
 
-    const hospitals =
-      res?.data?.data ||
-      res?.data?.hospitals ||
-      res?.data?.results ||
-      [];
-
-    return {
-      data: {
-        data: Array.isArray(hospitals) ? hospitals : [],
-      },
-    };
-  },
-
-  /* CATEGORIES */
-  getCategories: () => {
-    return api.get('/hospital/user/categories', {
-      params: {
-        limit: 50,
-      },
-    });
-  },
 };
 
 export default hospitalApi;

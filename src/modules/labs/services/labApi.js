@@ -93,5 +93,11 @@ export const labApi = {
         userId,
       },
     });
+    
   },
+  getPackagesByAge: age => {
+  return api.get(`/labs/packages/by-age`, {
+    params: { age },
+  });
+},
 };
