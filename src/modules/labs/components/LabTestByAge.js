@@ -11,46 +11,44 @@ import { useNavigation } from "@react-navigation/native";
 import { scale, verticalScale } from "../../../utils/styling";
 
 /* AGE GROUPS */
+
 const AGE_GROUPS = [
   {
     label: "10–20",
-    minAge: 10,
-    maxAge: 20,
+    age: 20,
+    ageGroupTitle: "10-20 Age Group Packages",
     image: require("../../../../assets/10-20.png"),
   },
   {
     label: "20–40",
-    minAge: 20,
-    maxAge: 40,
+    age: 30,
+    ageGroupTitle: "20-40 Age Group Packages",
     image: require("../../../../assets/20-40.png"),
   },
   {
     label: "40–60",
-    minAge: 40,
-    maxAge: 60,
+    age: 50,
+    ageGroupTitle: "40-60 Age Group Packages",
     image: require("../../../../assets/40-60.png"),
   },
   {
     label: "60+",
-    minAge: 60,
-    maxAge: 100,
+    age: 65,
+    ageGroupTitle: "60+ Age Group Packages",
     image: require("../../../../assets/60+.png"),
   },
 ];
 
+/* COMPONENT */
+
 const LabTestByAge = ({ labId }) => {
   const navigation = useNavigation();
 
-  const onAgePress = (minAge, maxAge) => {
-    if (!labId) {
-      console.log("Lab ID missing");
-      return;
-    }
-
+  const onAgePress = (item) => {
     navigation.navigate("PackagesScreen", {
-      labId,
-      minAge,
-      maxAge,
+      labId: labId,
+      age: item.age,
+      ageGroupTitle: item.ageGroupTitle,
     });
   };
 
@@ -58,7 +56,7 @@ const LabTestByAge = ({ labId }) => {
     <TouchableOpacity
       style={styles.card}
       activeOpacity={0.85}
-      onPress={() => onAgePress(item.minAge, item.maxAge)}
+      onPress={() => onAgePress(item)}
     >
       <View style={styles.imageWrapper}>
         <Image source={item.image} style={styles.image} />

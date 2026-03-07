@@ -21,7 +21,7 @@ import { getUserPrescriptions } from "../services/prescriptionApi";
 
 const PrescriptionTrackingScreen = () => {
   const route = useRoute();
-  const navigation = useNavigation(); // ✅ added only this
+  const navigation = useNavigation(); 
 
   const groupId = route?.params?.groupId;
   const selectedLab = route?.params?.selectedLab;
@@ -144,7 +144,6 @@ const PrescriptionTrackingScreen = () => {
 
       </ScrollView>
 
-      {/* ✅ BACK TO HOME BUTTON (ONLY ADDED PART) */}
       <View style={styles.bottomContainer}>
         <TouchableOpacity
           style={styles.homeButton}

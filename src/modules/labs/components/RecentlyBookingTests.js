@@ -66,7 +66,7 @@ const RecentlyBookingTests = () => {
     <View style={styles.container}>
 
       <Text style={styles.heading}>
-        Recently Booking Tests
+        Past Bookings
       </Text>
 
       <ScrollView

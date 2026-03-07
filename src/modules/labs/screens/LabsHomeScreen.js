@@ -263,7 +263,7 @@ export default function LabsHomeScreen() {
 
               <View style={styles.recentHeader}>
 
-                <Text style={styles.recentTitle}>Recent Appointments</Text>
+                <Text style={styles.recentTitle}>Recent Prescriptions</Text>
 
                 <TouchableOpacity
                   onPress={() => navigation.navigate('PrescriptionList')}
