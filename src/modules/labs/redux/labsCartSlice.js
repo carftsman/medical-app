@@ -10,7 +10,7 @@ const labsCartSlice = createSlice({
     setCartItems: (state, action) => {
       state.items = (action.payload || []).map(item => ({
         ...item,
-        name: item.name || item.packageName, // ✅ normalize here
+        name: item.name || item.packageName, //  normalize here
       }));
     },
     addToCart: (state, action) => {
@@ -23,7 +23,7 @@ const labsCartSlice = createSlice({
           ...action.payload,
           name:
             action.payload.name ||
-            action.payload.packageName, // ✅ normalize here too
+            action.payload.packageName, // normalize here too
         });
       }
     },
@@ -38,6 +38,8 @@ const labsCartSlice = createSlice({
     },
   },
 });
+
+console.log("redux : ", labsCartSlice)
 export const {
   setCartItems,
   addToCart,
@@ -45,4 +47,3 @@ export const {
   clearCart,
 } = labsCartSlice.actions;
 export default labsCartSlice.reducer;
-

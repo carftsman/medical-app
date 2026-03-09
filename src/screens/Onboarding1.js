@@ -45,7 +45,7 @@ export default function Onboarding1({ navigation }) {
         <SafeAreaView style={styles.safeArea}>
           {/* Skip Button */}
           <TouchableOpacity
-            onPress={() => navigation.navigate('Onboarding3')}
+            onPress={() => navigation.navigate('Login')}
             style={styles.skipButton}
           >
             <Text style={styles.skipText}>Skip</Text>

@@ -18,75 +18,37 @@ const InvoiceScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
 
-  // ✅ FIXED: Properly handling bookingIds array
-  const bookingIds = route?.params?.bookingIds ?? [];
-  const bookingId = bookingIds.length > 0 ? bookingIds[0] : null;
+  const bookingId = route?.params?.bookingId;
+  // const bookingId = 14;
 
   const [invoice, setInvoice] = useState(null);
   const [invoice1, setInvoice1] = useState(null);
   const [loading, setLoading] = useState(true);
-
   const [invoices, setInvoices] = useState([]);
 
-  // useEffect(() => {
-  //   // if (bookingId) {
-  //   //   fetchInvoice();
-  //   // } else {
-  //   //   setLoading(false);
-  //   // }
-
-  //   bookingIds.map(bookingId => {
-  //     fetchInvoice(bookingId);
-  //   });
-  //   // fetchInvoice(bookingIds[0], setInvoice);
-  //   // fetchInvoice(bookingIds[1], setInvoice1);
-  // }, []);
-
-  // const fetchInvoice = async () => {
-  //   try {
-  //     const res = await labApi.getLabInvoice(bookingId);
-  //     setInvoice(res.data.invoice);
-  //   } catch (error) {
-  //     console.log(
-  //       "Invoice Error:",
-  //       error.response?.data.message || error.message
-  //     );
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   useEffect(() => {
-    if (!bookingIds.length) {
+    if (!bookingId) {
       setLoading(false);
       return;
     }
 
-    Promise.all(bookingIds.map(id => labApi.getLabInvoice(id)))
-      .then(responses => {
-        const invoices = responses.map(r => r.data.invoice);
-        setInvoices(invoices);
-      })
-      .catch(error => {
-        console.log('Invoice Error:', error.response?.data || error.message);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    fetchInvoice(bookingId);
+  }, [bookingId]);
 
-  const fetchInvoice = async bookingId => {
+  const fetchInvoice = async id => {
     try {
-      const res = await labApi.getLabInvoice(bookingId);
-      setInvoices(prev => [...prev, res.data.invoice]);
+      const res = await labApi.getLabInvoice(id);
+      setInvoices([res.data.invoice]);
+      console.log(res.data)
     } catch (error) {
       console.log(
-        'Invoice Error:',
-        error.response?.data.message || error.message,
+        "Invoice Error:",
+        error.response?.data.message || error.message
       );
     } finally {
       setLoading(false);
     }
   };
-
   const handleShare = async () => {
     try {
       if (!invoices[0]) return;
@@ -218,12 +180,13 @@ const InvoiceScreen = () => {
                 </Text>
                 <Text style={styles.scheduleDate}>{slot.date}</Text>
               </View>
+              <View style={styles.scheduleRight}>
+              <Text style={styles.scheduleLabel}>TIME SLOT</Text>
+              <Text style={styles.scheduleTime}>{slot.time}</Text>
+              </View>
             </View>
 
-            <View style={styles.scheduleRight}>
-              <Text style={styles.scheduleLabel}>TIME {'\n'}SLOT</Text>
-              <Text style={styles.scheduleTime}>{slot.time}</Text>
-            </View>
+            
           </View>
         </View>
 
@@ -231,14 +194,7 @@ const InvoiceScreen = () => {
         <View style={styles.card}>
           <View style={styles.testsHeader}>
             <Text style={styles.sectionTitle}>
-              TESTS BOOKED{' '}
-              <Text style={styles.scheduleLabel}>
-                ({' '}
-                {bookingIds.length === 1
-                  ? '1 TEST'
-                  : bookingIds.length + 'TESTS'}
-                )
-              </Text>
+              TESTS BOOKED
             </Text>
 
             {/* <View style={styles.homeVisitBadge}>
@@ -247,25 +203,20 @@ const InvoiceScreen = () => {
             </View> */}
           </View>
 
-          {invoices.map((invoice, index) => {
-            const { test, patient } = invoice;
-
-            return (
-              <View
-                style={{
-                  marginBottom: 10,
-                }}
-                key={invoice.invoiceId}
-              >
+          {invoices.map((invoice) =>
+            invoice.tests.map((t, index) => (
+              <View key={index} style={{ marginBottom: 10 }}>
                 <View style={styles.rowBetween}>
-                  <Text style={styles.testName}>{test.packageName}</Text>
-                  <Text style={styles.price}>₹{test.price}</Text>
+                  <Text style={styles.testName}>{t.packageName}</Text>
+                  <Text style={styles.price}>₹{t.price}</Text>
                 </View>
 
-                <Text style={styles.bookedFor}>Booked for: {patient.name}</Text>
+                <Text style={styles.bookedFor}>
+                  Booked for: {t.patient?.name}
+                </Text>
               </View>
-            );
-          })}
+            ))
+          )}
         </View>
 
         {/* Payment Summary */}
@@ -431,7 +382,7 @@ const styles = StyleSheet.create({
   },
 
   labHeaderRow: {
-    flexDirection: 'row',
+    // flexDirection: 'row',
     justifyContent: 'space-between',
   },
 
@@ -462,14 +413,16 @@ const styles = StyleSheet.create({
   orderLabel: {
     fontSize: 10,
     color: '#999',
-    textAlign: 'right',
+    // textAlign: 'right',
     marginTop: 10,
+    marginLeft:60
   },
 
   orderDate: {
     fontSize: 14,
     fontWeight: '600',
-    textAlign: 'right',
+    // textAlign: 'right',
+    marginLeft:60
   },
 
   scheduleBox: {
@@ -487,10 +440,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     flex: 1,
+    marginLeft:-15,
   },
 
   scheduleRight: {
     alignItems: 'flex-end',
+    marginLeft: 15,
   },
 
   scheduleIconWrapper: {
@@ -503,7 +458,7 @@ const styles = StyleSheet.create({
   },
 
   scheduleTextWrapper: {
-    marginLeft: 14,
+    marginLeft: 10,
   },
 
   scheduleLabel: {
@@ -522,7 +477,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: '#1E88E5',
-    marginTop: 10,
+    // marginTop: 5,
   },
 
   sectionTitle: {

@@ -10,20 +10,26 @@ import { scale, verticalScale } from "../../../utils/styling";
 import { COLORS, SIZES } from "../../../config/constants";
 import CategoryCard from "./CategoryCard";
 
-const CategorySection = ({ title, data, onViewAll, showViewAll = true, loading = false,onCategoryPress, }) => {
+const CategorySection = ({ title, data, onViewAll, showViewAll = true, loading = false, onCategoryPress, }) => {
+
+// Pass selected category to parent
   const handleCategoryPress = (item) => {
-  onCategoryPress?.(item);}
+    onCategoryPress?.(item);
+  }
+
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
-        {showViewAll && !loading &&(
+        {showViewAll && !loading && (
           <TouchableOpacity onPress={onViewAll}>
             <Text style={styles.viewAll}>View All</Text>
           </TouchableOpacity>
         )}
       </View>
 
+{/* Show skeleton while data is loading */ }
       {loading ? (
         <View>
           {[1, 2].map((row) => (
@@ -38,6 +44,8 @@ const CategorySection = ({ title, data, onViewAll, showViewAll = true, loading =
           ))}
         </View>
       ) : (
+
+//Grid view of categories
         <FlatList
           data={data}
           keyExtractor={(item) => item.id.toString()}
@@ -45,10 +53,10 @@ const CategorySection = ({ title, data, onViewAll, showViewAll = true, loading =
           scrollEnabled={false}
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => handleCategoryPress(item)}>
-            <CategoryCard
-              title={item.name}
-              imageUrl={{ uri: item.imageUrl }}
-            />
+              <CategoryCard
+                title={item.name}
+                imageUrl={{ uri: item.imageUrl }}
+              />
             </TouchableOpacity>
           )}
           columnWrapperStyle={styles.columnWrapper}
@@ -106,10 +114,10 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.lightgray || "#E5E7EB",
   },
   skeletonRow: {
-  flexDirection: "row", 
-  justifyContent: "space-between",
-  marginBottom: verticalScale(16),
-},
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: verticalScale(16),
+  },
 
 
 });

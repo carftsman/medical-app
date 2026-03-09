@@ -28,9 +28,15 @@ import { COLORS } from '../../../config/constants';
 
 import { getUserPrescriptions } from '../services/prescriptionApi';
 
+
+import { setCartItems } from '../../../redux/slices/labsCartSlice';
+import { useDispatch } from 'react-redux';
+import { labApi } from '../services/labApi'; // cart API
+
 export default function LabsHomeScreen() {
 
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   const [refreshing, setRefreshing] = useState(false);
   const [uploadedList, setUploadedList] = useState([]);
@@ -104,6 +110,7 @@ export default function LabsHomeScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchUploads();
+      fetchCart();
     }, []),
   );
 

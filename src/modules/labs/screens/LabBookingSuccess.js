@@ -14,6 +14,7 @@ import { COLORS } from '../../../config/constants';
 import api from '../../../api/client';
 import { formatDate } from '../../../utils/helpers';
 import useAuth from '../../../hooks/useAuth';
+import { BackHandler } from 'react-native';
 
 const LabBookingSuccess = () => {
   const navigation = useNavigation();
@@ -22,12 +23,12 @@ const LabBookingSuccess = () => {
 
   //   const { bookingId } = route.params || {};
 
-  const bookingIds = route.params?.bookingIds || [21, 22];
+  const bookingId = route.params?.bookingId
   const bookingDetails = route.params?.booking;
 
   console.log('Booking Details', bookingDetails);
 
-  const bookingId = bookingIds[0];
+  // const bookingId = bookingIds[0];
 
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -37,6 +38,20 @@ const LabBookingSuccess = () => {
   const handleCallPress = () => {
     Linking.openURL(`tel:${PHONE_NUMBER}`);
   };
+
+  useEffect(() => {
+    const backAction = () => {
+      navigation.navigate('LabTabNavigation');
+      return true; // prevents default back behavior
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, []);
 
   useEffect(() => {
     if (bookingId) {
@@ -83,9 +98,15 @@ const LabBookingSuccess = () => {
     );
   }
 
-  console.log('bookingIds', bookingIds);
+  console.log('bookingId', bookingId);
   console.log('booking details', booking);
   console.log(address);
+
+  const [day, month, year] = booking?.slot?.date.split("/");
+
+  const date = new Date(year, month - 1, day);
+
+  console.log(date.toDateString());
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -103,22 +124,21 @@ const LabBookingSuccess = () => {
 
       <Text style={styles.title}>Booking Confirmed!</Text>
       <Text style={styles.subtitle}>
-        Your lab technician will be assigned and will arrive at your location as
-        scheduled.
+        Your lab technician will be assigned and will arrive at your location as scheduled.
       </Text>
 
       <View style={styles.card}>
         <Text style={styles.sectionLabel}>SELECTED LAB</Text>
-        <Text style={styles.labName}>{bookingDetails.labName}</Text>
+        <Text style={styles.labName}>{booking?.labName}</Text>
 
         <View style={styles.divider} />
 
         <Text style={styles.sectionLabel}>APPOINTMENT AT</Text>
-        {booking.date && (
-          <Text style={styles.infoText}>{formatDate(bookingDetails.date)}</Text>
+        {booking?.slot?.date && (
+          <Text style={styles.infoText}>{formatDate(date)}</Text>
         )}
 
-        <Text style={styles.infoText}>{bookingDetails.time}</Text>
+        <Text style={styles.infoText}>{booking?.slot?.time}</Text>
 
         <View style={{ height: 16 }} />
 
@@ -130,7 +150,7 @@ const LabBookingSuccess = () => {
       </View>
 
       <TouchableOpacity
-        onPress={() => navigation.navigate('InvoiceScreen', { bookingIds })}
+        onPress={() => navigation.navigate('InvoiceScreen', { bookingId })}
         style={styles.primaryButton}
       >
         <Text style={styles.primaryButtonText}>View Invoice</Text>

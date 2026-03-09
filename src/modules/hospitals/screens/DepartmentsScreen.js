@@ -1,8 +1,5 @@
-/* eslint-disable react-native/no-inline-styles */
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { FlatList, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import api from "../../../api/client";
 import { COLORS } from "../../../config/constants";
@@ -20,7 +17,7 @@ const DepartmentsScreen = () => {
   const [error, setError] = useState(null);
 
 
-
+// Fetch department categories for "Top Concerns"
   const fetchCategories = async () => {
     try {
       setLoading(true);
@@ -41,6 +38,7 @@ const DepartmentsScreen = () => {
   };
 
 
+// Fetch symptoms for "Regular Health Issues"
   const fetchSymptoms = async () => {
     try {
       const response = await api.get("/hospital/user/symptoms");
@@ -54,7 +52,7 @@ const DepartmentsScreen = () => {
   };
 
 
-
+// Initial data load
   useEffect(() => {
     fetchCategories();
     fetchSymptoms();
@@ -62,15 +60,26 @@ const DepartmentsScreen = () => {
 
   const limitedCategories = categories.slice(0, 6);
   const limitedSymptoms = symptoms.slice(0, 6);
-  const onDepartmentPress = (item) => {
-  console.log('Pressed department:', item.name);
 
-  navigation.getParent().navigate('DoctorsList', {
-    categoryId: item.id,
-    categoryName: item.name,
-    
-  });
-};
+
+// Navigate to doctors list using selected category
+  const onDepartmentPress = (item) => {
+    console.log('Pressed department:', item.name);
+    navigation.getParent().navigate('DoctorsList', {
+      categoryId: item.id,
+      categoryName: item.name,
+    });
+  };
+
+
+//Navigate using selected symptom
+  const onSymptomPress = (item) => {
+    console.log("symptom Pressed:", item)
+    navigation.getParent().navigate('DoctorsList', {
+      categoryId: item?.category?.id,
+      categoryName: item?.category?.name,
+    });
+  };
 
 
   return (
@@ -99,7 +108,7 @@ const DepartmentsScreen = () => {
               data={limitedSymptoms}
               loading={loading}
               showViewAll={false}
-              
+              onCategoryPress={onSymptomPress}
             />
           </>
         }

@@ -92,13 +92,15 @@ const PaymentScreen = ({ navigation, route }) => {
         });
 
         console.log('lab booking', res.data);
+        console.log('LabId:',labId)
 
         if (res.status) {
           navigation.navigate('LabsMain', {
             screen: 'LabBookingSuccess',
             params: {
               booking: res.data.booking,
-              bookingIds: res.data.booking.bookingIds,
+              bookingId: res.data.bookingId,
+              labName: res.data.labName,
             },
           });
 
@@ -134,7 +136,7 @@ const PaymentScreen = ({ navigation, route }) => {
           error.response.data?.message || error.message || 'Payment failed',
         );
       } else {
-        alert('Network error');
+        alert(error.response.data?.message || error.message || 'Payment failed');
       }
     }
   };
