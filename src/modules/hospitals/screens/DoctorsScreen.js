@@ -33,7 +33,7 @@ const DoctorsScreen = () => {
   const [selectedType, setSelectedType] = useState('ONLINE');
 
   const fetchDoctors = async () => {
-    try {
+    try {    
       setLoading(true);
       setError(null);
 
@@ -59,7 +59,7 @@ const DoctorsScreen = () => {
             ? 1000
             : undefined,
 
-        distance: distance || 16, // Swagger expects "distance" not maxDistance
+        distance: distance || 16, 
 
         mode: selectedType || undefined,
 
@@ -114,7 +114,7 @@ const DoctorsScreen = () => {
 
       setDoctorsData(mappedDoctors);
 
-      // ✅ Build categories from API response
+      //  Build categories from API response
       if (allCategories.length === 0 && doctorsArray.length > 0) {
         const categories = [
           { id: 'All', name: 'All' },

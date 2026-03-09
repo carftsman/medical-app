@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { scale, verticalScale } from '../../../utils/styling';
 
@@ -35,6 +34,7 @@ import { useDispatch } from 'react-redux';
 import { labApi } from '../services/labApi'; // cart API
 
 export default function LabsHomeScreen() {
+
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
@@ -44,49 +44,62 @@ export default function LabsHomeScreen() {
 
   const cartItems = useSelector(state => state.labsCart.items);
 
-  const fetchCart = async () => {
-    
-    try {
-      const response = await labApi.getLabCart( );
+  /*BANNER AUTO ANIMATION */
 
-      const cartItems = response?.data?.items || [];
+  const bannerRef = useRef(null);
+  const [currentBanner, setCurrentBanner] = useState(0);
 
-      dispatch(setCartItems(cartItems));
+  useEffect(() => {
 
-      console.log("cartITEMS:", cartItems)
+    const timer = setInterval(() => {
 
-    } catch (error) {
-      console.log("Cart Fetch Error:", error);
-    }
-  };
+      let next = currentBanner + 1;
+      if (next > 2) next = 0;
 
-  /* ================= FETCH UPLOADS FROM API ================= */
+      bannerRef.current?.scrollTo({
+        x: next * scale(320),
+        animated: true,
+      });
+
+      setCurrentBanner(next);
+
+    }, 3000);
+
+    return () => clearInterval(timer);
+
+  }, [currentBanner]);
+
+  /* FETCH UPLOADS */
 
   const fetchUploads = async () => {
     try {
+
       const response = await getUserPrescriptions();
       let data = response?.data?.data;
 
       let formatted = [];
 
-      // ✅ Handle single object or array
       if (Array.isArray(data)) {
         formatted = data;
       } else if (data?.groupId) {
         formatted = [data];
       }
 
-      // Sort latest first
       const sorted = formatted.sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
       );
 
       setUploadedList(sorted);
+
     } catch (error) {
+
       console.log('Home Upload Fetch Error:', error);
+
     } finally {
+
       setLoadingUploads(false);
       setRefreshing(false);
+
     }
   };
 
@@ -107,19 +120,25 @@ export default function LabsHomeScreen() {
   }, []);
 
   return (
+
     <View style={styles.safeArea}>
       <View style={styles.container}>
-        {/* ================= HEADER ================= */}
+
+        {/* HEADER */}
+
         <LinearGradient
           colors={['#1E63F2', '#16C7B7']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.header}
         >
+
           <View style={styles.headerRow}>
+
             <LocationHeader />
 
             <View style={styles.rightIcons}>
+
               <TouchableOpacity style={styles.iconBtn}>
                 <Ionicons
                   name="notifications-outline"
@@ -138,59 +157,54 @@ export default function LabsHomeScreen() {
                   color="#FFFFFF"
                 />
               </TouchableOpacity>
+
             </View>
+
           </View>
 
           <View style={styles.searchRow}>
+
             <TouchableOpacity
               activeOpacity={0.8}
               style={styles.searchBar}
               onPress={() => navigation.navigate('SearchScreen')}
             >
+
               <Ionicons
                 name="search-outline"
                 size={scale(28)}
                 color="#9AA5B1"
               />
+
               <Text style={styles.searchPlaceholder}>
                 Search for labs, Categories
               </Text>
+
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.cartRight}
               onPress={() => navigation.navigate('CartScreen')}
             >
+
               <Ionicons name="cart-outline" size={scale(38)} color="#FFFFFF" />
+
               {cartItems.length > 0 && (
-                <View
-                  style={{
-                    position: 'absolute',
-                    top: 2,
-                    right: -5,
-                    height: 18,
-                    width: 18,
-                    backgroundColor: COLORS.danger,
-                    borderRadius: 50,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      color: 'white',
-                    }}
-                  >
+                <View style={styles.cartBadge}>
+                  <Text style={{ fontSize: 12, color: 'white' }}>
                     {cartItems.length}
                   </Text>
                 </View>
               )}
+
             </TouchableOpacity>
+
           </View>
+
         </LinearGradient>
 
-        {/* ================= BODY ================= */}
+        {/* BODY */}
+
         <ScrollView
           contentContainerStyle={styles.body}
           showsVerticalScrollIndicator={false}
@@ -203,15 +217,20 @@ export default function LabsHomeScreen() {
             />
           }
         >
-          {/* ================= ACTION CARDS ================= */}
+
+          {/* ACTION CARDS */}
+
           <View style={styles.sideBySideRow}>
+
             <CallToBookCard phoneNumber="108" />
 
             <TouchableOpacity
               style={styles.sideCard}
               onPress={() => navigation.navigate('UploadPrescription')}
             >
+
               <View style={styles.sideLeft}>
+
                 <View style={styles.docIconBox}>
                   <Ionicons
                     name="document-text-outline"
@@ -224,6 +243,7 @@ export default function LabsHomeScreen() {
                   <Text style={styles.cardTitle}>Upload</Text>
                   <Text style={styles.cardSub}>Prescription</Text>
                 </View>
+
               </View>
 
               <Ionicons
@@ -231,10 +251,13 @@ export default function LabsHomeScreen() {
                 size={scale(16)}
                 color="#9AA5B1"
               />
+
             </TouchableOpacity>
+
           </View>
 
-          {/* RECENT UPLOAD SECTION  */}
+          {/* RECENT APPOINTMENTS */}
+
           {loadingUploads ? (
             <ActivityIndicator
               size="small"
@@ -242,18 +265,23 @@ export default function LabsHomeScreen() {
               style={{ marginTop: 20 }}
             />
           ) : uploadedList.length > 0 ? (
+
             <View style={{ marginTop: verticalScale(20) }}>
+
               <View style={styles.recentHeader}>
-                <Text style={styles.recentTitle}>Recent Appointments</Text>
+
+                <Text style={styles.recentTitle}>Recent Prescriptions</Text>
 
                 <TouchableOpacity
                   onPress={() => navigation.navigate('PrescriptionList')}
                 >
                   <Text style={styles.viewAll}>View All</Text>
                 </TouchableOpacity>
+
               </View>
 
               {uploadedList.slice(0, 3).map(item => (
+
                 <TouchableOpacity
                   key={item.groupId}
                   style={styles.recentCard}
@@ -263,6 +291,7 @@ export default function LabsHomeScreen() {
                     })
                   }
                 >
+
                   <View style={styles.recentIcon}>
                     <Ionicons
                       name="document-text-outline"
@@ -272,6 +301,7 @@ export default function LabsHomeScreen() {
                   </View>
 
                   <View style={{ flex: 1 }}>
+
                     <Text style={styles.refText}>
                       #{item.groupId.slice(0, 8)}
                     </Text>
@@ -279,50 +309,84 @@ export default function LabsHomeScreen() {
                     <Text style={styles.statusText}>
                       {item.files?.length || 0} file(s) uploaded
                     </Text>
+
                   </View>
+
                 </TouchableOpacity>
+
               ))}
+
             </View>
+
           ) : null}
+{/* BANNERS */}
 
-          {/*  REST UI  */}
+<ScrollView
+  ref={bannerRef}
+  horizontal
+  pagingEnabled
+  showsHorizontalScrollIndicator={false}
+  style={{ marginTop: verticalScale(14) }}
+>
 
-          <View style={styles.bannerWrapper}>
-            <TouchableOpacity activeOpacity={0.9}>
-              <ImageBackground
-                source={require('../../../../assets/Labs_Banner.png')}
-                style={styles.bannerImage}
-                imageStyle={styles.bannerImageRadius}
-              >
-                <View style={styles.bannerContent}>
-                  <Text style={styles.bannerTitle}>Stay informed about</Text>
-                  <Text style={styles.bannerTitleBold}>the new variant</Text>
+  <View style={{ width: scale(300), marginRight: scale(6) }}>
+    <ImageBackground
+      source={require('../../../../assets/Labs_Banner.png')}
+      style={styles.bannerImage}
+      imageStyle={styles.bannerImageRadius}
+    >
+      <View style={styles.bannerContent}>
+        <Text style={styles.bannerTitle}>Stay informed about</Text>
+        <Text style={styles.bannerTitleBold}>the new variant</Text>
 
-                  <Text style={styles.bannerDesc}>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  </Text>
+        <Text style={styles.bannerDesc}>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        </Text>
 
-                  <View style={styles.infoChip}>
-                    <Text style={styles.infoText}>info: (123) 123 456 789</Text>
-                  </View>
-                </View>
-              </ImageBackground>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.infoChip}>
+          <Text style={styles.infoText}>
+            info: (123) 123 456 789
+          </Text>
+        </View>
+      </View>
+    </ImageBackground>
+  </View>
 
+  <View style={{ width: scale(300), marginRight: scale(6) }}>
+    <ImageBackground
+      source={require('../../../../assets/labsTests.jpeg')}
+      style={styles.bannerImage}
+      imageStyle={styles.bannerImageRadius}
+    />
+  </View>
+
+  <View style={{ width: scale(300), marginRight: scale(6) }}>
+    <ImageBackground
+      source={require('../../../../assets/BloodTest.jpg')}
+      style={styles.bannerImage}
+      imageStyle={styles.bannerImageRadius}
+    />
+  </View>
+
+</ScrollView>
           <LabTestByAge labId={1} />
           <LabCategories labId={1} />
           <NearbyLabs />
           <RecentlyBookingTests />
           <CertifiedLabs />
+
         </ScrollView>
 
         <SosButton />
+
       </View>
     </View>
+
   );
 }
+
 const styles = StyleSheet.create({
+
   safeArea: {
     flex: 1,
     backgroundColor: '#1E63F2',
@@ -332,8 +396,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5FAFF',
   },
-
-  /*  HEADER  */
 
   header: {
     paddingHorizontal: scale(16),
@@ -358,7 +420,6 @@ const styles = StyleSheet.create({
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
   },
 
   searchBar: {
@@ -375,21 +436,29 @@ const styles = StyleSheet.create({
     marginLeft: scale(12),
   },
 
+  cartBadge: {
+    position: 'absolute',
+    top: 2,
+    right: -5,
+    height: 18,
+    width: 18,
+    backgroundColor: COLORS.danger,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
   searchPlaceholder: {
     marginLeft: scale(10),
     fontSize: scale(14),
     color: '#9AA5B1',
   },
 
-  /* BODY  */
-
   body: {
     paddingHorizontal: scale(18),
     paddingTop: verticalScale(18),
     paddingBottom: verticalScale(30),
   },
-
-  /*ACTION CARDS */
 
   sideBySideRow: {
     flexDirection: 'row',
@@ -402,7 +471,6 @@ const styles = StyleSheet.create({
     borderRadius: scale(14),
     paddingVertical: verticalScale(22),
     paddingHorizontal: scale(12),
-    minHeight: verticalScale(72),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -435,8 +503,6 @@ const styles = StyleSheet.create({
     color: '#666',
   },
 
-  /*RECENT UPLOAD  */
-
   recentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -460,19 +526,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F0F6FF',
-    paddingVertical: verticalScale(14),
+    paddingVertical: verticalScale(12),
     paddingHorizontal: scale(14),
     borderRadius: scale(16),
     marginBottom: verticalScale(10),
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
     elevation: 2,
   },
 
   recentIcon: {
-    width: scale(38),
-    height: scale(38),
+    width: scale(40),
+    height: scale(40),
     borderRadius: scale(12),
     backgroundColor: '#DCE9FF',
     justifyContent: 'center',
@@ -492,19 +555,13 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(2),
   },
 
-  /* BANNER*/
-
-  bannerWrapper: {
-    marginTop: verticalScale(14),
-  },
-
-  bannerImage: {
-    width: '100%',
-    height: verticalScale(160),
-    borderRadius: scale(16),
-    overflow: 'hidden',
-    justifyContent: 'center',
-  },
+bannerImage: {
+  width: '100%',
+  height: verticalScale(160),
+  borderRadius: scale(16),
+  overflow: 'hidden',
+  justifyContent: 'center',
+},
 
   bannerImageRadius: {
     borderRadius: scale(16),
@@ -534,10 +591,10 @@ const styles = StyleSheet.create({
   },
 
   infoChip: {
-    marginTop: verticalScale(36),
+    marginTop: verticalScale(42),
     paddingVertical: verticalScale(2),
     paddingHorizontal: scale(11),
-    borderRadius: scale(8),
+    borderRadius: scale(11),
     borderWidth: 1.5,
     borderColor: '#F26D6D',
     backgroundColor: 'rgba(242,109,109,0.08)',
@@ -548,4 +605,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#F26D6D',
   },
+
 });
+

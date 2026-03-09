@@ -5,7 +5,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { scale, verticalScale } from '../../../utils/styling';
 
-const DoctorsHospitalDetails = ({ image, name, place, latitude, longitude, distanceKm, rating, timings, days, startTime, endTime }) => {
+const DoctorsHospitalDetails = ({ image, name, place, latitude, longitude, distanceKm, rating, monSatTiming, sundayTiming }) => {
 
     const hospitalRatingStars = Math.round(rating);
 
@@ -60,12 +60,12 @@ const DoctorsHospitalDetails = ({ image, name, place, latitude, longitude, dista
                     <Text style={styles.timingsText} >Timings</Text>
                     <View style={styles.timingsCards}>
                         <View style={styles.timingsCard}>
-                            <Text style={styles.timingsTextDays}>{days}</Text>
-                            <Text style={styles.timingsTextTime}>{formatTime(startTime)} - {formatTime(endTime)}</Text>
+                            <Text style={styles.timingsTextDays}>Mon - Sat</Text>
+                            <Text style={styles.timingsTextTime}>{monSatTiming}</Text>
                         </View>
                         <View style={styles.timingsCard}>
                             <Text style={styles.timingsTextDays}>Sun</Text>
-                            <Text style={styles.timingsTextTime}>Closed</Text>
+                            <Text style={styles.timingsTextTime}>{sundayTiming}</Text>
                         </View>
                     </View>
                 </View>

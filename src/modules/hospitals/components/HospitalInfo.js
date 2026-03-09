@@ -17,7 +17,7 @@ const HospitalInfo = ({ hospital }) => {
   const [showMore, setShowMore] = useState(false);
   const categories = hospital?.specializations;
   const visibleCategories = categories;
-  const remainingCount = categories.length - visibleCategories.length;
+  // const remainingCount = categories.length - visibleCategories.length;
   const PHONE_NUMBER = '9876543210';
   const handleCallPress = () => {
     Linking.openURL(`tel:${PHONE_NUMBER}`);

@@ -15,41 +15,41 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import api from "../../../api/client";
-
+ 
 const ReviewPrescriptionScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
-
+ 
   const { files = [], lab } = route.params || {};
   const [loading, setLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
-
+ 
   const locationText =
     lab?.address ||
     lab?.location ||
     (lab?.city ? `${lab?.name}, ${lab?.city}` : "Location not available");
-
+ 
   /* Upload */
-
+ 
   const uploadPrescription = async () => {
     if (!files.length) {
       Alert.alert("Error", "No files selected");
       return;
     }
-
+ 
     try {
       setLoading(true);
-
+ 
       const formData = new FormData();
-
+ 
       files.forEach((file, index) => {
         if (!file?.uri) return;
-
+ 
         let mimeType = file.type;
-
+ 
         if (!mimeType) {
           const name = file.name?.toLowerCase() || "";
-
+ 
           if (name.endsWith(".pdf")) {
             mimeType = "application/pdf";
           } else if (name.endsWith(".png")) {
@@ -60,7 +60,7 @@ const ReviewPrescriptionScreen = () => {
             mimeType = "application/octet-stream";
           }
         }
-
+ 
         formData.append("files", {
           uri:
             Platform.OS === "ios"
@@ -72,9 +72,9 @@ const ReviewPrescriptionScreen = () => {
           type: mimeType,
         });
       });
-
+ 
       console.log("Sending FormData...");
-
+ 
       const response = await api.post(
         "/lab-prescriptions/upload",
         formData,
@@ -84,25 +84,25 @@ const ReviewPrescriptionScreen = () => {
           },
         }
       );
-
+ 
       console.log("UPLOAD SUCCESS:", response.data);
-
+ 
       const uploadId = response?.data?.data?.groupId;
-
+ 
       if (!uploadId) {
         throw new Error("Upload ID not returned from server");
       }
-
+ 
       navigation.replace("PrescriptionSuccess", {
         uploadId,
         fileCount: files.length,
         labName: lab?.name,
       });
-
+ 
     } catch (error) {
       console.log("UPLOAD ERROR:", error);
       console.log("UPLOAD ERROR RESPONSE:", error?.response?.data);
-
+ 
       Alert.alert(
         "Upload Failed",
         error?.response?.data?.message ||
@@ -113,13 +113,13 @@ const ReviewPrescriptionScreen = () => {
       setLoading(false);
     }
   };
-
+ 
   /* ================= UI ================= */
-
+ 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
-
+ 
         {/* HEADER */}
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -128,13 +128,13 @@ const ReviewPrescriptionScreen = () => {
           <Text style={styles.headerTitle}>Review & Confirm</Text>
           <View style={{ width: 22 }} />
         </View>
-
+ 
         {/* FILE PREVIEW */}
         {files.map((file, index) => {
           const isPDF =
             file?.type?.includes("pdf") ||
             file?.name?.toLowerCase()?.endsWith(".pdf");
-
+ 
           return (
             <View key={`${file?.uri}-${index}`} style={styles.fileWrapper}>
               {isPDF ? (
@@ -163,17 +163,17 @@ const ReviewPrescriptionScreen = () => {
             </View>
           );
         })}
-
+ 
         {/* LAB INFO */}
         {lab && (
           <View style={styles.labCard}>
             <View style={styles.labIcon}>
               <Ionicons name="flask-outline" size={24} color="#056FD2" />
             </View>
-
+ 
             <View style={{ flex: 1 }}>
               <Text style={styles.labName}>{lab?.name}</Text>
-
+ 
               <View style={styles.locationRow}>
                 <Ionicons name="location-outline" size={14} color="gray" />
                 <Text style={styles.labAddress}>{locationText}</Text>
@@ -181,7 +181,7 @@ const ReviewPrescriptionScreen = () => {
             </View>
           </View>
         )}
-
+ 
         {/* SECURITY INFO */}
         <View style={styles.securityCard}>
           <Ionicons name="shield-checkmark-outline" size={18} color="#056FD2" />
@@ -190,9 +190,9 @@ const ReviewPrescriptionScreen = () => {
             <Text style={styles.secureBold}>securely</Text> with the lab.
           </Text>
         </View>
-
+ 
       </ScrollView>
-
+ 
       {/* BUTTON */}
       <View style={styles.bottom}>
         <TouchableOpacity
@@ -208,7 +208,7 @@ const ReviewPrescriptionScreen = () => {
             </Text>
           )}
         </TouchableOpacity>
-
+ 
         <TouchableOpacity
           style={styles.changeBtn}
           onPress={() =>
@@ -218,7 +218,7 @@ const ReviewPrescriptionScreen = () => {
           <Text style={styles.changeText}>Change Lab</Text>
         </TouchableOpacity>
       </View>
-
+ 
       {/* IMAGE MODAL */}
       <Modal visible={!!previewImage} transparent>
         <TouchableOpacity
@@ -235,11 +235,11 @@ const ReviewPrescriptionScreen = () => {
     </SafeAreaView>
   );
 };
-
+ 
 export default ReviewPrescriptionScreen;
-
+ 
 /* ================= STYLES ================= */
-
+ 
 const styles = StyleSheet.create({
   container: {
     flex: 1,

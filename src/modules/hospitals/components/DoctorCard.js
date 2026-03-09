@@ -20,12 +20,12 @@ const DoctorCard = ({ doctor }) => {
 
   const {
     imageUrl,
-    name,
+    doctorName,
     specialization,
     rating,
     hospitalName,
     experience,
-    consultationFee,
+    fee,
     availableDate,
     availableTime,
 
@@ -35,7 +35,7 @@ const DoctorCard = ({ doctor }) => {
 
   return (
     <View style={styles.card}>
-      {/* ❤️ Favourite */}
+      {/* Favourite */}
       <TouchableOpacity
         style={styles.favBtn}
         onPress={() => dispatch(toggleFavourite(doctor))}
@@ -59,7 +59,7 @@ const DoctorCard = ({ doctor }) => {
 
           <View style={styles.topContent}>
             <View style={styles.nameRow}>
-              <Text style={styles.name}>{name} </Text>
+              <Text style={styles.name}>{doctorName} </Text>
 
               <View style={styles.rating}>
                 <Icon name="star" size={scale(14)} color="#FFC107" />
@@ -86,7 +86,7 @@ const DoctorCard = ({ doctor }) => {
 
           <View style={styles.infoBox}>
             <Text style={styles.infoLabel}>Fee</Text>
-            <Text style={styles.infoValue}>₹{consultationFee}/-</Text>
+            <Text style={styles.infoValue}>₹{fee}/-</Text>
           </View>
 
           <View style={styles.infoBox}>

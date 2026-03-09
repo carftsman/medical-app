@@ -1,15 +1,18 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Modal, TextInput, FlatList } from 'react-native'
-import React, { useState } from 'react'
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Modal, TextInput, FlatList, KeyboardAvoidingView, Platform } from 'react-native'
+import React, { useState, useEffect } from 'react'
 import { scale, verticalScale } from '../../../utils/styling';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import PhotoOptionModal from '../components/PhotoOptionModal';
 import { Image } from 'react-native';
+import api from '../../../api/client';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { familyMemberSchema } from '../utils/Validations';
 
 
-const AddFamilyMembers = ({ navigation }) => {
+const AddFamilyMembers = ({ navigation, route }) => {
+  const memberData = route?.params?.memberData;
+  const isEditMode = !!memberData;
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
   const [number, setNumber] = useState("");
@@ -21,86 +24,117 @@ const AddFamilyMembers = ({ navigation }) => {
   const [photoModalVisible, setPhotoModalVisible] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const [errors, setErrors] = useState({});
-  const options = ['Male', 'Female', 'Other'];
-  const relation = ['Mother', 'Father', 'Brother', 'Sister', 'Daughter', 'Son', 'GrandMother', 'GrandFather', 'Other']
+  const options = ['MALE', 'FEMALE', 'OTHER'];
+  const relation = ['MOTHER', 'FATHER', 'BROTHER', 'SISTER', 'DAUGHTER', 'SON', 'GRANDMOTHER', 'GRANDFATHER', 'HUSBAND', 'WIFE','SELF', 'COUSIN', 'FRIEND', 'GRANDSON','GRANDDAUGHTER','OTHERS']
 
- const validateField = (field, value) => {
+  const validateField = (field, value) => {
 
-  // ✅ Skip validation if optional field is empty
-  if ((field === "email" || field === "relation") && value === "") {
-    setErrors(prev => ({ ...prev, [field]: undefined }));
-    return;
-  }
+    // ✅ Skip validation if optional field is empty
+    if ((field === "email" || field === "relation") && value === "") {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
+      return;
+    }
 
-  if (value === "") {
-    setErrors(prev => ({ ...prev, [field]: `${field} is required` }));
-    return;
-  }
+    if (value === "") {
+      setErrors(prev => ({ ...prev, [field]: `${field} is required` }));
+      return;
+    }
 
-  const singleFieldSchema = familyMemberSchema.pick({ [field]: true });
+    const singleFieldSchema = familyMemberSchema.pick({ [field]: true });
 
-  const result = singleFieldSchema.safeParse({ [field]: value });
+    const result = singleFieldSchema.safeParse({ [field]: value });
 
-  if (!result.success) {
-    setErrors(prev => ({
-      ...prev,
-      [field]: result.error.errors[0].message,
-    }));
-  } else {
-    setErrors(prev => ({
-      ...prev,
-      [field]: undefined,
-    }));
-  }
-};
+    if (!result.success) {
+      setErrors(prev => ({
+        ...prev,
+        [field]: result.error.errors[0].message,
+      }));
+    } else {
+      setErrors(prev => ({
+        ...prev,
+        [field]: undefined,
+      }));
+    }
+  };
 
-const isFormValid =
-  name.trim() !== "" &&
-  age.trim() !== "" &&
-  number.trim() !== "" &&
-  selected !== "Select Gender" &&
-  !errors.name &&
-  !errors.age &&
-  !errors.mobile &&
-  !errors.gender;
+  const isFormValid =
+    name.trim() !== "" &&
+    age.trim() !== "" &&
+    number.trim() !== "" &&
+    selected !== "Select Gender" &&
+    !errors.name &&
+    !errors.age &&
+    !errors.mobile &&
+    !errors.gender &&
+    !errors.email;
 
+  const handleSubmit = async () => {
+    try {
+      const payload = {
+        fullName: name,
+        relation:
+          relationtype !== "Select"
+            ? relationtype.toUpperCase()
+            : null,
+        age: Number(age),
+        gender: selected.toUpperCase(),
+        phone: number,
+        email: email
+      };
 
-  const openCamera = () => {
-    setPhotoModalVisible(false);
+      console.log("Payload:", payload);
 
-    launchCamera(
-      { mediaType: 'photo', cameraType: 'back' },
-      (response) => {
-        if (!response.didCancel && response.assets) {
-          setProfileImage(response.assets[0].uri);
-        }
+      let response;
+
+      if (isEditMode) {
+        // ✅ UPDATE
+        response = await api.patch(
+          `/family-member/${memberData.id}`,
+          payload
+        );
+        console.log("Updated:", response.data);
+      } else {
+        // ✅ CREATE
+        response = await api.post(
+          "/family-member",
+          payload
+        );
+        console.log("Created:", response.data);
       }
-    );
+
+      navigation.navigate("FamilyMembers");
+
+    } catch (error) {
+      console.log(
+        "API Error:",
+        error.response?.data || error.message
+      );
+    }
   };
-
-  const openGallery = () => {
-    setPhotoModalVisible(false);
-
-    launchImageLibrary(
-      { mediaType: 'photo' },
-      (response) => {
-        if (!response.didCancel && response.assets) {
-          setProfileImage(response.assets[0].uri);
-        }
-      }
-    );
-  };
-
-  const handleSubmit = () => {
-    navigation.navigate('FamilyMembers');
-  };
-
+  useEffect(() => {
+    if (memberData) {
+      setName(memberData.fullName || "");
+      setAge(memberData.age?.toString() || "");
+      setSelected(memberData.gender || "Select Gender");
+      setRelationtype(memberData.relation || "Select");
+      setNumber(memberData.phone || "");
+      setEmail(memberData.email || "");
+    }
+  }, [memberData]);
   return (
+    <KeyboardAvoidingView
+  style={{ flex: 1 , backgroundColor: "#ffff"}}
+  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
+>
+  <View style={{ flex: 1 }}>
+
     <ScrollView
-      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.container}
       keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+        keyboardDismissMode="on-drag"
     >
-      <View style={styles.container}>
         <View style={styles.screenHeader}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -112,22 +146,6 @@ const isFormValid =
           <View style={{ width: scale(26) }}></View>
         </View>
 
-        <View style={styles.upload}>
-          <TouchableOpacity
-            onPress={() => setPhotoModalVisible(true)}
-            style={styles.profile}
-          >
-            {profileImage ? (
-              <Image
-                source={{ uri: profileImage }}
-                style={{ width: '100%', height: '100%', borderRadius: 50 }}
-              />
-            ) : (
-              <FontAwesome5 name="user" size={42} color="#0071E2" />
-            )}
-          </TouchableOpacity>
-          <Text style={styles.text}>Upload Profile Photo</Text>
-        </View>
 
         <View >
           <Text style={styles.title}>Full Name <Text style={{ color: 'red' }}>*</Text></Text>
@@ -269,26 +287,26 @@ const isFormValid =
             </View>
           )}
         </View>
+        <View style={{ height: verticalScale(120)}} />
+      </ScrollView>
 
-
-        <TouchableOpacity
-          onPress={handleSubmit}
-          style={[
-            styles.btn,
-            { opacity: isFormValid ? 1 : 0.5 }
-          ]}
-          disabled={!isFormValid}
-        >
-          <Text style={styles.book}>Add</Text>
-        </TouchableOpacity>
+<View style={styles.bottomButtonContainer}>
+  <TouchableOpacity
+    onPress={handleSubmit}
+    style={[
+      styles.btn,
+      { opacity: isFormValid ? 1 : 0.5 }
+    ]}
+    disabled={!isFormValid}
+  >
+    <Text style={styles.book}>
+      {isEditMode ? "Update" : "Add"}
+    </Text>
+  </TouchableOpacity>
+</View>
       </View>
-      <PhotoOptionModal
-        visible={photoModalVisible}
-        onClose={() => setPhotoModalVisible(false)}
-        onCamera={openCamera}
-        onGallery={openGallery}
-      />
-    </ScrollView>
+     
+    </KeyboardAvoidingView>
   )
 }
 
@@ -297,13 +315,13 @@ export default AddFamilyMembers
 const styles = StyleSheet.create({
   container: {
     padding: scale(10),
-    backgroundColor: '#ffffff',
-    flex: 1
+    backgroundColor: '#fff',
+    // flex: 1
   },
   screenHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingBottom: verticalScale(15),
+    paddingBottom: verticalScale(25),
   },
   screenHeaderText: {
     flex: 1,
@@ -341,7 +359,7 @@ const styles = StyleSheet.create({
     fontStyle: 'normal'
   },
   title: {
-    fontSize: scale(18),
+    fontSize: scale(22),
     fontWeight: '600',
     color: "#525252",
     marginTop: verticalScale(10),
@@ -352,9 +370,10 @@ const styles = StyleSheet.create({
     borderWidth: scale(1),
     borderColor: "#A4A4A4",
     marginTop: scale(10),
-    paddingHorizontal: scale(10),
+    paddingHorizontal: scale(15),
     paddingVertical: verticalScale(10),
-    marginRight: scale(10)
+    marginRight: scale(10),
+    fontSize: scale(16)
   },
   dropdownHeader: {
     flexDirection: 'row',
@@ -362,8 +381,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#A4A4A4',
-    paddingHorizontal: scale(10),
-    paddingVertical: verticalScale(10),
+    paddingHorizontal: scale(15),
+    paddingVertical: verticalScale(15),
     borderRadius: scale(8),
     marginTop: verticalScale(10),
     marginRight: scale(10)
@@ -373,6 +392,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     marginTop: verticalScale(5),
     borderRadius: 10,
+   
   },
   option: {
     padding: scale(8),
@@ -386,8 +406,8 @@ const styles = StyleSheet.create({
     borderRadius: scale(10),
     backgroundColor: '#056FD2',
     marginHorizontal: scale(10),
-    marginBottom: verticalScale(30),
-    marginTop: verticalScale(30),
+    // marginBottom: verticalScale(30),
+    // marginTop: verticalScale(90),
     // padding: scale(20)
   },
   book: {
@@ -397,4 +417,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '600',
   },
+  bottomButtonContainer: {
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  right: 0,
+  paddingHorizontal: scale(12),
+  backgroundColor: "#fff",
+  borderTopWidth: 1,
+  borderColor: "#ffff"
+},
 })
