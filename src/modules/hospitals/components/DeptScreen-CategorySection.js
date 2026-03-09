@@ -11,9 +11,13 @@ import { COLORS, SIZES } from "../../../config/constants";
 import CategoryCard from "./CategoryCard";
 
 const CategorySection = ({ title, data, onViewAll, showViewAll = true, loading = false, onCategoryPress, }) => {
+
+// Pass selected category to parent
   const handleCategoryPress = (item) => {
     onCategoryPress?.(item);
   }
+
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -25,6 +29,7 @@ const CategorySection = ({ title, data, onViewAll, showViewAll = true, loading =
         )}
       </View>
 
+{/* Show skeleton while data is loading */ }
       {loading ? (
         <View>
           {[1, 2].map((row) => (
@@ -39,6 +44,8 @@ const CategorySection = ({ title, data, onViewAll, showViewAll = true, loading =
           ))}
         </View>
       ) : (
+
+//Grid view of categories
         <FlatList
           data={data}
           keyExtractor={(item) => item.id.toString()}

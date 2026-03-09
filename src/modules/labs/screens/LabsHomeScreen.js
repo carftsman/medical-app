@@ -29,14 +29,36 @@ import { COLORS } from '../../../config/constants';
 
 import { getUserPrescriptions } from '../services/prescriptionApi';
 
+
+import { setCartItems } from '../../../redux/slices/labsCartSlice';
+import { useDispatch } from 'react-redux';
+import { labApi } from '../services/labApi'; // cart API
+
 export default function LabsHomeScreen() {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   const [refreshing, setRefreshing] = useState(false);
   const [uploadedList, setUploadedList] = useState([]);
   const [loadingUploads, setLoadingUploads] = useState(true);
 
   const cartItems = useSelector(state => state.labsCart.items);
+
+  const fetchCart = async () => {
+    
+    try {
+      const response = await labApi.getLabCart( );
+
+      const cartItems = response?.data?.items || [];
+
+      dispatch(setCartItems(cartItems));
+
+      console.log("cartITEMS:", cartItems)
+
+    } catch (error) {
+      console.log("Cart Fetch Error:", error);
+    }
+  };
 
   /* ================= FETCH UPLOADS FROM API ================= */
 
@@ -75,6 +97,7 @@ export default function LabsHomeScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchUploads();
+      fetchCart();
     }, []),
   );
 
